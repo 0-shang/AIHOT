@@ -9,7 +9,7 @@ import { ITEM_COLUMNS, ITEM_FROM, selectedCondition, toFeedItemSummary, type Ite
 export interface TopicRow {
   slug: string;
   name: string;
-  grp: "company" | "field" | "genre";
+  grp: string;
   entity_id: string | null;
   tags: string[];
   definition: string;

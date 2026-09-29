@@ -1,0 +1,1 @@
+ALTER TABLE topics DROP CONSTRAINT IF EXISTS topics_grp_check;
