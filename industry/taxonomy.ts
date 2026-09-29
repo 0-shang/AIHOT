@@ -8,132 +8,164 @@
  * 没归上类的资料在日报里放进第一个 key 为 industry 的类别所在的节（没有就放最后一节）。
  */
 export const CATEGORIES = [
-  { key: "ai-models", label: "模型", section: "模型发布/更新", guide: "新模型、模型版本、权重开放、模型能力与价格变化的发布与评测结果" },
-  { key: "ai-products", label: "产品", section: "产品发布/更新", guide: "AI 产品、功能、应用、工具、API 与平台的发布和更新" },
-  { key: "industry", label: "行业", section: "行业动态", guide: "公司经营、融资并购、人事、合作、诉讼、监管与政策、市场与基础设施" },
-  { key: "paper", label: "论文", section: "论文研究", guide: "研究论文、技术报告、基准与数据集" },
-  { key: "tip", label: "教程", section: "技巧与观点", guide: "教程、实践经验、使用技巧、提示词与工具用法、深度技术讲解" },
-  { key: "opinion", label: "观点", section: "技巧与观点", guide: "人物观点、评论、分析、访谈、现象与趋势讨论" },
+  { key: "games", label: "战报", section: "比赛战报", guide: "比赛赛果、关键攻防、高光表现、技术统计与赛后深度复盘" },
+  { key: "roster", label: "阵容", section: "交易与阵容", guide: "正式交易、自由球员签约、双向合同、裁员、选秀大会与下放发展联盟" },
+  { key: "rumors", label: "流言", section: "随队与名记流言", guide: "随队记者（Feigen、Iko）及知名爆料人（Shams等）透露的引援意向、交易谈判与传闻" },
+  { key: "injury", label: "伤病", section: "伤病与出战", guide: "官方伤病名单、出场状态（出战成疑/大概率缺席）、伤情诊断与康复进展" },
+  { key: "interviews", label: "声音", section: "赛后与采访", guide: "主教练乌度卡、核心球员及管理层斯通的赛后采访、媒体日言论与原声采访" },
+  { key: "industry", label: "综合", section: "战术与综合", guide: "战术打法剖析、高阶数据模型、薪资空间结构、联盟规则及其他综合资讯" },
 ] as const;
 
 /**
  * 内容理解一步给每篇资料判的“内容类型”（写在 prompts/content-understanding.md 里，改了类型要同步改那份提示词）。
  * 评分提示词（prompts/selection-score.md）按类型给五个维度不同的权重。
  */
-export const ITEM_TYPES = ["model_release", "product_launch", "tool_or_prompt", "research_paper", "industry_event", "opinion_analysis", "tutorial_explainer"] as const;
+export const ITEM_TYPES = [
+  "game_recap",
+  "roster_move",
+  "trade_rumor",
+  "injury_report",
+  "interview_quote",
+  "tactical_analysis",
+  "general_news",
+] as const;
 
 // ── 标签词表 ────────────────────────────────────────────────────────────────────────────
 
 /** 每篇资料的第一个标签必须是这些“分类标签”之一。 */
 export const CATEGORY_TAGS = [
-  "产品更新", "模型发布", "论文/研究", "开源/仓库", "教程/实践", "现象/趋势", "大佬观点", "评测/基准", "安全/对齐", "行业动态", "政策/监管",
-  "非AI/通用工具", "其他",
+  "比赛战报",
+  "交易签约",
+  "转会流言",
+  "伤病报告",
+  "赛后采访",
+  "战术分析",
+  "球员动态",
+  "管理层/选秀",
+  "球队综合",
+  "非火箭/联盟其他",
+  "其他",
 ] as const;
 
 /** 可选的主题标签。 */
 export const TOPIC_TAGS = [
-  "Agent", "编码", "推理", "多模态", "语音", "视频", "图像生成", "RAG", "端侧", "数据/训练", "搜索", "部署/工程", "开源生态", "具身智能", "MCP/工具调用",
+  "常规赛",
+  "季后赛",
+  "夏季联赛",
+  "乌度卡",
+  "杰伦·格林",
+  "阿尔佩伦·申京",
+  "阿门·汤普森",
+  "小贾巴里·史密斯",
+  "塔里·伊森",
+  "里德·谢泼德",
+  "弗雷德·范弗里特",
+  "史蒂文·亚当斯",
+  "卡姆·惠特莫尔",
+  "狄龙·布鲁克斯",
+  "拉斐尔·斯通",
+  "毒蛇队/G联赛",
+  "选秀权",
+  "薪资空间",
 ] as const;
 
-/** 可选的实体标签（公司、机构、平台）。 */
-export const ENTITY_TAGS = ["OpenAI", "Anthropic", "DeepSeek", "DeepMind", "Google", "Meta", "Microsoft", "xAI", "Hugging Face", "GitHub", "arXiv"] as const;
+/** 可选的实体标签（球队、随队媒体、机构）。 */
+export const ENTITY_TAGS = [
+  "休斯敦火箭",
+  "NBA官方",
+  "休斯顿纪事报",
+  "ClutchFans",
+  "The Athletic",
+  "ESPN",
+  "毒蛇队",
+] as const;
 
 /** 模型常写的近义词，统一成词表里的写法。 */
 export const TAG_SYNONYMS: Readonly<Record<string, string>> = {
-  "教程/玩法": "教程/实践", "技巧/最佳实践": "教程/实践", "合作/生态": "行业动态", "融资/收购": "行业动态", "公司动态": "行业动态",
-  合作: "行业动态", 生态: "行业动态", 融资: "行业动态", 收购: "行业动态", 投资: "行业动态", 并购: "行业动态",
-  政策: "政策/监管", 监管: "政策/监管", 法规: "政策/监管", 安全: "安全/对齐", 对齐: "安全/对齐",
-  论文: "论文/研究", 研究: "论文/研究", paper: "论文/研究", papers: "论文/研究",
-  "open-source": "开源/仓库", 开源: "开源/仓库", 仓库: "开源/仓库", repo: "开源/仓库",
-  教程: "教程/实践", 玩法: "教程/实践", 指南: "教程/实践", 技巧: "教程/实践", 最佳实践: "教程/实践", 实践: "教程/实践",
-  产品: "产品更新", 更新: "产品更新", 发布: "模型发布", 模型: "模型发布", 趋势: "现象/趋势", 现象: "现象/趋势", 观点: "大佬观点",
-  视频生成: "视频", 非ai: "非AI/通用工具", "non-ai": "非AI/通用工具", 通用工具: "非AI/通用工具", 工程工具: "非AI/通用工具",
-  安全扫描: "非AI/通用工具", devops: "非AI/通用工具", 行业: "行业动态", 动态: "行业动态",
+  战报: "比赛战报",
+  赛果: "比赛战报",
+  复盘: "战术分析",
+  交易: "交易签约",
+  签约: "交易签约",
+  续约: "交易签约",
+  裁员: "交易签约",
+  流言: "转会流言",
+  传闻: "转会流言",
+  爆料: "转会流言",
+  伤病: "伤病报告",
+  伤情: "伤病报告",
+  出场: "伤病报告",
+  采访: "赛后采访",
+  言论: "赛后采访",
+  声音: "赛后采访",
+  原声: "赛后采访",
+  战术: "战术分析",
+  分析: "战术分析",
+  选秀: "管理层/选秀",
+  管理层: "管理层/选秀",
+  综合: "球队综合",
+  动态: "球队综合",
 };
 
 /** 模型漏了分类标签时，按内容类型补一个。 */
 export const CATEGORY_BY_ITEM_TYPE: Readonly<Record<string, string>> = {
-  model_release: "模型发布", product_launch: "产品更新", tool_or_prompt: "教程/实践", research_paper: "论文/研究",
-  industry_event: "行业动态", opinion_analysis: "大佬观点", tutorial_explainer: "教程/实践",
+  game_recap: "比赛战报",
+  roster_move: "交易签约",
+  trade_rumor: "转会流言",
+  injury_report: "伤病报告",
+  interview_quote: "赛后采访",
+  tactical_analysis: "战术分析",
+  general_news: "球队综合",
 };
 
 // ── 公司与主体 ──────────────────────────────────────────────────────────────────────────
 
-/** 公司主题：id → 显示名、卡片上显示的标签（null 表示只用 entity:<id> 归类）、别名。 */
+/** 主体目录：id → 显示名、卡片上显示的标签、别名。 */
 export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[] }> = {
-  openai: { name: "OpenAI", displayTag: "OpenAI", aliases: ["OpenAI", "ChatGPT", "Sora", "Codex", "GPT"] },
-  anthropic: { name: "Anthropic", displayTag: "Anthropic", aliases: ["Anthropic", "Claude"] },
-  google: { name: "Google", displayTag: "Google", aliases: ["Google", "DeepMind", "Gemini", "谷歌"] },
-  deepseek: { name: "DeepSeek", displayTag: "DeepSeek", aliases: ["DeepSeek", "深度求索"] },
-  qwen: { name: "千问 Qwen", displayTag: null, aliases: ["Qwen", "通义", "阿里"] },
-  kimi: { name: "Kimi / 月之暗面", displayTag: null, aliases: ["Kimi", "月之暗面", "Moonshot"] },
-  minimax: { name: "MiniMax", displayTag: null, aliases: ["MiniMax", "海螺"] },
-  zhipu: { name: "智谱 GLM", displayTag: null, aliases: ["智谱", "GLM", "Z.ai"] },
-  xai: { name: "xAI", displayTag: "xAI", aliases: ["xAI", "Grok"] },
-  meta: { name: "Meta", displayTag: "Meta", aliases: ["Meta", "Llama"] },
-  microsoft: { name: "Microsoft", displayTag: "Microsoft", aliases: ["Microsoft", "微软", "Copilot"] },
-  nvidia: { name: "NVIDIA", displayTag: null, aliases: ["NVIDIA", "英伟达"] },
-  "hugging-face": { name: "Hugging Face", displayTag: "Hugging Face", aliases: ["Hugging Face"] },
-  cursor: { name: "Cursor", displayTag: null, aliases: ["Cursor", "Anysphere"] },
-  openrouter: { name: "OpenRouter", displayTag: null, aliases: ["OpenRouter"] },
+  rockets: { name: "休斯敦火箭", displayTag: "休斯敦火箭", aliases: ["Houston Rockets", "Rockets", "休斯敦火箭", "火箭队", "航天城"] },
+  "jalen-green": { name: "杰伦·格林", displayTag: "杰伦·格林", aliases: ["Jalen Green", "格林"] },
+  sengun: { name: "阿尔佩伦·申京", displayTag: "阿尔佩伦·申京", aliases: ["Alperen Sengun", "Alperen Şengün", "申京"] },
+  "amen-thompson": { name: "阿门·汤普森", displayTag: "阿门·汤普森", aliases: ["Amen Thompson", "阿门"] },
+  "jabari-smith": { name: "小贾巴里·史密斯", displayTag: "小贾巴里·史密斯", aliases: ["Jabari Smith Jr.", "Jabari Smith", "小史密斯"] },
+  "tari-eason": { name: "塔里·伊森", displayTag: "塔里·伊森", aliases: ["Tari Eason", "伊森"] },
+  "reed-sheppard": { name: "里德·谢泼德", displayTag: "里德·谢泼德", aliases: ["Reed Sheppard", "谢泼德"] },
+  "fred-vanvleet": { name: "弗雷德·范弗里特", displayTag: "弗雷德·范弗里特", aliases: ["Fred VanVleet", "范弗里特", "范乔丹"] },
+  "dillon-brooks": { name: "狄龙·布鲁克斯", displayTag: "狄龙·布鲁克斯", aliases: ["Dillon Brooks", "狄龙"] },
+  "ime-udoka": { name: "艾米·乌度卡", displayTag: "艾米·乌度卡", aliases: ["Ime Udoka", "乌度卡"] },
+  "rafael-stone": { name: "拉斐尔·斯通", displayTag: "拉斐尔·斯通", aliases: ["Rafael Stone", "斯通"] },
+  "cam-whitmore": { name: "卡姆·惠特莫尔", displayTag: "卡姆·惠特莫尔", aliases: ["Cam Whitmore", "惠特莫尔", "白魔"] },
+  "steven-adams": { name: "史蒂文·亚当斯", displayTag: "史蒂文·亚当斯", aliases: ["Steven Adams", "亚当斯", "海王"] },
+  clutchfans: { name: "ClutchFans", displayTag: "ClutchFans", aliases: ["ClutchFans"] },
+  chronicle: { name: "休斯顿纪事报", displayTag: "休斯顿纪事报", aliases: ["Houston Chronicle", "Feigen"] },
 };
 
 /**
- * 身份词典：摘要和标题里出现的公司，必须在原文里也出现过，否则退回原标题、丢掉摘要（防止模型张冠李戴）。
- * 行业没有这个问题时可以留空数组。
+ * 身份词典：摘要和标题里出现的人或主体，必须在原文里也出现过，否则退回原标题、丢掉摘要（防止模型张冠李戴）。
  */
 export const IDENTITY_LEXICON: ReadonlyArray<{ id: string; name: string; patterns: RegExp[] }> = [
-  { id: "openai", name: "OpenAI", patterns: [/openai|chatgpt|\bgpt-?[o\d]|\bsora\b|\bcodex\b/i] },
-  { id: "anthropic", name: "Anthropic", patterns: [/anthropic|\bclaude\b/i, /\b(?:opus|sonnet|haiku)\s*\d+(?:[.\-]\d+)*\b/i, /\bfable\s*\d+(?:[.\-]\d+)*\b|\bmythos\b/i] },
-  { id: "google", name: "Google / Gemini", patterns: [/google|deepmind|\bgemini\b|notebooklm|\bveo\s?\d|\bAlphaFold\b|\bAMIE\b/i] },
-  { id: "deepseek", name: "DeepSeek", patterns: [/deepseek|深度求索/i] },
-  { id: "xai", name: "xAI / Grok", patterns: [/\bxai\b|\bgrok\b/i] },
-  { id: "meta", name: "Meta / Llama", patterns: [/\bMeta\b/, /\bmeta\s?ai\b|\bllama\b/i] },
-  { id: "microsoft", name: "Microsoft / Copilot", patterns: [/microsoft|copilot|微软/i] },
-  { id: "nvidia", name: "NVIDIA", patterns: [/nvidia|英伟达|\bnemotron\b|\bnemo\b|\bblackwell\b|\brubin(?:\s+ultra)?\b|\bcuda\b/i] },
-  { id: "qwen", name: "千问 Qwen", patterns: [/\bqwen|通义|千问/i] },
-  { id: "hugging-face", name: "Hugging Face", patterns: [/hugging\s?face/i] },
-  { id: "cursor", name: "Cursor", patterns: [/\bCursor\b/] },
-  { id: "kimi", name: "Kimi / 月之暗面", patterns: [/\bkimi\b|月之暗面|\bmoonshot\s?ai\b/i] },
-  { id: "openrouter", name: "OpenRouter", patterns: [/openrouter/i] },
-  { id: "minimax", name: "MiniMax", patterns: [/minimax/i] },
-  { id: "zhipu", name: "智谱 GLM", patterns: [/智谱|\bglm-?[4-9]/i] },
-  { id: "hunyuan", name: "腾讯混元", patterns: [/混元|hunyuan/i] },
-  { id: "doubao", name: "字节豆包", patterns: [/豆包|doubao|字节跳动|bytedance/i] },
-  { id: "mistral", name: "Mistral", patterns: [/mistral/i] },
-  { id: "perplexity", name: "Perplexity", patterns: [/\bPerplexity\b/] },
-  { id: "runway", name: "Runway", patterns: [/\brunway\b/i] },
-  { id: "suno", name: "Suno", patterns: [/\bsuno\b/i] },
-  { id: "midjourney", name: "Midjourney", patterns: [/midjourney/i] },
-  { id: "stability-ai", name: "Stability AI", patterns: [/stability\s?ai/i] },
-  { id: "elevenlabs", name: "ElevenLabs", patterns: [/eleven\s?labs/i] },
-  { id: "vllm", name: "vLLM", patterns: [/\bvllm\b/i] },
-  { id: "ollama", name: "Ollama", patterns: [/\bollama\b/i] },
-  { id: "windsurf", name: "Windsurf", patterns: [/windsurf/i] },
-  { id: "devin", name: "Devin", patterns: [/\bdevin\b/i] },
-  { id: "manus", name: "Manus", patterns: [/\bmanus\b/i] },
-  { id: "apple", name: "Apple AI", patterns: [/\bapple\s?(intelligence|silicon|ai)\b|苹果(智能|\s?AI)/i] },
-  { id: "amazon", name: "Amazon / AWS", patterns: [/amazon|\baws\b|亚马逊/i] },
-  { id: "baidu", name: "百度文心", patterns: [/百度|baidu|文心|\bernie\s?bot\b/i] },
+  { id: "rockets", name: "休斯敦火箭", patterns: [/rockets|houston\s*rockets|休斯[敦顿]火箭|火箭队/i] },
+  { id: "jalen-green", name: "杰伦·格林", patterns: [/jalen\s*green|杰伦[·\s]*格林/i] },
+  { id: "sengun", name: "阿尔佩伦·申京", patterns: [/alperen\s*[sş]eng[uü]n|申京/i] },
+  { id: "amen-thompson", name: "阿门·汤普森", patterns: [/amen\s*thompson|阿门[·\s]*汤普森/i] },
+  { id: "jabari-smith", name: "小贾巴里·史密斯", patterns: [/jabari\s*smith|小?贾巴里[·\s]*史密斯/i] },
+  { id: "tari-eason", name: "塔里·伊森", patterns: [/tari\s*eason|塔里[·\s]*伊森/i] },
+  { id: "reed-sheppard", name: "里德·谢泼德", patterns: [/reed\s*sheppard|里德[·\s]*谢泼德|谢泼德/i] },
+  { id: "fred-vanvleet", name: "弗雷德·范弗里特", patterns: [/fred\s*vanvleet|范弗里特|范乔丹/i] },
+  { id: "ime-udoka", name: "艾米·乌度卡", patterns: [/ime\s*udoka|乌度卡/i] },
+  { id: "cam-whitmore", name: "卡姆·惠特莫尔", patterns: [/cam\s*whitmore|惠特莫尔/i] },
+  { id: "steven-adams", name: "史蒂文·亚当斯", patterns: [/steven\s*adams|亚当斯/i] },
+  { id: "dillon-brooks", name: "狄龙·布鲁克斯", patterns: [/dillon\s*brooks|狄龙/i] },
+  { id: "rafael-stone", name: "拉斐尔·斯通", patterns: [/rafael\s*stone|斯通/i] },
 ];
 
-/** 这些域名上的文章，发布方就是对应的公司（托管平台如 GitHub、arXiv 不算）。 */
+/** 这些域名上的文章，发布方就是对应的主体。 */
 export const PUBLISHER_DOMAINS: ReadonlyArray<{ entityId: string; domains: readonly string[] }> = [
-  { entityId: "openai", domains: ["openai.com"] },
-  { entityId: "anthropic", domains: ["anthropic.com", "claude.com"] },
-  { entityId: "google", domains: ["deepmind.google", "ai.google", "blog.google"] },
-  { entityId: "deepseek", domains: ["deepseek.com"] },
-  { entityId: "xai", domains: ["x.ai"] },
-  { entityId: "meta", domains: ["ai.meta.com"] },
-  { entityId: "microsoft", domains: ["microsoft.com"] },
-  { entityId: "nvidia", domains: ["nvidia.com"] },
-  { entityId: "qwen", domains: ["qwen.ai"] },
-  { entityId: "cursor", domains: ["cursor.com"] },
-  { entityId: "openrouter", domains: ["openrouter.ai"] },
+  { entityId: "rockets", domains: ["nba.com/rockets", "rockets.com"] },
+  { entityId: "clutchfans", domains: ["clutchfans.net"] },
+  { entityId: "chronicle", domains: ["houstonchronicle.com"] },
 ];
 
-/** 原文里的这些写法也算提到了对应公司。 */
+/** 原文里的这些写法也算提到了对应主体。 */
 export const IDENTITY_CONTEXT_ALIASES: ReadonlyArray<{ entityId: string; pattern: RegExp }> = [
-  { entityId: "meta", pattern: /@AIatMeta\b/i },
-  { entityId: "zhipu", pattern: /\bZhipu(?:\s+AI\b|['’]s\b)/i },
+  { entityId: "rockets", pattern: /@HoustonRockets\b/i },
 ];
