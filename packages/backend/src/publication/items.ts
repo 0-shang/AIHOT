@@ -127,7 +127,7 @@ function mediaView(m: Record<string, any>, mode: "card" | "thumb" | "full" = "th
 }
 
 export function xView(row: Pick<ItemRow, "x_post" | "zh_text"> & Partial<Pick<ItemRow, "quoted_zh">>, compact = false, responsive = compact): XPostView | null {
-  const x = row.x_post;
+  const x = typeof row.x_post === "string" ? JSON.parse(row.x_post) : row.x_post;
   if (!x) return null;
   const quoted = x.quoted && typeof x.quoted === "object"
     ? {

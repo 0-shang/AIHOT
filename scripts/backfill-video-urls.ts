@@ -29,7 +29,8 @@ console.log(`Found ${articles.length} articles with video media in x_post.`);
 let updatedCount = 0;
 
 for (const a of articles) {
-  const x = a.x_post;
+  const rawX = a.x_post;
+  const x = typeof rawX === "string" ? JSON.parse(rawX) : rawX;
   if (!x || !Array.isArray(x.media)) continue;
 
   const tweetId = String(x.tweetId ?? a.url.split("/").pop()?.split("?")[0] ?? "");
@@ -57,10 +58,11 @@ for (const a of articles) {
     }
   }
 
-  if (modified) {
+  // If modified OR if it was stored as a double-serialized string, update with sql.json
+  if (modified || typeof rawX === "string") {
     await sql`
       UPDATE articles
-      SET x_post = ${JSON.stringify(x)}::jsonb
+      SET x_post = ${sql.json(x as never)}
       WHERE id = ${a.id}
     `;
     updatedCount++;
