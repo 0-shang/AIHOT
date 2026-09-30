@@ -68,9 +68,96 @@ function markdownToHtml(md: string): string {
     .join("");
 }
 
-export async function extractFromUrl(url: string, opts: { allowJina: boolean; subject: string }): Promise<ExtractedBody | null> {
+/** Resolves encrypted/redirected Google News URLs to the real publisher's destination URL. */
+export async function resolveGoogleNewsUrl(url: string): Promise<string | null> {
+  if (!/(?:^|\.)news\.google\.com$/i.test(new URL(url).hostname)) return null;
   try {
-    const res = await guardedFetch(url, { timeoutMs: 20_000, maxBytes: 6 * 1024 * 1024 });
+    const artIdMatch = url.match(/(?:articles|read)\/([^?]+)/);
+    if (!artIdMatch) return null;
+    const artId = artIdMatch[1]!;
+    const fetchUrl = `https://news.google.com/rss/articles/${artId}?hl=en-US&gl=US&ceid=US:en`;
+
+    const resp = await guardedFetch(fetchUrl, {
+      headers: {
+        "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+      timeoutMs: 15_000,
+      maxBytes: 2 * 1024 * 1024,
+    });
+    if (resp.status !== 200) return null;
+    const html = resp.text();
+    const sgMatch = html.match(/data-n-a-sg="([^"]+)"/);
+    const tsMatch = html.match(/data-n-a-ts="([^"]+)"/);
+    if (!sgMatch || !tsMatch) return null;
+    const sg = sgMatch[1]!;
+    const ts = tsMatch[1]!;
+
+    const ctx = [
+      ["X", "X", ["X", "X"], null, null, 1, 1, "US:en", null, 1, null, null, null, null, null, 0, 1],
+      "X",
+      "X",
+      1,
+      [1, 1, 1],
+      1,
+      1,
+      null,
+      0,
+      0,
+      null,
+      0,
+    ];
+    const inner = ["garturlreq", ctx, artId, parseInt(ts, 10), sg];
+    const envelope = [["Fbv4je", JSON.stringify(inner), null, "0"]];
+    const payload = "f.req=" + encodeURIComponent(JSON.stringify([envelope]));
+
+    const postResp = await guardedFetch("https://news.google.com/_/DotsSplashUi/data/batchexecute", {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
+        "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+      body: payload,
+      timeoutMs: 15_000,
+      maxBytes: 2 * 1024 * 1024,
+    });
+    if (postResp.status !== 200) return null;
+    const postText = postResp.text();
+
+    let body = postText;
+    if (body.includes("\n\n")) body = body.split("\n\n")[1]!;
+    body = body.trimStart();
+    if (body.startsWith(")]}'")) {
+      body = body.includes("\n") ? body.split("\n")[1]! : body.slice(4);
+      body = body.trimStart();
+    }
+    const rows = JSON.parse(body);
+    for (const row of rows) {
+      if (!Array.isArray(row) || row.length < 3) continue;
+      let p = row[2];
+      if (typeof p === "string") {
+        try {
+          p = JSON.parse(p);
+        } catch {}
+      }
+      if (Array.isArray(p) && p[0] === "garturlres" && typeof p[1] === "string") {
+        return p[1];
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function extractFromUrl(url: string, opts: { allowJina: boolean; subject: string }): Promise<ExtractedBody | null> {
+  let targetUrl = url;
+  if (/news\.google\.com/i.test(url)) {
+    targetUrl = (await resolveGoogleNewsUrl(url)) ?? url;
+  }
+  try {
+    const res = await guardedFetch(targetUrl, { timeoutMs: 20_000, maxBytes: 6 * 1024 * 1024 });
     const type = res.headers.get("content-type") ?? "";
     if (res.status === 200 && /html/.test(type)) {
       const got = readable(res.text(), res.url);
@@ -81,8 +168,8 @@ export async function extractFromUrl(url: string, opts: { allowJina: boolean; su
   }
   if (!opts.allowJina) return null;
   try {
-    const page = await jinaRead(url, { purpose: "body_fallback", subject: opts.subject });
-    const html = trimTrailingChrome(sanitizeBody(markdownToHtml(page.markdown), url));
+    const page = await jinaRead(targetUrl, { purpose: "body_fallback", subject: opts.subject });
+    const html = trimTrailingChrome(sanitizeBody(markdownToHtml(page.markdown), targetUrl));
     const text = stripTags(html);
     if (text.length < MIN_BODY_CHARS) return null;
     return { html, text, images: [], via: "jina" };
@@ -109,7 +196,12 @@ export async function extractArticleBody(articleId: string, allowJina = process.
     SELECT id, url, body_status, revision, x_post FROM articles WHERE id = ${articleId}`;
   if (!a || a.body_status === "ok") return "skipped";
   if (a.x_post?.tweetId) return extractXArticle(a.id, a.x_post.tweetId);
-  const got = await extractFromUrl(a.url, { allowJina, subject: `article:${a.id}` });
+  let resolvedUrl: string | null = null;
+  if (/news\.google\.com/i.test(a.url)) {
+    resolvedUrl = await resolveGoogleNewsUrl(a.url);
+  }
+  const fetchUrl = resolvedUrl ?? a.url;
+  const got = await extractFromUrl(fetchUrl, { allowJina, subject: `article:${a.id}` });
   if (!got) {
     await sql`UPDATE articles SET body_status = 'unconfirmed', updated_at = now() WHERE id = ${articleId} AND body_status <> 'ok'`;
     return "unconfirmed";
@@ -121,6 +213,7 @@ export async function extractArticleBody(articleId: string, allowJina = process.
     const hash = contentHash({ title: row.title, bodyText: got.text, excerpt: row.excerpt });
     const [r] = await tx<{ revision: number }[]>`
       UPDATE articles SET body_html = ${got.html}, body_text = ${got.text}, body_status = 'ok',
+        url = COALESCE(${resolvedUrl}, url),
         media = CASE WHEN jsonb_array_length(media) = 0 THEN ${tx.json(got.images as never)}::jsonb ELSE media END,
         revision = revision + 1, content_hash = ${hash}, processing_state = 'new', updated_at = now()
       WHERE id = ${articleId} RETURNING revision`;
