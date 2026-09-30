@@ -102,7 +102,7 @@ async function queryTopicCounts(): Promise<TopicCount[]> {
 export interface TopicSummary {
   slug: string;
   name: string;
-  group: "company" | "field" | "genre";
+  group: string;
   definition: string;
   total: number;
   recent: number;
