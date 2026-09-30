@@ -2,28 +2,6 @@
   "$comment": "休斯敦火箭示范信源：首次启动时导入（scripts/seed.ts），已存在的不会被覆盖。之后可在后台“信源”里增删改。",
   "sources": [
     {
-      "id": "rss-clutchfans",
-      "name": "ClutchFans 火箭资讯",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://clutchfans.net/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 10
-        }
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "clutchfans",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "随队专栏",
-        "流言追踪"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
       "id": "rss-thedreamshake",
       "name": "The Dream Shake (SB Nation)",
       "kind": "rss",
@@ -42,15 +20,15 @@
         "比赛战报",
         "战术分析"
       ],
-      "site_fulltext": false,
+      "site_fulltext": true,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-rocketswire",
-      "name": "Rockets Wire (USA Today)",
+      "id": "rss-clutchpoints-rockets",
+      "name": "ClutchPoints 火箭专区",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://rocketswire.usatoday.com/feed/",
+        "feedUrl": "https://clutchpoints.com/nba/houston-rockets/feed",
         "_aihot": {
           "initialBackfillLimit": 10
         }
@@ -61,76 +39,154 @@
       "participation_mode": "editorial",
       "interval_minutes": 30,
       "tags": [
-        "比赛战报",
-        "伤病动态"
+        "赛后复盘",
+        "交易流言"
       ],
-      "site_fulltext": false,
+      "site_fulltext": true,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-hoopshype-rockets",
-      "name": "HoopsHype 火箭流言与薪资",
+      "id": "rss-spacecityscoop",
+      "name": "Space City Scoop (FanSided 火箭)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://hoopshype.com/team/houston-rockets/feed/",
+        "feedUrl": "https://spacecityscoop.com/feed/",
         "_aihot": {
           "initialBackfillLimit": 10
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "随队专栏",
+        "球员前瞻"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-google-news-rockets",
+      "name": "休斯敦火箭全网权威情报 (Google News)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=Houston+Rockets&hl=en-US&gl=US&ceid=US:en",
+        "_aihot": {
+          "initialBackfillLimit": 15
         }
       },
       "tier": "T1_5",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 20,
       "tags": [
-        "转会流言",
-        "交易签约"
+        "全网聚合",
+        "权威动态"
       ],
-      "site_fulltext": false,
+      "site_fulltext": true,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-realgm-rockets",
-      "name": "RealGM Rockets Wiretap",
-      "kind": "rss",
+      "id": "x-jonathan-feigen",
+      "name": "Jonathan Feigen (休斯顿纪事报火箭首席名记)",
+      "kind": "x_search",
       "config": {
-        "feedUrl": "https://basketball.realgm.com/rss/wiretap/team/10/Houston_Rockets.xml",
-        "_aihot": {
-          "initialBackfillLimit": 10
-        }
+        "query": "from:Jonathan_Feigen -filter:replies",
+        "searchType": "Latest"
       },
-      "tier": "T1_5",
+      "tier": "T1",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 20,
       "tags": [
-        "转会流言",
-        "伤病报告"
+        "一手情报",
+        "跟队名记"
       ],
-      "site_fulltext": false,
+      "site_fulltext": true,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-nba-rockets-official",
-      "name": "NBA.com 火箭官网快讯",
-      "kind": "rss",
+      "id": "x-kelly-iko",
+      "name": "Kelly Iko (The Athletic 火箭跟队名记)",
+      "kind": "x_search",
       "config": {
-        "feedUrl": "https://www.nba.com/rockets/rss.xml",
-        "_aihot": {
-          "initialBackfillLimit": 10
-        }
+        "query": "from:KellyIko -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "一手情报",
+        "内幕独家"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-houston-rockets",
+      "name": "休斯敦火箭官方推特",
+      "kind": "x_search",
+      "config": {
+        "query": "from:HoustonRockets -filter:replies",
+        "searchType": "Latest"
       },
       "tier": "T1",
       "first_party": true,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 60,
+      "interval_minutes": 30,
       "tags": [
-        "官方一手",
-        "球队动态"
+        "官方发布",
+        "球队战报"
       ],
-      "site_fulltext": false,
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-adam-spolane",
+      "name": "Adam Spolane (SportsRadio 610 火箭记者)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:AdamSpolane -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "随队记者",
+        "训练采访"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-binkley-hoops",
+      "name": "Ben DuBose (Rockets Wire 主编)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:BinkleyHoops -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "电台观点",
+        "数据观察"
+      ],
+      "site_fulltext": true,
       "syndicate_fulltext": false
     }
   ]
