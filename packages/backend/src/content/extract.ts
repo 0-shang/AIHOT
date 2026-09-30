@@ -9,7 +9,7 @@ import { jinaRead } from "../providers/jina.ts";
 import { BudgetExceededError } from "../providers/receipts.ts";
 import { getArticle } from "../providers/socialdata.ts";
 import { onlyXArticleLink, xArticleText } from "../sources/x.ts";
-import { sanitizeBody, trimTrailingChrome } from "./sanitize.ts";
+import { isSubstantiveBody, sanitizeBody, trimTrailingChrome } from "./sanitize.ts";
 import { contentHash } from "./materials.ts";
 
 export interface ExtractedBody {
@@ -34,7 +34,7 @@ export function readable(html: string, url: string): ExtractedBody | null {
   if (!article?.content) return null;
   const clean = trimTrailingChrome(sanitizeBody(article.content, url));
   const text = stripTags(clean);
-  if (text.length < MIN_BODY_CHARS) return null;
+  if (text.length < MIN_BODY_CHARS || !isSubstantiveBody(clean, text)) return null;
   const images: ExtractedBody["images"] = [];
   for (const m of clean.matchAll(/<img\b[^>]*\bsrc="([^"]+)"[^>]*>/gi)) {
     const w = /\bwidth="(\d+)"/.exec(m[0]);
@@ -171,7 +171,7 @@ export async function extractFromUrl(url: string, opts: { allowJina: boolean; su
     const page = await jinaRead(targetUrl, { purpose: "body_fallback", subject: opts.subject });
     const html = trimTrailingChrome(sanitizeBody(markdownToHtml(page.markdown), targetUrl));
     const text = stripTags(html);
-    if (text.length < MIN_BODY_CHARS) return null;
+    if (text.length < MIN_BODY_CHARS || !isSubstantiveBody(html, text)) return null;
     return { html, text, images: [], via: "jina" };
   } catch (error) {
     if (error instanceof BudgetExceededError || (error instanceof Error && error.message.includes("JINA_API_KEY is not configured"))) return null;

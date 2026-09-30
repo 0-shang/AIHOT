@@ -193,3 +193,44 @@ export function textToHtml(text: string): string {
     .map((para) => `<p>${esc(para).replace(/\n/g, "<br>")}</p>`)
     .join("");
 }
+
+const LEADING_CHROME_TITLE = /^(?:trending|top stories|popular stories|latest (?:news|stories)|related (?:articles|topics|posts|stories)|recommended(?: for you)?|what to read next|more from\b|read next\b|up next\b)/i;
+
+/**
+ * Validates whether an extracted body is substantive narrative content rather than
+ * sidebar recommendations, navigation link lists, or junk chrome (e.g. Yahoo's "TRENDING" links list).
+ */
+export function isSubstantiveBody(html: string, text: string): boolean {
+  if (!html || !text) return false;
+  const trimmed = text.trim();
+  if (trimmed.length < 150) return false;
+
+  const $ = cheerio.load(html, null, false);
+
+  // 1. Link density: real articles consist mostly of prose. Recommendation link dumps are link-heavy.
+  const linkText = $("a").text().trim();
+  const linkDensity = linkText.length / Math.max(trimmed.length, 1);
+  if (linkDensity >= 0.45) return false;
+  if (trimmed.length < 600 && linkDensity >= 0.25) return false;
+
+  // 2. Paragraph structure: real articles have narrative paragraphs, not just headline snippets.
+  const paragraphs = $("p, blockquote").toArray();
+  const paraTexts = paragraphs.map((el) => $(el).text().trim()).filter(Boolean);
+  if (paraTexts.length === 0) return false;
+
+  const maxParaLen = Math.max(...paraTexts.map((p) => p.length));
+  if (maxParaLen < 45 && trimmed.length < 600) return false;
+
+  // 3. Leading noise / recommendation list check:
+  const firstBlock = $("h1, h2, h3, h4, h5, p").first().text().trim();
+  if (LEADING_CHROME_TITLE.test(firstBlock)) {
+    if (trimmed.length < 800 || maxParaLen < 80) return false;
+  }
+
+  // 4. Sentence punctuation: legitimate prose contains punctuation ending sentences or clauses.
+  const hasSentencePunctuation = /[.。!！?？;；]/.test(trimmed);
+  if (!hasSentencePunctuation && trimmed.length < 600) return false;
+
+  return true;
+}
+

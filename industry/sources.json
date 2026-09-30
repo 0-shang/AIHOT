@@ -86,7 +86,7 @@
         "全网聚合",
         "权威动态"
       ],
-      "site_fulltext": true,
+      "site_fulltext": false,
       "syndicate_fulltext": false
     },
     {
@@ -170,8 +170,8 @@
       "syndicate_fulltext": false
     },
     {
-      "id": "x-binkley-hoops",
-      "name": "Ben DuBose (Rockets Wire 主编)",
+      "id": "x-lachard-binkley",
+      "name": "Lachard Binkley (The Dream Shake 火箭首席)",
       "kind": "x_search",
       "config": {
         "query": "from:BinkleyHoops -filter:replies",
@@ -181,12 +181,136 @@
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 25,
       "tags": [
-        "电台观点",
-        "数据观察"
+        "随队专栏",
+        "赛后复盘"
       ],
       "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-michael-shapiro",
+      "name": "Michael Shapiro (休斯顿纪事报火箭记者)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:mshap2 -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "随队深度",
+        "一手消息"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-jackson-gatlin",
+      "name": "Jackson Gatlin (火箭赛后转播/Locked On主播)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:JTGatlin -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "赛后采访",
+        "更衣室原声"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-salman-ali",
+      "name": "Salman Ali (ESPN 97.5 休斯顿火箭嘉宾)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:SalmanAliNBA -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "电台连线",
+        "现场跟队"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-bradeaux",
+      "name": "Bradeaux (火箭高阶数据与高光切片)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:BradeauxNBA -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "高阶数据",
+        "高光切片"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "yt-houston-rockets",
+      "name": "休斯敦火箭官方 YouTube",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt9_1XkGqG2qAEE_Wd57T0A",
+        "_aihot": {
+          "initialBackfillLimit": 10
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "官方视频",
+        "原声集锦"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "yt-locked-on-rockets",
+      "name": "Locked On Rockets (YouTube 播客)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCn8yO2kGZ_2B7C8VjY-d3sw",
+        "_aihot": {
+          "initialBackfillLimit": 10
+        }
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "赛后复盘",
+        "播客原声"
+      ],
+      "site_fulltext": false,
       "syndicate_fulltext": false
     }
   ]

@@ -186,10 +186,26 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
       const link = atomLink(e.link);
       const title = collapseWhitespace(stripTags(text(e.title)));
       if (!link || !title) continue;
+      const mediaGroup = e["media:group"] || e.group;
+      const mediaDesc = mediaGroup ? text(mediaGroup["media:description"] || mediaGroup.description) : "";
       const content = text(e.content);
-      const summary = text(e.summary);
-      const bodyHtml = content ? sanitizeBody(content, link) : null;
+      const summary = text(e.summary) || mediaDesc;
+      const bodyHtmlRaw = content || (mediaDesc ? `<p>${mediaDesc.replace(/\n/g, "<br>")}</p>` : "");
+      const bodyHtml = bodyHtmlRaw ? sanitizeBody(bodyHtmlRaw, link) : null;
       const entryUrl = new URL(link, url).toString();
+
+      // YouTube thumbnails & content images
+      const thumbnails = arr(mediaGroup?.["media:thumbnail"] || mediaGroup?.thumbnail);
+      const thumbUrls = thumbnails.map((t: any) => (typeof t === "object" ? t?.["@url"] : null)).filter(Boolean);
+      const ytVideoId = text(e["yt:videoId"]);
+      if (thumbUrls.length === 0 && ytVideoId) {
+        thumbUrls.push(`https://i.ytimg.com/vi/${ytVideoId}/hqdefault.jpg`);
+      }
+      const media: Array<{ kind: "image"; url: string }> = [
+        ...thumbUrls.map((u) => ({ kind: "image" as const, url: String(u) })),
+        ...(content ? imagesFrom(content, link) : []),
+      ];
+
       out.push({
         url: entryUrl,
         ...identity(entryUrl),
@@ -198,7 +214,7 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
         publishedAt: parseDate(text(e.published) || text(e.updated)),
         sourceUpdatedAt: parseDate(text(e.updated)),
         ...feedText(bodyHtml, summary, source),
-        media: content ? imagesFrom(content, link) : [],
+        media: media.slice(0, 6),
         categories: arr(e.category).map((c: any) => c?.["@term"] ?? text(c)).filter(Boolean),
         raw: { id: text(e.id) || null },
       });

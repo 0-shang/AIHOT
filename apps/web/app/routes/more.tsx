@@ -23,24 +23,15 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
   {
     title: "内容",
     rows: [
-      { to: "/topics", label: "主题索引", icon: <IconGrid size={18} /> },
-      ...(FEATURES.leaderboard ? [{ to: "/leaderboard", label: "模型榜", icon: <IconChart size={18} /> }] : []),
-      ...(FEATURES.codexResetMonitor ? [{ to: "/codex-reset", label: "Tibo重置监控", icon: <IconHistory size={18} /> }] : []),
-      { to: "/agent", label: "Agent 接入", icon: <IconPlug size={18} /> },
-    ],
-  },
-  {
-    title: "偏好",
-    rows: [
+      { to: "/topics", label: "主题专区", icon: <IconGrid size={18} /> },
       { to: "/hot", label: "热点榜", icon: <IconFlame size={18} /> },
-      { to: "/starred", label: "收藏", icon: <IconBookmark size={18} /> },
+      { to: "/starred", label: "我的收藏", icon: <IconBookmark size={18} /> },
     ],
   },
   {
-    title: "关于",
+    title: "关于与反馈",
     rows: [
       { to: "/about", label: `关于 ${SITE.name}`, icon: <IconHeart size={18} /> },
-      { to: "/changelog", label: "更新日志", icon: <IconHistory size={18} /> },
       { to: "/feedback", label: "意见反馈", icon: <IconMessage size={18} /> },
     ],
   },
@@ -73,12 +64,12 @@ export default function MorePage() {
                 </Link>
               </li>
             ))}
-            {g.title === "偏好" && (
+            {g.title === "关于与反馈" && (
               <li className="flex h-[58px] items-center gap-3 px-4 text-[15px] font-medium text-ink">
                 <span className="text-ink-3">
                   <IconMoon size={18} />
                 </span>
-                <span className="flex-1">外观</span>
+                <span className="flex-1">外观深色模式</span>
                 <ThemeSwitch className="w-[124px]" />
               </li>
             )}

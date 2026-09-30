@@ -3,7 +3,7 @@ import type { ItemDetail, SiteItemDetail, OutlineEntry, StoryRef } from "@aihot/
 import TurndownService from "turndown";
 import { sql } from "../db.ts";
 import { proxyBodyImages } from "../media/imgproxy.ts";
-import { textToHtml } from "../content/sanitize.ts";
+import { isSubstantiveBody, textToHtml } from "../content/sanitize.ts";
 import { ITEM_COLUMNS, ITEM_FROM, selectedCondition, toItemSummary, xView, type ItemRow } from "./items.ts";
 import { itemUrl } from "./links.ts";
 import { hasItemPage } from "./rules.ts";
@@ -88,7 +88,7 @@ export async function loadItemDetail(id: string, now = new Date()): Promise<Deta
       zhKind: summary.x?.translation ? "translation" : null,
       complete: true,
     };
-  } else if (row.body_mode === "full" && row.body_html) {
+  } else if (row.body_mode === "full" && row.body_html && isSubstantiveBody(row.body_html, row.body_text ?? "")) {
     const isZh = row.language === "zh" || (/[一-鿿]/.test(row.body_text?.slice(0, 400) ?? "") && row.language !== "en");
     const original = proxyBodyImages(row.body_html);
     const zh = isZh ? original : row.tr_html ? proxyBodyImages(row.tr_html) : null;
@@ -127,7 +127,7 @@ export async function loadItemDetail(id: string, now = new Date()): Promise<Deta
 
   const detail: ItemDetail = {
     ...summary,
-    readingMode: "full",
+    readingMode: row.channel === "x" ? "full" : (body ? "full" : "summary-only"),
     author: row.author,
     language: row.language,
     body,
@@ -171,7 +171,7 @@ export async function exportMarkdown(id: string): Promise<{ filename: string; bo
     const q = row.x_post.quoted as { handle?: string; text?: string; url?: string } | null | undefined;
     if (q?.text) lines.push(`## 引用 @${q.handle ?? ""}`, "", ...String(q.text).split("\n").map((l) => `> ${l}`), "", ...(q.url ? [q.url, ""] : []));
     if (q?.text && row.quoted_zh) lines.push("### 引用中文译文", "", ...row.quoted_zh.split("\n").map((l) => `> ${l}`), "");
-  } else if (row.body_mode === "full" && row.body_html) {
+  } else if (row.body_mode === "full" && row.body_html && isSubstantiveBody(row.body_html, row.body_text ?? "")) {
     const isZh = row.language === "zh";
     if (!isZh && row.tr_html && row.tr_complete) lines.push("## 正文 · 中文译文", "", turndown.turndown(row.tr_html), "");
     lines.push(isZh ? "## 正文" : "## 正文 · 原文", "", turndown.turndown(row.body_html), "");
