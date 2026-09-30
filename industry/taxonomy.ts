@@ -8,9 +8,9 @@
  * 没归上类的资料在日报里放进第一个 key 为 industry 的类别所在的节（没有就放最后一节）。
  */
 export const CATEGORIES = [
-  { key: "games", label: "战报", section: "比赛战报", guide: "比赛赛果、关键攻防、高光表现、技术统计与赛后深度复盘" },
+  { key: "games", label: "赛程", section: "赛程与战报", guide: "比赛日程、赛果、关键攻防、高光表现、技术统计与赛后深度复盘" },
   { key: "trades", label: "交易流言", section: "交易与流言", guide: "正式交易、自由球员签约、转会流言、名记引援爆料、选秀大会与裁员下放" },
-  { key: "interviews", label: "将帅原声", section: "赛后与采访", guide: "主教练乌度卡、核心球员及管理层斯通的赛后采访、媒体日言论、更衣室原声采访与新闻发布会" },
+  { key: "interviews", label: "球队采访", section: "赛后与采访", guide: "主教练乌度卡、核心球员及管理层斯通的赛后采访、媒体日言论、更衣室原声采访与新闻发布会" },
   { key: "news", label: "球队动态", section: "伤病与动态", guide: "官方伤病名单、出场状态（出战成疑/大概率缺席）、日常训练花絮、发展联盟召回及官方公告" },
   { key: "analysis", label: "深度专栏", section: "战术与专栏", guide: "战术打法剖析、高阶数据模型、薪资空间结构、选秀前景及行业深度分析" },
 ] as const;
@@ -33,9 +33,9 @@ export const ITEM_TYPES = [
 
 /** 每篇资料的第一个标签必须是这些“分类标签”之一。 */
 export const CATEGORY_TAGS = [
-  "比赛战报",
+  "赛程战报",
   "交易流言",
-  "将帅原声",
+  "球队采访",
   "球队动态",
   "深度专栏",
   "非火箭/联盟其他",

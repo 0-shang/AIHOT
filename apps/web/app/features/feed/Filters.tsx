@@ -25,17 +25,16 @@ export function hrefWith(base: string, params: URLSearchParams, patch: Record<st
  */
 export function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", className = "" }: { base: string; category: CategoryKey | null; channel?: ChannelKey; layoutId: string; size?: "md" | "sm"; className?: string }) {
   const [params] = useSearchParams();
-  // Custom tab order: 全部 → 球队动态(X) → 一手 → categories (minus news, analysis last with channel=news)
-  const categoryOrder = CATEGORY_KEYS.filter((k) => k !== "news" && k !== "analysis");
   const items = [
     { key: "all", label: "全部", to: hrefWith(base, params, { category: null, channel: null }) },
     { key: "xChannel", label: "球队动态", to: hrefWith(base, params, { category: null, channel: "x" }) },
-    { key: "firstParty", label: CHANNEL_LABELS.firstParty, to: hrefWith(base, params, { category: null, channel: "firstParty" }) },
-    ...categoryOrder.map((k) => ({ key: k, label: CATEGORY_LABELS[k], to: hrefWith(base, params, { category: k, channel: null }) })),
+    { key: "schedule", label: "赛程", to: "/schedule" },
+    { key: "trades", label: CATEGORY_LABELS.trades, to: hrefWith(base, params, { category: "trades", channel: null }) },
+    { key: "interviews", label: CATEGORY_LABELS.interviews, to: hrefWith(base, params, { category: "interviews", channel: null }) },
     { key: "analysisNews", label: "深度专栏", to: hrefWith(base, params, { category: "analysis", channel: "news" }) },
   ];
   const active = channel === "x" && !category ? "xChannel"
-    : channel === "firstParty" ? "firstParty"
+    : category === "games" ? "schedule"
     : category === "analysis" && channel === "news" ? "analysisNews"
     : (category ?? "all");
   return <PillTabs items={items} active={active} layoutId={layoutId} label="筛选" size={size} className={className} />;

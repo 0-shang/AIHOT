@@ -32,11 +32,6 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
     <article className="relative min-w-0 lg:card lg:card-hover lg:px-[18px] lg:pb-[14px] lg:pt-[15px]" data-item-id={item.id}>
       <header className="flex min-h-[18px] items-center gap-2 text-[12.5px] leading-[18px] text-ink-4">
         <SourceLine item={item} className="text-ink-4" />
-        {item.selected && (
-          <span className="hidden lg:inline-flex">
-            <SelectedBadge />
-          </span>
-        )}
         <span className="ml-auto flex shrink-0 items-center gap-1.5 pl-2">
           <span className="hidden lg:inline-flex">
             <ScoreLabel score={item.score} />
