@@ -22,7 +22,7 @@ console.log(`Loaded ${tweetMap.size} tweets from ${receipts.length} receipts.`);
 // 2. Query articles with video media
 const articles = await sql<{ id: string; url: string; x_post: Record<string, any> }[]>`
   SELECT id, url, x_post FROM articles
-  WHERE channel = 'x' AND x_post::text LIKE '%"kind": "video"%'
+  WHERE x_post IS NOT NULL AND x_post::text LIKE '%"kind": "video"%'
 `;
 console.log(`Found ${articles.length} articles with video media in x_post.`);
 
