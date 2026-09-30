@@ -313,7 +313,7 @@ export function ReasonDialog({
             animate={{ y: 0, scale: 1, opacity: 1 }}
             exit={{ y: 10, scale: 0.98, opacity: 0 }}
             transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
-            className="relative w-full max-w-lg rounded-sheet bg-raised p-5 shadow-2xl ring-1 ring-line-strong"
+            className="relative flex max-h-[90vh] w-full max-w-lg flex-col rounded-sheet bg-raised shadow-2xl ring-1 ring-line-strong"
             onSubmit={async (e) => {
               e.preventDefault();
               if (requireReason && !reason.trim()) return;
@@ -321,15 +321,17 @@ export function ReasonDialog({
               if (closed !== false) onClose();
             }}
           >
-            <h2 className="text-[16px] font-semibold text-ink">{title}</h2>
-            {description && <div className="mt-1.5 text-[13px] leading-relaxed text-ink-3">{description}</div>}
-            {children && <div className="mt-4 space-y-3">{children}</div>}
-            <div className="mt-4">
-              <Field label={requireReason ? "原因（写进审计记录）" : "备注（可选）"}>
-                <Textarea ref={ref} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={requireReason ? "为什么做这个改动" : ""} rows={2} />
-              </Field>
+            <div className="flex-1 overflow-y-auto p-5 pb-3">
+              <h2 className="text-[16px] font-semibold text-ink">{title}</h2>
+              {description && <div className="mt-1.5 text-[13px] leading-relaxed text-ink-3">{description}</div>}
+              {children && <div className="mt-4 space-y-3">{children}</div>}
+              <div className="mt-4">
+                <Field label={requireReason ? "原因（写进审计记录）" : "备注（可选）"}>
+                  <Textarea ref={ref} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={requireReason ? "为什么做这个改动" : ""} rows={2} />
+                </Field>
+              </div>
             </div>
-            <div className="mt-5 flex justify-end gap-2">
+            <div className="flex justify-end gap-2 border-t border-line-soft bg-raised p-4 px-5 rounded-b-sheet">
               <Button tone="ghost" onClick={onClose}>取消</Button>
               <Button type="submit" tone={danger ? "danger" : "primary"} busy={busy} disabled={requireReason && !reason.trim()}>
                 {confirmLabel}
