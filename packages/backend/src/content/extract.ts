@@ -174,7 +174,7 @@ export async function extractFromUrl(url: string, opts: { allowJina: boolean; su
     if (text.length < MIN_BODY_CHARS) return null;
     return { html, text, images: [], via: "jina" };
   } catch (error) {
-    if (error instanceof BudgetExceededError) return null;
+    if (error instanceof BudgetExceededError || (error instanceof Error && error.message.includes("JINA_API_KEY is not configured"))) return null;
     throw error;
   }
 }
