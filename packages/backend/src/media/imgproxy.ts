@@ -47,6 +47,25 @@ export function proxiedImageSet(url: string | null | undefined, kind: Responsive
 
 export type VerifyResult = { ok: true; url: string; mode: string } | { ok: false; reason: "missing" | "expired" | "bad-signature" | "bad-url" };
 
+export function proxiedVideo(url: string | null | undefined, absolute = false, nowMs = Date.now(), lifetimeSeconds = LIFETIME_SECONDS): string | null {
+  if (!url || !/^https?:\/\//i.test(url)) return null;
+  const exp = proxyExpiry(nowMs, lifetimeSeconds);
+  const path = `/api/video-proxy?u=${encodeURIComponent(url)}&exp=${exp}&sig=${signature(url, "video", exp).slice(0, SIG_HEX)}`;
+  return absolute ? `${config.siteUrl}${path}` : path;
+}
+
+export function verifyVideoProxyRequest(params: { u?: string; exp?: string; sig?: string }, nowMs = Date.now()): { ok: true; url: string } | { ok: false; reason: string } {
+  const { u, exp, sig } = params;
+  if (!u || !exp || !sig) return { ok: false, reason: "missing" };
+  if (!/^\d{9,11}$/.test(exp)) return { ok: false, reason: "missing" };
+  if (Number(exp) * 1000 < nowMs) return { ok: false, reason: "expired" };
+  if (!/^https?:\/\//i.test(u)) return { ok: false, reason: "bad-url" };
+  const given = Buffer.from(new RegExp(`^(?:[0-9a-f]{${SIG_HEX}}|[0-9a-f]{64})$`, "i").test(sig) ? sig : "", "hex");
+  const expected = Buffer.from(signature(u, "video", exp), "hex").subarray(0, given.length);
+  if (given.length === 0 || !timingSafeEqual(given, expected)) return { ok: false, reason: "bad-signature" };
+  return { ok: true, url: u };
+}
+
 export function verifyProxyRequest(params: { u?: string; mode?: string; exp?: string; sig?: string }, nowMs = Date.now()): VerifyResult {
   const { u, mode, exp, sig } = params;
   if (!u || mode === "" || !exp || !sig) return { ok: false, reason: "missing" };

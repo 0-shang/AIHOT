@@ -4,6 +4,7 @@ import type { FeedItemSummary, MediaView } from "@aihot/contracts/site";
 import { IconBookmark } from "../../components/icons";
 import { SourceAvatar } from "../../components/ui/SourceAvatar";
 import { Lightbox } from "../../components/ui/Lightbox";
+import { VideoModal } from "../../components/ui/VideoModal";
 import { toggleStar, useIsStarred } from "../../lib/local-state";
 
 /** "IT之家（RSS）" or, for X, avatar + display name + @handle. */
@@ -23,6 +24,7 @@ export function SourceLine({ item, avatarSize = 16, className = "" }: { item: Pi
 /** Up to four media thumbnails, kept small in lists (the detail page shows them larger). Videos are stills. */
 export function MediaThumbs({ media, className = "" }: { media: MediaView[]; className?: string }) {
   const [index, setIndex] = useState<number | null>(null);
+  const [activeVideo, setActiveVideo] = useState<{ url: string; poster?: string | null } | null>(null);
   const images = media.filter((m) => m.kind === "image").map((m) => ({ src: m.fullUrl ?? m.url, alt: m.alt }));
   const shown = media.slice(0, 4);
   if (shown.length === 0) return null;
@@ -30,9 +32,32 @@ export function MediaThumbs({ media, className = "" }: { media: MediaView[]; cla
     <>
     <div className={`flex gap-1.5 overflow-hidden ${className}`}>
       {shown.map((m) => {
-        const Wrapper = m.kind === "image" ? "button" : "span";
+        const isClickableVideo = m.kind === "video" && !!m.videoUrl;
+        const isClickableImage = m.kind === "image";
+        const isClickable = isClickableImage || isClickableVideo;
+        const Wrapper = isClickable ? "button" : "span";
         return (
-        <Wrapper key={m.url} {...(m.kind === "image" ? { type: "button" as const, "aria-label": `查看图片${m.alt ? `：${m.alt}` : ""}`, onClick: (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); setIndex(images.findIndex((image) => image.src === (m.fullUrl ?? m.url))); } } : {})} className={`relative ${m.kind === "image" ? "z-10 cursor-zoom-in" : ""} shrink-0 overflow-hidden rounded-control border border-line-soft bg-bg-sunk ${shown.length === 1 ? "max-w-[240px]" : "w-[112px]"}`}>
+        <Wrapper
+          key={m.url}
+          {...(isClickableImage ? {
+            type: "button" as const,
+            "aria-label": `查看图片${m.alt ? `：${m.alt}` : ""}`,
+            onClick: (e: React.MouseEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIndex(images.findIndex((image) => image.src === (m.fullUrl ?? m.url)));
+            }
+          } : isClickableVideo ? {
+            type: "button" as const,
+            "aria-label": "播放视频",
+            onClick: (e: React.MouseEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setActiveVideo({ url: m.videoUrl!, poster: m.poster ?? m.url });
+            }
+          } : {})}
+          className={`relative ${isClickable ? "z-10 cursor-pointer" : ""} ${isClickableImage ? "cursor-zoom-in" : ""} shrink-0 overflow-hidden rounded-control border border-line-soft bg-bg-sunk ${shown.length === 1 ? "max-w-[240px]" : "w-[112px]"}`}
+        >
           <img src={m.poster ?? m.url} srcSet={m.srcSet} sizes={shown.length === 1 ? `${m.width && m.height ? Math.min(240, Math.ceil(112 * m.width / m.height)) : 240}px` : "112px"} width={m.width ?? undefined} height={m.height ?? undefined} alt={m.alt ?? ""} loading="lazy" decoding="async" className={`h-[112px] object-cover ${shown.length === 1 ? "w-auto max-w-[240px]" : "w-[112px]"}`} />
           {m.kind === "video" && (
             <span className="absolute inset-0 grid place-items-center" aria-hidden="true">
@@ -47,6 +72,12 @@ export function MediaThumbs({ media, className = "" }: { media: MediaView[]; cla
       ); })}
     </div>
     <Lightbox images={images} index={index} onIndex={setIndex} onClose={() => setIndex(null)} />
+    <VideoModal
+      open={!!activeVideo}
+      videoUrl={activeVideo?.url ?? null}
+      poster={activeVideo?.poster}
+      onClose={() => setActiveVideo(null)}
+    />
     </>
   );
 }

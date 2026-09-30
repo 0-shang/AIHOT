@@ -23,6 +23,7 @@ export interface MediaView {
   alt: string | null;
   poster: string | null;
   srcSet?: string;
+  videoUrl?: string | null;
 }
 
 export interface XPostView {

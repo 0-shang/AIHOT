@@ -1,8 +1,33 @@
-// Signed image proxy. Unsigned, badly signed or expired requests are 403 without any upstream fetch.
+// Signed image and video proxy. Unsigned, badly signed or expired requests are 403 without any upstream fetch.
 import type { FastifyInstance } from "fastify";
+import http from "node:http";
+import https from "node:https";
 import { produceImage } from "@aihot/backend/media/images";
-import { verifyProxyRequest } from "@aihot/backend/media/imgproxy";
+import { verifyProxyRequest, verifyVideoProxyRequest } from "@aihot/backend/media/imgproxy";
 import { looseQuery } from "../http/respond.ts";
+
+function streamUpstream(
+  urlStr: string,
+  method: string,
+  headers: Record<string, string>,
+  onResponse: (res: http.IncomingMessage) => void,
+  onError: (err: Error) => void,
+  redirectsLeft = 3
+): http.ClientRequest {
+  const parsed = new URL(urlStr);
+  const client = parsed.protocol === "https:" ? https : http;
+  const req = client.request(parsed, { method, headers }, (res) => {
+    if (res.statusCode && [301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && redirectsLeft > 0) {
+      const nextUrl = new URL(res.headers.location, urlStr).toString();
+      streamUpstream(nextUrl, method, headers, onResponse, onError, redirectsLeft - 1);
+      return;
+    }
+    onResponse(res);
+  });
+  req.on("error", onError);
+  req.end();
+  return req;
+}
 
 export function registerMedia(app: FastifyInstance) {
   app.get("/api/img-proxy", async (req, reply) => {
@@ -32,9 +57,77 @@ export function registerMedia(app: FastifyInstance) {
         .header("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox")
         .send(body);
     } catch (error) {
-
       req.log.warn({ err: String(error), host: new URL(verdict.url).hostname }, "img-proxy upstream failed");
       return reply.code(502).header("Cache-Control", "public, max-age=300").type("text/plain; charset=utf-8").send("Upstream image unavailable");
     }
   });
+
+  app.route({
+    method: ["GET", "HEAD"],
+    url: "/api/video-proxy",
+    handler: async (req, reply) => {
+      const q = looseQuery(req);
+      const verdict = verifyVideoProxyRequest({ u: q.u, exp: q.exp, sig: q.sig });
+      if (!verdict.ok) {
+        return reply.code(403).header("Cache-Control", "no-store").type("text/plain; charset=utf-8").send("Forbidden");
+      }
+
+      const upstreamHeaders: Record<string, string> = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "*/*",
+      };
+      if (req.headers.range) {
+        upstreamHeaders["Range"] = req.headers.range;
+      }
+      if (req.headers["if-range"]) {
+        upstreamHeaders["If-Range"] = req.headers["if-range"] as string;
+      }
+
+      reply.hijack();
+
+      const activeReq = streamUpstream(
+        verdict.url,
+        req.method,
+        upstreamHeaders,
+        (upstreamRes) => {
+          const statusCode = upstreamRes.statusCode ?? 200;
+          const resHeaders: Record<string, string | string[]> = {
+            "Content-Type": upstreamRes.headers["content-type"] || "video/mp4",
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "public, max-age=86400",
+            "X-Content-Type-Options": "nosniff",
+          };
+          if (upstreamRes.headers["content-length"]) {
+            resHeaders["Content-Length"] = upstreamRes.headers["content-length"];
+          }
+          if (upstreamRes.headers["content-range"]) {
+            resHeaders["Content-Range"] = upstreamRes.headers["content-range"];
+          }
+          if (upstreamRes.headers["etag"]) {
+            resHeaders["ETag"] = upstreamRes.headers["etag"];
+          }
+          if (upstreamRes.headers["last-modified"]) {
+            resHeaders["Last-Modified"] = upstreamRes.headers["last-modified"];
+          }
+
+          reply.raw.writeHead(statusCode, resHeaders);
+          upstreamRes.pipe(reply.raw);
+        },
+        (err) => {
+          req.log.warn({ err: String(err), host: new URL(verdict.url).hostname }, "video-proxy upstream error");
+          if (!reply.raw.headersSent) {
+            reply.raw.writeHead(502, { "Content-Type": "text/plain; charset=utf-8" });
+            reply.raw.end("Upstream video unavailable");
+          } else {
+            reply.raw.destroy();
+          }
+        }
+      );
+
+      req.raw.on("close", () => {
+        activeReq.destroy();
+      });
+    },
+  });
 }
+

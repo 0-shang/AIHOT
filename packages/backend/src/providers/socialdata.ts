@@ -9,10 +9,23 @@ export interface SdUser {
   profile_image_url_https?: string;
 }
 
+export interface SdVideoVariant {
+  bitrate?: number;
+  content_type: string;
+  url: string;
+}
+
+export interface SdVideoInfo {
+  aspect_ratio?: [number, number];
+  duration_millis?: number;
+  variants?: SdVideoVariant[];
+}
+
 export interface SdMedia {
   type: "photo" | "video" | "animated_gif";
   media_url_https: string;
   original_info?: { width?: number; height?: number };
+  video_info?: SdVideoInfo;
 }
 
 export interface SdTweet {
@@ -98,14 +111,32 @@ export function tweetText(t: SdTweet): string {
   return text.trim();
 }
 
+export function pickVideoUrl(m: SdMedia): string | null {
+  const variants = m.video_info?.variants;
+  if (!Array.isArray(variants)) return null;
+  const mp4s = variants.filter(
+    (v) => v && typeof v.url === "string" && (v.content_type === "video/mp4" || v.url.includes(".mp4")),
+  );
+  if (mp4s.length === 0) {
+    const anyUrl = variants.find((v) => v && typeof v.url === "string")?.url;
+    return anyUrl ?? null;
+  }
+  mp4s.sort((a, b) => (b.bitrate ?? 0) - (a.bitrate ?? 0));
+  return mp4s[0].url;
+}
+
 export function tweetMedia(t: SdTweet) {
-  return (t.extended_entities?.media ?? t.entities?.media ?? []).map((m) => ({
-    kind: m.type === "photo" ? ("image" as const) : ("video" as const),
-    url: m.media_url_https,
-    width: m.original_info?.width ?? null,
-    height: m.original_info?.height ?? null,
-    poster: m.type === "photo" ? null : m.media_url_https,
-  }));
+  return (t.extended_entities?.media ?? t.entities?.media ?? []).map((m) => {
+    const videoUrl = m.type === "video" || m.type === "animated_gif" ? pickVideoUrl(m) : null;
+    return {
+      kind: m.type === "photo" ? ("image" as const) : ("video" as const),
+      url: m.media_url_https,
+      videoUrl,
+      width: m.original_info?.width ?? null,
+      height: m.original_info?.height ?? null,
+      poster: m.type === "photo" ? null : m.media_url_https,
+    };
+  });
 }
 
 /** An X Article: its title and body as DraftJS blocks (header-two, blockquote, list items, atomic media…). */

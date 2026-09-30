@@ -1,10 +1,51 @@
 import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
 
 const PORT = 3001;
 
 const now = new Date();
 const isoNow = now.toISOString();
 const todayDate = now.toISOString().slice(0, 10);
+
+function getLiveItems() {
+  try {
+    const liveScrapedPath = path.join(import.meta.dirname, "../.data/live-scraped.json");
+    if (!fs.existsSync(liveScrapedPath)) return [];
+    const candidates = JSON.parse(fs.readFileSync(liveScrapedPath, "utf8"));
+    return candidates.map((c, idx) => {
+      const pubDate = c.publishedAt ? new Date(c.publishedAt) : new Date(Date.now() - idx * 3600 * 1000);
+      const pubIso = pubDate.toISOString();
+      return {
+        id: `item-live-${idx + 1}`,
+        revision: 1,
+        title: c.title,
+        originalTitle: c.title,
+        summary: c.excerpt ? c.excerpt.replace(/&#8217;/g, "'").replace(/&#8220;/g, '"').replace(/&#8221;/g, '"') : (c.title + " (抓取自 " + c.sourceName + ")"),
+        reason: `信源抓取真实数据: ${c.sourceName}`,
+        source: { id: c.sourceId || "rss-scraped", name: c.sourceName || "实时信源", kind: "rss" as const, firstParty: false, iconUrl: null },
+        links: { aihot: `/items/item-live-${idx + 1}`, original: c.url },
+        publishedAt: pubIso,
+        discoveredAt: isoNow,
+        timelineAt: pubIso,
+        category: "rumors" as const,
+        tags: ["真实抓取", c.sourceName, "火箭队"],
+        score: Number((9.6 - (idx * 0.1)).toFixed(1)),
+        selected: true,
+        channel: "news" as const,
+        story: null,
+        x: null,
+      };
+    });
+  } catch (err) {
+    console.error("Error reading live-scraped.json:", err);
+    return [];
+  }
+}
+
+function getAllItems() {
+  return [...getLiveItems(), ...MOCK_ITEMS];
+}
 
 const MOCK_ITEMS = [
   {
@@ -219,7 +260,8 @@ const server = http.createServer((req, res) => {
     const category = url.searchParams.get("category");
     const tag = url.searchParams.get("tag");
 
-    let filtered = MOCK_ITEMS;
+    const allItems = getAllItems();
+    let filtered = allItems;
     if (category && category !== "all") {
       filtered = filtered.filter(i => i.category === category);
     }
@@ -270,7 +312,8 @@ const server = http.createServer((req, res) => {
     const tag = url.searchParams.get("tag");
     const q = url.searchParams.get("q");
 
-    let filtered = MOCK_ITEMS;
+    const allItems = getAllItems();
+    let filtered = allItems;
     if (category && category !== "all") filtered = filtered.filter(i => i.category === category);
     if (tag) filtered = filtered.filter(i => i.tags.includes(tag));
     if (q) filtered = filtered.filter(i => i.title.includes(q) || (i.summary && i.summary.includes(q)));
@@ -304,7 +347,8 @@ const server = http.createServer((req, res) => {
 
   if (pathname.startsWith("/api/site/items/")) {
     const id = pathname.replace("/api/site/items/", "");
-    const found = MOCK_ITEMS.find(i => i.id === id) || MOCK_ITEMS[0];
+    const all = getAllItems();
+    const found = all.find(i => i.id === id) || all[0];
     res.writeHead(200);
     return res.end(JSON.stringify({
       ...found,

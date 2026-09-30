@@ -3,7 +3,7 @@
 import type { CategoryKey, ChannelKey } from "@aihot/contracts/taxonomy";
 import type { FeedItemSummary, ItemSummary, MediaView, SourceKind, XPostView } from "@aihot/contracts/site";
 import { sql, type Db } from "../db.ts";
-import { proxiedImage, proxiedImageSet } from "../media/imgproxy.ts";
+import { proxiedImage, proxiedImageSet, proxiedVideo } from "../media/imgproxy.ts";
 import { displayTags } from "./rules.ts";
 
 export interface ItemRow {
@@ -112,9 +112,11 @@ export function topicCondition(topicTags: string[] | null | undefined) {
 function mediaView(m: Record<string, any>, mode: "card" | "thumb" | "full" = "thumb", responsive = false): MediaView | null {
   const url = proxiedImage(m.url, mode);
   if (!url) return null;
+  const rawVideo = (m.videoUrl && typeof m.videoUrl === "string") ? m.videoUrl : (m.kind === "video" && typeof m.url === "string" && m.url.includes(".mp4") ? m.url : null);
   return {
     kind: m.kind === "video" ? "video" : "image",
     url,
+    videoUrl: rawVideo ? proxiedVideo(rawVideo) : null,
     ...(responsive && mode !== "full" ? { fullUrl: proxiedImage(m.url, "full")! } : {}),
     ...(responsive && proxiedImageSet(m.poster ?? m.url, mode === "full" ? "body" : "card") ? { srcSet: proxiedImageSet(m.poster ?? m.url, mode === "full" ? "body" : "card")! } : {}),
     width: typeof m.width === "number" ? m.width : null,

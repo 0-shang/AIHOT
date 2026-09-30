@@ -8,6 +8,7 @@ import { collapseWhitespace } from "../lib/text.ts";
 export interface MediaItem {
   kind: "image" | "video";
   url: string;
+  videoUrl?: string | null;
   width?: number | null;
   height?: number | null;
   alt?: string | null;

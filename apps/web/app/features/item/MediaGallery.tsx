@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { MediaView } from "@aihot/contracts/site";
 import { Lightbox } from "../../components/ui/Lightbox";
+import { VideoModal } from "../../components/ui/VideoModal";
 
 /** A round play mark over a video's still. */
 function PlayMark() {
@@ -17,10 +18,11 @@ function PlayMark() {
 
 /**
  * The post's pictures as tiles, all of them (X allows up to nine; list cards show four). Images open in
- * a viewer that steps through them; videos are only a still in our data, so they open the original post.
+ * a viewer that steps through them; videos play inline or in a modal.
  */
 export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: string }) {
   const [open, setOpen] = useState<number | null>(null);
+  const [activeVideo, setActiveVideo] = useState<{ url: string; poster?: string | null } | null>(null);
   const shown = media.slice(0, 9);
   const images = shown.filter((m) => m.kind !== "video");
   const single = shown.length === 1;
@@ -43,12 +45,29 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
               style={single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : undefined}
             />
           );
-          return m.kind === "video" ? (
-            <a key={m.url} href={postUrl} target="_blank" rel="noopener noreferrer" aria-label="打开原推播放视频" className={tile}>
-              {img}
-              <PlayMark />
-            </a>
-          ) : (
+          if (m.kind === "video") {
+            if (m.videoUrl) {
+              return (
+                <button
+                  key={m.url}
+                  type="button"
+                  onClick={() => setActiveVideo({ url: m.videoUrl!, poster: m.poster ?? m.url })}
+                  aria-label="播放视频"
+                  className={`${tile} cursor-pointer text-left`}
+                >
+                  {img}
+                  <PlayMark />
+                </button>
+              );
+            }
+            return (
+              <a key={m.url} href={postUrl} target="_blank" rel="noopener noreferrer" aria-label="打开原推播放视频" className={tile}>
+                {img}
+                <PlayMark />
+              </a>
+            );
+          }
+          return (
             <button key={m.url} type="button" onClick={() => setOpen(images.indexOf(m))} aria-label={m.alt ? `查看大图：${m.alt}` : "查看大图"} className={`${tile} cursor-zoom-in`}>
               {img}
             </button>
@@ -56,6 +75,12 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
         })}
       </div>
       <Lightbox images={images.map((m) => ({ src: m.url, alt: m.alt }))} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
+      <VideoModal
+        open={!!activeVideo}
+        videoUrl={activeVideo?.url ?? null}
+        poster={activeVideo?.poster}
+        onClose={() => setActiveVideo(null)}
+      />
     </>
   );
 }
