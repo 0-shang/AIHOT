@@ -25,12 +25,19 @@ export function hrefWith(base: string, params: URLSearchParams, patch: Record<st
  */
 export function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", className = "" }: { base: string; category: CategoryKey | null; channel?: ChannelKey; layoutId: string; size?: "md" | "sm"; className?: string }) {
   const [params] = useSearchParams();
+  // Custom tab order: 全部 → 球队动态(X) → 一手 → categories (minus news, analysis last with channel=news)
+  const categoryOrder = CATEGORY_KEYS.filter((k) => k !== "news" && k !== "analysis");
   const items = [
     { key: "all", label: "全部", to: hrefWith(base, params, { category: null, channel: null }) },
+    { key: "xChannel", label: "球队动态", to: hrefWith(base, params, { category: null, channel: "x" }) },
     { key: "firstParty", label: CHANNEL_LABELS.firstParty, to: hrefWith(base, params, { category: null, channel: "firstParty" }) },
-    ...CATEGORY_KEYS.map((k) => ({ key: k, label: CATEGORY_LABELS[k], to: hrefWith(base, params, { category: k, channel: null }) })),
+    ...categoryOrder.map((k) => ({ key: k, label: CATEGORY_LABELS[k], to: hrefWith(base, params, { category: k, channel: null }) })),
+    { key: "analysisNews", label: "深度专栏", to: hrefWith(base, params, { category: "analysis", channel: "news" }) },
   ];
-  const active = channel === "firstParty" ? "firstParty" : (category ?? "all");
+  const active = channel === "x" && !category ? "xChannel"
+    : channel === "firstParty" ? "firstParty"
+    : category === "analysis" && channel === "news" ? "analysisNews"
+    : (category ?? "all");
   return <PillTabs items={items} active={active} layoutId={layoutId} label="筛选" size={size} className={className} />;
 }
 
