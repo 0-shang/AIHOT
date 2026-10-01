@@ -34,10 +34,6 @@ export const ITEM_TYPES = [
 export const CATEGORY_TAGS = [
   "赛程战报",
   "交易流言",
-<<<<<<< HEAD
-=======
-  "球队采访",
->>>>>>> origin/main
   "球队动态",
   "深度专栏",
   "队记推文",
