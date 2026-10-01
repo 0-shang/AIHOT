@@ -98,18 +98,85 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     // 队记推文栏目：包含明确分类为 beat_tweets 的，以及所有非官方的随队记者推特
     return sql`AND (p.category = 'beat_tweets' OR (p.channel = 'x' AND NOT p.first_party))`;
   }
+  if (category === "videos") {
+    // 视频专栏：包含所有 YouTube 视频、带有原声/高光录像与分类为 videos 的内容
+    return sql`AND (p.category = 'videos' OR p.source_id LIKE 'yt-%' OR p.url LIKE '%youtube.com%' OR p.url LIKE '%youtu.be%')`;
+  }
   if (category === "news") {
     // 球队动态栏目：
     // 1. 包含官方发布（first_party）、官方公告/战报/伤病、或明确带球员/教练采访原声的内容
     // 2. 随队记者非采访的日常推特不进入球队动态（归入队记推文）
-    // 3. 排除球衣历史、琐事盘点等非实质动态
+    // 3. YouTube 视频统一归入视频专栏
+    // 4. 排除球衣历史、琐事盘点等非实质动态
     return sql`AND p.category = 'news'
+      AND NOT (p.source_id LIKE 'yt-%' OR p.url LIKE '%youtube.com%' OR p.url LIKE '%youtu.be%')
       AND (p.channel != 'x' OR p.first_party OR p.tags && ARRAY['赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
       AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
   }
   // v1 and RSS publish opinion as tip.
   if (v1 && (category as string) === "tip") return sql`AND p.category IN ('tip', 'opinion')`;
   return sql`AND p.category = ${category}`;
+}
+
+/** 智能去重算法：消除短时间内多信源抓取的重复/冗余报道，保留信息最丰富、评分更高的一条 */
+export function deduplicateFeedItems<T extends { id: string; title: string; summary?: string | null; score?: number | null; publishedAt?: string | null; timelineAt?: string | null }>(items: T[]): T[] {
+  const result: T[] = [];
+  const normalize = (str: string) => str.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  
+  const similarity = (a: string, b: string) => {
+    if (!a || !b) return 0;
+    if (a === b) return 1;
+    if (a.includes(b) || b.includes(a)) {
+      const minLen = Math.min(a.length, b.length);
+      const maxLen = Math.max(a.length, b.length);
+      if (minLen / maxLen >= 0.55) return 0.88;
+    }
+    const getGrams = (text: string) => {
+      const grams = new Set<string>();
+      for (let i = 0; i < text.length - 1; i++) grams.add(text.slice(i, i + 2));
+      return grams;
+    };
+    const setA = getGrams(a);
+    const setB = getGrams(b);
+    if (!setA.size || !setB.size) return 0;
+    let intersect = 0;
+    for (const g of setA) if (setB.has(g)) intersect++;
+    return (2 * intersect) / (setA.size + setB.size);
+  };
+
+  for (const item of items) {
+    const normTitle = normalize(item.title);
+    let isDuplicate = false;
+
+    for (let i = 0; i < result.length; i++) {
+      const existing = result[i]!;
+      const existingNormTitle = normalize(existing.title);
+      
+      const t1 = new Date(item.timelineAt || item.publishedAt || 0).getTime();
+      const t2 = new Date(existing.timelineAt || existing.publishedAt || 0).getTime();
+      if (Math.abs(t1 - t2) > 48 * 3600 * 1000) continue;
+
+      const sim = similarity(normTitle, existingNormTitle);
+      if (sim >= 0.65) {
+        isDuplicate = true;
+        const currentScore = item.score ?? 0;
+        const existingScore = existing.score ?? 0;
+        const currentLen = (item.summary?.length ?? 0) + item.title.length;
+        const existingLen = (existing.summary?.length ?? 0) + existing.title.length;
+        
+        if (currentScore > existingScore + 5 || (Math.abs(currentScore - existingScore) <= 5 && currentLen > existingLen + 15)) {
+          result[i] = item;
+        }
+        break;
+      }
+    }
+
+    if (!isDuplicate) {
+      result.push(item);
+    }
+  }
+
+  return result;
 }
 
 export function tagCondition(tag: string | null | undefined) {
@@ -186,7 +253,7 @@ export function toItemSummary(row: ItemRow): ItemSummary {
     publishedAt: row.published_at?.toISOString() ?? null,
     discoveredAt: row.discovered_at.toISOString(),
     timelineAt: row.timeline_at.toISOString(),
-    category: (row.category as CategoryKey | null) ?? null,
+    category: ((row.category === "videos" || row.source_id.startsWith("yt-") || (row.url && (row.url.includes("youtube.com") || row.url.includes("youtu.be")))) ? "videos" : (row.category as CategoryKey | null)) ?? null,
     tags: displayTags(row.tags),
     score: row.score === null ? null : Math.round(Number(row.score)),
     selected: row.selected,

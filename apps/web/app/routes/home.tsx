@@ -3,6 +3,9 @@ import type { Route } from "./+types/home";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
+  if (!url.searchParams.has("category")) {
+    url.searchParams.set("category", "news");
+  }
   throw redirect(`/all${url.search}`);
 }
 

@@ -8,6 +8,7 @@ import { listPath, pageMeta } from "../lib/seo";
 import { CategoryTabs, SearchField } from "../features/feed/Filters";
 import { PillTabs } from "../components/ui/Tabs";
 import { DayList, Pagination } from "../features/feed/DayList";
+import { YouTubeVideoGrid } from "../features/feed/YouTubeVideoGrid";
 import { EmptyState } from "../components/ui/Page";
 import { RingMark } from "../components/Logo";
 
@@ -16,9 +17,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const channelParam = url.searchParams.get("channel") ?? "all";
   const categoryParam = url.searchParams.get("category");
   const channel = isChannelKey(channelParam) ? channelParam : "all";
-  const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : null;
   const tag = url.searchParams.get("tag")?.trim() || null;
   const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
+  const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : (!tag && !q ? "news" : null);
   const tab = url.searchParams.get("tab") === "relevance" ? "relevance" : null;
   // Legacy deep-paging parameters (deep, anchorAt) still open a normal page.
   const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
@@ -131,6 +132,8 @@ export default function AllPage() {
               {f.q ? "换个说法，或者去掉筛选再试。" : "这个筛选下暂时没有内容。"}
             </EmptyState>
           </div>
+        ) : f.category === "videos" ? (
+          <YouTubeVideoGrid items={data.items} />
         ) : (
           <DayList items={data.items} todayCount={f.q ? null : data.todayCount} showTags />
         )}

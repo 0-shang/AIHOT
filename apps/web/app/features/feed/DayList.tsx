@@ -13,8 +13,28 @@ export function DayList({ items, todayCount = null, showTags = true, animate = f
   const readSet = useReadSet();
   const today = beijingDate(Date.now());
   const days = useMemo(() => {
-    const out: Array<{ day: string; items: FeedItemSummary[] }> = [];
+    // 渲染层防护去重：若相邻或同一天出现相似/相同报道，只保留一条更优质的条目
+    const deduplicated: FeedItemSummary[] = [];
+    const norm = (s: string) => (s || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
     for (const it of items) {
+      const nt = norm(it.title);
+      const dup = deduplicated.some((prev) => {
+        const pt = norm(prev.title);
+        if (nt === pt) return true;
+        if (nt.length >= 8 && pt.length >= 8) {
+          if (nt.includes(pt) || pt.includes(nt)) {
+            const minLen = Math.min(nt.length, pt.length);
+            const maxLen = Math.max(nt.length, pt.length);
+            if (minLen / maxLen >= 0.6) return true;
+          }
+        }
+        return false;
+      });
+      if (!dup) deduplicated.push(it);
+    }
+
+    const out: Array<{ day: string; items: FeedItemSummary[] }> = [];
+    for (const it of deduplicated) {
       const d = beijingDate(it.timelineAt);
       const last = out[out.length - 1];
       if (last && last.day === d) last.items.push(it);
