@@ -94,14 +94,14 @@
       "name": "Jonathan Feigen (休斯顿纪事报火箭首席名记)",
       "kind": "x_search",
       "config": {
-        "query": "from:Jonathan_Feigen -filter:replies",
+        "query": "from:Jonathan_Feigen",
         "searchType": "Latest"
       },
       "tier": "T1",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 15,
       "tags": [
         "一手情报",
         "跟队名记"
@@ -114,14 +114,14 @@
       "name": "Kelly Iko (The Athletic 火箭跟队名记)",
       "kind": "x_search",
       "config": {
-        "query": "from:KellyIko -filter:replies",
+        "query": "from:KellyIko",
         "searchType": "Latest"
       },
       "tier": "T1",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 15,
       "tags": [
         "一手情报",
         "内幕独家"
@@ -134,17 +134,17 @@
       "name": "休斯敦火箭官方推特",
       "kind": "x_search",
       "config": {
-        "query": "from:HoustonRockets -filter:replies",
+        "query": "from:HoustonRockets",
         "searchType": "Latest"
       },
       "tier": "T1",
       "first_party": true,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 15,
       "tags": [
         "官方发布",
-        "球队战报"
+        "球队动态"
       ],
       "site_fulltext": true,
       "syndicate_fulltext": false
@@ -154,14 +154,14 @@
       "name": "Adam Spolane (SportsRadio 610 火箭记者)",
       "kind": "x_search",
       "config": {
-        "query": "from:AdamSpolane -filter:replies",
+        "query": "from:AdamSpolane",
         "searchType": "Latest"
       },
       "tier": "T1_5",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 15,
       "tags": [
         "随队记者",
         "训练采访"
@@ -174,17 +174,37 @@
       "name": "Lachard Binkley (The Dream Shake 火箭首席)",
       "kind": "x_search",
       "config": {
-        "query": "from:BinkleyHoops -filter:replies",
+        "query": "from:BinkleyHoops",
         "searchType": "Latest"
       },
       "tier": "T1_5",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 25,
+      "interval_minutes": 15,
       "tags": [
         "随队专栏",
         "赛后复盘"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-ben-dubose",
+      "name": "Ben DuBose (Rockets Wire 主编/NBA播客)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:BenDuBose",
+        "searchType": "Latest"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "随队记者",
+        "深度专栏"
       ],
       "site_fulltext": true,
       "syndicate_fulltext": false
@@ -194,14 +214,14 @@
       "name": "Michael Shapiro (休斯顿纪事报火箭记者)",
       "kind": "x_search",
       "config": {
-        "query": "from:mshap2 -filter:replies",
+        "query": "from:mshap2",
         "searchType": "Latest"
       },
       "tier": "T1",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 15,
       "tags": [
         "随队深度",
         "一手消息"
@@ -214,14 +234,14 @@
       "name": "Jackson Gatlin (火箭赛后转播/Locked On主播)",
       "kind": "x_search",
       "config": {
-        "query": "from:JTGatlin -filter:replies",
+        "query": "from:JTGatlin",
         "searchType": "Latest"
       },
       "tier": "T1",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 15,
       "tags": [
         "赛后采访",
         "更衣室原声"
@@ -234,14 +254,14 @@
       "name": "Salman Ali (ESPN 97.5 休斯顿火箭嘉宾)",
       "kind": "x_search",
       "config": {
-        "query": "from:SalmanAliNBA -filter:replies",
+        "query": "from:SalmanAliNBA",
         "searchType": "Latest"
       },
       "tier": "T1_5",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 25,
+      "interval_minutes": 15,
       "tags": [
         "电台连线",
         "现场跟队"
@@ -254,14 +274,14 @@
       "name": "Bradeaux (火箭高阶数据与高光切片)",
       "kind": "x_search",
       "config": {
-        "query": "from:BradeauxNBA -filter:replies",
+        "query": "from:BradeauxNBA",
         "searchType": "Latest"
       },
       "tier": "T1_5",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 15,
       "tags": [
         "高阶数据",
         "高光切片"
@@ -274,16 +294,16 @@
       "name": "休斯敦火箭官方 YouTube",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt9_1XkGqG2qAEE_Wd57T0A",
+        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UChdTjGHWrl-scbthhYSGB3g",
         "_aihot": {
-          "initialBackfillLimit": 10
+          "initialBackfillLimit": 15
         }
       },
       "tier": "T1",
       "first_party": true,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 20,
       "tags": [
         "官方视频",
         "原声集锦"
@@ -296,16 +316,16 @@
       "name": "Locked On Rockets (YouTube 播客)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCn8yO2kGZ_2B7C8VjY-d3sw",
+        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCnizQkhQWv7GwQ1PY2EJGLw",
         "_aihot": {
-          "initialBackfillLimit": 10
+          "initialBackfillLimit": 15
         }
       },
       "tier": "T1_5",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 20,
       "tags": [
         "赛后复盘",
         "播客原声"

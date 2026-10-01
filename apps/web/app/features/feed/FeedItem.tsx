@@ -10,6 +10,7 @@ import { ScoreLabel } from "../../components/ui/Score";
 import { MediaThumbs, SourceLine, StarButton } from "./parts";
 import { GroupDevelopments, GroupSources, LatestDevelopment } from "./ReadingGroup";
 import { QuotedLine } from "../item/QuotedPost";
+import { detectYouTube } from "../../lib/youtube";
 
 export interface FeedItemProps {
   item: FeedItemSummary;
@@ -23,6 +24,7 @@ export interface FeedItemProps {
 
 export const FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOpen, showTags = false }: FeedItemProps) {
   const isX = item.channel === "x" && !!item.x;
+  const isYouTube = detectYouTube(item);
   const open = () => onOpen?.(item.id);
   const showSources = !!group && (group.additionalSourceCount > 0 || (group.developmentCount <= 1 && group.reportCount > 1));
   const showDevelopments = !!group?.story && group.developmentCount > 1;
@@ -32,9 +34,12 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
     <article className="relative min-w-0 lg:card lg:card-hover lg:px-[18px] lg:pb-[14px] lg:pt-[15px]" data-item-id={item.id}>
       <header className="flex min-h-[18px] items-center gap-2 text-[12.5px] leading-[18px] text-ink-4">
         <SourceLine item={item} className="text-ink-4" />
-        {item.selected && (
-          <span className="hidden lg:inline-flex">
-            <SelectedBadge />
+        {isYouTube && (
+          <span className="inline-flex items-center gap-1 rounded bg-[#FF0000]/10 px-1.5 py-0.5 text-[11px] font-semibold text-[#FF0000]">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            视频
           </span>
         )}
         <span className="ml-auto flex shrink-0 items-center gap-1.5 pl-2">

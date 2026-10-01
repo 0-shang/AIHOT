@@ -32,8 +32,12 @@ export const ITEM_TYPES = [
 
 /** 每篇资料的第一个标签必须是这些“分类标签”之一。 */
 export const CATEGORY_TAGS = [
-  "比赛战报",
+  "赛程战报",
   "交易流言",
+<<<<<<< HEAD
+=======
+  "球队采访",
+>>>>>>> origin/main
   "球队动态",
   "深度专栏",
   "队记推文",

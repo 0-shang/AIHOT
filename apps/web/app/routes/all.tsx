@@ -75,19 +75,19 @@ export default function AllPage() {
 
   return (
     <div className="pb-6">
-      {/* Desktop, as on 精选: the title, then one filter row with the search field aligned on the right. */}
+      {/* Desktop */}
       <div className="hidden lg:block">
-        <h1 className="text-[24px] font-semibold leading-[1.3] text-ink">{title ?? `全部${withSubject("动态")}`}</h1>
+        <h1 className="text-[24px] font-semibold leading-[1.3] text-ink">{title ?? "火箭动态"}</h1>
         <div className="mb-5 mt-4 flex items-center justify-between gap-4">
           <CategoryTabs base="/all" category={f.category} channel={f.channel} layoutId="all-cat-desk" className="min-w-0" />
           <SearchField variant="track" defaultValue={f.q ?? ""} keep={keep} />
         </div>
       </div>
 
-      {/* Phones: title with today's count, the search bar, then the same filter row as 精选. */}
+      {/* Phones: title with today's count, the search bar, then the same filter row */}
       <div className="lg:hidden">
         <div className="flex items-baseline justify-between pb-3 pt-5">
-          <h1 className="text-[22px] font-bold text-ink">{title ?? "全部动态"}</h1>
+          <h1 className="text-[22px] font-bold text-ink">{title ?? "火箭动态"}</h1>
           {!f.q && (
             <span className="text-[12.5px] text-ink-4">
               今日 <span className="num">{data.todayCount}</span> 条

@@ -17,6 +17,8 @@ import { GroupSources } from "../features/feed/ReadingGroup";
 import { StoryFollowups } from "../features/item/StoryFollowups";
 import { MediaGallery } from "../features/item/MediaGallery";
 import { QuotedPost } from "../features/item/QuotedPost";
+import { YouTubeEmbed } from "../components/ui/YouTubeEmbed";
+import { detectYouTube } from "../lib/youtube";
 import { IconArrowLeft, IconCopy, IconDownload, IconExternal, IconImage, IconMenu, IconShare } from "../components/icons";
 
 const PosterSheet = lazy(() => import("../features/item/PosterSheet"));
@@ -128,6 +130,8 @@ export default function ItemPage() {
   const originalLabel = isX ? "在 X 查看原推" : "打开原文";
 
   const related = item.relatedStories.filter((s) => s.publicId !== item.story?.publicId);
+  const ytInfo = detectYouTube(item);
+  const poster = item.x?.media?.[0]?.url ?? (item.x as any)?.quoted?.media?.[0]?.url ?? null;
 
   const back = () => {
     if (window.history.state?.idx > 0) navigate(-1);
@@ -349,7 +353,16 @@ export default function ItemPage() {
             </section>
           )}
 
-          {isX && item.x!.media.length > 0 && <MediaGallery media={item.x!.media} postUrl={item.links.original} />}
+          {/* Embed YouTube player directly on page if detected */}
+          {ytInfo && (
+            <div className="mt-4">
+              <YouTubeEmbed info={ytInfo} poster={poster} />
+            </div>
+          )}
+
+          {isX && item.x!.media.length > 0 && (!ytInfo || item.x!.media.length > 1) && (
+            <MediaGallery media={item.x!.media} postUrl={item.links.original} />
+          )}
           {isX && item.x!.quoted?.text && <QuotedPost quoted={item.x!.quoted} original={lang === "original"} />}
 
           <p className="mt-8 text-[13px] text-ink-4">
