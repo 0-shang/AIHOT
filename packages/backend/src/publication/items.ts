@@ -94,6 +94,19 @@ export function channelCondition(channel: ChannelKey | null | undefined) {
 
 export function categoryCondition(category: CategoryKey | null | undefined, v1 = false) {
   if (!category) return sql``;
+  if (category === "beat_tweets") {
+    // 队记推文栏目：包含明确分类为 beat_tweets 的，以及所有非官方的随队记者推特
+    return sql`AND (p.category = 'beat_tweets' OR (p.channel = 'x' AND NOT p.first_party))`;
+  }
+  if (category === "news") {
+    // 球队动态栏目：
+    // 1. 包含官方发布（first_party）、官方公告/战报/伤病、或明确带球员/教练采访原声的内容
+    // 2. 随队记者非采访的日常推特不进入球队动态（归入队记推文）
+    // 3. 排除球衣历史、琐事盘点等非实质动态
+    return sql`AND p.category = 'news'
+      AND (p.channel != 'x' OR p.first_party OR p.tags && ARRAY['赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
+      AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
+  }
   // v1 and RSS publish opinion as tip.
   if (v1 && (category as string) === "tip") return sql`AND p.category IN ('tip', 'opinion')`;
   return sql`AND p.category = ${category}`;
