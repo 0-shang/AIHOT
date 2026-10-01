@@ -8,11 +8,10 @@
  * 没归上类的资料在日报里放进第一个 key 为 industry 的类别所在的节（没有就放最后一节）。
  */
 export const CATEGORIES = [
-  { key: "games", label: "战报", section: "比赛战报", guide: "比赛赛果、关键攻防、高光表现、技术统计与赛后深度复盘" },
-  { key: "trades", label: "交易流言", section: "交易与流言", guide: "正式交易、自由球员签约、转会流言、名记引援爆料、选秀大会与裁员下放" },
-  { key: "interviews", label: "将帅原声", section: "赛后与采访", guide: "主教练乌度卡、核心球员及管理层斯通的赛后采访、媒体日言论、更衣室原声采访与新闻发布会" },
-  { key: "news", label: "球队动态", section: "伤病与动态", guide: "官方伤病名单、出场状态（出战成疑/大概率缺席）、日常训练花絮、发展联盟召回及官方公告" },
-  { key: "analysis", label: "深度专栏", section: "战术与专栏", guide: "战术打法剖析、高阶数据模型、薪资空间结构、选秀前景及行业深度分析" },
+  { key: "news", label: "球队动态", section: "动态与采访", guide: "官方公告、伤病名单、出战状态、日常训练花絮、发展联盟召回；比赛战报、赛后技术统计与胜负盘点；主教练乌度卡、核心球员及管理层斯通的赛后采访、媒体日言论、更衣室原声采访与新闻发布会；随队记者发布的与火箭队高度正相关的实质新闻（一手采访、重要伤情、队内实质动向，记者日常推文碎碎念严禁归入）" },
+  { key: "analysis", label: "深度专栏", section: "战术与专栏", guide: "战术打法剖析、挡拆攻防复盘、高阶数据模型、薪资空间结构、选秀前景及行业深度分析" },
+  { key: "trades", label: "交易流言", section: "交易与流言", guide: "正式交易、自由球员签约、转会传闻与谈判动向、名记引援爆料、选秀大会与裁员下放；随队记者发布的涉及火箭队实质引援与交易动向的推文" },
+  { key: "beat_tweets", label: "队记推文", section: "队记推文", guide: "随队名记（Jonathan Feigen, Kelly Iko, Adam Spolane 等）在 X/推特发布的日常推文、观赛随感、现场花絮、实时看球动态与互动；默认所有队记推文归入此栏，若内容属于高度实质的球队新闻或采访则归入球队动态，交易爆料则归入交易流言" },
 ] as const;
 
 /**
@@ -35,9 +34,9 @@ export const ITEM_TYPES = [
 export const CATEGORY_TAGS = [
   "比赛战报",
   "交易流言",
-  "将帅原声",
   "球队动态",
   "深度专栏",
+  "队记推文",
   "非火箭/联盟其他",
   "其他",
 ] as const;
@@ -101,10 +100,13 @@ export const TAG_SYNONYMS: Readonly<Record<string, string>> = {
   综合: "球队动态",
   训练: "球队动态",
   管理层: "球队动态",
-  采访: "将帅原声",
-  言论: "将帅原声",
-  声音: "将帅原声",
-  原声: "将帅原声",
+  采访: "球队动态",
+  言论: "球队动态",
+  声音: "球队动态",
+  原声: "球队动态",
+  队记: "队记推文",
+  推文: "队记推文",
+  随队: "队记推文",
 };
 
 /** 模型漏了分类标签时，按内容类型补一个。 */
@@ -113,7 +115,7 @@ export const CATEGORY_BY_ITEM_TYPE: Readonly<Record<string, string>> = {
   roster_move: "交易流言",
   trade_rumor: "交易流言",
   injury_report: "球队动态",
-  interview_quote: "将帅原声",
+  interview_quote: "球队动态",
   tactical_analysis: "深度专栏",
   general_news: "球队动态",
 };

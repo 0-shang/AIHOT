@@ -1,7 +1,7 @@
 // Feed filters: the channel and category row, and search.
 import { useEffect, useRef, useState } from "react";
 import { Form, Link, useNavigation, useSearchParams } from "react-router";
-import { CATEGORY_KEYS, CATEGORY_LABELS, CHANNEL_LABELS, type CategoryKey, type ChannelKey } from "@aihot/contracts/taxonomy";
+import { type CategoryKey, type ChannelKey } from "@aihot/contracts/taxonomy";
 import { IconClose, IconSearch } from "../../components/icons";
 import { PillTabs } from "../../components/ui/Tabs";
 
@@ -25,19 +25,15 @@ export function hrefWith(base: string, params: URLSearchParams, patch: Record<st
  */
 export function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", className = "" }: { base: string; category: CategoryKey | null; channel?: ChannelKey; layoutId: string; size?: "md" | "sm"; className?: string }) {
   const [params] = useSearchParams();
-  // Custom tab order: 全部 → 球队动态(X) → 一手 → categories (minus news, analysis last with channel=news)
-  const categoryOrder = CATEGORY_KEYS.filter((k) => k !== "news" && k !== "analysis");
+  // Tab order: 全部 → 球队动态 → 深度专栏 → 交易流言 → 队记推文
   const items = [
     { key: "all", label: "全部", to: hrefWith(base, params, { category: null, channel: null }) },
-    { key: "xChannel", label: "球队动态", to: hrefWith(base, params, { category: null, channel: "x" }) },
-    { key: "firstParty", label: CHANNEL_LABELS.firstParty, to: hrefWith(base, params, { category: null, channel: "firstParty" }) },
-    ...categoryOrder.map((k) => ({ key: k, label: CATEGORY_LABELS[k], to: hrefWith(base, params, { category: k, channel: null }) })),
-    { key: "analysisNews", label: "深度专栏", to: hrefWith(base, params, { category: "analysis", channel: "news" }) },
+    { key: "news", label: "球队动态", to: hrefWith(base, params, { category: "news", channel: null }) },
+    { key: "analysis", label: "深度专栏", to: hrefWith(base, params, { category: "analysis", channel: null }) },
+    { key: "trades", label: "交易流言", to: hrefWith(base, params, { category: "trades", channel: null }) },
+    { key: "beat_tweets", label: "队记推文", to: hrefWith(base, params, { category: "beat_tweets", channel: null }) },
   ];
-  const active = channel === "x" && !category ? "xChannel"
-    : channel === "firstParty" ? "firstParty"
-    : category === "analysis" && channel === "news" ? "analysisNews"
-    : (category ?? "all");
+  const active = category ?? "all";
   return <PillTabs items={items} active={active} layoutId={layoutId} label="筛选" size={size} className={className} />;
 }
 
