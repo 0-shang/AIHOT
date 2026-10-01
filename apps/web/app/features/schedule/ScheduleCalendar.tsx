@@ -2,9 +2,13 @@ import { useState, useMemo } from "react";
 import { ROCKETS_GAMES, type GameData } from "./rocketsSchedule";
 
 const MONTH_NAMES = [
-  { year: 2026, month: 10, label: "10月 (澳门赛/揭幕)", subtitle: "NBA澳门赛热身与常规赛揭幕" },
-  { year: 2026, month: 11, label: "11月 (常规赛/NBA杯)", subtitle: "锦标赛小组争夺与密集常规赛" },
-  { year: 2026, month: 12, label: "12月 (常规赛/圣诞战)", subtitle: "年终大战与圣诞巅峰对决" },
+  { year: 2026, month: 10, label: "10月", subtitle: "澳门赛 & 揭幕战" },
+  { year: 2026, month: 11, label: "11月", subtitle: "NBA杯 & 常规赛" },
+  { year: 2026, month: 12, label: "12月", subtitle: "常规硬仗" },
+  { year: 2027, month: 1, label: "1月", subtitle: "新年东征" },
+  { year: 2027, month: 2, label: "2月", subtitle: "全明星 & 排位" },
+  { year: 2027, month: 3, label: "3月", subtitle: "冲刺阶段" },
+  { year: 2027, month: 4, label: "4月", subtitle: "常规赛收官" },
 ];
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
@@ -186,61 +190,103 @@ export function ScheduleCalendar() {
         </div>
 
         {/* 月份切换与视图筛选 */}
-        <div className="relative z-10 mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3 sm:pt-4">
-          {/* 月份列表 */}
-          <div className="flex max-w-full items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+        <div className="relative z-10 mt-5 flex flex-col gap-3 border-t border-white/10 pt-3 sm:pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* 当前月份与快速翻页 */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={selectedMonthIdx === 0}
+                onClick={() => setSelectedMonthIdx((prev) => Math.max(0, prev - 1))}
+                className="grid size-8 place-items-center rounded-lg bg-white/10 text-white/80 transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-30"
+                aria-label="上个月"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <div className="flex items-baseline gap-2">
+                <span className="text-base font-black text-white sm:text-lg">
+                  {currentMonth.year}年 {currentMonth.month}月
+                </span>
+                <span className="text-xs font-semibold text-amber-300">
+                  {currentMonth.subtitle}
+                </span>
+                <span className="text-xs text-white/60">
+                  ({monthGames.length} 场)
+                </span>
+              </div>
+              <button
+                type="button"
+                disabled={selectedMonthIdx === MONTH_NAMES.length - 1}
+                onClick={() => setSelectedMonthIdx((prev) => Math.min(MONTH_NAMES.length - 1, prev + 1))}
+                className="grid size-8 place-items-center rounded-lg bg-white/10 text-white/80 transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-30"
+                aria-label="下个月"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </div>
+
+            {/* 视图切换：在手机端/桌面端醒目展示 */}
+            <div className="flex items-center gap-1.5 text-xs">
+              <div className="flex items-center rounded-lg bg-black/40 p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={`flex items-center gap-1 rounded-md px-3 py-1 font-semibold transition-colors ${
+                    viewMode === "list" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"
+                  }`}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="8" y1="6" x2="21" y2="6" />
+                    <line x1="8" y1="12" x2="21" y2="12" />
+                    <line x1="8" y1="18" x2="21" y2="18" />
+                    <line x1="3" y1="6" x2="3.01" y2="6" />
+                    <line x1="3" y1="12" x2="3.01" y2="12" />
+                    <line x1="3" y1="18" x2="3.01" y2="18" />
+                  </svg>
+                  赛程清单
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("calendar")}
+                  className={`flex items-center gap-1 rounded-md px-3 py-1 font-semibold transition-colors ${
+                    viewMode === "calendar" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"
+                  }`}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  日历视图
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 7个月份快捷切换网格：无需横拉，7格自适应均分，没有任何滚动条 */}
+          <div className="grid grid-cols-7 gap-1 rounded-xl bg-black/40 p-1 sm:gap-1.5">
             {MONTH_NAMES.map((m, idx) => (
               <button
                 key={m.label}
                 type="button"
                 onClick={() => setSelectedMonthIdx(idx)}
-                className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition-all sm:text-sm ${
+                className={`flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-all sm:py-2 ${
                   selectedMonthIdx === idx
-                    ? "bg-white text-neutral-950 shadow-md"
-                    : "bg-white/10 text-white/80 hover:bg-white/20"
+                    ? "bg-white text-neutral-950 shadow-sm font-black"
+                    : "text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
               >
-                {m.label}
+                <span className="font-bold">{m.label}</span>
+                <span className={`hidden text-[10px] font-normal sm:inline ${selectedMonthIdx === idx ? "text-neutral-600" : "text-white/40"}`}>
+                  {m.year}
+                </span>
               </button>
             ))}
-          </div>
-
-          {/* 视图切换：在手机端醒目展示 */}
-          <div className="flex items-center gap-1.5 text-xs">
-            <div className="flex items-center rounded-lg bg-black/40 p-0.5">
-              <button
-                type="button"
-                onClick={() => setViewMode("list")}
-                className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-colors ${
-                  viewMode === "list" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"
-                }`}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="8" y1="6" x2="21" y2="6" />
-                  <line x1="8" y1="12" x2="21" y2="12" />
-                  <line x1="8" y1="18" x2="21" y2="18" />
-                  <line x1="3" y1="6" x2="3.01" y2="6" />
-                  <line x1="3" y1="12" x2="3.01" y2="12" />
-                  <line x1="3" y1="18" x2="3.01" y2="18" />
-                </svg>
-                赛程清单
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("calendar")}
-                className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-colors ${
-                  viewMode === "calendar" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"
-                }`}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                日历视图
-              </button>
-            </div>
           </div>
         </div>
       </div>

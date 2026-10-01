@@ -33,11 +33,11 @@ export function monthRange(key: string): [string, string] {
   return [`${key}-01`, ymd(new Date(Date.UTC(y, m, 0)))];
 }
 
-/** "这一天的 4 件 AI 大事" / "本周的 12 件 AI 大事" / "8 月的 20 件 AI 大事". */
+/** "今日火箭 4 件重点动态" / "本周火箭 12 件重点动态" / "8 月火箭 20 件重点动态". */
 export function headline(kind: ReportKind, key: string, count: number): string {
-  if (kind === "daily") return `这一天的 ${count} 件 AI 大事`;
-  if (kind === "weekly") return `本周的 ${count} 件 AI 大事`;
-  return `${Number(key.slice(5, 7))} 月的 ${count} 件 AI 大事`;
+  if (kind === "daily") return `今日火箭 ${count} 件重点动态`;
+  if (kind === "weekly") return `本周火箭 ${count} 件重点动态`;
+  return `${Number(key.slice(5, 7))} 月火箭 ${count} 件重点动态`;
 }
 
 /** "09.16" for a story inside a week or month. */
@@ -164,7 +164,7 @@ export function dateLine(kind: ReportKind, key: string): string {
 }
 
 /** What each kind is, under its nameplate. */
-export const MOTTO: Record<ReportKind, string> = { daily: "人工智能 · 每日要闻", weekly: "人工智能 · 每周综述", monthly: "人工智能 · 每月盘点" };
+export const MOTTO: Record<ReportKind, string> = { daily: "休斯敦火箭 · 每日晨报", weekly: "休斯敦火箭 · 每周综述", monthly: "休斯敦火箭 · 每月盘点" };
 
 export interface PeriodCell {
   key: string | null;

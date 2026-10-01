@@ -188,7 +188,7 @@ export default function FeedbackPage() {
                 maxLength={MAX_TEXT}
                 value={draft.content}
                 onChange={(e) => setDraft({ ...draft, content: e.target.value })}
-                placeholder="例如：我在搜索“OpenAI”时遇到……我原本想……"
+                placeholder="例如：查找“申京澳门赛出战情况”时没有找到、希望增加更多随队记者的深度专栏、界面阅读体验建议……"
                 className={`${field} block resize-y px-4 pb-8 pt-3.5 text-[14.5px] leading-relaxed`}
               />
               <span className="mono pointer-events-none absolute bottom-3 right-4 text-[11px] text-ink-4">

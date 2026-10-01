@@ -4,7 +4,7 @@
     {
       "key": "player",
       "name": "核心人物",
-      "blurb": "按球员与教练追踪：乌度卡、杰伦·格林、申京、阿门·汤普森等"
+      "blurb": "按球员与教练追踪：杜兰特、申京、阿门·汤普森、乌度卡、谢泼德等"
     },
     {
       "key": "field",
@@ -50,18 +50,20 @@
       ]
     },
     {
-      "slug": "jalen-green",
-      "name": "杰伦·格林",
+      "slug": "kevin-durant",
+      "name": "凯文·杜兰特",
       "group": "player",
-      "entityId": "jalen-green",
+      "entityId": "kevin-durant",
       "tags": [
-        "杰伦·格林",
-        "entity:jalen-green"
+        "凯文·杜兰特",
+        "杜兰特",
+        "entity:kevin-durant"
       ],
-      "definition": "后卫杰伦·格林的比赛高光、得分爆发、状态起伏与关键进球追踪。",
+      "definition": "新任超级巨星杜兰特的无解中距离单打、关键决胜进球与领袖表现追踪。",
       "related": [
         "sengun",
-        "amen-thompson"
+        "amen-thompson",
+        "udoka"
       ]
     },
     {

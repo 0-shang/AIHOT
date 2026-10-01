@@ -195,7 +195,7 @@ export function YouTubeVideoGrid({ items }: { items: FeedItemSummary[] }) {
                     <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px] text-ink-4">
                       <span>{dateStr}</span>
                       <span>•</span>
-                      <span className="font-semibold text-accent/90">AI 评分 {item.score}</span>
+                      <span className="font-semibold text-accent/90">热度评级 {item.score}</span>
                       {item.tags.length > 0 && (
                         <>
                           <span>•</span>
@@ -275,7 +275,7 @@ export function YouTubeVideoGrid({ items }: { items: FeedItemSummary[] }) {
                     <span>发布于 {activeVideo.item.publishedAt?.slice(0, 10)}</span>
                     <span>•</span>
                     <span className="rounded bg-white/10 px-1.5 py-0.5 text-white/80">
-                      AI 质量评分 {activeVideo.item.score}
+                      热度评级 {activeVideo.item.score}
                     </span>
                   </div>
                 </div>
@@ -292,10 +292,10 @@ export function YouTubeVideoGrid({ items }: { items: FeedItemSummary[] }) {
                 )}
               </div>
 
-              {/* AI 解读与战术分析摘要 */}
+              {/* 战术与看点分析摘要 */}
               {activeVideo.item.summary && (
                 <div className="mt-4 rounded-xl bg-white/[0.05] p-3.5 text-xs leading-relaxed text-white/80">
-                  <div className="mb-1 font-bold text-amber-300">💡 AI 视频核心看点速览：</div>
+                  <div className="mb-1 font-bold text-amber-300">💡 视讯核心要点速览：</div>
                   {activeVideo.item.summary}
                 </div>
               )}

@@ -142,17 +142,49 @@ function breadcrumbLd(items) {
 //#endregion
 //#region app/components/Logo.tsx
 function Wordmark({ size = 22, className = "" }) {
-	return /* @__PURE__ */ jsxs("span", {
-		className: `inline-flex items-center font-black leading-none tracking-[-0.03em] ${className}`,
-		style: { fontSize: size },
+	return /* @__PURE__ */ jsxs("div", {
+		className: `inline-flex items-center gap-2.5 select-none ${className}`,
 		"aria-label": SITE.name,
 		role: "img",
-		children: [/* @__PURE__ */ jsx("span", {
-			"aria-hidden": "true",
-			className: "mr-[0.3em] inline-block size-[0.42em] rounded-full bg-accent"
-		}), /* @__PURE__ */ jsx("span", {
-			"aria-hidden": "true",
-			children: SITE.name
+		children: [/* @__PURE__ */ jsx("div", {
+			className: "relative flex size-[32px] shrink-0 items-center justify-center rounded-xl bg-[#CE1141] text-white shadow-xs",
+			children: /* @__PURE__ */ jsxs("svg", {
+				viewBox: "0 0 24 24",
+				className: "size-[20px]",
+				fill: "none",
+				stroke: "currentColor",
+				strokeWidth: "2.2",
+				strokeLinecap: "round",
+				strokeLinejoin: "round",
+				children: [
+					/* @__PURE__ */ jsx("circle", {
+						cx: "12",
+						cy: "12",
+						r: "9"
+					}),
+					/* @__PURE__ */ jsx("path", { d: "M12 3v18" }),
+					/* @__PURE__ */ jsx("path", { d: "M3 12h18" }),
+					/* @__PURE__ */ jsx("path", { d: "M5.5 5.5c3.8 3.5 3.8 9.5 0 13" }),
+					/* @__PURE__ */ jsx("path", { d: "M18.5 5.5c-3.8 3.5-3.8 9.5 0 13" })
+				]
+			})
+		}), /* @__PURE__ */ jsxs("div", {
+			className: "flex flex-col text-left leading-none",
+			children: [/* @__PURE__ */ jsxs("div", {
+				className: "flex items-baseline gap-1",
+				children: [/* @__PURE__ */ jsx("span", {
+					className: "font-black tracking-tight text-ink",
+					style: { fontSize: size * .95 },
+					children: "Rockets"
+				}), /* @__PURE__ */ jsx("span", {
+					className: "font-black italic text-[#CE1141] tracking-tighter",
+					style: { fontSize: size * .95 },
+					children: "HOT"
+				})]
+			}), /* @__PURE__ */ jsx("span", {
+				className: "mt-0.5 text-[9.5px] font-semibold tracking-[0.15em] text-ink-4",
+				children: "休斯敦篮球前线"
+			})]
 		})]
 	});
 }
@@ -181,7 +213,7 @@ function RingMark({ className = "", spinning = false }) {
 			cx: "12",
 			cy: "12",
 			r: "2.6",
-			fill: "currentColor"
+			fill: "#CE1141"
 		})]
 	});
 }
@@ -690,10 +722,10 @@ function SideLink({ item, dot }) {
 		to: item.to,
 		prefetch: "intent",
 		"aria-current": isActive ? "page" : void 0,
-		className: `flex h-10 items-center gap-2.5 rounded-control px-2.5 text-[14px] transition-colors duration-150 ${isActive ? "bg-accent/10 font-semibold text-ink dark:bg-accent-soft" : "font-medium text-ink-3 hover:bg-bg-sunk hover:text-ink"}`,
+		className: `flex h-10 items-center gap-2.5 rounded-control px-2.5 text-[14px] transition-all duration-150 ${isActive ? "bg-gradient-to-r from-[#CE1141]/15 via-[#CE1141]/5 to-transparent border-l-[3px] border-[#CE1141] font-bold text-[#CE1141] dark:text-[#ff3864]" : "font-medium text-ink-3 hover:bg-bg-sunk hover:text-ink"}`,
 		children: [
 			/* @__PURE__ */ jsx("span", {
-				className: `flex w-[22px] shrink-0 justify-center ${isActive ? "text-accent" : ""}`,
+				className: `flex w-[22px] shrink-0 justify-center ${isActive ? "text-[#CE1141] dark:text-[#ff3864]" : ""}`,
 				children: /* @__PURE__ */ jsx(Icon, { size: 17 })
 			}),
 			/* @__PURE__ */ jsx("span", {
@@ -710,19 +742,19 @@ function SideLink({ item, dot }) {
 function Sidebar({ changelogVersion }) {
 	const dot = useChangelogDot(changelogVersion);
 	return /* @__PURE__ */ jsxs("aside", {
-		className: "sticky top-0 hidden h-dvh w-[180px] shrink-0 flex-col border-r border-line bg-sidebar px-3 pb-3.5 pt-6 lg:flex",
+		className: "sticky top-0 hidden h-dvh w-[190px] shrink-0 flex-col border-r border-line bg-sidebar px-3 pb-3.5 pt-5 lg:flex",
 		children: [
 			/* @__PURE__ */ jsx(Link, {
 				to: "/",
 				className: "mb-4 flex h-[50px] items-center px-1 text-ink",
 				"aria-label": `${SITE.name} 首页`,
-				children: /* @__PURE__ */ jsx(Wordmark, { size: 24 })
+				children: /* @__PURE__ */ jsx(Wordmark, { size: 21 })
 			}),
 			/* @__PURE__ */ jsx("nav", {
 				className: "-mx-1 flex-1 overflow-y-auto px-1",
 				"aria-label": "主导航",
 				children: SIDEBAR.map((section) => /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("div", {
-					className: "px-2.5 pb-1 pt-3.5 text-[11px] text-ink-4",
+					className: "px-2.5 pb-1 pt-3 text-[11px] font-semibold text-ink-4",
 					children: section.title
 				}), /* @__PURE__ */ jsx("div", {
 					className: "flex flex-col gap-1",
@@ -732,8 +764,39 @@ function Sidebar({ changelogVersion }) {
 					}, item.to))
 				})] }, section.title))
 			}),
+			/* @__PURE__ */ jsxs(Link, {
+				to: "/schedule",
+				className: "group mb-2 mt-auto block rounded-xl border border-line-soft bg-gradient-to-br from-bg-sunk/60 to-surface p-2.5 shadow-2xs transition-all hover:border-[#CE1141]/60 hover:shadow-md",
+				children: [
+					/* @__PURE__ */ jsxs("div", {
+						className: "flex items-center justify-between text-[10px] font-bold text-ink-4",
+						children: [/* @__PURE__ */ jsxs("span", {
+							className: "flex items-center gap-1 text-[#CE1141]",
+							children: [/* @__PURE__ */ jsx("span", { className: "size-1.5 animate-ping rounded-full bg-[#CE1141]" }), "焦点赛事"]
+						}), /* @__PURE__ */ jsx("span", {
+							className: "font-mono text-ink-3",
+							children: "10.09 20:00"
+						})]
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "mt-1 flex items-center justify-between text-[12px] font-black text-ink",
+						children: [
+							/* @__PURE__ */ jsx("span", { children: "HOU 火箭" }),
+							/* @__PURE__ */ jsx("span", {
+								className: "font-sans text-[10px] font-semibold text-ink-4",
+								children: "VS"
+							}),
+							/* @__PURE__ */ jsx("span", { children: "DAL 独行侠" })
+						]
+					}),
+					/* @__PURE__ */ jsx("div", {
+						className: "mt-0.5 text-[9.5px] font-bold text-amber-600 dark:text-amber-400",
+						children: "🇲🇴 NBA 澳门赛 G1"
+					})
+				]
+			}),
 			/* @__PURE__ */ jsxs("div", {
-				className: "mt-2 space-y-2.5 px-1 pt-1",
+				className: "space-y-2 px-1 pt-1",
 				children: [/* @__PURE__ */ jsx(ThemeSwitch, { className: "mx-1" }), SITE.icp && /* @__PURE__ */ jsx("a", {
 					href: "https://beian.miit.gov.cn/",
 					target: "_blank",
@@ -1291,7 +1354,7 @@ function Thumb({ id }) {
 	}, [id, entrance]);
 	return /* @__PURE__ */ jsx("span", {
 		ref,
-		className: "absolute inset-0 rounded-full bg-surface shadow-[var(--shadow-thumb)] ring-1 ring-line dark:bg-raised"
+		className: "absolute inset-0 rounded-full bg-surface shadow-xs ring-1 ring-[#CE1141]/25 dark:ring-white/10 dark:bg-raised"
 	});
 }
 var SIZES = {
@@ -1325,7 +1388,7 @@ function PillTabs({ items, active, onSelect, layoutId, size = "md", label, fill 
 						children: t.count
 					})]
 				})] });
-				const cls = `relative inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap rounded-full font-medium outline-offset-1 transition-colors duration-150 active:scale-[0.98] ${SIZES[size]} ${on ? "text-ink" : "text-ink-3 hover:text-ink"}`;
+				const cls = `relative inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap rounded-full outline-offset-1 transition-all duration-150 active:scale-[0.98] ${SIZES[size]} ${on ? "text-[#CE1141] dark:text-[#ff3864] font-extrabold" : "text-ink-3 hover:text-ink font-semibold"}`;
 				const TabLink = t.prefetch === "intent" ? IntentLink : Link;
 				return t.to ? /* @__PURE__ */ jsx(TabLink, {
 					to: t.to,
@@ -1569,72 +1632,25 @@ function sourceInitial(name) {
 	return (shortSourceName(name).replace(/^[^\p{L}\p{N}]+/u, "")[0] ?? "A").toUpperCase();
 }
 //#endregion
-//#region app/components/ui/Badge.tsx
-var TONES$1 = {
-	selected: "bg-amber-soft text-amber-ink",
-	accent: "bg-accent-soft text-accent",
-	amber: "bg-amber-soft text-amber-ink",
-	hot: "bg-hot-soft text-hot",
-	ok: "bg-ok-soft text-ok",
-	neutral: "bg-bg-sunk text-ink-3 border border-line-soft"
-};
-/** Small label next to a source or title: 精选, statuses and counts. */
-function Badge$1({ tone = "neutral", dot = false, children, className = "", title }) {
-	return /* @__PURE__ */ jsxs("span", {
-		title,
-		className: `inline-flex h-[18px] shrink-0 items-center gap-1 rounded-full px-2 text-[11px] font-medium leading-none ${TONES$1[tone]} ${className}`,
-		children: [dot && /* @__PURE__ */ jsx("span", {
-			className: "size-[5px] rounded-full bg-current",
-			"aria-hidden": "true"
-		}), children]
-	});
-}
-/** The "精选" mark on a report. */
-function SelectedBadge() {
-	return /* @__PURE__ */ jsx(Badge$1, {
-		tone: "selected",
-		dot: true,
-		children: "精选"
-	});
-}
-//#endregion
 //#region app/components/ui/Score.tsx
 /**
-* The AI score as a small pill, tinted by tier instead of drawn as a bar: strong picks (85+) in a wash of
-* warm red, solid ones (70+) in the accent, the rest as quiet text. The score itself is unchanged.
+* 篮球资讯前线热度评级标签 (纯净、专业体育媒体风格)
 */
-var TIERS = [
-	{
-		min: 85,
-		className: "bg-hot/10 text-hot ring-hot/25"
-	},
-	{
-		min: 70,
-		className: "bg-accent-soft text-accent ring-accent/20"
-	},
-	{
-		min: 0,
-		className: "text-ink-4 ring-line-soft"
-	}
-];
-/** "AI 评分 · 88" on desktop cards; `compact` keeps only the number (phones). */
 function ScoreLabel({ score, compact = false }) {
-	if (score === null) return null;
-	const value = Math.round(score);
-	const tier = TIERS.find((t) => value >= t.min);
+	if (score === null || score === void 0) return null;
+	const isTenScale = score <= 10;
+	const numDisplay = isTenScale ? Number.isInteger(score) ? score.toFixed(1) : String(score) : String(Math.round(score));
+	const colorCls = (isTenScale ? score * 10 : score) >= 85 ? "bg-red-50 text-[#CE1141] ring-[#CE1141]/25 dark:bg-red-950/40 dark:text-red-300 dark:ring-red-900" : "bg-neutral-100 text-ink-3 ring-line dark:bg-neutral-800/60 dark:text-ink-3";
 	return /* @__PURE__ */ jsxs("span", {
-		title: `AI 评分 ${value}/100`,
-		"aria-label": `AI 评分 ${value} 分`,
-		className: `inline-flex h-[20px] shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2 ring-1 ring-inset ${tier.className}`,
-		children: [!compact && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("span", {
-			className: "text-[11px] font-medium leading-none opacity-80",
-			children: "AI 评分"
-		}), /* @__PURE__ */ jsx("span", {
-			className: "h-2.5 w-px bg-current opacity-25",
-			"aria-hidden": "true"
-		})] }), /* @__PURE__ */ jsx("span", {
-			className: "mono text-[12.5px] font-bold leading-none tabular-nums",
-			children: value
+		title: `前线热度评级：${numDisplay}`,
+		"aria-label": `热度评级 ${numDisplay}`,
+		className: `inline-flex h-[20px] shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-1.5 text-[10.5px] font-medium ring-1 ring-inset ${colorCls}`,
+		children: [/* @__PURE__ */ jsx("span", {
+			className: "font-mono text-[11px] font-black tabular-nums tracking-tight",
+			children: numDisplay
+		}), !compact && /* @__PURE__ */ jsx("span", {
+			className: "text-[10px] font-semibold opacity-80",
+			children: "热度"
 		})]
 	});
 }
@@ -2555,96 +2571,101 @@ function detectYouTube(item) {
 }
 //#endregion
 //#region app/features/feed/FeedItem.tsx
+function cleanSportsText(text) {
+	if (!text) return "";
+	return text.replace(/\[?&#8230;\]?/g, "...").replace(/&#8217;/g, "'").replace(/&#8216;/g, "'").replace(/&#8220;/g, "\"").replace(/&#8221;/g, "\"").replace(/&#038;/g, "&").replace(/&amp;/g, "&").replace(/&quot;/g, "\"").replace(/&apos;/g, "'").replace(/&nbsp;/g, " ").trim();
+}
 var FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOpen, showTags = false }) {
 	const isX = item.channel === "x" && !!item.x;
 	const isYouTube = detectYouTube(item);
 	const open = () => onOpen?.(item.id);
 	const showSources = !!group && (group.additionalSourceCount > 0 || group.developmentCount <= 1 && group.reportCount > 1);
 	const showDevelopments = !!group?.story && group.developmentCount > 1;
-	const tags = showTags ? item.tags.slice(0, 3) : [];
+	const cleanTitle = useMemo(() => cleanSportsText(item.title), [item.title]);
+	const cleanSummary = useMemo(() => cleanSportsText(item.summary), [item.summary]);
+	const cleanTags = useMemo(() => {
+		const catLabel = item.category ? CATEGORY_LABELS[item.category] : "";
+		const rawTags = item.tags || [];
+		return Array.from(new Set(rawTags.map((t) => t.trim()))).filter((t) => t && t !== catLabel && t !== item.source.name && t !== "休斯敦火箭").slice(0, 3);
+	}, [
+		item.tags,
+		item.category,
+		item.source.name
+	]);
 	return /* @__PURE__ */ jsxs("article", {
-		className: "relative min-w-0 lg:card lg:card-hover lg:px-[18px] lg:pb-[14px] lg:pt-[15px]",
+		className: "group/card relative min-w-0 rounded-2xl bg-surface/50 p-3.5 shadow-2xs ring-1 ring-line/50 transition-all duration-200 hover:bg-surface hover:ring-[#CE1141]/30 hover:shadow-xs lg:card lg:card-hover lg:rounded-panel lg:p-4 lg:shadow-none lg:ring-0",
 		"data-item-id": item.id,
 		children: [
 			/* @__PURE__ */ jsxs("header", {
-				className: "flex min-h-[18px] items-center gap-2 text-[12.5px] leading-[18px] text-ink-4",
+				className: "flex min-h-[20px] items-center gap-2 text-[12px] leading-none text-ink-4",
 				children: [
 					/* @__PURE__ */ jsx(SourceLine, {
 						item,
-						className: "text-ink-4"
+						className: "font-semibold text-ink-3"
+					}),
+					/* @__PURE__ */ jsxs("time", {
+						dateTime: item.timelineAt,
+						className: "text-[11px] text-ink-4 lg:hidden",
+						children: ["· ", beijingTime(item.timelineAt)]
 					}),
 					isYouTube && /* @__PURE__ */ jsxs("span", {
-						className: "inline-flex items-center gap-1 rounded bg-[#FF0000]/10 px-1.5 py-0.5 text-[11px] font-semibold text-[#FF0000]",
+						className: "inline-flex items-center gap-1 rounded-md bg-[#FF0000]/10 px-1.5 py-0.5 text-[10px] font-bold text-[#FF0000] ring-1 ring-[#FF0000]/25",
 						children: [/* @__PURE__ */ jsx("svg", {
-							width: "10",
-							height: "10",
+							width: "9",
+							height: "9",
 							viewBox: "0 0 24 24",
 							fill: "currentColor",
 							children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
-						}), "视频"]
+						}), "视讯"]
 					}),
 					/* @__PURE__ */ jsxs("span", {
 						className: "ml-auto flex shrink-0 items-center gap-1.5 pl-2",
-						children: [
-							/* @__PURE__ */ jsx("span", {
-								className: "hidden lg:inline-flex",
-								children: /* @__PURE__ */ jsx(ScoreLabel, { score: item.score })
-							}),
-							/* @__PURE__ */ jsx("span", {
-								className: "lg:hidden",
-								children: /* @__PURE__ */ jsx(ScoreLabel, {
-									score: item.score,
-									compact: true
-								})
-							}),
-							/* @__PURE__ */ jsx("span", {
-								className: "-my-1 hidden lg:inline-flex",
-								children: /* @__PURE__ */ jsx(StarButton, { item })
-							})
-						]
+						children: [/* @__PURE__ */ jsx(ScoreLabel, {
+							score: item.score,
+							compact: true
+						}), /* @__PURE__ */ jsx("span", {
+							className: "-my-1 hidden lg:inline-flex",
+							children: /* @__PURE__ */ jsx(StarButton, { item })
+						})]
 					})
 				]
 			}),
 			isX ? /* @__PURE__ */ jsx("p", {
-				className: `mt-2 whitespace-pre-line text-[15px] leading-[1.75] line-clamp-5 lg:line-clamp-4 ${read ? "text-ink-4" : "text-ink"}`,
+				className: `mt-2 whitespace-pre-line text-[14.5px] leading-[1.65] line-clamp-4 lg:text-[15px] lg:leading-[1.7] ${read ? "text-ink-4" : "font-normal text-ink"}`,
 				children: /* @__PURE__ */ jsx(IntentLink, {
 					to: `/items/${item.id}`,
 					onClick: open,
-					className: "after:absolute after:inset-0 after:content-['']",
-					children: item.summary ?? item.title
+					className: "after:absolute after:inset-0 after:content-[''] transition-colors hover:text-[#CE1141]",
+					children: cleanSummary || cleanTitle
 				})
 			}) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("h3", {
-				className: `mt-2 line-clamp-2 text-[17px] font-bold leading-[1.55] lg:line-clamp-none lg:font-[650] ${read ? "text-ink-4" : "text-ink"}`,
+				className: `mt-2 text-[15.5px] font-bold leading-[1.45] tracking-tight transition-colors group-hover/card:text-[#CE1141] lg:text-[17px] lg:leading-[1.5] ${read ? "text-ink-4" : "text-ink"}`,
 				children: /* @__PURE__ */ jsx(IntentLink, {
 					to: `/items/${item.id}`,
 					onClick: open,
 					className: "after:absolute after:inset-0 after:content-['']",
-					children: item.title
+					children: cleanTitle
 				})
-			}), item.summary && /* @__PURE__ */ jsx("p", {
-				className: "mt-1.5 line-clamp-2 text-[14.5px] leading-[1.75] text-ink-3 lg:mt-2 lg:line-clamp-3 lg:text-[15px]",
-				children: item.summary
+			}), cleanSummary && /* @__PURE__ */ jsx("p", {
+				className: "mt-1.5 line-clamp-2 text-[13px] leading-[1.65] text-ink-3 lg:mt-2 lg:line-clamp-3 lg:text-[14px] lg:leading-[1.7]",
+				children: cleanSummary
 			})] }),
 			isX && item.x.media.length > 0 && /* @__PURE__ */ jsx(MediaThumbs, {
 				media: item.x.media,
 				className: "mt-2.5"
 			}),
 			isX && item.x.quoted?.text && /* @__PURE__ */ jsx(QuotedLine, { quoted: item.x.quoted }),
-			(tags.length > 0 || showTags && item.category) && /* @__PURE__ */ jsxs("div", {
-				className: "relative z-10 mt-2 hidden flex-wrap gap-x-2.5 gap-y-1 text-[12px] text-ink-4 lg:flex",
-				children: [showTags && item.category && /* @__PURE__ */ jsx(Link, {
-					to: `/all?category=${item.category}`,
-					className: "hover:text-accent",
-					children: CATEGORY_LABELS[item.category]
-				}), tags.map((t) => /* @__PURE__ */ jsxs(Link, {
+			(cleanTags.length > 0 || showTags && item.category) && /* @__PURE__ */ jsx("div", {
+				className: "relative z-10 mt-2.5 flex flex-wrap items-center gap-1 text-[11px] text-ink-4",
+				children: cleanTags.map((t) => /* @__PURE__ */ jsxs(Link, {
 					to: `/all?tag=${encodeURIComponent(t)}`,
-					className: "hover:text-accent",
+					className: "rounded bg-bg-sunk/70 px-1.5 py-0.5 font-medium text-ink-4 transition-colors hover:bg-red-50 hover:text-[#CE1141] dark:hover:bg-red-950/40",
 					children: ["#", t]
-				}, t))]
+				}, t))
 			}),
 			group && /* @__PURE__ */ jsx(LatestDevelopment, { group }),
 			(showSources || showDevelopments) && /* @__PURE__ */ jsxs("div", {
-				className: "mt-2 flex flex-wrap items-start gap-x-4 gap-y-1",
+				className: "mt-2.5 flex flex-wrap items-start gap-x-4 gap-y-1",
 				children: [showSources && /* @__PURE__ */ jsx(GroupSources, {
 					group,
 					filters,
@@ -2657,13 +2678,6 @@ var FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOp
 					filters,
 					parentId: item.id
 				})]
-			}),
-			item.reason && /* @__PURE__ */ jsx("div", {
-				className: "mt-2.5 rounded-control bg-bg-sunk px-3 py-2 dark:bg-bg-muted/60 lg:mt-3 lg:rounded-none lg:border-t lg:border-line-soft lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-3 lg:dark:bg-transparent",
-				children: /* @__PURE__ */ jsxs("p", {
-					className: "line-clamp-2 text-[13px] leading-[1.65] text-ink-3 lg:line-clamp-none lg:leading-[1.75] lg:text-note",
-					children: ["推荐理由：", item.reason]
-				})
 			})
 		]
 	});
@@ -2827,7 +2841,7 @@ function DayHeader({ day, today, count, collapsed, onToggle }) {
 					type: "button",
 					onClick: onToggle,
 					disabled: !onToggle,
-					className: "justify-self-end whitespace-nowrap text-right text-[18px] font-semibold leading-6 text-ink",
+					className: "justify-self-end whitespace-nowrap text-right text-[19px] font-black leading-6 text-ink tracking-tight",
 					children: date
 				}),
 				onToggle ? /* @__PURE__ */ jsx("button", {
@@ -2863,12 +2877,12 @@ function DayHeader({ day, today, count, collapsed, onToggle }) {
 function TimelineSlot({ at, children, fresh = false, delay = 0, dataKey }) {
 	return /* @__PURE__ */ jsxs("li", {
 		"data-card-key": dataKey,
-		className: `group/slot grid grid-cols-[48px_minmax(0,1fr)] border-b border-line-soft py-3.5 last:border-b-0 lg:grid-cols-[64px_22px_minmax(0,1fr)] lg:border-b-0 lg:py-0 lg:pb-3 lg:last:pb-0 ${fresh ? "animate-fade-up" : ""}`,
+		className: `group/slot flex flex-col py-1.5 lg:grid lg:grid-cols-[64px_22px_minmax(0,1fr)] lg:py-0 lg:pb-3 lg:last:pb-0 ${fresh ? "animate-fade-up" : ""}`,
 		style: fresh ? { animationDelay: `${delay}ms` } : void 0,
 		children: [
 			/* @__PURE__ */ jsx("time", {
 				dateTime: at,
-				className: "mono pt-[2px] text-[13px] leading-[18px] text-ink-4 lg:pt-[17px] lg:text-[12.5px] lg:font-semibold lg:leading-6 lg:text-ink-3",
+				className: "mono hidden text-[12.5px] font-semibold leading-6 text-ink-3 lg:block lg:pt-[17px]",
 				children: beijingTime(at)
 			}),
 			/* @__PURE__ */ jsxs("span", {
@@ -2876,7 +2890,10 @@ function TimelineSlot({ at, children, fresh = false, delay = 0, dataKey }) {
 				className: "relative hidden lg:block",
 				children: [/* @__PURE__ */ jsx("span", { className: "absolute -bottom-[41px] left-[10.5px] top-[29px] w-px bg-line-strong group-last/slot:hidden" }), /* @__PURE__ */ jsx("span", { className: "absolute left-[7.5px] top-[25.5px] size-[7px] rounded-full bg-accent shadow-[0_0_0_4px_var(--bg)] transition-transform duration-300 group-hover/slot:scale-[1.15]" })]
 			}),
-			children
+			/* @__PURE__ */ jsx("div", {
+				className: "min-w-0",
+				children
+			})
 		]
 	});
 }
@@ -3229,7 +3246,7 @@ function YouTubeVideoGrid({ items }) {
 											/* @__PURE__ */ jsx("span", { children: "•" }),
 											/* @__PURE__ */ jsxs("span", {
 												className: "font-semibold text-accent/90",
-												children: ["AI 评分 ", item.score]
+												children: ["热度评级 ", item.score]
 											}),
 											item.tags.length > 0 && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("span", { children: "•" }), /* @__PURE__ */ jsxs("span", {
 												className: "truncate text-ink-4",
@@ -3307,7 +3324,7 @@ function YouTubeVideoGrid({ items }) {
 										/* @__PURE__ */ jsx("span", { children: "•" }),
 										/* @__PURE__ */ jsxs("span", {
 											className: "rounded bg-white/10 px-1.5 py-0.5 text-white/80",
-											children: ["AI 质量评分 ", activeVideo.item.score]
+											children: ["热度评级 ", activeVideo.item.score]
 										})
 									]
 								})] }), (activeVideo.item.links?.original || activeVideo.embedUrl) && /* @__PURE__ */ jsx("a", {
@@ -3321,7 +3338,7 @@ function YouTubeVideoGrid({ items }) {
 								className: "mt-4 rounded-xl bg-white/[0.05] p-3.5 text-xs leading-relaxed text-white/80",
 								children: [/* @__PURE__ */ jsx("div", {
 									className: "mb-1 font-bold text-amber-300",
-									children: "💡 AI 视频核心看点速览："
+									children: "💡 视讯核心要点速览："
 								}), activeVideo.item.summary]
 							})]
 						})
@@ -3422,8 +3439,8 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 			/* @__PURE__ */ jsxs("div", {
 				className: "hidden lg:block",
 				children: [/* @__PURE__ */ jsx("h1", {
-					className: "text-[24px] font-semibold leading-[1.3] text-ink",
-					children: title ?? "火箭动态"
+					className: "text-[26px] font-black tracking-tight text-ink lg:text-3xl",
+					children: title ?? "休斯敦火箭 前沿情报"
 				}), /* @__PURE__ */ jsxs("div", {
 					className: "mb-5 mt-4 flex items-center justify-between gap-4",
 					children: [/* @__PURE__ */ jsx(CategoryTabs, {
@@ -3443,10 +3460,10 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 				className: "lg:hidden",
 				children: [
 					/* @__PURE__ */ jsxs("div", {
-						className: "flex items-baseline justify-between pb-3 pt-5",
+						className: "flex items-baseline justify-between pb-3 pt-3",
 						children: [/* @__PURE__ */ jsx("h1", {
-							className: "text-[22px] font-bold text-ink",
-							children: title ?? "火箭动态"
+							className: "text-[22px] font-black text-ink",
+							children: title ?? "休斯敦火箭 前沿情报"
 						}), !f.q && /* @__PURE__ */ jsxs("span", {
 							className: "text-[12.5px] text-ink-4",
 							children: [
@@ -3570,553 +3587,1583 @@ function SearchBusy() {
 }
 //#endregion
 //#region app/features/schedule/rocketsSchedule.ts
-var NBA_TEAMS = {
-	LAL: {
-		name: "湖人",
-		city: "洛杉矶",
-		abbr: "LAL",
-		color: "#552583",
-		logoText: "LAL"
-	},
-	GSW: {
-		name: "勇士",
-		city: "金州",
-		abbr: "GSW",
-		color: "#1D428A",
-		logoText: "GSW"
-	},
-	DAL: {
-		name: "独行侠",
-		city: "达拉斯",
-		abbr: "DAL",
-		color: "#00538C",
-		logoText: "DAL"
-	},
-	SAS: {
-		name: "马刺",
-		city: "圣安东尼奥",
-		abbr: "SAS",
-		color: "#6c757d",
-		logoText: "SAS"
-	},
-	OKC: {
-		name: "雷霆",
-		city: "俄克拉荷马",
-		abbr: "OKC",
-		color: "#007AC1",
-		logoText: "OKC"
-	},
-	DEN: {
-		name: "掘金",
-		city: "丹佛",
-		abbr: "DEN",
-		color: "#0E2240",
-		logoText: "DEN"
-	},
-	MEM: {
-		name: "灰熊",
-		city: "孟菲斯",
-		abbr: "MEM",
-		color: "#5D76A9",
-		logoText: "MEM"
-	},
-	PHX: {
-		name: "太阳",
-		city: "菲尼克斯",
-		abbr: "PHX",
-		color: "#E56020",
-		logoText: "PHX"
-	},
-	LAC: {
-		name: "快船",
-		city: "洛杉矶",
-		abbr: "LAC",
-		color: "#C8102E",
-		logoText: "LAC"
-	},
-	NOP: {
-		name: "鹈鹕",
-		city: "新奥尔良",
-		abbr: "NOP",
-		color: "#85714D",
-		logoText: "NOP"
-	},
-	MIN: {
-		name: "森林狼",
-		city: "明尼苏达",
-		abbr: "MIN",
-		color: "#236192",
-		logoText: "MIN"
-	},
-	BOS: {
-		name: "凯尔特人",
-		city: "波士顿",
-		abbr: "BOS",
-		color: "#007A33",
-		logoText: "BOS"
-	},
-	NYK: {
-		name: "尼克斯",
-		city: "纽约",
-		abbr: "NYK",
-		color: "#F58426",
-		logoText: "NYK"
-	},
-	MIA: {
-		name: "热火",
-		city: "迈阿密",
-		abbr: "MIA",
-		color: "#98002E",
-		logoText: "MIA"
-	},
-	MIL: {
-		name: "雄鹿",
-		city: "密尔沃基",
-		abbr: "MIL",
-		color: "#00471B",
-		logoText: "MIL"
-	},
-	PHI: {
-		name: "76人",
-		city: "费城",
-		abbr: "PHI",
-		color: "#006BB6",
-		logoText: "PHI"
-	},
-	UTA: {
-		name: "爵士",
-		city: "犹他",
-		abbr: "UTA",
-		color: "#002B5C",
-		logoText: "UTA"
-	},
-	POR: {
-		name: "开拓者",
-		city: "波特兰",
-		abbr: "POR",
-		color: "#E03A3E",
-		logoText: "POR"
-	},
-	SAC: {
-		name: "国王",
-		city: "萨克拉门托",
-		abbr: "SAC",
-		color: "#5A2D81",
-		logoText: "SAC"
-	},
-	IND: {
-		name: "步行者",
-		city: "印第安纳",
-		abbr: "IND",
-		color: "#002D62",
-		logoText: "IND"
-	},
-	CHA: {
-		name: "黄蜂",
-		city: "夏洛特",
-		abbr: "CHA",
-		color: "#1D1160",
-		logoText: "CHA"
-	},
-	CHI: {
-		name: "公牛",
-		city: "芝加哥",
-		abbr: "CHI",
-		color: "#CE1141",
-		logoText: "CHI"
-	},
-	DET: {
-		name: "活塞",
-		city: "底特律",
-		abbr: "DET",
-		color: "#1D42BA",
-		logoText: "DET"
-	},
-	TOR: {
-		name: "猛龙",
-		city: "多伦多",
-		abbr: "TOR",
-		color: "#CE1141",
-		logoText: "TOR"
-	}
-};
 var ROCKETS_GAMES = [
 	{
-		id: "game-2026-10-05",
-		date: "2026-10-05",
-		time: "08:00",
-		opponent: NBA_TEAMS.MEM,
-		isHome: false,
-		arena: "联邦快递球馆 (FedExForum)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "preseason",
-		status: "upcoming",
-		keyMatchup: "阿门·汤普森 vs 贾·莫兰特",
-		previewNotes: "2026-27 赛季首场季前赛热身，乌度卡调试年轻轮换阵容与外线防守施压。"
+		"id": "401898395",
+		"date": "2026-10-09",
+		"time": "20:00",
+		"opponent": {
+			"name": "独行侠",
+			"city": "达拉斯",
+			"abbr": "DAL",
+			"color": "#00538C",
+			"logoText": "DAL"
+		},
+		"isHome": false,
+		"arena": "中国澳门·威尼斯人金光综艺馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "preseason",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 东契奇 & 欧文",
+		"previewNotes": "NBA 澳门赛首战，威尼斯人金光综艺馆全场爆满，杜兰特火箭正式首秀战宿敌独行侠！"
 	},
 	{
-		id: "game-2026-10-09",
-		date: "2026-10-09",
-		time: "20:00",
-		opponent: NBA_TEAMS.DAL,
-		isHome: false,
-		arena: "中国澳门 · 威尼斯人金光综艺馆",
-		broadcast: "CCTV5 / 腾讯体育 / 咪咕视频 / SCHN / NBA TV",
-		stage: "cup",
-		status: "upcoming",
-		keyMatchup: "杰伦·格林 & 阿门·汤普森 vs 卢卡·东契奇 & 凯里·欧文",
-		previewNotes: "🇲🇴🔥【NBA 澳门赛 G1】休斯敦火箭空降中国澳门！黄金档黄金时间 20:00 开球，中国球迷家门口见证得州死敌巅峰对决！"
+		"id": "401898400",
+		"date": "2026-10-11",
+		"time": "18:00",
+		"opponent": {
+			"name": "独行侠",
+			"city": "达拉斯",
+			"abbr": "DAL",
+			"color": "#00538C",
+			"logoText": "DAL"
+		},
+		"isHome": true,
+		"arena": "中国澳门·威尼斯人金光综艺馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "preseason",
+		"status": "upcoming",
+		"keyMatchup": "阿门·汤普森 & 谢泼德 vs 独行侠后场",
+		"previewNotes": "澳门赛第二战焦点二番对决，乌度卡检验轮换深度与外线防守夹击策略。"
 	},
 	{
-		id: "game-2026-10-11",
-		date: "2026-10-11",
-		time: "19:30",
-		opponent: NBA_TEAMS.DAL,
-		isHome: true,
-		arena: "中国澳门 · 威尼斯人金光综艺馆",
-		broadcast: "CCTV5 / 腾讯体育 / 咪咕视频 / SCHN / NBA TV",
-		stage: "cup",
-		status: "upcoming",
-		keyMatchup: "阿尔佩伦·申京 vs 莱夫利 & 加福德",
-		previewNotes: "🇲🇴🔥【NBA 澳门赛 G2 决战】澳门站收官二番战！申京全能策应碰撞独行侠内线双塔，乌度卡演练决胜终结阵容！"
+		"id": "401908622",
+		"date": "2026-10-16",
+		"time": "08:30",
+		"opponent": {
+			"name": "雷霆",
+			"city": "俄克拉荷马",
+			"abbr": "OKC",
+			"color": "#007AC1",
+			"logoText": "OKC"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "preseason",
+		"status": "upcoming",
+		"keyMatchup": "阿门·汤普森 vs 谢伊·吉尔杰斯-亚历山大",
+		"previewNotes": "年轻一代顶级强强对话！阿门外线领防SGA，杜兰特半场攻坚拆解雷霆防线。"
 	},
 	{
-		id: "game-2026-10-15",
-		date: "2026-10-15",
-		time: "08:00",
-		opponent: NBA_TEAMS.NOP,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "preseason",
-		status: "upcoming",
-		keyMatchup: "小贾巴里·史密斯 vs 锡安·威廉森",
-		previewNotes: "结束澳门赛返美主场季前赛，史密斯与亚当斯联手镇守篮下禁区。"
+		"id": "401909840",
+		"date": "2026-10-22",
+		"time": "08:30",
+		"opponent": {
+			"name": "独行侠",
+			"city": "达拉斯",
+			"abbr": "DAL",
+			"color": "#00538C",
+			"logoText": "DAL"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 阿门·汤普森 vs 东契奇 / 欧文",
+		"previewNotes": "得州内战焦点对决，休斯敦锋线群与达拉斯后场双核高强度对冲。"
 	},
 	{
-		id: "game-2026-10-18",
-		date: "2026-10-18",
-		time: "08:00",
-		opponent: NBA_TEAMS.SAS,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "preseason",
-		status: "upcoming",
-		keyMatchup: "阿尔佩伦·申京 vs 维克托·文班亚马",
-		previewNotes: "季前赛收官战得州内战，乌度卡调试常规赛首发五虎，文班亚马与申京技术流对决引爆关注。"
+		"id": "401909096",
+		"date": "2026-10-24",
+		"time": "09:30",
+		"opponent": {
+			"name": "马刺",
+			"city": "圣安东尼奥",
+			"abbr": "SAS",
+			"color": "#6c757d",
+			"logoText": "SAS"
+		},
+		"isHome": false,
+		"arena": "奥斯汀·穆迪中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿尔佩伦·申京 vs 维克托·文班亚马",
+		"previewNotes": "得州新星中锋巅峰对决！申京策应低位技术与文班亚马超级防守大网的正面对抗。"
 	},
 	{
-		id: "game-2026-10-24",
-		date: "2026-10-24",
-		time: "08:00",
-		opponent: NBA_TEAMS.CHA,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN / ESPN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "阿门·汤普森 vs 拉梅洛·鲍尔",
-		previewNotes: "🔥【2026-27 常规赛揭幕战】火箭坐镇主场迎来新赛季开门红之战，全主力阵容正式出击冲刺开门红！"
+		"id": "401909856",
+		"date": "2026-10-25",
+		"time": "08:00",
+		"opponent": {
+			"name": "老鹰",
+			"city": "亚特兰大",
+			"abbr": "ATL",
+			"color": "#C8102E",
+			"logoText": "ATL"
+		},
+		"isHome": false,
+		"arena": "亚特兰大·州立农业球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 特雷·杨",
+		"previewNotes": "客场挑战亚特兰大老鹰，乌度卡强化防守反击与篮板控制。"
 	},
 	{
-		id: "game-2026-10-26",
-		date: "2026-10-26",
-		time: "08:30",
-		opponent: NBA_TEAMS.MEM,
-		isHome: false,
-		arena: "联邦快递球馆 (FedExForum)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "杰伦·格林 vs 戴斯蒙德·贝恩",
-		previewNotes: "新赛季常规赛客场首秀，西南赛区宿敌碰撞，后卫线攻防节奏转换决定比赛走势。"
+		"id": "401909874",
+		"date": "2026-10-27",
+		"time": "08:30",
+		"opponent": {
+			"name": "老鹰",
+			"city": "亚特兰大",
+			"abbr": "ATL",
+			"color": "#C8102E",
+			"logoText": "ATL"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 特雷·杨",
+		"previewNotes": "主场迎战亚特兰大老鹰，乌度卡强化防守反击与篮板控制。"
 	},
 	{
-		id: "game-2026-10-28",
-		date: "2026-10-28",
-		time: "08:00",
-		opponent: NBA_TEAMS.SAS,
-		isHome: false,
-		arena: "弗罗斯特银行中心 (Frost Bank Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "塔里·伊森 vs 索汉",
-		previewNotes: "圣安东尼奥客场硬仗，锋线换防对位绞杀，双方将在防守端展开高强度拉锯。"
+		"id": "401909887",
+		"date": "2026-10-29",
+		"time": "08:00",
+		"opponent": {
+			"name": "雄鹿",
+			"city": "密尔沃基",
+			"abbr": "MIL",
+			"color": "#00471B",
+			"logoText": "MIL"
+		},
+		"isHome": false,
+		"arena": "密尔沃基·第一服务广场",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 字母哥阿德托昆博 & 利拉德",
+		"previewNotes": "休斯敦内线筑起禁区长城对抗希腊怪兽，外线遏制利拉德超远三分。"
 	},
 	{
-		id: "game-2026-10-31",
-		date: "2026-10-31",
-		time: "08:30",
-		opponent: NBA_TEAMS.DAL,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN / TNT",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "狄龙·布鲁克斯 vs 卢卡·东契奇",
-		previewNotes: "万圣节焦点战！全美直播得州顶级德比，乌度卡防守策略能否遏制东欧组合全场挡拆。"
+		"id": "401909283",
+		"date": "2026-10-31",
+		"time": "08:00",
+		"opponent": {
+			"name": "独行侠",
+			"city": "达拉斯",
+			"abbr": "DAL",
+			"color": "#00538C",
+			"logoText": "DAL"
+		},
+		"isHome": false,
+		"arena": "达拉斯·美航中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "cup",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 阿门·汤普森 vs 东契奇 / 欧文",
+		"previewNotes": "得州内战焦点对决，休斯敦锋线群与达拉斯后场双核高强度对冲。"
 	},
 	{
-		id: "game-2026-11-03",
-		date: "2026-11-03",
-		time: "09:00",
-		opponent: NBA_TEAMS.GSW,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "范弗里特 vs 斯蒂芬·库里",
-		previewNotes: "宿敌再聚首！火箭主场面对勇士外线传切风暴，考验年轻外线防守专注度与退防速度。"
+		"id": "401909902",
+		"date": "2026-11-01",
+		"time": "08:30",
+		"opponent": {
+			"name": "雷霆",
+			"city": "俄克拉荷马",
+			"abbr": "OKC",
+			"color": "#007AC1",
+			"logoText": "OKC"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿门·汤普森 vs 谢伊·吉尔杰斯-亚历山大",
+		"previewNotes": "年轻一代顶级强强对话！阿门外线领防SGA，杜兰特半场攻坚拆解雷霆防线。"
 	},
 	{
-		id: "game-2026-11-05",
-		date: "2026-11-05",
-		time: "09:00",
-		opponent: NBA_TEAMS.NYK,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "阿尔佩伦·申京 vs 卡尔-安东尼·唐斯",
-		previewNotes: "全明星级别内线直接交火，申京低位脚步与背身单打挑战尼克斯重组内线防线。"
+		"id": "401909916",
+		"date": "2026-11-03",
+		"time": "09:30",
+		"opponent": {
+			"name": "凯尔特人",
+			"city": "波士顿",
+			"abbr": "BOS",
+			"color": "#007A33",
+			"logoText": "BOS"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 伊森 vs 杰森·塔图姆 & 杰伦·布朗",
+		"previewNotes": "总冠军级别锋线大对抗，乌度卡战术针对老东家凯尔特人。"
 	},
 	{
-		id: "game-2026-11-07",
-		date: "2026-11-07",
-		time: "09:00",
-		opponent: NBA_TEAMS.SAS,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "小贾巴里·史密斯 vs 维克托·文班亚马",
-		previewNotes: "10天内两队第二次常规赛交手，双方彼此毫无秘密，胜负看临场替补轮换调整。"
+		"id": "401909930",
+		"date": "2026-11-05",
+		"time": "09:30",
+		"opponent": {
+			"name": "森林狼",
+			"city": "明尼苏达",
+			"abbr": "MIN",
+			"color": "#236192",
+			"logoText": "MIN"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿门·汤普森 vs 安东尼·爱德华兹",
+		"previewNotes": "攻防两端身体天赋的大碰撞！阿门全场死缠爱德华兹，杜兰特无差别跳投终结。"
 	},
 	{
-		id: "game-2026-11-09",
-		date: "2026-11-09",
-		time: "09:00",
-		opponent: NBA_TEAMS.OKC,
-		isHome: false,
-		arena: "佩康中心 (Paycom Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "杰伦·格林 vs 切特·霍姆格伦",
-		previewNotes: "客场背靠背艰难战役，面对雷霆极高攻防效率，火箭必须保护好后场篮板降低失误。"
+		"id": "401909943",
+		"date": "2026-11-08",
+		"time": "10:00",
+		"opponent": {
+			"name": "太阳",
+			"city": "菲尼克斯",
+			"abbr": "PHX",
+			"color": "#E56020",
+			"logoText": "PHX"
+		},
+		"isHome": false,
+		"arena": "菲尼克斯·足迹中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "凯文·杜兰特 vs 德文·布克 & 布拉德利·比尔",
+		"previewNotes": "杜兰特大交易后迎战老东家太阳！火箭新体系攻防成色全方位检验。"
 	},
 	{
-		id: "game-2026-11-13",
-		date: "2026-11-13",
-		time: "09:00",
-		opponent: NBA_TEAMS.LAC,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN / ESPN",
-		stage: "cup",
-		status: "upcoming",
-		keyMatchup: "塔里·伊森 vs 科怀·伦纳德",
-		previewNotes: "🏆【Emirates NBA Cup 季中锦标赛小组赛首战】定制球场亮相，关乎小组头名出线资格的必争之战！"
+		"id": "401909957",
+		"date": "2026-11-10",
+		"time": "09:30",
+		"opponent": {
+			"name": "掘金",
+			"city": "丹佛",
+			"abbr": "DEN",
+			"color": "#0E2240",
+			"logoText": "DEN"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿尔佩伦·申京 vs 尼古拉·约基奇",
+		"previewNotes": "顶级欧洲高位策应中锋大师课！申京再度向MVP约基奇发起正面对话。"
 	},
 	{
-		id: "game-2026-11-16",
-		date: "2026-11-16",
-		time: "09:00",
-		opponent: NBA_TEAMS.LAC,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "范弗里特 vs 詹姆斯·哈登",
-		previewNotes: "连战快船第二场，哈登重回休斯敦丰田中心，主场球迷与年轻后场双向检阅。"
+		"id": "401909974",
+		"date": "2026-11-12",
+		"time": "10:30",
+		"opponent": {
+			"name": "勇士",
+			"city": "金州",
+			"abbr": "GSW",
+			"color": "#1D428A",
+			"logoText": "GSW"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 里德·谢泼德 vs 斯蒂芬·库里",
+		"previewNotes": "火勇大战经典再续！杜兰特正面对阵旧主与库里，外线投射大对飙。"
 	},
 	{
-		id: "game-2026-11-19",
-		date: "2026-11-19",
-		time: "09:00",
-		opponent: NBA_TEAMS.MIL,
-		isHome: false,
-		arena: "第一塞尔夫论坛球馆 (Fiserv Forum)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "小贾巴里·史密斯 vs 扬尼斯·阿德托昆博",
-		previewNotes: "东部客场魔鬼赛程，面对字母哥大步冲击禁区，火箭内线群建立防空围剿防线。"
+		"id": "401909301",
+		"date": "2026-11-14",
+		"time": "09:30",
+		"opponent": {
+			"name": "爵士",
+			"city": "犹他",
+			"abbr": "UTA",
+			"color": "#002B5C",
+			"logoText": "UTA"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "cup",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 马尔卡宁",
+		"previewNotes": "NBA 杯小组赛关键排位战！净胜分关键局，火箭全力出击冲击淘汰赛。"
 	},
 	{
-		id: "game-2026-11-21",
-		date: "2026-11-21",
-		time: "09:00",
-		opponent: NBA_TEAMS.IND,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "阿门·汤普森 vs 泰瑞斯·哈利伯顿",
-		previewNotes: "极致防守体系对战全联盟最快进攻节奏，火箭能否将比赛拖入半场阵地战成胜负手。"
+		"id": "401909991",
+		"date": "2026-11-16",
+		"time": "08:00",
+		"opponent": {
+			"name": "奇才",
+			"city": "华盛顿",
+			"abbr": "WAS",
+			"color": "#002B5C",
+			"logoText": "WAS"
+		},
+		"isHome": false,
+		"arena": "华盛顿·第一资本球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 萨尔 / 普尔",
+		"previewNotes": "客场挑战华盛顿奇才，乌度卡强化防守反击与篮板控制。"
 	},
 	{
-		id: "game-2026-11-23",
-		date: "2026-11-23",
-		time: "09:00",
-		opponent: NBA_TEAMS.POR,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "cup",
-		status: "upcoming",
-		keyMatchup: "里德·谢泼德 vs 斯科特·亨德森",
-		previewNotes: "🏆【Emirates NBA Cup 季中锦标赛小组赛第二场】高顺位控卫正面对碰，火箭剑指杯赛小组连胜。"
+		"id": "401909998",
+		"date": "2026-11-17",
+		"time": "08:30",
+		"opponent": {
+			"name": "热火",
+			"city": "迈阿密",
+			"abbr": "MIA",
+			"color": "#98002E",
+			"logoText": "MIA"
+		},
+		"isHome": false,
+		"arena": "迈阿密·卡塞亚中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 巴特勒 / 阿德巴约",
+		"previewNotes": "客场挑战迈阿密热火，乌度卡强化防守反击与篮板控制。"
 	},
 	{
-		id: "game-2026-11-27",
-		date: "2026-11-27",
-		time: "09:00",
-		opponent: NBA_TEAMS.MIN,
-		isHome: false,
-		arena: "标靶中心 (Target Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN / TNT",
-		stage: "cup",
-		status: "upcoming",
-		keyMatchup: "杰伦·格林 vs 安东尼·爱德华兹",
-		previewNotes: "🏆【Emirates NBA Cup 锦标赛生死出线战】客场挑战森林狼双塔，格林与华子顶峰分卫对决！"
+		"id": "401910008",
+		"date": "2026-11-19",
+		"time": "08:00",
+		"opponent": {
+			"name": "步行者",
+			"city": "印第安纳",
+			"abbr": "IND",
+			"color": "#002D62",
+			"logoText": "IND"
+		},
+		"isHome": false,
+		"arena": "印第安纳·甘布里奇球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 哈利伯顿 / 西亚卡姆",
+		"previewNotes": "客场挑战印第安纳步行者，乌度卡强化防守反击与篮板控制。"
 	},
 	{
-		id: "game-2026-11-29",
-		date: "2026-11-29",
-		time: "09:00",
-		opponent: NBA_TEAMS.PHI,
-		isHome: false,
-		arena: "富国银行中心 (Wells Fargo Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "阿尔佩伦·申京 vs 乔尔·恩比德",
-		previewNotes: "感恩节客场征程，面对顶级中锋的进攻技巧，火箭内线犯规控制至关重要。"
+		"id": "401909312",
+		"date": "2026-11-21",
+		"time": "11:00",
+		"opponent": {
+			"name": "掘金",
+			"city": "丹佛",
+			"abbr": "DEN",
+			"color": "#0E2240",
+			"logoText": "DEN"
+		},
+		"isHome": false,
+		"arena": "丹佛·波尔球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "cup",
+		"status": "upcoming",
+		"keyMatchup": "阿尔佩伦·申京 vs 尼古拉·约基奇",
+		"previewNotes": "顶级欧洲高位策应中锋大师课！申京再度向MVP约基奇发起正面对话。"
 	},
 	{
-		id: "game-2026-12-02",
-		date: "2026-12-02",
-		time: "09:00",
-		opponent: NBA_TEAMS.OKC,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "申京 vs 霍姆格伦",
-		previewNotes: "12月首战坐镇主场，西部榜首争夺战关键卡位战，全队攻防节奏迎大考。"
+		"id": "401910043",
+		"date": "2026-11-24",
+		"time": "09:30",
+		"opponent": {
+			"name": "快船",
+			"city": "洛杉矶",
+			"abbr": "LAC",
+			"color": "#C8102E",
+			"logoText": "LAC"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 哈登 / 莱昂纳德",
+		"previewNotes": "主场迎战洛杉矶快船，乌度卡强化防守反击与篮板控制。"
 	},
 	{
-		id: "game-2026-12-06",
-		date: "2026-12-06",
-		time: "11:00",
-		opponent: NBA_TEAMS.GSW,
-		isHome: false,
-		arena: "大通中心 (Chase Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN / ESPN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "狄龙·布鲁克斯 vs 库里",
-		previewNotes: "周六黄金档旧金山客场之战，全美关注焦点，火箭防守群能否持续压迫大通中心主场声浪。"
+		"id": "401909323",
+		"date": "2026-11-26",
+		"time": "09:30",
+		"opponent": {
+			"name": "太阳",
+			"city": "菲尼克斯",
+			"abbr": "PHX",
+			"color": "#E56020",
+			"logoText": "PHX"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "cup",
+		"status": "upcoming",
+		"keyMatchup": "凯文·杜兰特 vs 德文·布克 & 布拉德利·比尔",
+		"previewNotes": "杜兰特大交易后迎战老东家太阳！火箭新体系攻防成色全方位检验。"
 	},
 	{
-		id: "game-2026-12-09",
-		date: "2026-12-09",
-		time: "09:00",
-		opponent: NBA_TEAMS.DEN,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "阿尔佩伦·申京 vs 尼古拉·约基奇",
-		previewNotes: "🔥【重磅中锋教学局】“小约基奇”申京正面对话两届 MVP 约基奇，高位发牌与禁区终结技艺全面对决！"
+		"id": "401910050",
+		"date": "2026-11-29",
+		"time": "09:30",
+		"opponent": {
+			"name": "76人",
+			"city": "费城",
+			"abbr": "PHI",
+			"color": "#006BB6",
+			"logoText": "PHI"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "申京 & 亚当斯 vs 乔尔·恩比德",
+		"previewNotes": "内线肉搏战！火箭双中锋轮番消耗恩比德，防守端切断外线马克西传接。"
 	},
 	{
-		id: "game-2026-12-16",
-		date: "2026-12-16",
-		time: "10:00",
-		opponent: NBA_TEAMS.LAC,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "杰伦·格林 vs 诺曼·鲍威尔",
-		previewNotes: "主场迎战快船，两队本赛季第三度相逢，防守针对性与转换快攻将决定比分差距。"
+		"id": "401910064",
+		"date": "2026-12-01",
+		"time": "08:30",
+		"opponent": {
+			"name": "湖人",
+			"city": "洛杉矶",
+			"abbr": "LAL",
+			"color": "#552583",
+			"logoText": "LAL"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 勒布朗·詹姆斯 & 安东尼·戴维斯",
+		"previewNotes": "群星闪耀的豪门对抗，休斯敦锋线防守群全场围剿湖人双核。"
 	},
 	{
-		id: "game-2026-12-20",
-		date: "2026-12-20",
-		time: "09:00",
-		opponent: NBA_TEAMS.NOP,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "阿门·汤普森 vs 赫伯特·琼斯",
-		previewNotes: "全联盟最窒息外线防守者正面角力，双方拼抢每一个地板球与反击球权。"
+		"id": "401910072",
+		"date": "2026-12-02",
+		"time": "09:30",
+		"opponent": {
+			"name": "猛龙",
+			"city": "多伦多",
+			"abbr": "TOR",
+			"color": "#CE1141",
+			"logoText": "TOR"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 巴恩斯 / 奎克利",
+		"previewNotes": "主场迎战多伦多猛龙，乌度卡强化防守反击与篮板控制。"
 	},
 	{
-		id: "game-2026-12-23",
-		date: "2026-12-23",
-		time: "09:00",
-		opponent: NBA_TEAMS.TOR,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "小贾巴里·史密斯 vs 斯科蒂·巴恩斯",
-		previewNotes: "全能前锋对飙，史密斯外线高炮台与巴恩斯全能突击交相辉映。"
+		"id": "401910101",
+		"date": "2026-12-14",
+		"time": "07:00",
+		"opponent": {
+			"name": "公牛",
+			"city": "芝加哥",
+			"abbr": "CHI",
+			"color": "#CE1141",
+			"logoText": "CHI"
+		},
+		"isHome": false,
+		"arena": "芝加哥·联合中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 拉文 / 武切维奇",
+		"previewNotes": "客场挑战芝加哥公牛，乌度卡强化防守反击与篮板控制。"
 	},
 	{
-		id: "game-2026-12-26",
-		date: "2026-12-26",
-		time: "09:00",
-		opponent: NBA_TEAMS.LAL,
-		isHome: false,
-		arena: "Crypto.com 球馆 (Crypto.com Arena)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN / ABC / ESPN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "申京 & 杰伦·格林 vs 勒布朗·詹姆斯 & 安东尼·戴维斯",
-		previewNotes: "⭐🎄【NBA 圣诞大战年终盛宴】火箭重回全美圣诞大战黄金档！洛杉矶湖人主场，新老两代球星巅峰对话！"
+		"id": "401910111",
+		"date": "2026-12-15",
+		"time": "09:30",
+		"opponent": {
+			"name": "尼克斯",
+			"city": "纽约",
+			"abbr": "NYK",
+			"color": "#F58426",
+			"logoText": "NYK"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 布伦森 / 唐斯",
+		"previewNotes": "主场迎战纽约尼克斯，乌度卡强化防守反击与篮板控制。"
 	},
 	{
-		id: "game-2026-12-28",
-		date: "2026-12-28",
-		time: "09:00",
-		opponent: NBA_TEAMS.PHX,
-		isHome: false,
-		arena: "足迹中心 (Footprint Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "狄龙·布鲁克斯 vs 凯文·杜兰特",
-		previewNotes: "客场西征第二站，狄龙与杜兰特的经典攻防对峙，全场高对抗强度。"
+		"id": "401910128",
+		"date": "2026-12-17",
+		"time": "09:30",
+		"opponent": {
+			"name": "雄鹿",
+			"city": "密尔沃基",
+			"abbr": "MIL",
+			"color": "#00471B",
+			"logoText": "MIL"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 字母哥阿德托昆博 & 利拉德",
+		"previewNotes": "休斯敦内线筑起禁区长城对抗希腊怪兽，外线遏制利拉德超远三分。"
 	},
 	{
-		id: "game-2026-12-30",
-		date: "2026-12-30",
-		time: "09:00",
-		opponent: NBA_TEAMS.UTA,
-		isHome: true,
-		arena: "丰田中心 (Toyota Center)",
-		broadcast: "腾讯体育 / 咪咕视频 / SCHN",
-		stage: "regular",
-		status: "upcoming",
-		keyMatchup: "范弗里特 vs 塞克斯顿",
-		previewNotes: "2026 岁末封年之战，火箭坐镇丰田中心主场，力争用胜利为 2026 年画上完美句号！"
+		"id": "401910140",
+		"date": "2026-12-19",
+		"time": "09:00",
+		"opponent": {
+			"name": "灰熊",
+			"city": "孟菲斯",
+			"abbr": "MEM",
+			"color": "#5D76A9",
+			"logoText": "MEM"
+		},
+		"isHome": false,
+		"arena": "孟菲斯·联邦快递球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 莫兰特 / 贝恩",
+		"previewNotes": "客场挑战孟菲斯灰熊，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910150",
+		"date": "2026-12-21",
+		"time": "04:30",
+		"opponent": {
+			"name": "猛龙",
+			"city": "多伦多",
+			"abbr": "TOR",
+			"color": "#CE1141",
+			"logoText": "TOR"
+		},
+		"isHome": false,
+		"arena": "多伦多·丰业银行体育馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 巴恩斯 / 奎克利",
+		"previewNotes": "客场挑战多伦多猛龙，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910179",
+		"date": "2026-12-24",
+		"time": "08:30",
+		"opponent": {
+			"name": "76人",
+			"city": "费城",
+			"abbr": "PHI",
+			"color": "#006BB6",
+			"logoText": "PHI"
+		},
+		"isHome": false,
+		"arena": "费城·富国银行中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "申京 & 亚当斯 vs 乔尔·恩比德",
+		"previewNotes": "内线肉搏战！火箭双中锋轮番消耗恩比德，防守端切断外线马克西传接。"
+	},
+	{
+		"id": "401910195",
+		"date": "2026-12-28",
+		"time": "04:30",
+		"opponent": {
+			"name": "雷霆",
+			"city": "俄克拉荷马",
+			"abbr": "OKC",
+			"color": "#007AC1",
+			"logoText": "OKC"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿门·汤普森 vs 谢伊·吉尔杰斯-亚历山大",
+		"previewNotes": "年轻一代顶级强强对话！阿门外线领防SGA，杜兰特半场攻坚拆解雷霆防线。"
+	},
+	{
+		"id": "401910219",
+		"date": "2026-12-30",
+		"time": "11:30",
+		"opponent": {
+			"name": "湖人",
+			"city": "洛杉矶",
+			"abbr": "LAL",
+			"color": "#552583",
+			"logoText": "LAL"
+		},
+		"isHome": false,
+		"arena": "洛杉矶·加密网球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 勒布朗·詹姆斯 & 安东尼·戴维斯",
+		"previewNotes": "群星闪耀的豪门对抗，休斯敦锋线防守群全场围剿湖人双核。"
+	},
+	{
+		"id": "401910225",
+		"date": "2026-12-31",
+		"time": "11:00",
+		"opponent": {
+			"name": "勇士",
+			"city": "金州",
+			"abbr": "GSW",
+			"color": "#1D428A",
+			"logoText": "GSW"
+		},
+		"isHome": false,
+		"arena": "旧金山·大通中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 里德·谢泼德 vs 斯蒂芬·库里",
+		"previewNotes": "火勇大战经典再续！杜兰特正面对阵旧主与库里，外线投射大对飙。"
+	},
+	{
+		"id": "401910239",
+		"date": "2027-01-02",
+		"time": "09:30",
+		"opponent": {
+			"name": "独行侠",
+			"city": "达拉斯",
+			"abbr": "DAL",
+			"color": "#00538C",
+			"logoText": "DAL"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 阿门·汤普森 vs 东契奇 / 欧文",
+		"previewNotes": "得州内战焦点对决，休斯敦锋线群与达拉斯后场双核高强度对冲。"
+	},
+	{
+		"id": "401910256",
+		"date": "2027-01-04",
+		"time": "08:00",
+		"opponent": {
+			"name": "骑士",
+			"city": "克利夫兰",
+			"abbr": "CLE",
+			"color": "#860038",
+			"logoText": "CLE"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 米切尔 / 加兰 / 莫布利",
+		"previewNotes": "主场迎战克利夫兰骑士，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910271",
+		"date": "2027-01-06",
+		"time": "09:00",
+		"opponent": {
+			"name": "森林狼",
+			"city": "明尼苏达",
+			"abbr": "MIN",
+			"color": "#236192",
+			"logoText": "MIN"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿门·汤普森 vs 安东尼·爱德华兹",
+		"previewNotes": "攻防两端身体天赋的大碰撞！阿门全场死缠爱德华兹，杜兰特无差别跳投终结。"
+	},
+	{
+		"id": "401910287",
+		"date": "2027-01-08",
+		"time": "09:30",
+		"opponent": {
+			"name": "灰熊",
+			"city": "孟菲斯",
+			"abbr": "MEM",
+			"color": "#5D76A9",
+			"logoText": "MEM"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 莫兰特 / 贝恩",
+		"previewNotes": "主场迎战孟菲斯灰熊，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910300",
+		"date": "2027-01-10",
+		"time": "07:00",
+		"opponent": {
+			"name": "篮网",
+			"city": "布鲁克林",
+			"abbr": "BKN",
+			"color": "#000000",
+			"logoText": "BKN"
+		},
+		"isHome": false,
+		"arena": "布鲁克林·巴克莱中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 托马斯 / 克拉克斯顿",
+		"previewNotes": "客场挑战布鲁克林篮网，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910315",
+		"date": "2027-01-12",
+		"time": "08:30",
+		"opponent": {
+			"name": "凯尔特人",
+			"city": "波士顿",
+			"abbr": "BOS",
+			"color": "#007A33",
+			"logoText": "BOS"
+		},
+		"isHome": false,
+		"arena": "波士顿·TD花园球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 伊森 vs 杰森·塔图姆 & 杰伦·布朗",
+		"previewNotes": "总冠军级别锋线大对抗，乌度卡战术针对老东家凯尔特人。"
+	},
+	{
+		"id": "401910331",
+		"date": "2027-01-14",
+		"time": "10:30",
+		"opponent": {
+			"name": "雷霆",
+			"city": "俄克拉荷马",
+			"abbr": "OKC",
+			"color": "#007AC1",
+			"logoText": "OKC"
+		},
+		"isHome": false,
+		"arena": "俄克拉荷马·佩康中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿门·汤普森 vs 谢伊·吉尔杰斯-亚历山大",
+		"previewNotes": "年轻一代顶级强强对话！阿门外线领防SGA，杜兰特半场攻坚拆解雷霆防线。"
+	},
+	{
+		"id": "401910348",
+		"date": "2027-01-16",
+		"time": "09:30",
+		"opponent": {
+			"name": "奇才",
+			"city": "华盛顿",
+			"abbr": "WAS",
+			"color": "#002B5C",
+			"logoText": "WAS"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 萨尔 / 普尔",
+		"previewNotes": "主场迎战华盛顿奇才，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910355",
+		"date": "2027-01-17",
+		"time": "09:30",
+		"opponent": {
+			"name": "活塞",
+			"city": "底特律",
+			"abbr": "DET",
+			"color": "#1D42BA",
+			"logoText": "DET"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 康宁汉姆",
+		"previewNotes": "主场迎战底特律活塞，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401909476",
+		"date": "2027-01-19",
+		"time": "08:30",
+		"opponent": {
+			"name": "灰熊",
+			"city": "孟菲斯",
+			"abbr": "MEM",
+			"color": "#5D76A9",
+			"logoText": "MEM"
+		},
+		"isHome": false,
+		"arena": "孟菲斯·联邦快递球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 莫兰特 / 贝恩",
+		"previewNotes": "客场挑战孟菲斯灰熊，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910379",
+		"date": "2027-01-21",
+		"time": "09:00",
+		"opponent": {
+			"name": "森林狼",
+			"city": "明尼苏达",
+			"abbr": "MIN",
+			"color": "#236192",
+			"logoText": "MIN"
+		},
+		"isHome": false,
+		"arena": "明尼阿波利斯·标靶中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿门·汤普森 vs 安东尼·爱德华兹",
+		"previewNotes": "攻防两端身体天赋的大碰撞！阿门全场死缠爱德华兹，杜兰特无差别跳投终结。"
+	},
+	{
+		"id": "401910390",
+		"date": "2027-01-23",
+		"time": "08:00",
+		"opponent": {
+			"name": "黄蜂",
+			"city": "夏洛特",
+			"abbr": "CHA",
+			"color": "#1D1160",
+			"logoText": "CHA"
+		},
+		"isHome": false,
+		"arena": "夏洛特·光谱中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 三球鲍尔 / 米勒",
+		"previewNotes": "客场挑战夏洛特黄蜂，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910410",
+		"date": "2027-01-25",
+		"time": "07:00",
+		"opponent": {
+			"name": "魔术",
+			"city": "奥兰多",
+			"abbr": "ORL",
+			"color": "#0077C0",
+			"logoText": "ORL"
+		},
+		"isHome": false,
+		"arena": "奥兰多·起亚中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 班凯罗 / 瓦格纳",
+		"previewNotes": "客场挑战奥兰多魔术，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910424",
+		"date": "2027-01-27",
+		"time": "09:00",
+		"opponent": {
+			"name": "马刺",
+			"city": "圣安东尼奥",
+			"abbr": "SAS",
+			"color": "#6c757d",
+			"logoText": "SAS"
+		},
+		"isHome": false,
+		"arena": "圣安东尼奥·弗罗斯特银行中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿尔佩伦·申京 vs 维克托·文班亚马",
+		"previewNotes": "得州新星中锋巅峰对决！申京策应低位技术与文班亚马超级防守大网的正面对抗。"
+	},
+	{
+		"id": "401910434",
+		"date": "2027-01-28",
+		"time": "09:30",
+		"opponent": {
+			"name": "鹈鹕",
+			"city": "新奥尔良",
+			"abbr": "NOP",
+			"color": "#85714D",
+			"logoText": "NOP"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 锡安 / 英格拉姆",
+		"previewNotes": "主场迎战新奥尔良鹈鹕，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910449",
+		"date": "2027-01-30",
+		"time": "09:30",
+		"opponent": {
+			"name": "魔术",
+			"city": "奥兰多",
+			"abbr": "ORL",
+			"color": "#0077C0",
+			"logoText": "ORL"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 班凯罗 / 瓦格纳",
+		"previewNotes": "主场迎战奥兰多魔术，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910466",
+		"date": "2027-02-01",
+		"time": "09:30",
+		"opponent": {
+			"name": "独行侠",
+			"city": "达拉斯",
+			"abbr": "DAL",
+			"color": "#00538C",
+			"logoText": "DAL"
+		},
+		"isHome": false,
+		"arena": "达拉斯·美航中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 阿门·汤普森 vs 东契奇 / 欧文",
+		"previewNotes": "得州内战焦点对决，休斯敦锋线群与达拉斯后场双核高强度对冲。"
+	},
+	{
+		"id": "401910486",
+		"date": "2027-02-04",
+		"time": "10:30",
+		"opponent": {
+			"name": "爵士",
+			"city": "犹他",
+			"abbr": "UTA",
+			"color": "#002B5C",
+			"logoText": "UTA"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 马尔卡宁",
+		"previewNotes": "主场迎战犹他爵士，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910502",
+		"date": "2027-02-06",
+		"time": "10:00",
+		"opponent": {
+			"name": "太阳",
+			"city": "菲尼克斯",
+			"abbr": "PHX",
+			"color": "#E56020",
+			"logoText": "PHX"
+		},
+		"isHome": false,
+		"arena": "菲尼克斯·足迹中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "凯文·杜兰特 vs 德文·布克 & 布拉德利·比尔",
+		"previewNotes": "杜兰特大交易后迎战老东家太阳！火箭新体系攻防成色全方位检验。"
+	},
+	{
+		"id": "401910520",
+		"date": "2027-02-08",
+		"time": "11:30",
+		"opponent": {
+			"name": "国王",
+			"city": "萨克拉门托",
+			"abbr": "SAC",
+			"color": "#5A2D81",
+			"logoText": "SAC"
+		},
+		"isHome": false,
+		"arena": "萨克拉门托·第一黄金球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 福克斯 / 萨博尼斯",
+		"previewNotes": "客场挑战萨克拉门托国王，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910536",
+		"date": "2027-02-10",
+		"time": "11:00",
+		"opponent": {
+			"name": "爵士",
+			"city": "犹他",
+			"abbr": "UTA",
+			"color": "#002B5C",
+			"logoText": "UTA"
+		},
+		"isHome": false,
+		"arena": "犹他·德尔塔中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 马尔卡宁",
+		"previewNotes": "客场挑战犹他爵士，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910549",
+		"date": "2027-02-12",
+		"time": "09:30",
+		"opponent": {
+			"name": "国王",
+			"city": "萨克拉门托",
+			"abbr": "SAC",
+			"color": "#5A2D81",
+			"logoText": "SAC"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 福克斯 / 萨博尼斯",
+		"previewNotes": "主场迎战萨克拉门托国王，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910558",
+		"date": "2027-02-13",
+		"time": "09:00",
+		"opponent": {
+			"name": "鹈鹕",
+			"city": "新奥尔良",
+			"abbr": "NOP",
+			"color": "#85714D",
+			"logoText": "NOP"
+		},
+		"isHome": false,
+		"arena": "新奥尔良·冰沙国王中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 锡安 / 英格拉姆",
+		"previewNotes": "客场挑战新奥尔良鹈鹕，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910571",
+		"date": "2027-02-15",
+		"time": "03:00",
+		"opponent": {
+			"name": "掘金",
+			"city": "丹佛",
+			"abbr": "DEN",
+			"color": "#0E2240",
+			"logoText": "DEN"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿尔佩伦·申京 vs 尼古拉·约基奇",
+		"previewNotes": "顶级欧洲高位策应中锋大师课！申京再度向MVP约基奇发起正面对话。"
+	},
+	{
+		"id": "401910582",
+		"date": "2027-02-17",
+		"time": "12:00",
+		"opponent": {
+			"name": "快船",
+			"city": "洛杉矶",
+			"abbr": "LAC",
+			"color": "#C8102E",
+			"logoText": "LAC"
+		},
+		"isHome": false,
+		"arena": "洛杉矶·直觉巨蛋",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 哈登 / 莱昂纳德",
+		"previewNotes": "客场挑战洛杉矶快船，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910598",
+		"date": "2027-02-19",
+		"time": "11:00",
+		"opponent": {
+			"name": "湖人",
+			"city": "洛杉矶",
+			"abbr": "LAL",
+			"color": "#552583",
+			"logoText": "LAL"
+		},
+		"isHome": false,
+		"arena": "洛杉矶·加密网球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 勒布朗·詹姆斯 & 安东尼·戴维斯",
+		"previewNotes": "群星闪耀的豪门对抗，休斯敦锋线防守群全场围剿湖人双核。"
+	},
+	{
+		"id": "401910614",
+		"date": "2027-02-27",
+		"time": "09:30",
+		"opponent": {
+			"name": "黄蜂",
+			"city": "夏洛特",
+			"abbr": "CHA",
+			"color": "#1D1160",
+			"logoText": "CHA"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 三球鲍尔 / 米勒",
+		"previewNotes": "主场迎战夏洛特黄蜂，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910630",
+		"date": "2027-03-01",
+		"time": "10:30",
+		"opponent": {
+			"name": "热火",
+			"city": "迈阿密",
+			"abbr": "MIA",
+			"color": "#98002E",
+			"logoText": "MIA"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 巴特勒 / 阿德巴约",
+		"previewNotes": "主场迎战迈阿密热火，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910635",
+		"date": "2027-03-02",
+		"time": "09:30",
+		"opponent": {
+			"name": "勇士",
+			"city": "金州",
+			"abbr": "GSW",
+			"color": "#1D428A",
+			"logoText": "GSW"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 里德·谢泼德 vs 斯蒂芬·库里",
+		"previewNotes": "火勇大战经典再续！杜兰特正面对阵旧主与库里，外线投射大对飙。"
+	},
+	{
+		"id": "401910651",
+		"date": "2027-03-04",
+		"time": "09:30",
+		"opponent": {
+			"name": "鹈鹕",
+			"city": "新奥尔良",
+			"abbr": "NOP",
+			"color": "#85714D",
+			"logoText": "NOP"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 锡安 / 英格拉姆",
+		"previewNotes": "主场迎战新奥尔良鹈鹕，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910667",
+		"date": "2027-03-06",
+		"time": "10:30",
+		"opponent": {
+			"name": "马刺",
+			"city": "圣安东尼奥",
+			"abbr": "SAS",
+			"color": "#6c757d",
+			"logoText": "SAS"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿尔佩伦·申京 vs 维克托·文班亚马",
+		"previewNotes": "得州新星中锋巅峰对决！申京策应低位技术与文班亚马超级防守大网的正面对抗。"
+	},
+	{
+		"id": "401910679",
+		"date": "2027-03-08",
+		"time": "11:00",
+		"opponent": {
+			"name": "勇士",
+			"city": "金州",
+			"abbr": "GSW",
+			"color": "#1D428A",
+			"logoText": "GSW"
+		},
+		"isHome": false,
+		"arena": "旧金山·大通中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 里德·谢泼德 vs 斯蒂芬·库里",
+		"previewNotes": "火勇大战经典再续！杜兰特正面对阵旧主与库里，外线投射大对飙。"
+	},
+	{
+		"id": "401910688",
+		"date": "2027-03-09",
+		"time": "11:30",
+		"opponent": {
+			"name": "快船",
+			"city": "洛杉矶",
+			"abbr": "LAC",
+			"color": "#C8102E",
+			"logoText": "LAC"
+		},
+		"isHome": false,
+		"arena": "洛杉矶·直觉巨蛋",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 哈登 / 莱昂纳德",
+		"previewNotes": "客场挑战洛杉矶快船，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910699",
+		"date": "2027-03-11",
+		"time": "10:00",
+		"opponent": {
+			"name": "爵士",
+			"city": "犹他",
+			"abbr": "UTA",
+			"color": "#002B5C",
+			"logoText": "UTA"
+		},
+		"isHome": false,
+		"arena": "犹他·德尔塔中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 马尔卡宁",
+		"previewNotes": "客场挑战犹他爵士，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910721",
+		"date": "2027-03-14",
+		"time": "06:30",
+		"opponent": {
+			"name": "步行者",
+			"city": "印第安纳",
+			"abbr": "IND",
+			"color": "#002D62",
+			"logoText": "IND"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 哈利伯顿 / 西亚卡姆",
+		"previewNotes": "主场迎战印第安纳步行者，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910745",
+		"date": "2027-03-17",
+		"time": "08:30",
+		"opponent": {
+			"name": "马刺",
+			"city": "圣安东尼奥",
+			"abbr": "SAS",
+			"color": "#6c757d",
+			"logoText": "SAS"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿尔佩伦·申京 vs 维克托·文班亚马",
+		"previewNotes": "得州新星中锋巅峰对决！申京策应低位技术与文班亚马超级防守大网的正面对抗。"
+	},
+	{
+		"id": "401910752",
+		"date": "2027-03-18",
+		"time": "08:30",
+		"opponent": {
+			"name": "篮网",
+			"city": "布鲁克林",
+			"abbr": "BKN",
+			"color": "#000000",
+			"logoText": "BKN"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 托马斯 / 克拉克斯顿",
+		"previewNotes": "主场迎战布鲁克林篮网，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910767",
+		"date": "2027-03-20",
+		"time": "08:00",
+		"opponent": {
+			"name": "鹈鹕",
+			"city": "新奥尔良",
+			"abbr": "NOP",
+			"color": "#85714D",
+			"logoText": "NOP"
+		},
+		"isHome": false,
+		"arena": "新奥尔良·冰沙国王中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 锡安 / 英格拉姆",
+		"previewNotes": "客场挑战新奥尔良鹈鹕，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910786",
+		"date": "2027-03-23",
+		"time": "07:00",
+		"opponent": {
+			"name": "骑士",
+			"city": "克利夫兰",
+			"abbr": "CLE",
+			"color": "#860038",
+			"logoText": "CLE"
+		},
+		"isHome": false,
+		"arena": "克利夫兰·火箭按揭球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 米切尔 / 加兰 / 莫布利",
+		"previewNotes": "客场挑战克利夫兰骑士，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910804",
+		"date": "2027-03-25",
+		"time": "07:30",
+		"opponent": {
+			"name": "尼克斯",
+			"city": "纽约",
+			"abbr": "NYK",
+			"color": "#F58426",
+			"logoText": "NYK"
+		},
+		"isHome": false,
+		"arena": "纽约·麦迪逊广场花园",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 布伦森 / 唐斯",
+		"previewNotes": "客场挑战纽约尼克斯，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910812",
+		"date": "2027-03-26",
+		"time": "07:00",
+		"opponent": {
+			"name": "活塞",
+			"city": "底特律",
+			"abbr": "DET",
+			"color": "#1D42BA",
+			"logoText": "DET"
+		},
+		"isHome": false,
+		"arena": "底特律·小凯撒球馆",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 康宁汉姆",
+		"previewNotes": "客场挑战底特律活塞，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910833",
+		"date": "2027-03-29",
+		"time": "03:00",
+		"opponent": {
+			"name": "湖人",
+			"city": "洛杉矶",
+			"abbr": "LAL",
+			"color": "#552583",
+			"logoText": "LAL"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 勒布朗·詹姆斯 & 安东尼·戴维斯",
+		"previewNotes": "群星闪耀的豪门对抗，休斯敦锋线防守群全场围剿湖人双核。"
+	},
+	{
+		"id": "401910853",
+		"date": "2027-03-31",
+		"time": "11:00",
+		"opponent": {
+			"name": "开拓者",
+			"city": "波特兰",
+			"abbr": "POR",
+			"color": "#E03A3E",
+			"logoText": "POR"
+		},
+		"isHome": false,
+		"arena": "波特兰·摩达中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 亨德森 / 西蒙斯",
+		"previewNotes": "客场挑战波特兰开拓者，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910863",
+		"date": "2027-04-01",
+		"time": "10:00",
+		"opponent": {
+			"name": "开拓者",
+			"city": "波特兰",
+			"abbr": "POR",
+			"color": "#E03A3E",
+			"logoText": "POR"
+		},
+		"isHome": false,
+		"arena": "波特兰·摩达中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 亨德森 / 西蒙斯",
+		"previewNotes": "客场挑战波特兰开拓者，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910876",
+		"date": "2027-04-03",
+		"time": "08:30",
+		"opponent": {
+			"name": "灰熊",
+			"city": "孟菲斯",
+			"abbr": "MEM",
+			"color": "#5D76A9",
+			"logoText": "MEM"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 莫兰特 / 贝恩",
+		"previewNotes": "主场迎战孟菲斯灰熊，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910888",
+		"date": "2027-04-05",
+		"time": "04:00",
+		"opponent": {
+			"name": "公牛",
+			"city": "芝加哥",
+			"abbr": "CHI",
+			"color": "#CE1141",
+			"logoText": "CHI"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 拉文 / 武切维奇",
+		"previewNotes": "主场迎战芝加哥公牛，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910915",
+		"date": "2027-04-08",
+		"time": "08:30",
+		"opponent": {
+			"name": "国王",
+			"city": "萨克拉门托",
+			"abbr": "SAC",
+			"color": "#5A2D81",
+			"logoText": "SAC"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 福克斯 / 萨博尼斯",
+		"previewNotes": "主场迎战萨克拉门托国王，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910931",
+		"date": "2027-04-10",
+		"time": "08:30",
+		"opponent": {
+			"name": "开拓者",
+			"city": "波特兰",
+			"abbr": "POR",
+			"color": "#E03A3E",
+			"logoText": "POR"
+		},
+		"isHome": true,
+		"arena": "休斯敦·丰田中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "杜兰特 & 申京 vs 亨德森 / 西蒙斯",
+		"previewNotes": "主场迎战波特兰开拓者，乌度卡强化防守反击与篮板控制。"
+	},
+	{
+		"id": "401910946",
+		"date": "2027-04-12",
+		"time": "08:30",
+		"opponent": {
+			"name": "森林狼",
+			"city": "明尼苏达",
+			"abbr": "MIN",
+			"color": "#236192",
+			"logoText": "MIN"
+		},
+		"isHome": false,
+		"arena": "明尼阿波利斯·标靶中心",
+		"broadcast": "腾讯体育 / 咪咕视频",
+		"stage": "regular",
+		"status": "upcoming",
+		"keyMatchup": "阿门·汤普森 vs 安东尼·爱德华兹",
+		"previewNotes": "攻防两端身体天赋的大碰撞！阿门全场死缠爱德华兹，杜兰特无差别跳投终结。"
 	}
 ];
 //#endregion
@@ -4125,20 +5172,44 @@ var MONTH_NAMES = [
 	{
 		year: 2026,
 		month: 10,
-		label: "10月 (澳门赛/揭幕)",
-		subtitle: "NBA澳门赛热身与常规赛揭幕"
+		label: "10月",
+		subtitle: "澳门赛 & 揭幕战"
 	},
 	{
 		year: 2026,
 		month: 11,
-		label: "11月 (常规赛/NBA杯)",
-		subtitle: "锦标赛小组争夺与密集常规赛"
+		label: "11月",
+		subtitle: "NBA杯 & 常规赛"
 	},
 	{
 		year: 2026,
 		month: 12,
-		label: "12月 (常规赛/圣诞战)",
-		subtitle: "年终大战与圣诞巅峰对决"
+		label: "12月",
+		subtitle: "常规硬仗"
+	},
+	{
+		year: 2027,
+		month: 1,
+		label: "1月",
+		subtitle: "新年东征"
+	},
+	{
+		year: 2027,
+		month: 2,
+		label: "2月",
+		subtitle: "全明星 & 排位"
+	},
+	{
+		year: 2027,
+		month: 3,
+		label: "3月",
+		subtitle: "冲刺阶段"
+	},
+	{
+		year: 2027,
+		month: 4,
+		label: "4月",
+		subtitle: "常规赛收官"
 	}
 ];
 var WEEKDAYS$1 = [
@@ -4327,111 +5398,182 @@ function ScheduleCalendar() {
 						})]
 					}),
 					/* @__PURE__ */ jsxs("div", {
-						className: "relative z-10 mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3 sm:pt-4",
-						children: [/* @__PURE__ */ jsx("div", {
-							className: "flex max-w-full items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0",
-							children: MONTH_NAMES.map((m, idx) => /* @__PURE__ */ jsx("button", {
+						className: "relative z-10 mt-5 flex flex-col gap-3 border-t border-white/10 pt-3 sm:pt-4",
+						children: [/* @__PURE__ */ jsxs("div", {
+							className: "flex flex-wrap items-center justify-between gap-3",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "flex items-center gap-2",
+								children: [
+									/* @__PURE__ */ jsx("button", {
+										type: "button",
+										disabled: selectedMonthIdx === 0,
+										onClick: () => setSelectedMonthIdx((prev) => Math.max(0, prev - 1)),
+										className: "grid size-8 place-items-center rounded-lg bg-white/10 text-white/80 transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-30",
+										"aria-label": "上个月",
+										children: /* @__PURE__ */ jsx("svg", {
+											width: "16",
+											height: "16",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2.5",
+											children: /* @__PURE__ */ jsx("polyline", { points: "15 18 9 12 15 6" })
+										})
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "flex items-baseline gap-2",
+										children: [
+											/* @__PURE__ */ jsxs("span", {
+												className: "text-base font-black text-white sm:text-lg",
+												children: [
+													currentMonth.year,
+													"年 ",
+													currentMonth.month,
+													"月"
+												]
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "text-xs font-semibold text-amber-300",
+												children: currentMonth.subtitle
+											}),
+											/* @__PURE__ */ jsxs("span", {
+												className: "text-xs text-white/60",
+												children: [
+													"(",
+													monthGames.length,
+													" 场)"
+												]
+											})
+										]
+									}),
+									/* @__PURE__ */ jsx("button", {
+										type: "button",
+										disabled: selectedMonthIdx === MONTH_NAMES.length - 1,
+										onClick: () => setSelectedMonthIdx((prev) => Math.min(MONTH_NAMES.length - 1, prev + 1)),
+										className: "grid size-8 place-items-center rounded-lg bg-white/10 text-white/80 transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-30",
+										"aria-label": "下个月",
+										children: /* @__PURE__ */ jsx("svg", {
+											width: "16",
+											height: "16",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2.5",
+											children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" })
+										})
+									})
+								]
+							}), /* @__PURE__ */ jsx("div", {
+								className: "flex items-center gap-1.5 text-xs",
+								children: /* @__PURE__ */ jsxs("div", {
+									className: "flex items-center rounded-lg bg-black/40 p-0.5",
+									children: [/* @__PURE__ */ jsxs("button", {
+										type: "button",
+										onClick: () => setViewMode("list"),
+										className: `flex items-center gap-1 rounded-md px-3 py-1 font-semibold transition-colors ${viewMode === "list" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"}`,
+										children: [/* @__PURE__ */ jsxs("svg", {
+											width: "13",
+											height: "13",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2.5",
+											children: [
+												/* @__PURE__ */ jsx("line", {
+													x1: "8",
+													y1: "6",
+													x2: "21",
+													y2: "6"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "8",
+													y1: "12",
+													x2: "21",
+													y2: "12"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "8",
+													y1: "18",
+													x2: "21",
+													y2: "18"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "3",
+													y1: "6",
+													x2: "3.01",
+													y2: "6"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "3",
+													y1: "12",
+													x2: "3.01",
+													y2: "12"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "3",
+													y1: "18",
+													x2: "3.01",
+													y2: "18"
+												})
+											]
+										}), "赛程清单"]
+									}), /* @__PURE__ */ jsxs("button", {
+										type: "button",
+										onClick: () => setViewMode("calendar"),
+										className: `flex items-center gap-1 rounded-md px-3 py-1 font-semibold transition-colors ${viewMode === "calendar" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"}`,
+										children: [/* @__PURE__ */ jsxs("svg", {
+											width: "13",
+											height: "13",
+											viewBox: "0 0 24 24",
+											fill: "none",
+											stroke: "currentColor",
+											strokeWidth: "2.5",
+											children: [
+												/* @__PURE__ */ jsx("rect", {
+													x: "3",
+													y: "4",
+													width: "18",
+													height: "18",
+													rx: "2",
+													ry: "2"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "16",
+													y1: "2",
+													x2: "16",
+													y2: "6"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "8",
+													y1: "2",
+													x2: "8",
+													y2: "6"
+												}),
+												/* @__PURE__ */ jsx("line", {
+													x1: "3",
+													y1: "10",
+													x2: "21",
+													y2: "10"
+												})
+											]
+										}), "日历视图"]
+									})]
+								})
+							})]
+						}), /* @__PURE__ */ jsx("div", {
+							className: "grid grid-cols-7 gap-1 rounded-xl bg-black/40 p-1 sm:gap-1.5",
+							children: MONTH_NAMES.map((m, idx) => /* @__PURE__ */ jsxs("button", {
 								type: "button",
 								onClick: () => setSelectedMonthIdx(idx),
-								className: `whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition-all sm:text-sm ${selectedMonthIdx === idx ? "bg-white text-neutral-950 shadow-md" : "bg-white/10 text-white/80 hover:bg-white/20"}`,
-								children: m.label
-							}, m.label))
-						}), /* @__PURE__ */ jsx("div", {
-							className: "flex items-center gap-1.5 text-xs",
-							children: /* @__PURE__ */ jsxs("div", {
-								className: "flex items-center rounded-lg bg-black/40 p-0.5",
-								children: [/* @__PURE__ */ jsxs("button", {
-									type: "button",
-									onClick: () => setViewMode("list"),
-									className: `flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-colors ${viewMode === "list" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"}`,
-									children: [/* @__PURE__ */ jsxs("svg", {
-										width: "13",
-										height: "13",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: "2.5",
-										children: [
-											/* @__PURE__ */ jsx("line", {
-												x1: "8",
-												y1: "6",
-												x2: "21",
-												y2: "6"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "8",
-												y1: "12",
-												x2: "21",
-												y2: "12"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "8",
-												y1: "18",
-												x2: "21",
-												y2: "18"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "3",
-												y1: "6",
-												x2: "3.01",
-												y2: "6"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "3",
-												y1: "12",
-												x2: "3.01",
-												y2: "12"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "3",
-												y1: "18",
-												x2: "3.01",
-												y2: "18"
-											})
-										]
-									}), "赛程清单"]
-								}), /* @__PURE__ */ jsxs("button", {
-									type: "button",
-									onClick: () => setViewMode("calendar"),
-									className: `flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-colors ${viewMode === "calendar" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"}`,
-									children: [/* @__PURE__ */ jsxs("svg", {
-										width: "13",
-										height: "13",
-										viewBox: "0 0 24 24",
-										fill: "none",
-										stroke: "currentColor",
-										strokeWidth: "2.5",
-										children: [
-											/* @__PURE__ */ jsx("rect", {
-												x: "3",
-												y: "4",
-												width: "18",
-												height: "18",
-												rx: "2",
-												ry: "2"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "16",
-												y1: "2",
-												x2: "16",
-												y2: "6"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "8",
-												y1: "2",
-												x2: "8",
-												y2: "6"
-											}),
-											/* @__PURE__ */ jsx("line", {
-												x1: "3",
-												y1: "10",
-												x2: "21",
-												y2: "10"
-											})
-										]
-									}), "日历视图"]
+								className: `flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-all sm:py-2 ${selectedMonthIdx === idx ? "bg-white text-neutral-950 shadow-sm font-black" : "text-white/70 hover:bg-white/10 hover:text-white"}`,
+								children: [/* @__PURE__ */ jsx("span", {
+									className: "font-bold",
+									children: m.label
+								}), /* @__PURE__ */ jsx("span", {
+									className: `hidden text-[10px] font-normal sm:inline ${selectedMonthIdx === idx ? "text-neutral-600" : "text-white/40"}`,
+									children: m.year
 								})]
-							})
+							}, m.label))
 						})]
 					})
 				]
@@ -4834,6 +5976,35 @@ function headers$25() {
 	return { "Cache-Control": "no-store" };
 }
 var search_busy_default = UNSAFE_withComponentProps(SearchBusy);
+//#endregion
+//#region app/components/ui/Badge.tsx
+var TONES$1 = {
+	selected: "bg-amber-soft text-amber-ink",
+	accent: "bg-accent-soft text-accent",
+	amber: "bg-amber-soft text-amber-ink",
+	hot: "bg-hot-soft text-hot",
+	ok: "bg-ok-soft text-ok",
+	neutral: "bg-bg-sunk text-ink-3 border border-line-soft"
+};
+/** Small label next to a source or title: 精选, statuses and counts. */
+function Badge$1({ tone = "neutral", dot = false, children, className = "", title }) {
+	return /* @__PURE__ */ jsxs("span", {
+		title,
+		className: `inline-flex h-[18px] shrink-0 items-center gap-1 rounded-full px-2 text-[11px] font-medium leading-none ${TONES$1[tone]} ${className}`,
+		children: [dot && /* @__PURE__ */ jsx("span", {
+			className: "size-[5px] rounded-full bg-current",
+			"aria-hidden": "true"
+		}), children]
+	});
+}
+/** The "精选" mark on a report. */
+function SelectedBadge() {
+	return /* @__PURE__ */ jsx(Badge$1, {
+		tone: "selected",
+		dot: true,
+		children: "精选"
+	});
+}
 //#endregion
 //#region app/components/ui/Menu.tsx
 /** A small dropdown anchored to a trigger; closes on outside click, Escape or choosing an entry. */
@@ -5311,7 +6482,7 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 		if (await shareOrCopy(item) === "copied") setToast("链接已复制");
 	};
 	const bodyHtml = lang === "zh" ? item.body?.zh ?? item.body?.original : item.body?.original ?? item.body?.zh;
-	const bodyLabel = !item.body ? null : lang === "zh" && item.body.zhKind === "translation" ? "正文 · AI 翻译" : lang === "original" && hasTranslation ? "正文 · 原文" : "正文";
+	const bodyLabel = !item.body ? null : lang === "zh" && item.body.zhKind === "translation" ? "正文 · 中文翻译" : lang === "original" && hasTranslation ? "正文 · 原文" : "正文";
 	const isX = item.channel === "x" && !!item.x;
 	const publishedIso = item.publishedAt ?? item.discoveredAt;
 	const summaryOnly = item.readingMode === "summary-only";
@@ -5446,7 +6617,7 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 			children: item.reason
 		})]
 	}) : verdict && /* @__PURE__ */ jsx(RailSection, {
-		title: "AI 评分",
+		title: "情报评级",
 		children: verdict
 	}), item.tags.length > 0 && /* @__PURE__ */ jsx(RailSection, {
 		title: "标签",
@@ -5554,7 +6725,7 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 							className: isX ? "mt-4" : "mt-7 xl:mt-8",
 							children: [/* @__PURE__ */ jsx("div", {
 								className: "mb-2 text-[12px] font-semibold text-accent",
-								children: summaryOnly ? "摘要" : "AI 导读"
+								children: summaryOnly ? "摘要" : "情报要点"
 							}), /* @__PURE__ */ jsx("p", {
 								className: "text-[18px] leading-[1.7] text-ink xl:text-[20px] xl:leading-[1.7]",
 								children: item.summary
@@ -5948,7 +7119,7 @@ async function loader$30({ request }) {
 function meta$35() {
 	return pageMeta({
 		title: withSubject("热点榜"),
-		description: "过去 48 小时 AI 圈讨论最多的 10 个事件：热度指数、趋势与组成热度的公开来源。",
+		description: "过去 48 小时休斯敦火箭全网讨论最多的热点事件：热度指数、趋势与公开信源。",
 		path: "/hot",
 		image: "/og/pages/hot.png"
 	});
@@ -6334,7 +7505,7 @@ var hot_default = UNSAFE_withComponentProps(function HotPage() {
 						children: [
 							"过去 ",
 							hot.windowHours,
-							" 小时，AI 圈讨论最多的 ",
+							" 小时，休斯敦火箭全网讨论最多的 ",
 							hot.entries.length || 10,
 							" 件事"
 						]
@@ -6943,9 +8114,9 @@ var story_default = UNSAFE_withComponentProps(function StoryPage() {
 	]);
 	const newest = story.timeline.reduce((a, b) => !a || Date.parse(b.publishedAt) > Date.parse(a.publishedAt) ? b : a, null);
 	const overview = story.digest ? {
-		label: "AI 综述",
+		label: "事件综述",
 		text: story.digest,
-		note: story.digestUpdatedAt ? `AI 根据报道生成 · ${relativeTime(story.digestUpdatedAt)}更新` : "AI 根据报道生成"
+		note: story.digestUpdatedAt ? `前线报道汇总 · ${relativeTime(story.digestUpdatedAt)}更新` : "前线报道汇总"
 	} : story.summary ? {
 		label: "事实说明",
 		text: story.summary,
@@ -7399,11 +8570,11 @@ function isoWeekRange(key) {
 	const monday = /* @__PURE__ */ new Date(jan4.getTime() - (jan4.getUTCDay() + 6) % 7 * 864e5 + (w - 1) * 7 * 864e5);
 	return [ymd(monday), ymd(new Date(monday.getTime() + 5184e5))];
 }
-/** "这一天的 4 件 AI 大事" / "本周的 12 件 AI 大事" / "8 月的 20 件 AI 大事". */
+/** "今日火箭 4 件重点动态" / "本周火箭 12 件重点动态" / "8 月火箭 20 件重点动态". */
 function headline(kind, key, count) {
-	if (kind === "daily") return `这一天的 ${count} 件 AI 大事`;
-	if (kind === "weekly") return `本周的 ${count} 件 AI 大事`;
-	return `${Number(key.slice(5, 7))} 月的 ${count} 件 AI 大事`;
+	if (kind === "daily") return `今日火箭 ${count} 件重点动态`;
+	if (kind === "weekly") return `本周火箭 ${count} 件重点动态`;
+	return `${Number(key.slice(5, 7))} 月火箭 ${count} 件重点动态`;
 }
 /** "09.16" for a story inside a week or month. */
 function shortDay(iso) {
@@ -7562,9 +8733,9 @@ function dateLine(kind, key) {
 }
 /** What each kind is, under its nameplate. */
 var MOTTO = {
-	daily: "人工智能 · 每日要闻",
-	weekly: "人工智能 · 每周综述",
-	monthly: "人工智能 · 每月盘点"
+	daily: "休斯敦火箭 · 每日晨报",
+	weekly: "休斯敦火箭 · 每周综述",
+	monthly: "休斯敦火箭 · 每月盘点"
 };
 /** ISO week number of a date (YYYY-MM-DD). */
 function isoWeek(day) {
@@ -8172,56 +9343,61 @@ function Halftone({ seed, className = "", children }) {
 	});
 }
 //#endregion
-//#region ../../industry/brand/nameplates/daily.svg?url&no-inline
-var daily_default = "/assets/daily-Dcr_lUhu.svg";
-//#endregion
-//#region ../../industry/brand/nameplates/weekly.svg?url&no-inline
-var weekly_default = "/assets/weekly-HHh8tTS2.svg";
-//#endregion
-//#region ../../industry/brand/nameplates/monthly.svg?url&no-inline
-var monthly_default = "/assets/monthly-BJ8pf_Bc.svg";
-//#endregion
-//#region ../../industry/brand/nameplates/archive.svg?url&no-inline
-var archive_default = "/assets/archive-CIwFkNtV.svg";
-var nameplates_default = {
-	daily: "0 -122.0 718.3 244.0",
-	weekly: "0 -122.0 758.6 244.0",
-	monthly: "0 -122.0 744.2 244.0",
-	archive: "0 -122.0 1138.4 244.0"
-};
-//#endregion
 //#region app/features/report/Nameplate.tsx
-var NAMEPLATES = {
+var NAMEPLATE_CONFIG = {
 	daily: {
-		url: daily_default,
-		viewBox: nameplates_default.daily
+		prefix: "火箭",
+		suffix: "早报",
+		offset: 200,
+		width: 420
 	},
 	weekly: {
-		url: weekly_default,
-		viewBox: nameplates_default.weekly
+		prefix: "火箭",
+		suffix: "周报",
+		offset: 200,
+		width: 420
 	},
 	monthly: {
-		url: monthly_default,
-		viewBox: nameplates_default.monthly
+		prefix: "火箭",
+		suffix: "月报",
+		offset: 200,
+		width: 420
 	},
 	archive: {
-		url: archive_default,
-		viewBox: nameplates_default.archive
+		prefix: "火箭",
+		suffix: "专刊合订",
+		offset: 200,
+		width: 620
 	}
 };
 function Nameplate({ which, className = "" }) {
-	const n = NAMEPLATES[which];
+	const item = NAMEPLATE_CONFIG[which] || NAMEPLATE_CONFIG.daily;
+	const viewBox = `0 0 ${item.width} 110`;
 	return /* @__PURE__ */ jsxs("svg", {
-		viewBox: n.viewBox,
+		viewBox,
 		className,
 		"aria-hidden": "true",
 		focusable: "false",
-		children: [/* @__PURE__ */ jsx("use", {
-			href: `${n.url}#accent`,
-			className: "fill-accent"
-		}), /* @__PURE__ */ jsx("use", {
-			href: `${n.url}#ink`,
-			className: "fill-ink"
+		children: [/* @__PURE__ */ jsx("text", {
+			x: "0",
+			y: "90",
+			className: "fill-accent select-none font-black italic tracking-tighter",
+			style: {
+				fontSize: "94px",
+				fontWeight: 900,
+				fontFamily: "-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif"
+			},
+			children: item.prefix
+		}), /* @__PURE__ */ jsx("text", {
+			x: item.offset,
+			y: "90",
+			className: "fill-ink select-none font-black tracking-tight",
+			style: {
+				fontSize: "94px",
+				fontWeight: 900,
+				fontFamily: "-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif"
+			},
+			children: item.suffix
 		})]
 	});
 }
@@ -8439,7 +9615,7 @@ function Masthead({ report, index }) {
 						children: [/* @__PURE__ */ jsxs("span", {
 							className: "sr-only",
 							children: [
-								"AI ",
+								"火箭",
 								KIND_LABEL$1[report.kind],
 								" · ",
 								dateLine(report.kind, report.key)
@@ -8785,7 +9961,7 @@ function SectionPage({ id, no, label, children }) {
 /** Two columns with a hairline between them, once the page is wide enough (快讯). */
 var COLUMNS = "@[760px]:columns-2 @[760px]:gap-x-12 @[760px]:[column-rule:1px_solid_var(--line)]";
 function Neighbours({ report, index }) {
-	const titleOf = (key) => index.find((e) => e.key === key)?.title ?? `AI ${KIND_LABEL$1[report.kind]} · ${key}`;
+	const titleOf = (key) => index.find((e) => e.key === key)?.title ?? `火箭${KIND_LABEL$1[report.kind]} · ${key}`;
 	const cell = "group flex min-w-0 flex-col py-6";
 	const title = "mt-2.5 line-clamp-2 text-[16px] font-bold leading-[1.5] text-ink transition-colors group-hover:text-accent @[880px]:text-[18px]";
 	return /* @__PURE__ */ jsxs("nav", {
@@ -8828,7 +10004,7 @@ function History({ report, index }) {
 	return /* @__PURE__ */ jsxs("section", {
 		id: "report-history",
 		className: "scroll-mt-6 pt-12",
-		children: [/* @__PURE__ */ jsxs(Kicker, { children: ["往期 AI ", KIND_LABEL$1[report.kind]] }), /* @__PURE__ */ jsx("ul", {
+		children: [/* @__PURE__ */ jsxs(Kicker, { children: ["往期火箭", KIND_LABEL$1[report.kind]] }), /* @__PURE__ */ jsx("ul", {
 			className: "mt-3",
 			children: others.map((e) => /* @__PURE__ */ jsx("li", { children: /* @__PURE__ */ jsxs(Link, {
 				to: reportPath(report.kind, e.key),
@@ -8967,7 +10143,7 @@ async function loader$28({ request }) {
 function meta$33({ loaderData, location }) {
 	const kind = loaderData?.kind ?? "daily";
 	return pageMeta({
-		title: `AI ${KIND_LABEL$1[kind]}`,
+		title: `火箭${KIND_LABEL$1[kind]}`,
 		description: kind === "daily" ? `${SITE.name} 每天 08:00（北京时间）发布的${withSubject("日报")}。` : kind === "weekly" ? "每周综合回顾。" : "每月盘点。",
 		path: location.pathname,
 		image: `/og/pages/${kind}.png`
@@ -8987,7 +10163,7 @@ var report_latest_default = UNSAFE_withComponentProps(function ReportLatestPage(
 			report,
 			index
 		}) : /* @__PURE__ */ jsx(EmptyState, {
-			title: `还没有发布 AI ${KIND_LABEL$1[kind]}`,
+			title: `还没有发布火箭${KIND_LABEL$1[kind]}`,
 			children: "第一期发布后会出现在这里。"
 		})
 	});
@@ -9168,8 +10344,8 @@ async function loader$25({ request }) {
 }
 function meta$30() {
 	return pageMeta({
-		title: "主题",
-		description: "按公司与模型、技术方向、内容形态聚合的 AI 主题页：OpenAI、Anthropic、Agent、多模态、论文与教程等 38 个方向。",
+		title: "火箭主题专区",
+		description: "按核心球员、战术深度、情报形态聚合的休斯敦火箭主题专区，持续汇集近期焦点报道与一手赛况。",
 		path: "/topics",
 		image: "/og/pages/topics.png"
 	});
@@ -9179,19 +10355,19 @@ function headers$18() {
 }
 var GROUPS$1 = [
 	{
-		key: "company",
-		name: "公司与模型",
-		blurb: "按厂商与模型系追踪：谁发了什么、又赢了哪一局"
+		key: "player",
+		name: "核心球员与教练",
+		blurb: "按核心骨干追踪：杜兰特、申京、阿门·汤普森、乌度卡、谢泼德等"
 	},
 	{
 		key: "field",
-		name: "技术方向",
-		blurb: "按技术领域深挖：Agent、多模态、具身智能……"
+		name: "战术与高阶数据",
+		blurb: "按战术体系与效率深挖：百回合净胜分、进攻空间、防守换防……"
 	},
 	{
 		key: "genre",
-		name: "内容形态",
-		blurb: "按内容类型浏览：论文、教程、观点、政策……"
+		name: "情报形态与专区",
+		blurb: "按内容类型分类：战报总结、交易签约、名记流言、赛后原声……"
 	}
 ];
 var topics_default = UNSAFE_withComponentProps(function TopicsPage() {
@@ -9201,18 +10377,11 @@ var topics_default = UNSAFE_withComponentProps(function TopicsPage() {
 		children: [/* @__PURE__ */ jsxs("header", {
 			className: "pb-2 pt-5 lg:pt-1",
 			children: [/* @__PURE__ */ jsx("h1", {
-				className: "text-[24px] font-semibold leading-[1.3] text-ink",
-				children: "按主题看 AI"
-			}), /* @__PURE__ */ jsxs("p", {
+				className: "text-[24px] font-bold leading-[1.3] text-ink",
+				children: "休斯敦火箭 主题专区"
+			}), /* @__PURE__ */ jsx("p", {
 				className: "mt-1.5 text-[13px] leading-relaxed text-ink-3",
-				children: [
-					"按公司与模型、技术方向、内容形态浏览 ",
-					/* @__PURE__ */ jsx("span", {
-						className: "num",
-						children: topics.length
-					}),
-					" 个主题，持续汇集近期焦点与精选。"
-				]
+				children: "按核心球员、战术体系、情报类型持续汇集休斯敦火箭近期焦点报道。"
 			})]
 		}), GROUPS$1.map((g) => /* @__PURE__ */ jsxs("section", {
 			"aria-labelledby": `topics-${g.key}`,
@@ -11088,7 +12257,7 @@ var feedback_default$1 = UNSAFE_withComponentProps(function FeedbackPage() {
 								...draft,
 								content: e.target.value
 							}),
-							placeholder: "例如：我在搜索“OpenAI”时遇到……我原本想……",
+							placeholder: "例如：查找“申京澳门赛出战情况”时没有找到、希望增加更多随队记者的深度专栏、界面阅读体验建议……",
 							className: `${field} block resize-y px-4 pb-8 pt-3.5 text-[14.5px] leading-relaxed`
 						}), /* @__PURE__ */ jsxs("span", {
 							className: "mono pointer-events-none absolute bottom-3 right-4 text-[11px] text-ink-4",
@@ -20909,15 +22078,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-BHGFE2tL.js",
+			"module": "/assets/root-B3WTxTgv.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/Sidebar-BFKldhRo.js",
-				"/assets/Chrome-DKYs5AMX.js",
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/Sidebar-BKZ8liQm.js",
+				"/assets/Chrome-DuG_H9cO.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-BL4UklUM.css"],
+			"css": ["/assets/root-DZ3wh6Lw.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -20957,13 +22126,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-DwvBHqby.js",
+			"module": "/assets/all-YAvztSlG.js",
 			"imports": [
-				"/assets/all-BSl1AotU.js",
+				"/assets/all-NgdLOQUl.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/Filters-BW-XEl_v.js",
-				"/assets/DayList-CAs5AxTL.js",
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/Filters-9PevlIb9.js",
+				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -20985,11 +22154,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-vW7JMm7e.js",
+			"module": "/assets/schedule-CcQ09xJT.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/Filters-BW-XEl_v.js",
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/Filters-9PevlIb9.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -21011,13 +22180,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Eo-MhnPB.js",
+			"module": "/assets/search-busy-BrUNnoaj.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/all-BSl1AotU.js",
-				"/assets/Filters-BW-XEl_v.js",
-				"/assets/DayList-CAs5AxTL.js",
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/all-NgdLOQUl.js",
+				"/assets/Filters-9PevlIb9.js",
+				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -21039,13 +22208,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Eo-MhnPB.js",
+			"module": "/assets/search-busy-BrUNnoaj.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/all-BSl1AotU.js",
-				"/assets/Filters-BW-XEl_v.js",
-				"/assets/DayList-CAs5AxTL.js",
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/all-NgdLOQUl.js",
+				"/assets/Filters-9PevlIb9.js",
+				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -21067,11 +22236,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-N7ivXAfU.js",
+			"module": "/assets/item-TE0kjQMd.js",
 			"imports": [
-				"/assets/item-DTKo3nlD.js",
+				"/assets/item-BmZbLVII.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js"
+				"/assets/shared-ClZ2uK0H.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21092,11 +22261,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-N7ivXAfU.js",
+			"module": "/assets/item-original-TE0kjQMd.js",
 			"imports": [
-				"/assets/item-DTKo3nlD.js",
+				"/assets/item-BmZbLVII.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js"
+				"/assets/shared-ClZ2uK0H.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21117,8 +22286,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-DXuT24JV.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/hot-BC_MuzPs.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21138,8 +22307,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-DAFVo8Wc.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/story-BTBKxea8.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21159,11 +22328,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-B1BPR9_T.js",
+			"module": "/assets/report-latest-CvL49C3K.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/ReportPaper-m-bOpGK8.js"
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/ReportPaper-CHHQ0J5_.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21184,11 +22353,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-C4AXSlaC.js",
+			"module": "/assets/daily-archive-BQm_4qF7.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/ReportPaper-m-bOpGK8.js"
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/ReportPaper-CHHQ0J5_.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21209,11 +22378,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-u-9sb_u9.js",
+			"module": "/assets/report-detail-CKNAFybB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/ReportPaper-m-bOpGK8.js"
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/ReportPaper-CHHQ0J5_.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21234,11 +22403,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-B1BPR9_T.js",
+			"module": "/assets/report-latest-CvL49C3K.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/ReportPaper-m-bOpGK8.js"
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/ReportPaper-CHHQ0J5_.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21259,11 +22428,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-u-9sb_u9.js",
+			"module": "/assets/report-detail-CKNAFybB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/ReportPaper-m-bOpGK8.js"
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/ReportPaper-CHHQ0J5_.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21284,11 +22453,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-B1BPR9_T.js",
+			"module": "/assets/report-latest-CvL49C3K.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/ReportPaper-m-bOpGK8.js"
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/ReportPaper-CHHQ0J5_.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21309,11 +22478,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-u-9sb_u9.js",
+			"module": "/assets/report-detail-CKNAFybB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/ReportPaper-m-bOpGK8.js"
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/ReportPaper-CHHQ0J5_.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21334,8 +22503,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topics-bKsH3u2a.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/topics-DthfpW_M.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21355,11 +22524,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-BMKYtcyz.js",
+			"module": "/assets/topic-DciVb0Mb.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/DayList-CAs5AxTL.js",
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -21381,11 +22550,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-BMKYtcyz.js",
+			"module": "/assets/topic-DciVb0Mb.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/DayList-CAs5AxTL.js",
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -21407,8 +22576,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-CyjrJ6ko.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/about-DIlaToBj.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21428,11 +22597,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-Ci1cvyxe.js",
+			"module": "/assets/terms-xurzJX5r.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/CopyPage-Dpw9oqNL.js"
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/CopyPage-KrbDtq1b.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21453,11 +22622,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-Bu2cDP2-.js",
+			"module": "/assets/privacy-D-K4-lAc.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/CopyPage-Dpw9oqNL.js"
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/CopyPage-KrbDtq1b.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21478,8 +22647,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-gIam4XSb.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/changelog-DIvfauc3.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21499,8 +22668,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-D_Xjsevc.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/feedback-TpkSc1-l.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21520,11 +22689,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-DGgWrLNu.js",
+			"module": "/assets/more-DMCy4a7s.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
-				"/assets/Sidebar-BFKldhRo.js",
+				"/assets/shared-ClZ2uK0H.js",
+				"/assets/Sidebar-BKZ8liQm.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -21546,8 +22715,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-B6-Y8kmt.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/starred-DOwAPGCX.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21567,10 +22736,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-COWQJm_k.js",
+			"module": "/assets/agent-ByzfL8dB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/features-DbRQZ5Mo.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
@@ -21593,8 +22762,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-DbjdSO2_.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/codex-reset-DDpNI6JF.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21614,8 +22783,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-DbjdSO2_.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/codex-reset-DDpNI6JF.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21635,10 +22804,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-CHkAhmyW.js",
+			"module": "/assets/leaderboard-boards-AXohjFRL.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -21660,10 +22829,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-BLZXlgpV.js",
+			"module": "/assets/leaderboard-gndouqVi.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -21686,10 +22855,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-BLZXlgpV.js",
+			"module": "/assets/leaderboard-gndouqVi.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -21712,10 +22881,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-DYgIgFgc.js",
+			"module": "/assets/leaderboard-sources-VPT0nTv_.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -21738,10 +22907,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-C6qrqYoz.js",
+			"module": "/assets/leaderboard-source-DK3YxheX.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -21764,8 +22933,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-CdMl25N9.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/leaderboard-rules-BLKnbhBw.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21785,10 +22954,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-D7YyUii9.js",
+			"module": "/assets/leaderboard-model-BZGF1Dru.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/taxonomy-CrAe8mz1.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
@@ -21812,8 +22981,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-B2onUP2o.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-JGcEBs8G.js"],
+			"module": "/assets/admin-login-edpdASMq.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21833,12 +23002,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-CmVJZcBo.js",
+			"module": "/assets/layout-CDZRNyI-.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-DKYs5AMX.js",
+				"/assets/Chrome-DuG_H9cO.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -21882,10 +23051,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-CZ4fpoJ9.js",
+			"module": "/assets/content-g_CVDKZV.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -21909,10 +23078,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-DgsYHwoJ.js",
+			"module": "/assets/content-item-BXynrNY0.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/taxonomy-CrAe8mz1.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
@@ -21939,10 +23108,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-CGEK6gQu.js",
+			"module": "/assets/sources-Ca8ZrEAQ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -21966,10 +23135,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-zF_ax9fp.js",
+			"module": "/assets/source-new-Bk5HgHnr.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -21995,10 +23164,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-xBOIcPgd.js",
+			"module": "/assets/source-B3ppjr1u.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22024,10 +23193,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-diFHUwFB.js",
+			"module": "/assets/monitor-BWnrwTKw.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22052,10 +23221,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-D9NmrP55.js",
+			"module": "/assets/feedback-Crg9vwbB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22081,10 +23250,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-BFY679yo.js",
+			"module": "/assets/runs-CO1o2t-o.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22109,10 +23278,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-CpnsFzVh.js",
+			"module": "/assets/models-BgYGeke9.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22137,10 +23306,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-Ce42OVKL.js",
+			"module": "/assets/selectbench-BnbwiQ_F.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22165,10 +23334,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-ZiOdG9n_.js",
+			"module": "/assets/selectbench-run-BopZHXKE.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/taxonomy-CrAe8mz1.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22192,10 +23361,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-DzNmhL3q.js",
+			"module": "/assets/settings-CXI7WAYr.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22220,10 +23389,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-BkpOcrDZ.js",
+			"module": "/assets/audit-pIWVpd99.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-JGcEBs8G.js",
+				"/assets/shared-ClZ2uK0H.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -22234,8 +23403,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-41d61161.js",
-	"version": "41d61161",
+	"url": "/assets/manifest-11886eef.js",
+	"version": "11886eef",
 	"sri": void 0
 };
 //#endregion

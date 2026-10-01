@@ -55,7 +55,7 @@ export function DayHeader({ day, today, count, collapsed, onToggle }: { day: str
       </div>
       {/* Desktop: the date ends where the times end, the fold toggle sits on the rail. */}
       <div className="hidden h-11 grid-cols-[64px_22px_minmax(0,1fr)] items-center lg:grid">
-        <button type="button" onClick={onToggle} disabled={!onToggle} className="justify-self-end whitespace-nowrap text-right text-[18px] font-semibold leading-6 text-ink">
+        <button type="button" onClick={onToggle} disabled={!onToggle} className="justify-self-end whitespace-nowrap text-right text-[19px] font-black leading-6 text-ink tracking-tight">
           {date}
         </button>
         {onToggle ? (
@@ -93,17 +93,19 @@ export function TimelineSlot({ at, children, fresh = false, delay = 0, dataKey }
   return (
     <li
       data-card-key={dataKey}
-      className={`group/slot grid grid-cols-[48px_minmax(0,1fr)] border-b border-line-soft py-3.5 last:border-b-0 lg:grid-cols-[64px_22px_minmax(0,1fr)] lg:border-b-0 lg:py-0 lg:pb-3 lg:last:pb-0 ${fresh ? "animate-fade-up" : ""}`}
+      className={`group/slot flex flex-col py-1.5 lg:grid lg:grid-cols-[64px_22px_minmax(0,1fr)] lg:py-0 lg:pb-3 lg:last:pb-0 ${fresh ? "animate-fade-up" : ""}`}
       style={fresh ? { animationDelay: `${delay}ms` } : undefined}
     >
-      <time dateTime={at} className="mono pt-[2px] text-[13px] leading-[18px] text-ink-4 lg:pt-[17px] lg:text-[12.5px] lg:font-semibold lg:leading-6 lg:text-ink-3">
+      <time dateTime={at} className="mono hidden text-[12.5px] font-semibold leading-6 text-ink-3 lg:block lg:pt-[17px]">
         {beijingTime(at)}
       </time>
       <span aria-hidden="true" className="relative hidden lg:block">
         <span className="absolute -bottom-[41px] left-[10.5px] top-[29px] w-px bg-line-strong group-last/slot:hidden" />
         <span className="absolute left-[7.5px] top-[25.5px] size-[7px] rounded-full bg-accent shadow-[0_0_0_4px_var(--bg)] transition-transform duration-300 group-hover/slot:scale-[1.15]" />
       </span>
-      {children}
+      <div className="min-w-0">
+        {children}
+      </div>
     </li>
   );
 }

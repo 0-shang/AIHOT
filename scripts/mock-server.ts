@@ -67,20 +67,36 @@ function getLiveItems() {
       const pubIso = pubDate.toISOString();
       const isVideo = c.sourceId?.startsWith("yt-") || c.url?.includes("youtube.com") || c.url?.includes("youtu.be") || c.media?.some((m: any) => m.kind === "video");
       const category = isVideo ? "videos" : (c.category || "news");
+      const cleanExcerpt = (c.excerpt || "")
+        .replace(/\[?&#8230;\]?/g, "...")
+        .replace(/&#8217;/g, "'")
+        .replace(/&#8216;/g, "'")
+        .replace(/&#8220;/g, '"')
+        .replace(/&#8221;/g, '"')
+        .replace(/&#038;/g, "&")
+        .replace(/&amp;/g, "&")
+        .replace(/&quot;/g, '"')
+        .trim();
+
+      const summary = cleanExcerpt || `${c.title} — 来自随队媒体 ${c.sourceName} 的最新前线深度报道。`;
+      const reason = isVideo
+        ? `随队官方高清视讯与采访原声`
+        : `随队核心媒体 ${c.sourceName} 重点前线报道`;
+
       return {
         id: `item-live-${idx + 1}`,
         revision: 1,
-        title: c.title,
+        title: c.title.replace(/&#8217;/g, "'").replace(/&#8220;/g, '"').replace(/&#8221;/g, '"'),
         originalTitle: c.title,
-        summary: c.excerpt ? c.excerpt.replace(/&#8217;/g, "'").replace(/&#8220;/g, '"').replace(/&#8221;/g, '"') : (c.title + " (抓取自 " + c.sourceName + ")"),
-        reason: `信源抓取真实数据: ${c.sourceName}`,
+        summary,
+        reason,
         source: { id: c.sourceId || "rss-scraped", name: c.sourceName || "实时信源", kind: "rss" as const, firstParty: false, iconUrl: null },
         links: { aihot: `/items/item-live-${idx + 1}`, original: c.url },
         publishedAt: pubIso,
         discoveredAt: isoNow,
         timelineAt: pubIso,
         category,
-        tags: [isVideo ? "视频专栏" : "球队动态", c.sourceName, "休斯敦火箭"],
+        tags: isVideo ? ["视频专栏", "比赛视讯"] : [c.sourceName, "赛季动态"],
         score: Number((9.6 - (idx * 0.1)).toFixed(1)),
         selected: true,
         channel: "news" as const,
@@ -103,9 +119,9 @@ const MOCK_ITEMS = [
   {
     id: "item-rockets-1",
     revision: 1,
-    title: "申京 28+12+7 全能表现，休斯敦火箭终结连败力克太阳",
-    originalTitle: "Alperen Sengun's near triple-double leads Rockets past Suns",
-    summary: "阿尔佩伦·申京在内线全面爆发，全场 18 投 12 中高效轰下 28 分 12 篮板 7 助攻 2 抢断。杰伦·格林在末节关键时刻连续命中高难度三分锁定胜局。乌度卡赛后特别表扬了球队在第四节对杜兰特的防守包夹策略。",
+    title: "申京 28+12+7 全能表现，杜兰特关键跳投率火箭终结连败力克强敌",
+    originalTitle: "Alperen Sengun's near triple-double & KD clutch jumper leads Rockets to victory",
+    summary: "阿尔佩伦·申京在内线全面爆发，全场 18 投 12 中高效轰下 28 分 12 篮板 7 助攻 2 抢断。凯文·杜兰特在末节决胜时刻连续命中无解急停跳投锁定胜局。乌度卡赛后特别表扬了杜兰特与申京的高低位挡拆配合。",
     reason: "核心球员高光战报与赛果",
     source: { id: "rss-clutchfans", name: "ClutchFans 火箭资讯", kind: "rss" as const, firstParty: false, iconUrl: null },
     links: { aihot: "/items/item-rockets-1", original: "https://clutchfans.net" },
@@ -113,7 +129,7 @@ const MOCK_ITEMS = [
     discoveredAt: isoNow,
     timelineAt: new Date(Date.now() - 3600 * 1000).toISOString(),
     category: "news" as const,
-    tags: ["比赛战报", "阿尔佩伦·申京", "杰伦·格林", "常规赛"],
+    tags: ["比赛战报", "阿尔佩伦·申京", "凯文·杜兰特", "常规赛"],
     score: 9.4,
     selected: true,
     channel: "news" as const,
@@ -185,7 +201,7 @@ const MOCK_ITEMS = [
     revision: 1,
     title: "乌度卡赛后专访：年轻球员正在学会在逆境中执行战术，防守专注度是赢球唯一基石",
     originalTitle: "Ime Udoka Postgame Press Conference",
-    summary: "主帅伊梅·乌度卡在新闻发布会上重点谈到了杰伦·格林的防守成长：“如果放在一年前，当他投篮不进时防守端也会走神；而今晚他在三分球 8 投 2 中的情况下，依然抢下 6 个防守篮板并制造了对手两次带球撞人，这正是冠军级别球员的蜕变过程。”",
+    summary: "主帅伊梅·乌度卡在新闻发布会上重点谈到了阿门·汤普森的防守成长：“阿门具备全联盟最顶级的防守嗅觉，今晚他在外线领防中让对手核心后卫出现 5 次失误，同时杜兰特在防守端的协防保护让我们的防守体系固若金汤。”",
     reason: "主教练赛后深度原声采访",
     source: { id: "rss-clutchfans", name: "ClutchFans 火箭资讯", kind: "rss" as const, firstParty: false, iconUrl: null },
     links: { aihot: "/items/item-rockets-5", original: "https://clutchfans.net" },
@@ -193,7 +209,7 @@ const MOCK_ITEMS = [
     discoveredAt: isoNow,
     timelineAt: new Date(Date.now() - 28800 * 1000).toISOString(),
     category: "news" as const,
-    tags: ["球队动态", "乌度卡", "杰伦·格林"],
+    tags: ["球队动态", "乌度卡", "阿门·汤普森", "凯文·杜兰特"],
     score: 8.8,
     selected: true,
     channel: "news" as const,
@@ -225,7 +241,7 @@ const MOCK_ITEMS = [
     revision: 1,
     title: "【官方原声视频】火箭2026-27赛季训练营第一天：乌度卡讲话与队内分组高强度全场对抗",
     originalTitle: "Houston Rockets Day 1 Training Camp Highlights & Coach Udoka Mic'd Up",
-    summary: "休斯敦火箭官方 YouTube 今日发布训练营首日原声集锦视频：乌度卡强调防守换防细节，阿门·汤普森与谢泼德同组展现精妙传切配合，杰伦·格林在快攻反击中多次上演暴力扣篮。",
+    summary: "休斯敦火箭官方 YouTube 今日发布训练营首日原声集锦视频：乌度卡强调防守换防细节，阿门·汤普森与谢泼德同组展现精妙传切配合，杜兰特在半场阵地单打中连续命中高难度跳投。",
     reason: "官方训练原声录像与高光集锦",
     source: { id: "yt-houston-rockets", name: "休斯敦火箭官方 YouTube", kind: "rss" as const, firstParty: true, iconUrl: null },
     links: { aihot: "/items/item-rockets-7", original: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
@@ -233,7 +249,7 @@ const MOCK_ITEMS = [
     discoveredAt: isoNow,
     timelineAt: new Date(Date.now() - 18000 * 1000).toISOString(),
     category: "videos" as const,
-    tags: ["视频专栏", "官方视频", "乌度卡", "杰伦·格林"],
+    tags: ["视频专栏", "官方视频", "乌度卡", "凯文·杜兰特"],
     score: 9.2,
     selected: true,
     channel: "news" as const,
@@ -285,7 +301,7 @@ const MOCK_ITEMS = [
     revision: 1,
     title: "【澳门赛前瞻视讯】独行侠 vs 火箭：得州宿敌空降金光综艺馆五大看点分析",
     originalTitle: "NBA Macau Games 2026 Preview: Houston Rockets vs Dallas Mavericks",
-    summary: "Bleav in Rockets 播客视频版：深度剖析 10月9日 与 10月11日 澳门金光综艺馆两场季前焦点战。杰伦·格林与阿门后场如何对阵东契奇与欧文，以及两队季前赛主力出战时间推测。",
+    summary: "Bleav in Rockets 播客视频版：深度剖析 10月9日 与 10月11日 澳门金光综艺馆两场季前焦点战。凯文·杜兰特与阿门·汤普森锋卫线如何对阵东契奇与欧文，以及两队季前赛主力出战时间推测。",
     reason: "澳门赛重磅专题视讯分析",
     source: { id: "yt-bleav-in-rockets", name: "Bleav in Rockets", kind: "rss" as const, firstParty: false, iconUrl: null },
     links: { aihot: "/items/item-rockets-10", original: "https://www.youtube.com/watch?v=e23iE7u_D5E" },
@@ -388,10 +404,18 @@ const server = http.createServer((req, res) => {
     res.writeHead(200);
     return res.end(JSON.stringify({
       topics: [
-        { slug: "sengun", name: "阿尔佩伦·申京", description: "火箭内线核心，全能组织中锋", count: 42 },
-        { slug: "green", name: "杰伦·格林", description: "外线得分后卫，爆发力极佳", count: 38 },
-        { slug: "amen", name: "阿门·汤普森", description: "全能锋卫摇摆人，防守大闸", count: 31 },
-        { slug: "udoka", name: "乌度卡", description: "火箭主教练，治军严谨重铸铁血防守", count: 29 },
+        { slug: "durant", name: "凯文·杜兰特", group: "player", definition: "超级巨星，历史级无解单打、关键决胜进球与领袖核心", total: 48, recent: 9, indexable: true, latestAt: isoNow },
+        { slug: "sengun", name: "阿尔佩伦·申京", group: "player", definition: "内线组织核心，高位策应与禁区攻防表现追踪", total: 42, recent: 6, indexable: true, latestAt: isoNow },
+        { slug: "amen-thompson", name: "阿门·汤普森", group: "player", definition: "全能防守大闸，突破快攻反击与窒息换防", total: 35, recent: 5, indexable: true, latestAt: isoNow },
+        { slug: "vanvleet", name: "弗雷德·范弗利特", group: "player", definition: "后场控场指挥官与老将领袖，关键控场与外线三分", total: 31, recent: 4, indexable: true, latestAt: isoNow },
+        { slug: "udoka", name: "艾米·乌度卡 (主教练)", group: "player", definition: "铁血治军主帅，重塑球队高强度防守战术体系", total: 29, recent: 3, indexable: true, latestAt: isoNow },
+        { slug: "bogdanovic", name: "博格丹·博格达诺维奇", group: "player", definition: "欧洲顶级神射手，外线火力牵引与替补得分枢纽", total: 26, recent: 4, indexable: true, latestAt: isoNow },
+        { slug: "reed-sheppard", name: "里德·谢泼德", group: "player", definition: "优质神射手，外线空间拉开与高智商控球", total: 24, recent: 4, indexable: true, latestAt: isoNow },
+        { slug: "tari-eason", name: "塔里·伊森", group: "player", definition: "拼抢尖兵，前场篮板冲抢与防守能量转换", total: 22, recent: 2, indexable: true, latestAt: isoNow },
+        { slug: "tactics", name: "战术深度与高阶数据", group: "field", definition: "百回合进攻/防守效率、挡拆空间与轮换阵容分析", total: 18, recent: 3, indexable: true, latestAt: isoNow },
+        { slug: "game-recaps", name: "比赛战报与赛果", group: "genre", definition: "常规赛与季后赛赛果、比分、胜负走势与赛后盘点", total: 56, recent: 8, indexable: true, latestAt: isoNow },
+        { slug: "trade-roster", name: "交易、签约与阵容", group: "genre", definition: "球队引援签约、双向合同转正、球员买断裁员及选秀大会操作", total: 28, recent: 4, indexable: true, latestAt: isoNow },
+        { slug: "rumors", name: "随队名记与转会流言", group: "genre", definition: "Jonathan Feigen、Kelly Iko、Shams 等名记透露的火箭引援谈判传闻", total: 25, recent: 5, indexable: true, latestAt: isoNow },
       ]
     }));
   }
@@ -633,14 +657,14 @@ const server = http.createServer((req, res) => {
       return {
         kind,
         key,
-        title: `休斯敦火箭 AI ${kind === "daily" ? "日报" : kind === "weekly" ? "周报" : "月报"} · ${key}`,
+        title: `休斯敦火箭${kind === "daily" ? "早报" : kind === "weekly" ? "周报" : "月报"} · ${key}`,
         windowStart: `${key}T00:00:00.000Z`,
         windowEnd: `${key}T23:59:59.999Z`,
         generatedAt: isoNow,
         revision: 1,
         lead: {
           title: "乌度卡敲定训练营核心轮换，澳门赛对决独行侠在即",
-          leadParagraph: "休斯敦火箭今日结束在丰田中心的高强度分组对抗。主帅伊梅·乌度卡在媒体日后首次透露了季前赛出场时间安排：申京、格林、阿门将组成新赛季进攻发动力轴心。球队定于下周启程直飞中国澳门，在威尼斯人金光综艺馆两战达拉斯独行侠，展开得州宿敌黄金档巅峰对决。",
+          leadParagraph: "休斯敦火箭今日结束在丰田中心的高强度分组对抗。主帅伊梅·乌度卡在媒体日后首次透露了季前赛出场时间安排：申京、杜兰特、阿门将组成新赛季进攻发动力轴心。球队定于下周启程直飞中国澳门，在威尼斯人金光综艺馆两战达拉斯独行侠，展开得州宿敌黄金档巅峰对决。",
         },
         overview: "火箭训练营高强度防守演练进入白热化，澳门赛对阵独行侠与年轻后场磨合备受全联盟瞩目。",
         highlights,

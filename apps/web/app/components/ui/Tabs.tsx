@@ -35,7 +35,7 @@ function Thumb({ id }: { id: string }) {
       thumbs.set(id, placeOf(el));
     };
   }, [id, entrance]);
-  return <span ref={ref} className="absolute inset-0 rounded-full bg-surface shadow-[var(--shadow-thumb)] ring-1 ring-line dark:bg-raised" />;
+  return <span ref={ref} className="absolute inset-0 rounded-full bg-surface shadow-xs ring-1 ring-[#CE1141]/25 dark:ring-white/10 dark:bg-raised" />;
 }
 
 export interface TabItem {
@@ -95,7 +95,7 @@ export function PillTabs({
               </span>
             </>
           );
-          const cls = `relative inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap rounded-full font-medium outline-offset-1 transition-colors duration-150 active:scale-[0.98] ${SIZES[size]} ${on ? "text-ink" : "text-ink-3 hover:text-ink"}`;
+          const cls = `relative inline-flex shrink-0 select-none items-center justify-center whitespace-nowrap rounded-full outline-offset-1 transition-all duration-150 active:scale-[0.98] ${SIZES[size]} ${on ? "text-[#CE1141] dark:text-[#ff3864] font-extrabold" : "text-ink-3 hover:text-ink font-semibold"}`;
           const TabLink = t.prefetch === "intent" ? IntentLink : Link;
           return t.to ? (
             <TabLink key={t.key} to={t.to} replace={t.replace} preventScrollReset aria-current={on ? "page" : undefined} className={cls}>

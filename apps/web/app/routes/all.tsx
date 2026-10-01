@@ -76,9 +76,10 @@ export default function AllPage() {
 
   return (
     <div className="pb-6">
+
       {/* Desktop */}
       <div className="hidden lg:block">
-        <h1 className="text-[24px] font-semibold leading-[1.3] text-ink">{title ?? "火箭动态"}</h1>
+        <h1 className="text-[26px] font-black tracking-tight text-ink lg:text-3xl">{title ?? "休斯敦火箭 前沿情报"}</h1>
         <div className="mb-5 mt-4 flex items-center justify-between gap-4">
           <CategoryTabs base="/all" category={f.category} channel={f.channel} layoutId="all-cat-desk" className="min-w-0" />
           <SearchField variant="track" defaultValue={f.q ?? ""} keep={keep} />
@@ -87,8 +88,8 @@ export default function AllPage() {
 
       {/* Phones: title with today's count, the search bar, then the same filter row */}
       <div className="lg:hidden">
-        <div className="flex items-baseline justify-between pb-3 pt-5">
-          <h1 className="text-[22px] font-bold text-ink">{title ?? "火箭动态"}</h1>
+        <div className="flex items-baseline justify-between pb-3 pt-3">
+          <h1 className="text-[22px] font-black text-ink">{title ?? "休斯敦火箭 前沿情报"}</h1>
           {!f.q && (
             <span className="text-[12.5px] text-ink-4">
               今日 <span className="num">{data.todayCount}</span> 条
