@@ -22077,7 +22077,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-B3WTxTgv.js",
+			"module": "/assets/root-XdeHCoFM.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
@@ -22085,7 +22085,7 @@ var server_manifest_default = {
 				"/assets/Chrome-DuG_H9cO.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-DZ3wh6Lw.css"],
+			"css": ["/assets/root-DI5V5POI.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -23402,8 +23402,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-d7886ec4.js",
-	"version": "d7886ec4",
+	"url": "/assets/manifest-f268ef43.js",
+	"version": "f268ef43",
 	"sri": void 0
 };
 //#endregion

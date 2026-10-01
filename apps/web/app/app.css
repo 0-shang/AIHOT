@@ -77,10 +77,10 @@
 
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 
-  /* The original site's breakpoints: phones ≤ 640, the mobile shell up to 960, desktop above. */
+  /* Site breakpoints: phones ≤ 640px, desktop sidebar & header from 720px up. */
   --breakpoint-sm: 641px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 961px;
+  --breakpoint-md: 700px;
+  --breakpoint-lg: 720px;
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
 }
