@@ -1,0 +1,1 @@
+import{p as e}from"./entry.client-6tyZgf_X.js";function t(){return[]}var n=e(function(){return null});export{n as default,t as meta};
