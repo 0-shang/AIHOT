@@ -1171,7 +1171,6 @@ var home_exports = /* @__PURE__ */ __exportAll({
 });
 async function loader$34({ request }) {
 	const url = new URL(request.url);
-	if (!url.searchParams.has("category")) url.searchParams.set("category", "news");
 	throw redirect(`/all${url.search}`);
 }
 function meta$40() {
@@ -1472,7 +1471,7 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 	];
 	return /* @__PURE__ */ jsx(PillTabs, {
 		items,
-		active: category ?? "news",
+		active: category ?? "",
 		layoutId,
 		label: "筛选",
 		size,
@@ -3364,7 +3363,7 @@ async function loader$33({ request }) {
 	const channel = isChannelKey(channelParam) ? channelParam : "all";
 	const tag = url.searchParams.get("tag")?.trim() || null;
 	const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
-	const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : !tag && !q ? "news" : null;
+	const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : null;
 	const tab = url.searchParams.get("tab") === "relevance" ? "relevance" : null;
 	const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
 	return { data: await loadOr404(`/api/site/pool${queryString({
@@ -22126,12 +22125,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-YAvztSlG.js",
+			"module": "/assets/all-DheWHoqG.js",
 			"imports": [
-				"/assets/all-NgdLOQUl.js",
+				"/assets/all-DWTpXA_E.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/Filters-9PevlIb9.js",
+				"/assets/Filters-BXZ5JMLT.js",
 				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
@@ -22154,11 +22153,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-CcQ09xJT.js",
+			"module": "/assets/schedule-DESItm4j.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/Filters-9PevlIb9.js",
+				"/assets/Filters-BXZ5JMLT.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -22180,12 +22179,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-BrUNnoaj.js",
+			"module": "/assets/search-busy-DmAOeJjd.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-NgdLOQUl.js",
-				"/assets/Filters-9PevlIb9.js",
+				"/assets/all-DWTpXA_E.js",
+				"/assets/Filters-BXZ5JMLT.js",
 				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
@@ -22208,12 +22207,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-BrUNnoaj.js",
+			"module": "/assets/search-busy-DmAOeJjd.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-NgdLOQUl.js",
-				"/assets/Filters-9PevlIb9.js",
+				"/assets/all-DWTpXA_E.js",
+				"/assets/Filters-BXZ5JMLT.js",
 				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
@@ -23403,8 +23402,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-11886eef.js",
-	"version": "11886eef",
+	"url": "/assets/manifest-d7886ec4.js",
+	"version": "d7886ec4",
 	"sri": void 0
 };
 //#endregion

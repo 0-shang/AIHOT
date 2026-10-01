@@ -19,7 +19,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const channel = isChannelKey(channelParam) ? channelParam : "all";
   const tag = url.searchParams.get("tag")?.trim() || null;
   const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
-  const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : (!tag && !q ? "news" : null);
+  const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : null;
   const tab = url.searchParams.get("tab") === "relevance" ? "relevance" : null;
   // Legacy deep-paging parameters (deep, anchorAt) still open a normal page.
   const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);

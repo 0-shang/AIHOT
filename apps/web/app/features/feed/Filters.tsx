@@ -33,7 +33,7 @@ export function CategoryTabs({ base, category, channel = "all", layoutId, size =
     { key: "beat_tweets", label: "队记推文", to: hrefWith(base, params, { category: "beat_tweets", channel: null }) },
     { key: "videos", label: "视频专栏", to: hrefWith(base, params, { category: "videos", channel: null }) },
   ];
-  const active = category ?? "news";
+  const active = category ?? "";
   return <PillTabs items={items} active={active} layoutId={layoutId} label="筛选" size={size} className={className} />;
 }
 
