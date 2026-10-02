@@ -14,17 +14,18 @@ import { RingMark } from "../components/Logo";
 
 const BEAT_REPORTERS = [
   { key: "all", label: "全部" },
-  { key: "Feigen", label: "Jonathan Feigen" },
   { key: "Kelly Iko", label: "Kelly Iko" },
-  { key: "Danielle Lerner", label: "Danielle Lerner" },
   { key: "Ben DuBose", label: "Ben DuBose" },
   { key: "Jackson Gatlin", label: "Jackson Gatlin" },
   { key: "Adam Spolane", label: "Adam Spolane" },
-  { key: "Salman Ali", label: "Salman Ali" },
   { key: "Lachard Binkley", label: "Lachard Binkley" },
+  { key: "Varun Shankar", label: "Varun Shankar" },
+  { key: "fyrebear", label: "Roosh (@fyrebear)" },
+  { key: "Bradeaux", label: "Bradeaux" },
+  { key: "Big Sarge", label: "Big Sarge" },
+  { key: "Biased Houston", label: "Biased Houston" },
   { key: "Michael Shapiro", label: "Michael Shapiro" },
   { key: "Matt Thomas", label: "Matt Thomas" },
-  { key: "Bradeaux", label: "Bradeaux" },
   { key: "ClutchFans", label: "ClutchFans" },
   { key: "Houston Rockets", label: "火箭官方" },
 ];

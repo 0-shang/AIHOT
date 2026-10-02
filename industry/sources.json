@@ -752,6 +752,7 @@
       "id": "x-jonathan-feigen",
       "name": "Jonathan Feigen (休斯顿纪事报火箭首席名记)",
       "kind": "x_search",
+      "enabled": false,
       "config": {
         "query": "from:Jonathan_Feigen",
         "searchType": "Latest"
@@ -794,6 +795,7 @@
       "id": "x-danielle-lerner",
       "name": "Danielle Lerner (休斯顿纪事报火箭资深跟队)",
       "kind": "x_search",
+      "enabled": false,
       "config": {
         "query": "from:danielle_lerner",
         "searchType": "Latest"
@@ -895,6 +897,7 @@
       "id": "x-salman-ali",
       "name": "Salman Ali (ESPN 97.5 休斯顿火箭嘉宾)",
       "kind": "x_search",
+      "enabled": false,
       "config": {
         "query": "from:SalmanAliNBA",
         "searchType": "Latest"
@@ -993,19 +996,20 @@
     },
     {
       "id": "x-roosh-williams",
-      "name": "Roosh Williams (休斯敦体育名嘴/专栏作者)",
+      "name": "Roosh Williams (火箭深度战术/播客 @fyrebear)",
       "kind": "x_search",
       "config": {
-        "query": "from:RooshWilliams",
+        "query": "from:fyrebear",
         "searchType": "Latest"
       },
-      "tier": "T2",
+      "tier": "T1_5",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 15,
       "tags": [
-        "赛后辣评",
+        "随队专栏",
+        "战术复盘",
         "球迷声音"
       ],
       "site_fulltext": true,
@@ -1130,6 +1134,132 @@
         "官方发布",
         "伤病名单",
         "首发阵容"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-varun-shankar",
+      "name": "Varun Shankar (休斯顿纪事报火箭随队记者 @ByVarunShankar)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:ByVarunShankar",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "随队记者",
+        "赛后现场",
+        "休斯顿纪事报"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-big-sarge",
+      "name": "Big Sarge (火箭赛场原声与更衣室专访 @BigSargeSportz)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:BigSargeSportz",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "更衣室原声",
+        "随队记者",
+        "球员采访"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-biased-houston",
+      "name": "Biased Houston (火箭情报与前瞻 @BiasedHouston)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:BiasedHouston",
+        "searchType": "Latest"
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "前沿资讯",
+        "高光切片",
+        "比赛随感"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-rocketsnation-cp",
+      "name": "Rockets Nation (@RocketsNationCP / ClutchPoints 火箭情报)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:RocketsNationCP",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "球队动态",
+        "前沿资讯",
+        "交易情报"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-sleeper-rockets",
+      "name": "SleeperRockets (@SleeperRockets 火箭阵容与出战情报)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:SleeperRockets",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "球队动态",
+        "出战状态",
+        "阵容速递"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-spacecity-hn",
+      "name": "Space City Home Network (@SpaceCityHN 火箭官方电视转播)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:SpaceCityHN",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "球队动态",
+        "官方电视",
+        "赛场原声"
       ],
       "site_fulltext": true,
       "syndicate_fulltext": false

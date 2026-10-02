@@ -104,13 +104,12 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
   }
   if (category === "news") {
     // 球队动态栏目：
-    // 1. 包含官方发布（first_party）、官方公告/战报/伤病、或明确带球员/教练采访原声的内容
-    // 2. 随队记者非采访的日常推特不进入球队动态（归入队记推文）
-    // 3. YouTube 视频统一归入视频专栏
-    // 4. 排除球衣历史、琐事盘点等非实质动态
-    return sql`AND p.category = 'news'
+    // 1. 包含官方发布（first_party）、官方电视转播、官方指定资讯账号（RocketsNationCP, SleeperRockets, SpaceCityHN）、官方公告/战报/伤病、或带球员/教练采访原声的内容
+    // 2. YouTube 视频统一归入视频专栏
+    // 3. 排除球衣历史、琐事盘点等非实质动态
+    return sql`AND (p.category = 'news' OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn') OR p.tags && ARRAY['球队动态', '官方动态']::text[])
       AND NOT (p.source_id LIKE 'yt-%' OR p.url LIKE '%youtube.com%' OR p.url LIKE '%youtu.be%')
-      AND (p.channel != 'x' OR p.first_party OR p.tags && ARRAY['赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
+      AND (p.channel != 'x' OR p.first_party OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn') OR p.tags && ARRAY['球队动态', '官方动态', '赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
       AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
   }
   // v1 and RSS publish opinion as tip.
@@ -198,8 +197,17 @@ export function tagCondition(tag: string | null | undefined) {
 
 export function reporterCondition(reporter: string | null | undefined) {
   if (!reporter || reporter === "all") return sql``;
-  const term = "%" + reporter.trim().toLowerCase() + "%";
-  return sql`AND (p.search_text LIKE ${term} OR p.source_id LIKE ${term})`;
+  const raw = reporter.trim().toLowerCase();
+  const slug = raw.replace(/\s+/g, "-");
+  const words = raw.split(/\s+/).filter(Boolean);
+
+  const slugTerm = "%" + slug + "%";
+  const andWords = words.reduce(
+    (acc, w) => sql`${acc} AND (p.source_id LIKE ${"%" + w + "%"} OR p.search_text LIKE ${"%" + w + "%"})`,
+    sql`TRUE`,
+  );
+
+  return sql`AND (p.source_id LIKE ${slugTerm} OR (${andWords}))`;
 }
 
 export function topicCondition(topicTags: string[] | null | undefined) {

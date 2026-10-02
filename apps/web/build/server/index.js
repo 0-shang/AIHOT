@@ -3379,16 +3379,8 @@ var BEAT_REPORTERS = [
 		label: "全部"
 	},
 	{
-		key: "Feigen",
-		label: "Jonathan Feigen"
-	},
-	{
 		key: "Kelly Iko",
 		label: "Kelly Iko"
-	},
-	{
-		key: "Danielle Lerner",
-		label: "Danielle Lerner"
 	},
 	{
 		key: "Ben DuBose",
@@ -3403,12 +3395,28 @@ var BEAT_REPORTERS = [
 		label: "Adam Spolane"
 	},
 	{
-		key: "Salman Ali",
-		label: "Salman Ali"
-	},
-	{
 		key: "Lachard Binkley",
 		label: "Lachard Binkley"
+	},
+	{
+		key: "Varun Shankar",
+		label: "Varun Shankar"
+	},
+	{
+		key: "fyrebear",
+		label: "Roosh (@fyrebear)"
+	},
+	{
+		key: "Bradeaux",
+		label: "Bradeaux"
+	},
+	{
+		key: "Big Sarge",
+		label: "Big Sarge"
+	},
+	{
+		key: "Biased Houston",
+		label: "Biased Houston"
 	},
 	{
 		key: "Michael Shapiro",
@@ -3417,10 +3425,6 @@ var BEAT_REPORTERS = [
 	{
 		key: "Matt Thomas",
 		label: "Matt Thomas"
-	},
-	{
-		key: "Bradeaux",
-		label: "Bradeaux"
 	},
 	{
 		key: "ClutchFans",
@@ -22244,9 +22248,9 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-_0Tw7Zfo.js",
+			"module": "/assets/all-BqJcSgfQ.js",
 			"imports": [
-				"/assets/all-B_hVXuxD.js",
+				"/assets/all-BLztA3IT.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
 				"/assets/taxonomy-CrAe8mz1.js",
@@ -22292,11 +22296,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CHLfUs5a.js",
+			"module": "/assets/search-busy-CNndF4-n.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-B_hVXuxD.js",
+				"/assets/all-BLztA3IT.js",
 				"/assets/taxonomy-CrAe8mz1.js",
 				"/assets/DayList-CxjsETCf.js"
 			],
@@ -22319,11 +22323,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CHLfUs5a.js",
+			"module": "/assets/search-busy-CNndF4-n.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-B_hVXuxD.js",
+				"/assets/all-BLztA3IT.js",
 				"/assets/taxonomy-CrAe8mz1.js",
 				"/assets/DayList-CxjsETCf.js"
 			],
@@ -23513,8 +23517,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-1a745710.js",
-	"version": "1a745710",
+	"url": "/assets/manifest-e3917be0.js",
+	"version": "e3917be0",
 	"sri": void 0
 };
 //#endregion
