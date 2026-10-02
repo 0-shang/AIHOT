@@ -104,11 +104,21 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
   }
   if (category === "news") {
     // 球队动态栏目：
-    // 1. 包含官方发布（first_party）、官方电视转播、官方指定资讯账号（RocketsNationCP, SleeperRockets, SpaceCityHN）、官方公告/战报/伤病、或带球员/教练采访原声的内容
-    // 2. YouTube 视频统一归入视频专栏
+    // 1. 包含官方发布（first_party）、官方电视转播、官方指定资讯账号（RocketsNationCP, SleeperRockets, SpaceCityHN）、官方公告/战报/伤病
+    // 2. 包含球员/教练采访原声、媒体日、赛后发布会、更衣室发言与事件回应（即使来自视频信源）
     // 3. 排除球衣历史、琐事盘点等非实质动态
-    return sql`AND (p.category = 'news' OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn') OR p.tags && ARRAY['球队动态', '官方动态']::text[])
-      AND NOT (p.source_id LIKE 'yt-%' OR p.url LIKE '%youtube.com%' OR p.url LIKE '%youtu.be%')
+    return sql`AND (
+      p.category = 'news'
+      OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn')
+      OR p.tags && ARRAY['球队动态', '官方动态']::text[]
+      OR (
+        p.category = 'videos'
+        AND (
+          p.tags && ARRAY['赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音', '训练', '媒体日', '发布会', '言论', '回应']::text[]
+          OR p.title ~ '采访|回应|谈|发声|更衣室|言论|发布会|训练|媒体日'
+        )
+      )
+    )
       AND (p.channel != 'x' OR p.first_party OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn') OR p.tags && ARRAY['球队动态', '官方动态', '赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
       AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
   }
