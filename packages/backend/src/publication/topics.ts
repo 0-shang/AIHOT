@@ -43,7 +43,11 @@ export async function seedTopics(): Promise<number> {
   }
   const validSlugs = data.topics.map((t) => t.slug);
   if (validSlugs.length > 0) {
-    await sql`DELETE FROM topics WHERE NOT (slug = ANY(${validSlugs}))`;
+    try {
+      await sql`DELETE FROM topics WHERE NOT (slug = ANY(${validSlugs}::text[]))`;
+    } catch (err) {
+      console.warn("Could not delete deprecated topics:", err);
+    }
   }
   topicsCache.clear();
   countsCache.clear();

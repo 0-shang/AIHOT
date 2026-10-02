@@ -1089,7 +1089,7 @@
         "query": "from:HoustonRockets",
         "searchType": "Latest"
       },
-      "tier": "T0",
+      "tier": "T1",
       "first_party": true,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
