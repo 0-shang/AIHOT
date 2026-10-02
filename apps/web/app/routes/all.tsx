@@ -79,8 +79,15 @@ export default function AllPage() {
 
       {/* Desktop */}
       <div className="hidden lg:block">
-        <h1 className="text-[26px] font-black tracking-tight text-ink lg:text-3xl">{title ?? "休斯敦火箭 前沿情报"}</h1>
-        <div className="mb-5 mt-4 flex items-center justify-between gap-4">
+        <div className="flex items-baseline justify-between">
+          <h1 className="text-[26px] font-black tracking-tight text-ink lg:text-3xl">{title ?? "休斯敦火箭 前沿情报"}</h1>
+          {!f.q && (
+            <span className="text-[13px] text-ink-4">
+              今日 <span className="num font-bold text-accent">{data.todayCount}</span> 条
+            </span>
+          )}
+        </div>
+        <div className="mb-5 mt-4 flex flex-wrap items-center justify-between gap-3">
           <CategoryTabs base="/all" category={f.category} channel={f.channel} layoutId="all-cat-desk" className="min-w-0" />
           <SearchField variant="track" defaultValue={f.q ?? ""} keep={keep} />
         </div>
