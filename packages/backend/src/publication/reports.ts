@@ -207,27 +207,81 @@ export async function loadReport(kind: ReportKind, key: string): Promise<ReportD
   const avail = await availability([...new Set(rawItems.map((i) => i.itemId).filter(Boolean))]);
   const cite = (raw: Record<string, any>) => citationFrom(raw, avail);
 
-  const sections = kind === "daily"
+  let sections = kind === "daily"
     ? (c.sections ?? []).map((s: any) => ({ label: String(s.label), summary: null, items: (s.items ?? []).map(cite) }))
     : (c.themes ?? []).map((t: any) => ({ label: String(t.heading), summary: t.summary ?? null, items: (t.storyRefs ?? []).map(cite) }));
+  
+  const initialItems: ReportCitation[] = sections.flatMap((s: { items: ReportCitation[] }) => s.items);
+  const headline = kind === "daily" ? null : periodicHeadline(c);
+  let highlights = (c.highlights ?? []).length
+    ? (c.highlights as string[]).map((id) => initialItems.find((x: ReportCitation) => x.itemId === id)).filter((x): x is ReportCitation => !!x)
+    : initialItems.slice(0, 3);
+  let lead = c.lead ?? (headline ? { title: headline, leadParagraph: String(c.overview ?? "") } : null);
+  let overview = c.overview ?? null;
+  let metrics = c.metrics ?? {};
+
+  // 兜底智能组装：如果日报内容为空或无入选条目，自动提取当天已发布的火箭动态填充日报
+  if (kind === "daily" && (!sections.length || sections.every((s: any) => !s.items || s.items.length === 0))) {
+    const candidateRows = await sql<{
+      id: string; title: string; summary: string | null; source_name: string; source_id: string; source_icon: string | null;
+      first_party: boolean; url: string; story_public_id: string | null; published_at: Date | null; timeline_at: Date; score: number | null;
+    }[]>`
+      SELECT p.article_id AS id, p.title, p.summary, coalesce(s.name, '') AS source_name, coalesce(s.id, '') AS source_id, s.icon_url AS source_icon,
+        p.first_party, p.url, st.public_id::text AS story_public_id, p.published_at, p.timeline_at, p.score
+      FROM publications p
+      JOIN articles a ON a.id = p.article_id
+      LEFT JOIN sources s ON s.id = p.source_id
+      LEFT JOIN stories st ON st.id = p.story_id
+      WHERE (to_char(p.timeline_at AT TIME ZONE 'Asia/Shanghai', 'YYYY-MM-DD') = ${key}
+         OR to_char(p.discovered_at AT TIME ZONE 'Asia/Shanghai', 'YYYY-MM-DD') = ${key})
+        AND p.visibility = 'public'
+      ORDER BY coalesce(p.score, 0) DESC, p.timeline_at DESC
+      LIMIT 12
+    `;
+
+    if (candidateRows.length > 0) {
+      const citedItems: ReportCitation[] = candidateRows.map((row) => ({
+        itemId: row.id,
+        title: row.title,
+        summary: row.summary,
+        sourceName: row.source_name,
+        sourceUrl: row.url,
+        sourceId: row.source_id,
+        sourceIconUrl: row.source_icon ? proxiedImage(row.source_icon, "avatar") : null,
+        firstParty: row.first_party,
+        role: null,
+        storyPublicId: row.story_public_id,
+        publishedAt: (row.published_at ?? row.timeline_at)?.toISOString() ?? null,
+        available: true,
+      }));
+
+      highlights = citedItems.slice(0, 3);
+      const topStory = citedItems[0]!;
+      lead = {
+        title: topStory.title,
+        leadParagraph: topStory.summary || "休斯敦火箭今日焦点动态追踪：全网一手权威媒体报道与前线消息综述。",
+      };
+      overview = `休斯敦火箭今日收录 ${candidateRows.length} 条精选报道，涵盖球队赛前动态、阵容轮换及深度前瞻。`;
+      sections = [
+        { label: "焦点头条与重要动态", summary: null, items: citedItems.slice(0, 4) },
+        ...(citedItems.length > 4 ? [{ label: "随队跟进与最新报道", summary: null, items: citedItems.slice(4) }] : []),
+      ];
+      metrics = {
+        totalEvents: candidateRows.length,
+        sourcesCount: new Set(candidateRows.map((r) => r.source_name)).size,
+        firstPartyEvents: candidateRows.filter((r) => r.first_party).length,
+      };
+    }
+  }
+
   const labelled: Array<ReportCitation & { label: string }> = sections.flatMap((s: { label: string; items: ReportCitation[] }) => s.items.map((i) => ({ ...i, label: s.label })));
-  // Weekly and monthly reports carry the editor's reading order across themes.
-  const order: string[] = Array.isArray(c.storyOrder) ? c.storyOrder : [];
-  const rank = new Map(order.map((id, i) => [id, i]));
-  const stories = order.length
-    ? [...labelled].sort((a, b) => (rank.get(a.itemId ?? "") ?? order.length) - (rank.get(b.itemId ?? "") ?? order.length))
-    : labelled;
-  const all: ReportCitation[] = labelled;
-  const highlightIds: string[] = c.highlights ?? [];
-  const highlights = highlightIds.length
-    ? highlightIds.map((id) => all.find((x: ReportCitation) => x.itemId === id)).filter((x): x is ReportCitation => !!x)
-    : all.slice(0, 3);
-  const text = [c.lead?.leadParagraph ?? "", c.overview ?? "", ...all.map((i: ReportCitation) => `${i.title}${i.summary ?? ""}`)].join("");
+  const stories = labelled;
+  const allUpdated: ReportCitation[] = labelled;
+  const text = [lead?.leadParagraph ?? "", overview ?? "", ...allUpdated.map((i: ReportCitation) => `${i.title}${i.summary ?? ""}`)].join("");
   // A weekly or monthly's picture comes from its first highlight and is captioned with that story.
-  const leadItem = kind === "daily" ? leadItemOf(c.lead?.title, highlights, all) : (highlights[0] ?? all[0]);
+  const leadItem = kind === "daily" ? leadItemOf(lead?.title, highlights, allUpdated) : (highlights[0] ?? allUpdated[0]);
   const [{ prev, next }, picture] = await Promise.all([neighbors(kind, key), leadItem?.itemId && leadItem.available ? leadCover(leadItem.itemId) : null]);
   const cover = picture && leadItem ? { ...picture, caption: kind === "daily" ? null : leadItem.title } : null;
-  const headline = kind === "daily" ? null : periodicHeadline(c);
   const title = kind === "daily" ? `${withSubject("日报")} · ${key}` : String(c.title ?? (kind === "weekly" ? `${SITE.name} 周报 · ${key}` : `${SITE.name} 月报 · ${key}`));
   return {
     kind,
@@ -237,14 +291,14 @@ export async function loadReport(kind: ReportKind, key: string): Promise<ReportD
     windowEnd: r.window_end.toISOString(),
     generatedAt: r.generated_at.toISOString(),
     revision: r.revision,
-    lead: c.lead ?? (headline ? { title: headline, leadParagraph: String(c.overview ?? "") } : null),
-    overview: c.overview ?? null,
+    lead,
+    overview,
     highlights,
     sections,
     stories,
     flashes: (c.flashes ?? []).map(cite),
     cover,
-    metrics: c.metrics ?? {},
+    metrics,
     readingMinutes: readingMinutes(text),
     prev,
     next,

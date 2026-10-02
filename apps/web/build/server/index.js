@@ -2909,10 +2909,25 @@ function DayList({ items, todayCount = null, showTags = true, animate = false })
 			if (!deduplicated.some((prev) => {
 				const pt = norm(prev.title);
 				if (nt === pt) return true;
-				if (nt.length >= 8 && pt.length >= 8) {
-					if (nt.includes(pt) || pt.includes(nt)) {
-						if (Math.min(nt.length, pt.length) / Math.max(nt.length, pt.length) >= .6) return true;
-					}
+				if (nt.length >= 6 && pt.length >= 6) {
+					if (nt.includes(pt) || pt.includes(nt)) return true;
+					const matchedActions = [
+						"裁掉",
+						"双向合同",
+						"买断",
+						"签约",
+						"双向",
+						"复查",
+						"伤停",
+						"出战",
+						"缺席"
+					].filter((k) => nt.includes(k) && pt.includes(k));
+					if (matchedActions.length >= 2) return true;
+					if (matchedActions.length === 1 && (nt.includes("双向合同") || pt.includes("双向合同"))) return true;
+					const charSet = new Set(pt);
+					let overlap = 0;
+					for (const ch of nt) if (charSet.has(ch)) overlap++;
+					if (overlap / Math.min(nt.length, pt.length) >= .58) return true;
 				}
 				return false;
 			})) deduplicated.push(it);
@@ -3033,20 +3048,16 @@ var CHANNEL_BADGES = {
 		label: "NBA"
 	}
 };
-function getVideoMeta(item, index) {
+function getRealVideoId(item) {
+	const fromOriginal = extractYouTubeVideoId(item.links?.original || item.url || "");
+	if (fromOriginal && /^[a-zA-Z0-9_-]{11}$/.test(fromOriginal)) return fromOriginal;
+	const fromSummary = extractYouTubeVideoId(item.summary || "");
+	if (fromSummary && /^[a-zA-Z0-9_-]{11}$/.test(fromSummary)) return fromSummary;
 	const yt = detectYouTube(item);
-	const originalLink = item.links?.original || "";
-	let videoId = yt?.videoId || extractYouTubeVideoId(originalLink) || extractYouTubeVideoId(item.summary || "");
-	if (!videoId) {
-		const fallbackIds = [
-			"HXAWBBwAtKw",
-			"e23iE7u_D5E",
-			"WqG_h6cO8q4",
-			"dZ4Y5mQ8kNo",
-			"m5jE8gT7tP8"
-		];
-		videoId = fallbackIds[index % fallbackIds.length];
-	}
+	if (yt?.videoId && /^[a-zA-Z0-9_-]{11}$/.test(yt.videoId)) return yt.videoId;
+	return null;
+}
+function getVideoMeta(item, index, videoId) {
 	const durations = [
 		"14:32",
 		"18:45",
@@ -3057,12 +3068,10 @@ function getVideoMeta(item, index) {
 		"16:20",
 		"25:05"
 	];
-	const duration = durations[index % durations.length];
-	const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 	return {
 		videoId,
-		duration,
-		thumbnailUrl,
+		duration: durations[index % durations.length],
+		thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
 		embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`
 	};
 }
@@ -3071,6 +3080,7 @@ function YouTubeVideoGrid({ items }) {
 	const deduplicatedItems = useMemo(() => {
 		const seen = /* @__PURE__ */ new Set();
 		return items.filter((it) => {
+			if (!getRealVideoId(it)) return false;
 			const key = it.title.trim().toLowerCase();
 			if (seen.has(key)) return false;
 			seen.add(key);
@@ -3147,7 +3157,7 @@ function YouTubeVideoGrid({ items }) {
 			}) : /* @__PURE__ */ jsx("div", {
 				className: "grid grid-cols-1 gap-x-5 gap-y-7 sm:grid-cols-2 lg:grid-cols-3",
 				children: deduplicatedItems.map((item, idx) => {
-					const meta = getVideoMeta(item, idx);
+					const meta = getVideoMeta(item, idx, getRealVideoId(item));
 					const sourceName = item.source?.name || "火箭视讯";
 					const channelBadge = CHANNEL_BADGES[sourceName] || (sourceName.includes("Locked On") ? CHANNEL_BADGES["Locked On Rockets"] : CHANNEL_BADGES["default"]);
 					const dateStr = new Date(item.timelineAt || (item.publishedAt ?? Date.now())).toLocaleDateString("zh-CN", {
@@ -3303,6 +3313,19 @@ function YouTubeVideoGrid({ items }) {
 								allowFullScreen: true,
 								className: "size-full border-0"
 							})
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							className: "flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-amber-500/10 px-5 py-2 text-xs text-amber-300",
+							children: [/* @__PURE__ */ jsxs("span", {
+								className: "flex items-center gap-1.5",
+								children: [/* @__PURE__ */ jsx("span", { children: "💡" }), /* @__PURE__ */ jsx("span", { children: "若提示“视频无法播放”，系频道官方开启了第三方网站播放限制，请直接点击右侧：" })]
+							}), /* @__PURE__ */ jsx("a", {
+								href: activeVideo.item.links?.original || `https://www.youtube.com/watch?v=${activeVideo.videoId}`,
+								target: "_blank",
+								rel: "noopener noreferrer",
+								className: "font-bold underline hover:text-white",
+								children: "在 YouTube 官方观看完整高清视频 ↗"
+							})]
 						}),
 						/* @__PURE__ */ jsxs("div", {
 							className: "p-5",
@@ -5946,28 +5969,13 @@ var schedule_default = UNSAFE_withComponentProps(function SchedulePage() {
 		className: "pb-8",
 		children: [/* @__PURE__ */ jsxs("div", {
 			className: "mb-6",
-			children: [
-				/* @__PURE__ */ jsx("h1", {
-					className: "text-[24px] font-extrabold tracking-tight text-ink lg:text-3xl",
-					children: "赛程日历"
-				}),
-				/* @__PURE__ */ jsx("p", {
-					className: "mt-1 text-sm text-ink-3",
-					children: "休斯敦火箭 2026-27 赛季比赛日程与 2K 战绩比分看板"
-				}),
-				/* @__PURE__ */ jsxs("div", {
-					className: "mt-4 flex items-center justify-between gap-4",
-					children: [/* @__PURE__ */ jsx(CategoryTabs, {
-						base: "/all",
-						category: "games",
-						layoutId: "schedule-cat",
-						className: "min-w-0"
-					}), /* @__PURE__ */ jsx(SearchField, {
-						variant: "track",
-						keep: {}
-					})]
-				})
-			]
+			children: [/* @__PURE__ */ jsx("h1", {
+				className: "text-[24px] font-extrabold tracking-tight text-ink lg:text-3xl",
+				children: "赛程日历"
+			}), /* @__PURE__ */ jsx("p", {
+				className: "mt-1 text-sm text-ink-3",
+				children: "休斯敦火箭 2026-27 赛季比赛日程与 2K 战绩比分看板"
+			})]
 		}), /* @__PURE__ */ jsx(ScheduleCalendar, {})]
 	});
 });
@@ -22090,7 +22098,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-DbkshGEz.js",
+			"module": "/assets/root-wHwB1JF7.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
@@ -22098,7 +22106,7 @@ var server_manifest_default = {
 				"/assets/Chrome-DuG_H9cO.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-BMrW1TJU.css"],
+			"css": ["/assets/root-BjDA0OWU.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22138,14 +22146,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-69O49fZN.js",
+			"module": "/assets/all-Caz68fr4.js",
 			"imports": [
-				"/assets/all-DwqprYoR.js",
+				"/assets/all-nshPrMfa.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/Filters-BXZ5JMLT.js",
-				"/assets/DayList-DxJ4S7YB.js",
-				"/assets/taxonomy-CrAe8mz1.js"
+				"/assets/taxonomy-CrAe8mz1.js",
+				"/assets/DayList-h1x3G7m-.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22166,13 +22173,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-DESItm4j.js",
-			"imports": [
-				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/Filters-BXZ5JMLT.js",
-				"/assets/taxonomy-CrAe8mz1.js"
-			],
+			"module": "/assets/schedule-C6S5rx9I.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22192,14 +22194,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Cv1z2hyl.js",
+			"module": "/assets/search-busy-BSTGYO67.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-DwqprYoR.js",
-				"/assets/Filters-BXZ5JMLT.js",
-				"/assets/DayList-DxJ4S7YB.js",
-				"/assets/taxonomy-CrAe8mz1.js"
+				"/assets/all-nshPrMfa.js",
+				"/assets/taxonomy-CrAe8mz1.js",
+				"/assets/DayList-h1x3G7m-.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22220,14 +22221,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Cv1z2hyl.js",
+			"module": "/assets/search-busy-BSTGYO67.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-DwqprYoR.js",
-				"/assets/Filters-BXZ5JMLT.js",
-				"/assets/DayList-DxJ4S7YB.js",
-				"/assets/taxonomy-CrAe8mz1.js"
+				"/assets/all-nshPrMfa.js",
+				"/assets/taxonomy-CrAe8mz1.js",
+				"/assets/DayList-h1x3G7m-.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22536,11 +22536,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-DciVb0Mb.js",
+			"module": "/assets/topic-bKAoj-uA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/DayList-DxJ4S7YB.js",
+				"/assets/DayList-h1x3G7m-.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -22562,11 +22562,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-DciVb0Mb.js",
+			"module": "/assets/topic-bKAoj-uA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/DayList-DxJ4S7YB.js",
+				"/assets/DayList-h1x3G7m-.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -23415,8 +23415,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-1ea29d99.js",
-	"version": "1ea29d99",
+	"url": "/assets/manifest-c7f2b5b2.js",
+	"version": "c7f2b5b2",
 	"sri": void 0
 };
 //#endregion

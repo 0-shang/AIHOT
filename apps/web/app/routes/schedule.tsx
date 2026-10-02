@@ -1,6 +1,5 @@
 import { SITE } from "@aihot/industry/site";
 import { ScheduleCalendar } from "../features/schedule/ScheduleCalendar";
-import { CategoryTabs, SearchField } from "../features/feed/Filters";
 import { pageMeta } from "../lib/seo";
 
 export function headers() {
@@ -18,7 +17,7 @@ export function meta() {
 export default function SchedulePage() {
   return (
     <div className="pb-8">
-      {/* 顶部标题与分类过滤 */}
+      {/* 顶部标题与说明 */}
       <div className="mb-6">
         <h1 className="text-[24px] font-extrabold tracking-tight text-ink lg:text-3xl">
           赛程日历
@@ -26,11 +25,6 @@ export default function SchedulePage() {
         <p className="mt-1 text-sm text-ink-3">
           休斯敦火箭 2026-27 赛季比赛日程与 2K 战绩比分看板
         </p>
-
-        <div className="mt-4 flex items-center justify-between gap-4">
-          <CategoryTabs base="/all" category={"games" as any} layoutId="schedule-cat" className="min-w-0" />
-          <SearchField variant="track" keep={{}} />
-        </div>
       </div>
 
       {/* 2K 赛程日历主体 */}

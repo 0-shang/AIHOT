@@ -49,7 +49,7 @@ export const TOPIC_TAGS = [
   "季后赛",
   "夏季联赛",
   "乌度卡",
-  "杰伦·格林",
+  "凯文·杜兰特",
   "阿尔佩伦·申京",
   "阿门·汤普森",
   "小贾巴里·史密斯",
@@ -132,7 +132,7 @@ export const CATEGORY_BY_ITEM_TYPE: Readonly<Record<string, string>> = {
 /** 主体目录：id → 显示名、卡片上显示的标签、别名。 */
 export const ENTITIES: Record<string, { name: string; displayTag: string | null; aliases: string[] }> = {
   rockets: { name: "休斯敦火箭", displayTag: "休斯敦火箭", aliases: ["Houston Rockets", "Rockets", "休斯敦火箭", "火箭队", "航天城"] },
-  "jalen-green": { name: "杰伦·格林", displayTag: "杰伦·格林", aliases: ["Jalen Green", "格林"] },
+  "kevin-durant": { name: "凯文·杜兰特", displayTag: "凯文·杜兰特", aliases: ["Kevin Durant", "Durant", "杜兰特", "KD"] },
   sengun: { name: "阿尔佩伦·申京", displayTag: "阿尔佩伦·申京", aliases: ["Alperen Sengun", "Alperen Şengün", "申京"] },
   "amen-thompson": { name: "阿门·汤普森", displayTag: "阿门·汤普森", aliases: ["Amen Thompson", "阿门"] },
   "jabari-smith": { name: "小贾巴里·史密斯", displayTag: "小贾巴里·史密斯", aliases: ["Jabari Smith Jr.", "Jabari Smith", "小史密斯"] },
@@ -153,7 +153,7 @@ export const ENTITIES: Record<string, { name: string; displayTag: string | null;
  */
 export const IDENTITY_LEXICON: ReadonlyArray<{ id: string; name: string; patterns: RegExp[] }> = [
   { id: "rockets", name: "休斯敦火箭", patterns: [/rockets|houston\s*rockets|休斯[敦顿]火箭|火箭队/i] },
-  { id: "jalen-green", name: "杰伦·格林", patterns: [/jalen\s*green|杰伦[·\s]*格林/i] },
+  { id: "kevin-durant", name: "凯文·杜兰特", patterns: [/kevin\s*durant|durant|杜兰特|\bKD\b/i] },
   { id: "sengun", name: "阿尔佩伦·申京", patterns: [/alperen\s*[sş]eng[uü]n|申京/i] },
   { id: "amen-thompson", name: "阿门·汤普森", patterns: [/amen\s*thompson|阿门[·\s]*汤普森/i] },
   { id: "jabari-smith", name: "小贾巴里·史密斯", patterns: [/jabari\s*smith|小?贾巴里[·\s]*史密斯/i] },

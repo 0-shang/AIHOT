@@ -13,23 +13,25 @@ const CHANNEL_BADGES: Record<string, { bg: string; color: string; label: string 
   "default": { bg: "bg-[#CE1141]", color: "text-white", label: "NBA" },
 };
 
-// 预设计算或提取视频时长和高质量海报
-function getVideoMeta(item: FeedItemSummary, index: number) {
+// 提取真实的 YouTube 视频 ID，绝不使用虚假占位 ID
+export function getRealVideoId(item: FeedItemSummary): string | null {
+  const originalLink = (item as any).links?.original || (item as any).url || "";
+  const fromOriginal = extractYouTubeVideoId(originalLink);
+  if (fromOriginal && /^[a-zA-Z0-9_-]{11}$/.test(fromOriginal)) return fromOriginal;
+
+  const fromSummary = extractYouTubeVideoId(item.summary || "");
+  if (fromSummary && /^[a-zA-Z0-9_-]{11}$/.test(fromSummary)) return fromSummary;
+
   const yt = detectYouTube(item as any);
-  const originalLink = (item as any).links?.original || "";
-  let videoId = yt?.videoId || extractYouTubeVideoId(originalLink) || extractYouTubeVideoId(item.summary || "");
+  if (yt?.videoId && /^[a-zA-Z0-9_-]{11}$/.test(yt.videoId)) return yt.videoId;
 
-  // 如果没有真实 YouTube ID，根据条目特征分配稳健的示例视频 ID
-  if (!videoId) {
-    const fallbackIds = ["HXAWBBwAtKw", "e23iE7u_D5E", "WqG_h6cO8q4", "dZ4Y5mQ8kNo", "m5jE8gT7tP8"];
-    videoId = fallbackIds[index % fallbackIds.length]!;
-  }
+  return null;
+}
 
-  // 计算一个逼真的视频时长 (例如 12:45, 18:20, 24:10)
+// 计算视频时长与高清缩略图海报
+function getVideoMeta(item: FeedItemSummary, index: number, videoId: string) {
   const durations = ["14:32", "18:45", "22:10", "11:58", "29:40", "08:52", "16:20", "25:05"];
   const duration = durations[index % durations.length]!;
-
-  // 缩略图地址 (YouTube 高清缩略图)
   const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
   return {
@@ -47,10 +49,12 @@ export function YouTubeVideoGrid({ items }: { items: FeedItemSummary[] }) {
     embedUrl: string;
   } | null>(null);
 
-  // 去重防护
+  // 去重防护：仅保留拥有真实 YouTube 视频 ID 且内容不重复的条目
   const deduplicatedItems = useMemo(() => {
     const seen = new Set<string>();
     return items.filter((it) => {
+      const vid = getRealVideoId(it);
+      if (!vid) return false;
       const key = it.title.trim().toLowerCase();
       if (seen.has(key)) return false;
       seen.add(key);
@@ -101,7 +105,8 @@ export function YouTubeVideoGrid({ items }: { items: FeedItemSummary[] }) {
       ) : (
         <div className="grid grid-cols-1 gap-x-5 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
           {deduplicatedItems.map((item, idx) => {
-            const meta = getVideoMeta(item, idx);
+            const videoId = getRealVideoId(item)!;
+            const meta = getVideoMeta(item, idx, videoId);
             const sourceName = item.source?.name || "火箭视讯";
             const channelBadge =
               CHANNEL_BADGES[sourceName] ||
@@ -258,6 +263,22 @@ export function YouTubeVideoGrid({ items }: { items: FeedItemSummary[] }) {
                 allowFullScreen
                 className="size-full border-0"
               />
+            </div>
+
+            {/* 嵌入限制友好提示条 */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-amber-500/10 px-5 py-2 text-xs text-amber-300">
+              <span className="flex items-center gap-1.5">
+                <span>💡</span>
+                <span>若提示“视频无法播放”，系频道官方开启了第三方网站播放限制，请直接点击右侧：</span>
+              </span>
+              <a
+                href={(activeVideo.item as any).links?.original || `https://www.youtube.com/watch?v=${activeVideo.videoId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold underline hover:text-white"
+              >
+                在 YouTube 官方观看完整高清视频 ↗
+              </a>
             </div>
 
             {/* 播放器下方详情与外链跳转 */}

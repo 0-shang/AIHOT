@@ -30,7 +30,7 @@
       "definition": "休斯敦火箭队的全部官方动态与球队大事件汇总。",
       "related": [
         "udoka",
-        "jalen-green",
+        "kevin-durant",
         "sengun"
       ]
     },
@@ -77,7 +77,7 @@
       ],
       "definition": "内线核心申京的组织策应、内线单打、两双/三双表现与伤病动态。",
       "related": [
-        "jalen-green",
+        "kevin-durant",
         "udoka"
       ]
     },
@@ -137,6 +137,53 @@
       "definition": "高顺位射手里德·谢泼德的投射表现、出场时间与新秀赛季成长。",
       "related": [
         "fred-vanvleet"
+      ]
+    },
+    {
+      "slug": "fred-vanvleet",
+      "name": "弗雷德·范弗里特",
+      "group": "player",
+      "entityId": "fred-vanvleet",
+      "tags": [
+        "弗雷德·范弗里特",
+        "范弗里特",
+        "entity:fred-vanvleet"
+      ],
+      "definition": "全明星老将后卫范弗里特的进攻梳理、高难度三分与更衣室领袖表现。",
+      "related": [
+        "reed-sheppard",
+        "amen-thompson"
+      ]
+    },
+    {
+      "slug": "cam-whitmore",
+      "name": "卡姆·惠特莫尔",
+      "group": "player",
+      "entityId": "cam-whitmore",
+      "tags": [
+        "卡姆·惠特莫尔",
+        "惠特莫尔",
+        "entity:cam-whitmore"
+      ],
+      "definition": "年轻锋线惠特莫尔的身体冲击力、替补席砍分爆发力与重扣追踪。",
+      "related": [
+        "tari-eason",
+        "amen-thompson"
+      ]
+    },
+    {
+      "slug": "steven-adams",
+      "name": "史蒂文·亚当斯",
+      "group": "player",
+      "entityId": "steven-adams",
+      "tags": [
+        "史蒂文·亚当斯",
+        "亚当斯",
+        "entity:steven-adams"
+      ],
+      "definition": "硬汉中锋亚当斯的前场篮板碾压、坚实挡拆掩护与禁区肉搏对抗。",
+      "related": [
+        "sengun"
       ]
     },
     {

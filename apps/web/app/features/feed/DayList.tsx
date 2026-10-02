@@ -21,12 +21,19 @@ export function DayList({ items, todayCount = null, showTags = true, animate = f
       const dup = deduplicated.some((prev) => {
         const pt = norm(prev.title);
         if (nt === pt) return true;
-        if (nt.length >= 8 && pt.length >= 8) {
-          if (nt.includes(pt) || pt.includes(nt)) {
-            const minLen = Math.min(nt.length, pt.length);
-            const maxLen = Math.max(nt.length, pt.length);
-            if (minLen / maxLen >= 0.6) return true;
-          }
+        if (nt.length >= 6 && pt.length >= 6) {
+          if (nt.includes(pt) || pt.includes(nt)) return true;
+          // 关键核心事件重合（如裁掉/双向合同/签约/伤病等报道去重）
+          const keyActions = ["裁掉", "双向合同", "买断", "签约", "双向", "复查", "伤停", "出战", "缺席"];
+          const matchedActions = keyActions.filter((k) => nt.includes(k) && pt.includes(k));
+          if (matchedActions.length >= 2) return true;
+          if (matchedActions.length === 1 && (nt.includes("双向合同") || pt.includes("双向合同"))) return true;
+
+          // 字符交集相似度去重
+          const charSet = new Set(pt);
+          let overlap = 0;
+          for (const ch of nt) if (charSet.has(ch)) overlap++;
+          if (overlap / Math.min(nt.length, pt.length) >= 0.58) return true;
         }
         return false;
       });

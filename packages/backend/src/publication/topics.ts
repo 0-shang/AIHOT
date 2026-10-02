@@ -41,13 +41,18 @@ export async function seedTopics(): Promise<number> {
       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, grp = EXCLUDED.grp, entity_id = EXCLUDED.entity_id,
         tags = EXCLUDED.tags, definition = EXCLUDED.definition, related = EXCLUDED.related, position = EXCLUDED.position`;
   }
+  const validSlugs = data.topics.map((t) => t.slug);
+  if (validSlugs.length > 0) {
+    await sql`DELETE FROM topics WHERE NOT (slug = ANY(${validSlugs}))`;
+  }
   topicsCache.clear();
   countsCache.clear();
   return data.topics.length;
 }
 
-export function listTopics(): Promise<TopicRow[]> {
-  return topicsCache.get();
+export async function listTopics(): Promise<TopicRow[]> {
+  const rows = await topicsCache.get();
+  return rows.filter((r) => r.slug !== "jalen-green");
 }
 
 export async function loadTopic(slug: string): Promise<TopicRow | null> {

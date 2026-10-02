@@ -78,12 +78,12 @@ export const ITEM_FROM = sql`
 
 /** Listed items: public, and a selected item only after its release gate. */
 export function listedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND (NOT p.selected OR p.visible_after <= ${now})`;
+  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND (NOT p.selected OR p.visible_after <= ${now})`;
 }
 
 /** Selected set as shown on the home timeline, v1 selected mode and RSS. */
 export function selectedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND p.selected AND p.visible_after <= ${now}`;
+  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND p.selected AND p.visible_after <= ${now}`;
 }
 
 export function channelCondition(channel: ChannelKey | null | undefined) {
@@ -95,8 +95,8 @@ export function channelCondition(channel: ChannelKey | null | undefined) {
 export function categoryCondition(category: CategoryKey | null | undefined, v1 = false) {
   if (!category) return sql``;
   if (category === "beat_tweets") {
-    // 队记推文栏目：包含明确分类为 beat_tweets 的，以及所有非官方的随队记者推特
-    return sql`AND (p.category = 'beat_tweets' OR (p.channel = 'x' AND NOT p.first_party))`;
+    // 队记推文栏目：展示所有随队记者的推文流、x频道推文以及明确分类为 beat_tweets 的动态
+    return sql`AND (p.category = 'beat_tweets' OR p.channel = 'x' OR p.source_id LIKE 'x-%')`;
   }
   if (category === "videos") {
     // 视频专栏：包含所有 YouTube 视频、带有原声/高光录像与分类为 videos 的内容
@@ -129,7 +129,7 @@ export function deduplicateFeedItems<T extends { id: string; title: string; summ
     if (a.includes(b) || b.includes(a)) {
       const minLen = Math.min(a.length, b.length);
       const maxLen = Math.max(a.length, b.length);
-      if (minLen / maxLen >= 0.55) return 0.88;
+      if (minLen / maxLen >= 0.5) return 0.9;
     }
     const getGrams = (text: string) => {
       const grams = new Set<string>();
@@ -157,14 +157,13 @@ export function deduplicateFeedItems<T extends { id: string; title: string; summ
       if (Math.abs(t1 - t2) > 48 * 3600 * 1000) continue;
 
       const sim = similarity(normTitle, existingNormTitle);
-      if (sim >= 0.65) {
+      if (sim >= 0.52) {
         isDuplicate = true;
         const currentScore = item.score ?? 0;
         const existingScore = existing.score ?? 0;
         const currentLen = (item.summary?.length ?? 0) + item.title.length;
         const existingLen = (existing.summary?.length ?? 0) + existing.title.length;
-        
-        if (currentScore > existingScore + 5 || (Math.abs(currentScore - existingScore) <= 5 && currentLen > existingLen + 15)) {
+        if (currentScore > existingScore || (currentScore === existingScore && currentLen > existingLen)) {
           result[i] = item;
         }
         break;
