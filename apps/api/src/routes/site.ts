@@ -105,8 +105,9 @@ export function registerSite(app: FastifyInstance) {
     const filters = await parseFilters(q);
     const page = Math.min(Math.max(Number(q.page) || 1, 1), 50);
     const search = q.q?.trim() ? q.q.trim().slice(0, 200) : null;
+    const reporter = q.reporter?.trim() ? q.reporter.trim().slice(0, 80) : null;
     const tab = q.tab === "relevance" ? "relevance" : "time";
-    const data = await loadPool({ ...filters, q: search, tab, page });
+    const data = await loadPool({ ...filters, reporter, q: search, tab, page });
     const { generatedAt: _, ...content } = data;
     return sendJsonWithEtag(req, reply, data, { etagPrefix: "pool", cacheControl: "public, max-age=60, s-maxage=60", etagOf: content });
   }));

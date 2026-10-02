@@ -118,19 +118,14 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
   return sql`AND p.category = ${category}`;
 }
 
-/** 智能去重算法：消除短时间内多信源抓取的重复/冗余报道，保留信息最丰富、评分更高的一条 */
-export function deduplicateFeedItems<T extends { id: string; title: string; summary?: string | null; score?: number | null; publishedAt?: string | null; timelineAt?: string | null }>(items: T[]): T[] {
+/** 智能去重算法：仅针对新闻报道多源同一事件去重，队记推文、社交推帖与视频内容全量保留 */
+export function deduplicateFeedItems<T extends { id: string; title: string; summary?: string | null; score?: number | null; publishedAt?: string | null; timelineAt?: string | null; channel?: string | null; category?: string | null }>(items: T[]): T[] {
   const result: T[] = [];
   const normalize = (str: string) => str.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
   
   const similarity = (a: string, b: string) => {
     if (!a || !b) return 0;
     if (a === b) return 1;
-    if (a.includes(b) || b.includes(a)) {
-      const minLen = Math.min(a.length, b.length);
-      const maxLen = Math.max(a.length, b.length);
-      if (minLen / maxLen >= 0.5) return 0.9;
-    }
     const getGrams = (text: string) => {
       const grams = new Set<string>();
       for (let i = 0; i < text.length - 1; i++) grams.add(text.slice(i, i + 2));
@@ -145,20 +140,38 @@ export function deduplicateFeedItems<T extends { id: string; title: string; summ
   };
 
   for (const item of items) {
+    // 队记推文、推特流以及视频专栏绝不进行模糊去重，保留每位记者的所有实时推文
+    if ((item as any).channel === "x" || (item as any).category === "beat_tweets" || (item as any).category === "videos") {
+      result.push(item);
+      continue;
+    }
+
     const normTitle = normalize(item.title);
     let isDuplicate = false;
 
     for (let i = 0; i < result.length; i++) {
       const existing = result[i]!;
+      if ((existing as any).channel === "x" || (existing as any).category === "beat_tweets" || (existing as any).category === "videos") {
+        continue;
+      }
       const existingNormTitle = normalize(existing.title);
       
       const t1 = new Date(item.timelineAt || item.publishedAt || 0).getTime();
       const t2 = new Date(existing.timelineAt || existing.publishedAt || 0).getTime();
       if (Math.abs(t1 - t2) > 48 * 3600 * 1000) continue;
 
-      const sim = similarity(normTitle, existingNormTitle);
-      if (sim >= 0.52) {
+      if (normTitle === existingNormTitle) {
         isDuplicate = true;
+      } else {
+        const sim = similarity(normTitle, existingNormTitle);
+        const isSamePlayerAction = (normTitle.includes("卡斯特罗") && existingNormTitle.includes("卡斯特罗")) ||
+                                   (normTitle.includes("双向合同") && existingNormTitle.includes("双向合同") && sim >= 0.75);
+        if (sim >= 0.85 || isSamePlayerAction) {
+          isDuplicate = true;
+        }
+      }
+
+      if (isDuplicate) {
         const currentScore = item.score ?? 0;
         const existingScore = existing.score ?? 0;
         const currentLen = (item.summary?.length ?? 0) + item.title.length;
@@ -181,6 +194,12 @@ export function deduplicateFeedItems<T extends { id: string; title: string; summ
 export function tagCondition(tag: string | null | undefined) {
   if (!tag) return sql``;
   return sql`AND p.tags @> ${[tag]}::text[]`;
+}
+
+export function reporterCondition(reporter: string | null | undefined) {
+  if (!reporter || reporter === "all") return sql``;
+  const term = "%" + reporter.trim().toLowerCase() + "%";
+  return sql`AND (p.search_text LIKE ${term} OR p.source_id LIKE ${term})`;
 }
 
 export function topicCondition(topicTags: string[] | null | undefined) {

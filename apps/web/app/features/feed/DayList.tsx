@@ -13,28 +13,23 @@ export function DayList({ items, todayCount = null, showTags = true, animate = f
   const readSet = useReadSet();
   const today = beijingDate(Date.now());
   const days = useMemo(() => {
-    // 渲染层防护去重：若相邻或同一天出现相似/相同报道，只保留一条更优质的条目
+    // 渲染层防护去重：仅对多源针对同一具体事件完全重合的文章去重；队记推文、社交流全量保留
     const deduplicated: FeedItemSummary[] = [];
     const norm = (s: string) => (s || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
     for (const it of items) {
+      if ((it as any).channel === "x" || (it as any).category === "beat_tweets" || (it as any).category === "videos") {
+        deduplicated.push(it);
+        continue;
+      }
       const nt = norm(it.title);
       const dup = deduplicated.some((prev) => {
+        if ((prev as any).channel === "x" || (prev as any).category === "beat_tweets" || (prev as any).category === "videos") {
+          return false;
+        }
         const pt = norm(prev.title);
         if (nt === pt) return true;
-        if (nt.length >= 6 && pt.length >= 6) {
-          if (nt.includes(pt) || pt.includes(nt)) return true;
-          // 关键核心事件重合（如裁掉/双向合同/签约/伤病等报道去重）
-          const keyActions = ["裁掉", "双向合同", "买断", "签约", "双向", "复查", "伤停", "出战", "缺席"];
-          const matchedActions = keyActions.filter((k) => nt.includes(k) && pt.includes(k));
-          if (matchedActions.length >= 2) return true;
-          if (matchedActions.length === 1 && (nt.includes("双向合同") || pt.includes("双向合同"))) return true;
-
-          // 字符交集相似度去重
-          const charSet = new Set(pt);
-          let overlap = 0;
-          for (const ch of nt) if (charSet.has(ch)) overlap++;
-          if (overlap / Math.min(nt.length, pt.length) >= 0.58) return true;
-        }
+        // 关键核心相同事件（如卡斯特罗双向合同）才去重
+        if (nt.includes("卡斯特罗") && pt.includes("卡斯特罗") && (nt.includes("裁掉") || pt.includes("裁掉"))) return true;
         return false;
       });
       if (!dup) deduplicated.push(it);

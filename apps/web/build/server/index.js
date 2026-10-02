@@ -2905,30 +2905,16 @@ function DayList({ items, todayCount = null, showTags = true, animate = false })
 		const deduplicated = [];
 		const norm = (s) => (s || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
 		for (const it of items) {
+			if (it.channel === "x" || it.category === "beat_tweets" || it.category === "videos") {
+				deduplicated.push(it);
+				continue;
+			}
 			const nt = norm(it.title);
 			if (!deduplicated.some((prev) => {
+				if (prev.channel === "x" || prev.category === "beat_tweets" || prev.category === "videos") return false;
 				const pt = norm(prev.title);
 				if (nt === pt) return true;
-				if (nt.length >= 6 && pt.length >= 6) {
-					if (nt.includes(pt) || pt.includes(nt)) return true;
-					const matchedActions = [
-						"裁掉",
-						"双向合同",
-						"买断",
-						"签约",
-						"双向",
-						"复查",
-						"伤停",
-						"出战",
-						"缺席"
-					].filter((k) => nt.includes(k) && pt.includes(k));
-					if (matchedActions.length >= 2) return true;
-					if (matchedActions.length === 1 && (nt.includes("双向合同") || pt.includes("双向合同"))) return true;
-					const charSet = new Set(pt);
-					let overlap = 0;
-					for (const ch of nt) if (charSet.has(ch)) overlap++;
-					if (overlap / Math.min(nt.length, pt.length) >= .58) return true;
-				}
+				if (nt.includes("卡斯特罗") && pt.includes("卡斯特罗") && (nt.includes("裁掉") || pt.includes("裁掉"))) return true;
 				return false;
 			})) deduplicated.push(it);
 		}
@@ -3379,6 +3365,64 @@ var all_exports = /* @__PURE__ */ __exportAll({
 	loader: () => loader$33,
 	meta: () => meta$39
 });
+var BEAT_REPORTERS = [
+	{
+		key: "all",
+		label: "全部"
+	},
+	{
+		key: "Feigen",
+		label: "Jonathan Feigen"
+	},
+	{
+		key: "Kelly Iko",
+		label: "Kelly Iko"
+	},
+	{
+		key: "Danielle Lerner",
+		label: "Danielle Lerner"
+	},
+	{
+		key: "Ben DuBose",
+		label: "Ben DuBose"
+	},
+	{
+		key: "Jackson Gatlin",
+		label: "Jackson Gatlin"
+	},
+	{
+		key: "Adam Spolane",
+		label: "Adam Spolane"
+	},
+	{
+		key: "Salman Ali",
+		label: "Salman Ali"
+	},
+	{
+		key: "Lachard Binkley",
+		label: "Lachard Binkley"
+	},
+	{
+		key: "Michael Shapiro",
+		label: "Michael Shapiro"
+	},
+	{
+		key: "Matt Thomas",
+		label: "Matt Thomas"
+	},
+	{
+		key: "Bradeaux",
+		label: "Bradeaux"
+	},
+	{
+		key: "ClutchFans",
+		label: "ClutchFans"
+	},
+	{
+		key: "Houston Rockets",
+		label: "火箭官方"
+	}
+];
 async function loader$33({ request }) {
 	const url = new URL(request.url);
 	const channelParam = url.searchParams.get("channel") ?? "all";
@@ -3386,20 +3430,25 @@ async function loader$33({ request }) {
 	const channel = isChannelKey(channelParam) ? channelParam : "all";
 	const tag = url.searchParams.get("tag")?.trim() || null;
 	const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
+	const reporter = url.searchParams.get("reporter")?.trim() || null;
 	const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : null;
 	const tab = url.searchParams.get("tab") === "relevance" ? "relevance" : null;
 	const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
-	return { data: await loadOr404(`/api/site/pool${queryString({
-		channel: channel === "all" ? null : channel,
-		category,
-		tag,
-		q,
-		tab,
-		page: page > 1 ? page : null
-	})}`, {
-		signal: request.signal,
-		busyRedirect: "/all/search-busy"
-	}) };
+	return {
+		data: await loadOr404(`/api/site/pool${queryString({
+			channel: channel === "all" ? null : channel,
+			category,
+			tag,
+			q,
+			tab,
+			reporter,
+			page: page > 1 ? page : null
+		})}`, {
+			signal: request.signal,
+			busyRedirect: "/all/search-busy"
+		}),
+		currentReporter: reporter
+	};
 }
 function meta$39({ loaderData }) {
 	const f = loaderData?.data.filters;
@@ -3440,14 +3489,24 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 	const busy = navigation.state === "loading" && navigation.location?.pathname === "/all";
 	const keep = {
 		channel: f.channel === "all" ? null : f.channel,
-		category: f.category
+		category: f.category,
+		reporter: params.get("reporter") || null
 	};
+	const activeReporter = params.get("reporter") ?? "all";
 	const searchTabHref = (tab) => {
 		const sp = new URLSearchParams(params);
 		sp.delete("page");
 		if (tab === "relevance") sp.set("tab", "relevance");
 		else sp.delete("tab");
 		return `/all?${sp}`;
+	};
+	const reporterHref = (repKey) => {
+		const sp = new URLSearchParams(params);
+		sp.delete("page");
+		if (repKey === "all") sp.delete("reporter");
+		else sp.set("reporter", repKey);
+		const s = sp.toString();
+		return s ? `/all?${s}` : "/all";
 	};
 	const title = f.q ? `搜索“${f.q}”` : f.tag ? `#${f.tag}` : null;
 	const updated = new Date(data.freshness).toLocaleTimeString("zh-CN", {
@@ -3460,36 +3519,53 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 		children: [
 			/* @__PURE__ */ jsxs("div", {
 				className: "hidden lg:block",
-				children: [/* @__PURE__ */ jsxs("div", {
-					className: "flex items-baseline justify-between",
-					children: [/* @__PURE__ */ jsx("h1", {
-						className: "text-[26px] font-black tracking-tight text-ink lg:text-3xl",
-						children: title ?? "休斯敦火箭 前沿情报"
-					}), !f.q && /* @__PURE__ */ jsxs("span", {
-						className: "text-[13px] text-ink-4",
-						children: [
-							"今日 ",
-							/* @__PURE__ */ jsx("span", {
-								className: "num font-bold text-accent",
-								children: data.todayCount
-							}),
-							" 条"
-						]
-					})]
-				}), /* @__PURE__ */ jsxs("div", {
-					className: "mb-5 mt-4 flex flex-wrap items-center justify-between gap-3",
-					children: [/* @__PURE__ */ jsx(CategoryTabs, {
-						base: "/all",
-						category: f.category,
-						channel: f.channel,
-						layoutId: "all-cat-desk",
-						className: "min-w-0"
-					}), /* @__PURE__ */ jsx(SearchField, {
-						variant: "track",
-						defaultValue: f.q ?? "",
-						keep
-					})]
-				})]
+				children: [
+					/* @__PURE__ */ jsxs("div", {
+						className: "flex items-baseline justify-between",
+						children: [/* @__PURE__ */ jsx("h1", {
+							className: "text-[26px] font-black tracking-tight text-ink lg:text-3xl",
+							children: title ?? "休斯敦火箭 前沿情报"
+						}), !f.q && /* @__PURE__ */ jsxs("span", {
+							className: "text-[13px] text-ink-4",
+							children: [
+								"今日 ",
+								/* @__PURE__ */ jsx("span", {
+									className: "num font-bold text-accent",
+									children: data.todayCount
+								}),
+								" 条"
+							]
+						})]
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "mb-4 mt-4 flex flex-wrap items-center justify-between gap-3",
+						children: [/* @__PURE__ */ jsx(CategoryTabs, {
+							base: "/all",
+							category: f.category,
+							channel: f.channel,
+							layoutId: "all-cat-desk",
+							className: "min-w-0"
+						}), /* @__PURE__ */ jsx(SearchField, {
+							variant: "track",
+							defaultValue: f.q ?? "",
+							keep
+						})]
+					}),
+					f.category === "beat_tweets" && /* @__PURE__ */ jsxs("div", {
+						className: "-mt-1 mb-5 flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none",
+						children: [/* @__PURE__ */ jsx("span", {
+							className: "shrink-0 text-[12.5px] font-bold text-ink-3",
+							children: "随队记者:"
+						}), BEAT_REPORTERS.map((r) => {
+							const isActive = activeReporter === r.key;
+							return /* @__PURE__ */ jsx(Link, {
+								to: reporterHref(r.key),
+								className: `inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[12.5px] font-medium transition-all ${isActive ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/30 font-bold" : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141] hover:bg-neutral-50 dark:hover:bg-neutral-800"}`,
+								children: r.label
+							}, r.key);
+						})]
+					})
+				]
 			}),
 			/* @__PURE__ */ jsxs("div", {
 				className: "lg:hidden",
@@ -3527,6 +3603,20 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 							size: "sm",
 							className: "min-w-0"
 						})
+					}),
+					f.category === "beat_tweets" && /* @__PURE__ */ jsxs("div", {
+						className: "mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none",
+						children: [/* @__PURE__ */ jsx("span", {
+							className: "shrink-0 text-[11.5px] font-bold text-ink-3",
+							children: "记者:"
+						}), BEAT_REPORTERS.map((r) => {
+							const isActive = activeReporter === r.key;
+							return /* @__PURE__ */ jsx(Link, {
+								to: reporterHref(r.key),
+								className: `inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11.5px] font-medium transition-all ${isActive ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/30 font-bold" : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"}`,
+								children: r.label
+							}, r.key);
+						})]
 					})
 				]
 			}),
@@ -22098,7 +22188,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-wHwB1JF7.js",
+			"module": "/assets/root-Oy26BO7-.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
@@ -22106,7 +22196,7 @@ var server_manifest_default = {
 				"/assets/Chrome-DuG_H9cO.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-BjDA0OWU.css"],
+			"css": ["/assets/root-DyaZXV_Y.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22146,13 +22236,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-Caz68fr4.js",
+			"module": "/assets/all-DFh1mbU7.js",
 			"imports": [
-				"/assets/all-nshPrMfa.js",
+				"/assets/all-DD1jlkEj.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
 				"/assets/taxonomy-CrAe8mz1.js",
-				"/assets/DayList-h1x3G7m-.js"
+				"/assets/DayList-CxjsETCf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22194,13 +22284,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-BSTGYO67.js",
+			"module": "/assets/search-busy-B2scdEXp.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-nshPrMfa.js",
+				"/assets/all-DD1jlkEj.js",
 				"/assets/taxonomy-CrAe8mz1.js",
-				"/assets/DayList-h1x3G7m-.js"
+				"/assets/DayList-CxjsETCf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22221,13 +22311,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-BSTGYO67.js",
+			"module": "/assets/search-busy-B2scdEXp.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-nshPrMfa.js",
+				"/assets/all-DD1jlkEj.js",
 				"/assets/taxonomy-CrAe8mz1.js",
-				"/assets/DayList-h1x3G7m-.js"
+				"/assets/DayList-CxjsETCf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22536,11 +22626,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-bKAoj-uA.js",
+			"module": "/assets/topic-Bk9dKXic.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/DayList-h1x3G7m-.js",
+				"/assets/DayList-CxjsETCf.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -22562,11 +22652,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-bKAoj-uA.js",
+			"module": "/assets/topic-Bk9dKXic.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/DayList-h1x3G7m-.js",
+				"/assets/DayList-CxjsETCf.js",
 				"/assets/taxonomy-CrAe8mz1.js"
 			],
 			"css": [],
@@ -23415,8 +23505,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-c7f2b5b2.js",
-	"version": "c7f2b5b2",
+	"url": "/assets/manifest-4ed02dce.js",
+	"version": "4ed02dce",
 	"sri": void 0
 };
 //#endregion

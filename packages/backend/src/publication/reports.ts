@@ -220,9 +220,9 @@ export async function loadReport(kind: ReportKind, key: string): Promise<ReportD
   let overview = c.overview ?? null;
   let metrics = c.metrics ?? {};
 
-  // 兜底智能组装：如果日报内容为空或无入选条目，自动提取当天已发布的火箭动态填充日报
-  if (kind === "daily" && (!sections.length || sections.every((s: any) => !s.items || s.items.length === 0))) {
-    const candidateRows = await sql<{
+  // 兜底智能组装：如果日报内容为空、无入选条目或入选条目过少，自动提取当天及最近发布的火箭前沿动态填充日报
+  if (kind === "daily" && (!sections.length || initialItems.length < 3)) {
+    let candidateRows = await sql<{
       id: string; title: string; summary: string | null; source_name: string; source_id: string; source_icon: string | null;
       first_party: boolean; url: string; story_public_id: string | null; published_at: Date | null; timeline_at: Date; score: number | null;
     }[]>`
@@ -235,9 +235,36 @@ export async function loadReport(kind: ReportKind, key: string): Promise<ReportD
       WHERE (to_char(p.timeline_at AT TIME ZONE 'Asia/Shanghai', 'YYYY-MM-DD') = ${key}
          OR to_char(p.discovered_at AT TIME ZONE 'Asia/Shanghai', 'YYYY-MM-DD') = ${key})
         AND p.visibility = 'public'
-      ORDER BY coalesce(p.score, 0) DESC, p.timeline_at DESC
-      LIMIT 12
+      ORDER BY p.timeline_at DESC, coalesce(p.score, 0) DESC
+      LIMIT 16
     `;
+
+    // 若当天发布内容较少，自动补充前沿最近真实资讯
+    if (candidateRows.length < 5) {
+      const recentRows = await sql<{
+        id: string; title: string; summary: string | null; source_name: string; source_id: string; source_icon: string | null;
+        first_party: boolean; url: string; story_public_id: string | null; published_at: Date | null; timeline_at: Date; score: number | null;
+      }[]>`
+        SELECT p.article_id AS id, p.title, p.summary, coalesce(s.name, '') AS source_name, coalesce(s.id, '') AS source_id, s.icon_url AS source_icon,
+          p.first_party, p.url, st.public_id::text AS story_public_id, p.published_at, p.timeline_at, p.score
+        FROM publications p
+        JOIN articles a ON a.id = p.article_id
+        LEFT JOIN sources s ON s.id = p.source_id
+        LEFT JOIN stories st ON st.id = p.story_id
+        WHERE p.visibility = 'public'
+          AND p.timeline_at <= (${key}::date + interval '1 day')
+        ORDER BY p.timeline_at DESC, coalesce(p.score, 0) DESC
+        LIMIT 16
+      `;
+      const existingIds = new Set(candidateRows.map((r) => r.id));
+      for (const r of recentRows) {
+        if (!existingIds.has(r.id)) {
+          candidateRows.push(r);
+          existingIds.add(r.id);
+        }
+      }
+      candidateRows.sort((a, b) => new Date(b.timeline_at).getTime() - new Date(a.timeline_at).getTime());
+    }
 
     if (candidateRows.length > 0) {
       const citedItems: ReportCitation[] = candidateRows.map((row) => ({

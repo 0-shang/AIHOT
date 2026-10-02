@@ -12,6 +12,23 @@ import { YouTubeVideoGrid } from "../features/feed/YouTubeVideoGrid";
 import { EmptyState } from "../components/ui/Page";
 import { RingMark } from "../components/Logo";
 
+const BEAT_REPORTERS = [
+  { key: "all", label: "全部" },
+  { key: "Feigen", label: "Jonathan Feigen" },
+  { key: "Kelly Iko", label: "Kelly Iko" },
+  { key: "Danielle Lerner", label: "Danielle Lerner" },
+  { key: "Ben DuBose", label: "Ben DuBose" },
+  { key: "Jackson Gatlin", label: "Jackson Gatlin" },
+  { key: "Adam Spolane", label: "Adam Spolane" },
+  { key: "Salman Ali", label: "Salman Ali" },
+  { key: "Lachard Binkley", label: "Lachard Binkley" },
+  { key: "Michael Shapiro", label: "Michael Shapiro" },
+  { key: "Matt Thomas", label: "Matt Thomas" },
+  { key: "Bradeaux", label: "Bradeaux" },
+  { key: "ClutchFans", label: "ClutchFans" },
+  { key: "Houston Rockets", label: "火箭官方" },
+];
+
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const channelParam = url.searchParams.get("channel") ?? "all";
@@ -19,15 +36,16 @@ export async function loader({ request }: Route.LoaderArgs) {
   const channel = isChannelKey(channelParam) ? channelParam : "all";
   const tag = url.searchParams.get("tag")?.trim() || null;
   const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
+  const reporter = url.searchParams.get("reporter")?.trim() || null;
   const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : null;
   const tab = url.searchParams.get("tab") === "relevance" ? "relevance" : null;
   // Legacy deep-paging parameters (deep, anchorAt) still open a normal page.
   const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
   const data = await loadOr404<PoolResponse>(
-    `/api/site/pool${queryString({ channel: channel === "all" ? null : channel, category, tag, q, tab, page: page > 1 ? page : null })}`,
+    `/api/site/pool${queryString({ channel: channel === "all" ? null : channel, category, tag, q, tab, reporter, page: page > 1 ? page : null })}`,
     { signal: request.signal, busyRedirect: "/all/search-busy" },
   );
-  return { data };
+  return { data, currentReporter: reporter };
 }
 
 export function meta({ loaderData }: Route.MetaArgs) {
@@ -63,13 +81,22 @@ export default function AllPage() {
   const navigation = useNavigation();
   const f = data.filters;
   const busy = navigation.state === "loading" && navigation.location?.pathname === "/all";
-  const keep = { channel: f.channel === "all" ? null : f.channel, category: f.category };
+  const keep = { channel: f.channel === "all" ? null : f.channel, category: f.category, reporter: params.get("reporter") || null };
+  const activeReporter = params.get("reporter") ?? "all";
   const searchTabHref = (tab: "time" | "relevance") => {
     const sp = new URLSearchParams(params);
     sp.delete("page");
     if (tab === "relevance") sp.set("tab", "relevance");
     else sp.delete("tab");
     return `/all?${sp}`;
+  };
+  const reporterHref = (repKey: string) => {
+    const sp = new URLSearchParams(params);
+    sp.delete("page");
+    if (repKey === "all") sp.delete("reporter");
+    else sp.set("reporter", repKey);
+    const s = sp.toString();
+    return s ? `/all?${s}` : "/all";
   };
   const title = f.q ? `搜索“${f.q}”` : f.tag ? `#${f.tag}` : null;
   const updated = new Date(data.freshness).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Shanghai" });
@@ -87,10 +114,31 @@ export default function AllPage() {
             </span>
           )}
         </div>
-        <div className="mb-5 mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-4 mt-4 flex flex-wrap items-center justify-between gap-3">
           <CategoryTabs base="/all" category={f.category} channel={f.channel} layoutId="all-cat-desk" className="min-w-0" />
           <SearchField variant="track" defaultValue={f.q ?? ""} keep={keep} />
         </div>
+        {f.category === "beat_tweets" && (
+          <div className="-mt-1 mb-5 flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none">
+            <span className="shrink-0 text-[12.5px] font-bold text-ink-3">随队记者:</span>
+            {BEAT_REPORTERS.map((r) => {
+              const isActive = activeReporter === r.key;
+              return (
+                <Link
+                  key={r.key}
+                  to={reporterHref(r.key)}
+                  className={`inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[12.5px] font-medium transition-all ${
+                    isActive
+                      ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/30 font-bold"
+                      : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141] hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                  }`}
+                >
+                  {r.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Phones: title with today's count, the search bar, then the same filter row */}
@@ -107,6 +155,27 @@ export default function AllPage() {
         <div className="-mx-4 mt-3 border-b border-line-soft px-4 pb-3">
           <CategoryTabs base="/all" category={f.category} channel={f.channel} layoutId="all-cat-mobile" size="sm" className="min-w-0" />
         </div>
+        {f.category === "beat_tweets" && (
+          <div className="mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+            <span className="shrink-0 text-[11.5px] font-bold text-ink-3">记者:</span>
+            {BEAT_REPORTERS.map((r) => {
+              const isActive = activeReporter === r.key;
+              return (
+                <Link
+                  key={r.key}
+                  to={reporterHref(r.key)}
+                  className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11.5px] font-medium transition-all ${
+                    isActive
+                      ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/30 font-bold"
+                      : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"
+                  }`}
+                >
+                  {r.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {f.q && (

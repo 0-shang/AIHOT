@@ -108,6 +108,7 @@ export interface TimelineFilters {
   category: CategoryKey | null;
   tag: string | null;
   topic?: string | null;
+  reporter?: string | null;
 }
 
 export interface TimelineResponse {

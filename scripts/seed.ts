@@ -42,7 +42,21 @@ for (const s of sources) {
     VALUES (${s.id}, ${s.name}, ${s.kind}, ${sql.json(s.config as never)}, ${s.tier ?? "T2"}, ${s.first_party ?? false}, ${s.owner_entity_id ?? null},
             ${s.participation_mode ?? "editorial"}, ${s.interval_minutes ?? 60}, ${s.tags ?? []}, ${s.site_fulltext ?? false}, ${s.syndicate_fulltext ?? false},
             ${s.enabled ?? true}, now())
-    ON CONFLICT (id) DO NOTHING RETURNING id`;
+    ON CONFLICT (id) DO UPDATE SET
+      name = EXCLUDED.name,
+      kind = EXCLUDED.kind,
+      config = EXCLUDED.config,
+      tier = EXCLUDED.tier,
+      first_party = EXCLUDED.first_party,
+      owner_entity_id = EXCLUDED.owner_entity_id,
+      participation_mode = EXCLUDED.participation_mode,
+      interval_minutes = EXCLUDED.interval_minutes,
+      tags = EXCLUDED.tags,
+      site_fulltext = EXCLUDED.site_fulltext,
+      syndicate_fulltext = EXCLUDED.syndicate_fulltext,
+      enabled = EXCLUDED.enabled,
+      next_fetch_at = now()
+    RETURNING id`;
   added += inserted.length;
 }
 console.log(`sources: ${added} added, ${sources.length - added} already there`);
