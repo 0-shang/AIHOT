@@ -1096,7 +1096,7 @@ function SiteShell({ changelogVersion, children }) {
 			/* @__PURE__ */ jsx(Sidebar, { changelogVersion }),
 			/* @__PURE__ */ jsx("main", {
 				id: "main",
-				className: "min-w-0 flex-1 pb-[calc(72px+env(safe-area-inset-bottom))] lg:px-7 lg:pb-[72px] lg:pt-6",
+				className: "min-w-0 flex-1 pb-[calc(72px+env(safe-area-inset-bottom))] lg:px-5 lg:pb-[72px] lg:pt-6 xl:px-7",
 				children: /* @__PURE__ */ jsx("div", {
 					className: "mx-auto w-full max-w-[640px] px-4 lg:max-w-[var(--page-max-wide)] lg:px-0",
 					children
@@ -3437,11 +3437,24 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 		children: [
 			/* @__PURE__ */ jsxs("div", {
 				className: "hidden lg:block",
-				children: [/* @__PURE__ */ jsx("h1", {
-					className: "text-[26px] font-black tracking-tight text-ink lg:text-3xl",
-					children: title ?? "休斯敦火箭 前沿情报"
+				children: [/* @__PURE__ */ jsxs("div", {
+					className: "flex items-baseline justify-between",
+					children: [/* @__PURE__ */ jsx("h1", {
+						className: "text-[26px] font-black tracking-tight text-ink lg:text-3xl",
+						children: title ?? "休斯敦火箭 前沿情报"
+					}), !f.q && /* @__PURE__ */ jsxs("span", {
+						className: "text-[13px] text-ink-4",
+						children: [
+							"今日 ",
+							/* @__PURE__ */ jsx("span", {
+								className: "num font-bold text-accent",
+								children: data.todayCount
+							}),
+							" 条"
+						]
+					})]
 				}), /* @__PURE__ */ jsxs("div", {
-					className: "mb-5 mt-4 flex items-center justify-between gap-4",
+					className: "mb-5 mt-4 flex flex-wrap items-center justify-between gap-3",
 					children: [/* @__PURE__ */ jsx(CategoryTabs, {
 						base: "/all",
 						category: f.category,
@@ -22077,7 +22090,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-XdeHCoFM.js",
+			"module": "/assets/root-DbkshGEz.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
@@ -22085,7 +22098,7 @@ var server_manifest_default = {
 				"/assets/Chrome-DuG_H9cO.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-DI5V5POI.css"],
+			"css": ["/assets/root-BMrW1TJU.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22125,9 +22138,9 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-DheWHoqG.js",
+			"module": "/assets/all-69O49fZN.js",
 			"imports": [
-				"/assets/all-DWTpXA_E.js",
+				"/assets/all-DwqprYoR.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
 				"/assets/Filters-BXZ5JMLT.js",
@@ -22179,11 +22192,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-DmAOeJjd.js",
+			"module": "/assets/search-busy-Cv1z2hyl.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-DWTpXA_E.js",
+				"/assets/all-DwqprYoR.js",
 				"/assets/Filters-BXZ5JMLT.js",
 				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
@@ -22207,11 +22220,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-DmAOeJjd.js",
+			"module": "/assets/search-busy-Cv1z2hyl.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-DWTpXA_E.js",
+				"/assets/all-DwqprYoR.js",
 				"/assets/Filters-BXZ5JMLT.js",
 				"/assets/DayList-DxJ4S7YB.js",
 				"/assets/taxonomy-CrAe8mz1.js"
@@ -23402,8 +23415,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-f268ef43.js",
-	"version": "f268ef43",
+	"url": "/assets/manifest-1ea29d99.js",
+	"version": "1ea29d99",
 	"sri": void 0
 };
 //#endregion
