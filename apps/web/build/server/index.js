@@ -1429,6 +1429,14 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 	const [params] = useSearchParams();
 	const items = [
 		{
+			key: "all",
+			label: "全部",
+			to: hrefWith(base, params, {
+				category: null,
+				channel: null
+			})
+		},
+		{
 			key: "news",
 			label: "球队动态",
 			to: hrefWith(base, params, {
@@ -1471,7 +1479,7 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 	];
 	return /* @__PURE__ */ jsx(PillTabs, {
 		items,
-		active: category ?? "",
+		active: category ?? "all",
 		layoutId,
 		label: "筛选",
 		size,
@@ -3035,7 +3043,7 @@ var CHANNEL_BADGES = {
 	}
 };
 function getRealVideoId(item) {
-	const fromOriginal = extractYouTubeVideoId(item.links?.original || item.url || "");
+	const fromOriginal = extractYouTubeVideoId(item.links?.original || item.url || item.links?.original || item.url || "");
 	if (fromOriginal && /^[a-zA-Z0-9_-]{11}$/.test(fromOriginal)) return fromOriginal;
 	const fromSummary = extractYouTubeVideoId(item.summary || "");
 	if (fromSummary && /^[a-zA-Z0-9_-]{11}$/.test(fromSummary)) return fromSummary;
@@ -22236,9 +22244,9 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-DFh1mbU7.js",
+			"module": "/assets/all-_0Tw7Zfo.js",
 			"imports": [
-				"/assets/all-DD1jlkEj.js",
+				"/assets/all-B_hVXuxD.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
 				"/assets/taxonomy-CrAe8mz1.js",
@@ -22284,11 +22292,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-B2scdEXp.js",
+			"module": "/assets/search-busy-CHLfUs5a.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-DD1jlkEj.js",
+				"/assets/all-B_hVXuxD.js",
 				"/assets/taxonomy-CrAe8mz1.js",
 				"/assets/DayList-CxjsETCf.js"
 			],
@@ -22311,11 +22319,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-B2scdEXp.js",
+			"module": "/assets/search-busy-CHLfUs5a.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-DD1jlkEj.js",
+				"/assets/all-B_hVXuxD.js",
 				"/assets/taxonomy-CrAe8mz1.js",
 				"/assets/DayList-CxjsETCf.js"
 			],
@@ -23505,8 +23513,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-4ed02dce.js",
-	"version": "4ed02dce",
+	"url": "/assets/manifest-1a745710.js",
+	"version": "1a745710",
 	"sri": void 0
 };
 //#endregion

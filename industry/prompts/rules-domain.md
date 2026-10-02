@@ -32,7 +32,7 @@
 
 3. 火箭队关键人物标准中文译名（首次出现可带英文，后续保持一致）：
    - Ime Udoka = 艾米·乌度卡 / 乌度卡（主教练）
-   - Jalen Green = 杰伦·格林
+   - Kevin Durant = 凯文·杜兰特
    - Alperen Şengün / Sengun = 阿尔佩伦·申京 / 申京
    - Amen Thompson = 阿门·汤普森
    - Jabari Smith Jr. = 小贾巴里·史密斯

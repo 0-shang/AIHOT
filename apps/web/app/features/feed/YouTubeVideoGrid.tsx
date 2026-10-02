@@ -15,7 +15,7 @@ const CHANNEL_BADGES: Record<string, { bg: string; color: string; label: string 
 
 // 提取真实的 YouTube 视频 ID，绝不使用虚假占位 ID
 export function getRealVideoId(item: FeedItemSummary): string | null {
-  const originalLink = (item as any).links?.original || (item as any).url || "";
+  const originalLink = item.links?.original || item.url || (item as any).links?.original || (item as any).url || "";
   const fromOriginal = extractYouTubeVideoId(originalLink);
   if (fromOriginal && /^[a-zA-Z0-9_-]{11}$/.test(fromOriginal)) return fromOriginal;
 
