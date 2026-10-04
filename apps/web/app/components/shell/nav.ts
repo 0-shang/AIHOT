@@ -3,7 +3,7 @@ import { withSubject } from "@aihot/industry/site";
 import { FEATURES } from "@aihot/industry/features";
 import type { ReactNode } from "react";
 import {
-  IconApps, IconBolt, IconBookmark, IconCalendar, IconChart, IconDoc, IconFlame, IconGrid, IconHeart, IconHistory, IconList, IconMessage, IconPlug,
+  IconApps, IconBolt, IconBookmark, IconCalendar, IconChart, IconCoffee, IconDoc, IconFlame, IconGrid, IconHeart, IconHistory, IconList, IconMessage, IconPlug,
 } from "../icons";
 
 export interface NavItem {
@@ -43,6 +43,7 @@ export const SIDEBAR: Array<{ title: string; items: NavItem[] }> = [
     items: [
       { to: "/about", label: "关于", icon: IconHeart },
       { to: "/feedback", label: "意见反馈", icon: IconMessage },
+      { to: "/sponsor", label: "支持本站", icon: IconCoffee },
     ],
   },
 ];
@@ -55,7 +56,7 @@ export const TABBAR: NavItem[] = [
 ];
 
 /** Pages reached from the mobile "更多" tab keep that tab highlighted. */
-export const MORE_PATHS = ["/more", "/starred", "/about", "/feedback", "/terms", "/privacy"];
+export const MORE_PATHS = ["/more", "/starred", "/about", "/feedback", "/terms", "/privacy", "/sponsor"];
 
 export function tabIsActive(item: NavItem, pathname: string): boolean {
   if (item.end) return pathname === item.to;

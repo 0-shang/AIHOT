@@ -269,9 +269,28 @@ export default function AboutPage() {
         </ol>
       </section>
 
-      {ABOUT.maker && <Maker maker={ABOUT.maker} contact={contact} />}
+      <section className="mt-12 rounded-2xl border border-line bg-surface p-6 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h3 className="flex items-center gap-2 text-[16px] font-bold text-ink">
+              <span className="text-[18px]">☕</span>
+              支持 {SITE.name} 持续运营
+            </h3>
+            <p className="text-[13.5px] text-ink-3">
+              纯粹无广告，靠火蜜同行。欢迎赞助支持云服务器与域名续费开销。
+            </p>
+          </div>
+          <Link
+            to="/sponsor"
+            className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full bg-[#CE1141] px-4 text-[13px] font-bold text-white shadow-sm transition-all hover:bg-[#a50d34]"
+          >
+            请喝咖啡 · 赞助支持
+            <IconArrowRight size={14} />
+          </Link>
+        </div>
+      </section>
 
-      <p className="mt-16 well rounded-card px-5 py-4 text-[13px] leading-[1.85] text-ink-3">
+      <p className="mt-10 well rounded-card px-5 py-4 text-[13px] leading-[1.85] text-ink-3">
         {ABOUT.copyright}
         <Link to="/feedback" className="text-accent hover:underline">
           反馈页
