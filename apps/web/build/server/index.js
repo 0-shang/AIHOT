@@ -1,6 +1,6 @@
 import { t as __exportAll } from "./assets/rolldown-runtime-D7D4PA-g.js";
 import { t as entry_server_node_exports } from "./assets/framework-DvgSLGWb.js";
-import { A as IconSearch, C as IconImage, D as IconMessage, E as IconMenu, F as SITE, I as withSubject, M as IconSun, N as IconUsers, O as IconMonitor, P as ABOUT, S as IconHistory, T as IconList, _ as IconDoc, a as IconArrowRight, b as IconFlame, c as IconBookmark, d as IconCheck, f as IconChevronDown, g as IconCopy, h as IconClose, i as IconArrowLeft, j as IconShare, k as IconMoon, l as IconCalendar, m as IconClock, n as Presence, o as IconArrowUp, p as IconChevronRight, r as IconApps, s as IconArrowUpRight, t as Collapse, u as IconChart, v as IconDownload, w as IconInfo, x as IconHeart, y as IconExternal } from "./assets/Presence-B49hETlz.js";
+import { A as IconMonitor, C as IconHeart, D as IconList, E as IconInfo, F as IconUsers, I as ABOUT, L as SITE, M as IconSearch, N as IconShare, O as IconMenu, P as IconSun, R as withSubject, S as IconFlame, T as IconImage, _ as IconCoffee, a as IconArrowRight, b as IconDownload, c as IconBolt, d as IconChart, f as IconCheck, g as IconClose, h as IconClock, i as IconArrowLeft, j as IconMoon, k as IconMessage, l as IconBookmark, m as IconChevronRight, n as Presence, o as IconArrowUp, p as IconChevronDown, r as IconApps, s as IconArrowUpRight, t as Collapse, u as IconCalendar, v as IconCopy, w as IconHistory, x as IconExternal, y as IconDoc } from "./assets/Presence-DpO2dEKi.js";
 import { Form, Link, Links, Meta, NavLink, Outlet, Scripts, ScrollRestoration, UNSAFE_withComponentProps, UNSAFE_withErrorBoundaryProps, data, isRouteErrorResponse, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation, useRevalidator, useRouteError, useRouteLoaderData, useSearchParams } from "react-router";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { Fragment as Fragment$1, Suspense, forwardRef, lazy, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -561,15 +561,23 @@ var SIDEBAR = [
 	}] : [],
 	{
 		title: "关于",
-		items: [{
-			to: "/about",
-			label: "关于",
-			icon: IconHeart
-		}, {
-			to: "/feedback",
-			label: "意见反馈",
-			icon: IconMessage
-		}]
+		items: [
+			{
+				to: "/about",
+				label: "关于",
+				icon: IconHeart
+			},
+			{
+				to: "/feedback",
+				label: "意见反馈",
+				icon: IconMessage
+			},
+			{
+				to: "/sponsor",
+				label: "支持本站",
+				icon: IconCoffee
+			}
+		]
 	}
 ];
 var TABBAR = [
@@ -602,7 +610,8 @@ var MORE_PATHS = [
 	"/about",
 	"/feedback",
 	"/terms",
-	"/privacy"
+	"/privacy",
+	"/sponsor"
 ];
 function tabIsActive(item, pathname) {
 	if (item.end) return pathname === item.to;
@@ -938,7 +947,7 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	default: () => root_default,
 	links: () => links,
 	loader: () => loader$35,
-	meta: () => meta$39,
+	meta: () => meta$40,
 	shouldRevalidate: () => shouldRevalidate$1
 });
 var links = () => [
@@ -1006,7 +1015,7 @@ function Layout({ children }) {
 	});
 }
 /** Only a page nobody matched falls back to this; every page names itself. */
-function meta$39({ error }) {
+function meta$40({ error }) {
 	if (!error) return [];
 	return [{ title: titled(isRouteErrorResponse(error) && error.status === 404 ? "页面不存在" : "暂时无法加载") }, {
 		name: "robots",
@@ -1099,13 +1108,13 @@ var ErrorBoundary = UNSAFE_withErrorBoundaryProps(function ErrorBoundary() {
 var home_exports = /* @__PURE__ */ __exportAll({
 	default: () => home_default,
 	loader: () => loader$34,
-	meta: () => meta$38
+	meta: () => meta$39
 });
 async function loader$34({ request }) {
 	const url = new URL(request.url);
 	throw redirect(`/all${url.search}`);
 }
-function meta$38() {
+function meta$39() {
 	return [];
 }
 var home_default = UNSAFE_withComponentProps(function Home() {
@@ -2727,19 +2736,26 @@ function DayList({ items, todayCount = null, showTags = true, animate = false })
 		};
 		const deduplicated = [];
 		const norm = (s) => (s || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+		const stripPrefixes = (s) => s.replace(/^(休斯敦|火箭|houstонrockets|houstonrockets)/i, "").replace(/^(报道|消息|据|独家)/i, "").trim();
+		const normCore = (s) => norm(stripPrefixes(s || ""));
+		const isSimilar = (a, b) => {
+			if (a === b) return true;
+			if (a.length < 6 || b.length < 6) return false;
+			const shorter = a.length <= b.length ? a : b;
+			const longer = a.length <= b.length ? b : a;
+			return shorter.length >= 8 && longer.includes(shorter);
+		};
 		for (const it of items) {
 			if (isYoutube(it)) continue;
 			if (it.channel === "x" || it.category === "beat_tweets" || it.category === "videos") {
 				deduplicated.push(it);
 				continue;
 			}
-			const nt = norm(it.title);
+			const nt = normCore(it.title);
 			if (!deduplicated.some((prev) => {
 				if (prev.channel === "x" || prev.category === "beat_tweets" || prev.category === "videos") return false;
-				const pt = norm(prev.title);
-				if (nt === pt) return true;
-				if (nt.includes("卡斯特罗") && pt.includes("卡斯特罗") && (nt.includes("裁掉") || pt.includes("裁掉"))) return true;
-				return false;
+				const pt = normCore(prev.title);
+				return isSimilar(nt, pt);
 			})) deduplicated.push(it);
 		}
 		const out = [];
@@ -2824,9 +2840,9 @@ function Pagination({ page, pageCount, href }) {
 var all_exports = /* @__PURE__ */ __exportAll({
 	SearchBusy: () => SearchBusy,
 	default: () => all_default,
-	headers: () => headers$25,
+	headers: () => headers$26,
 	loader: () => loader$33,
-	meta: () => meta$37
+	meta: () => meta$38
 });
 var BEAT_REPORTERS = [
 	{
@@ -2917,7 +2933,7 @@ async function loader$33({ request }) {
 		currentReporter: reporter
 	};
 }
-function meta$37({ loaderData }) {
+function meta$38({ loaderData }) {
 	const f = loaderData?.data.filters;
 	const q = f?.q;
 	const page = loaderData?.data.page ?? 1;
@@ -2935,8 +2951,8 @@ function meta$37({ loaderData }) {
 		noindex: !!q
 	});
 }
-function headers$25() {
-	return { "Cache-Control": "public, max-age=0, s-maxage=60, stale-while-revalidate=30" };
+function headers$26() {
+	return { "Cache-Control": "public, max-age=0, s-maxage=15, stale-while-revalidate=10" };
 }
 function pageHref(params, page) {
 	const sp = new URLSearchParams(params);
@@ -5264,13 +5280,13 @@ function ScheduleCalendar() {
 //#region app/routes/schedule.tsx
 var schedule_exports = /* @__PURE__ */ __exportAll({
 	default: () => schedule_default,
-	headers: () => headers$24,
-	meta: () => meta$36
+	headers: () => headers$25,
+	meta: () => meta$37
 });
-function headers$24() {
+function headers$25() {
 	return { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600" };
 }
-function meta$36() {
+function meta$37() {
 	return pageMeta({
 		title: "火箭赛程日历 · 比赛日程与转播看板",
 		description: `${SITE.name} 独家赛程日历：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分与核心球员统计。`,
@@ -5296,16 +5312,16 @@ var schedule_default = UNSAFE_withComponentProps(function SchedulePage() {
 //#region app/routes/search-busy.tsx
 var search_busy_exports = /* @__PURE__ */ __exportAll({
 	default: () => search_busy_default,
-	headers: () => headers$23,
-	meta: () => meta$35
+	headers: () => headers$24,
+	meta: () => meta$36
 });
-function meta$35() {
+function meta$36() {
 	return [{ title: titled("搜索繁忙") }, {
 		name: "robots",
 		content: "noindex, follow"
 	}];
 }
-function headers$23() {
+function headers$24() {
 	return { "Cache-Control": "no-store" };
 }
 var search_busy_default = UNSAFE_withComponentProps(SearchBusy);
@@ -5807,15 +5823,15 @@ function detectYouTube(item) {
 //#region app/routes/item.tsx
 var item_exports = /* @__PURE__ */ __exportAll({
 	default: () => item_default,
-	headers: () => headers$22,
+	headers: () => headers$23,
 	loader: () => loader$32,
-	meta: () => meta$34
+	meta: () => meta$35
 });
-var PosterSheet = lazy(() => import("./assets/PosterSheet-C4KBHyd8.js"));
+var PosterSheet = lazy(() => import("./assets/PosterSheet-CEGjVn0S.js"));
 async function loader$32({ params, request }) {
 	return { item: await loadOr404(`/api/site/items/${encodeURIComponent(params.id)}`, { signal: request.signal }) };
 }
-function meta$34({ loaderData }) {
+function meta$35({ loaderData }) {
 	if (!loaderData) return [{ title: titled("内容不存在") }, {
 		name: "robots",
 		content: "noindex"
@@ -5844,7 +5860,7 @@ function meta$34({ loaderData }) {
 		])
 	});
 }
-function headers$22() {
+function headers$23() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=600, stale-while-revalidate=120" };
 }
 /** A 2px accent line across the top that follows long bodies. */
@@ -6308,9 +6324,9 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 //#region app/routes/item-original.tsx
 var item_original_exports = /* @__PURE__ */ __exportAll({
 	default: () => item_default,
-	headers: () => headers$22,
+	headers: () => headers$23,
 	loader: () => loader$31,
-	meta: () => meta$34
+	meta: () => meta$35
 });
 async function loader$31({ params, request }) {
 	return { item: await loadOr404(`/api/site/items/${encodeURIComponent(params.id)}/original`, { signal: request.signal }) };
@@ -6548,14 +6564,14 @@ function Delta({ trend, pct, className = "" }) {
 //#region app/routes/hot.tsx
 var hot_exports = /* @__PURE__ */ __exportAll({
 	default: () => hot_default,
-	headers: () => headers$21,
+	headers: () => headers$22,
 	loader: () => loader$30,
-	meta: () => meta$33
+	meta: () => meta$34
 });
 async function loader$30({ request }) {
 	return { hot: await loadOr404("/api/site/hot", { signal: request.signal }) };
 }
-function meta$33() {
+function meta$34() {
 	return pageMeta({
 		title: withSubject("热点榜"),
 		description: "过去 48 小时休斯敦火箭全网讨论最多的热点事件：热度指数、趋势与公开信源。",
@@ -6563,7 +6579,7 @@ function meta$33() {
 		image: "/og/pages/hot.png"
 	});
 }
-function headers$21() {
+function headers$22() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=120, stale-while-revalidate=60" };
 }
 var BADGES = {
@@ -7272,9 +7288,9 @@ function HeatChart({ points }) {
 //#region app/routes/story.tsx
 var story_exports = /* @__PURE__ */ __exportAll({
 	default: () => story_default,
-	headers: () => headers$20,
+	headers: () => headers$21,
 	loader: () => loader$29,
-	meta: () => meta$32
+	meta: () => meta$33
 });
 async function loader$29({ params, request }) {
 	const res = await fetch(`${process.env.API_BASE_URL || "http://127.0.0.1:3001"}/api/site/stories/${encodeURIComponent(params.publicId)}`, {
@@ -7289,7 +7305,7 @@ async function loader$29({ params, request }) {
 	if (!res.ok) throw data({ message: "unavailable" }, { status: 503 });
 	return { story: await res.json() };
 }
-function meta$32({ loaderData }) {
+function meta$33({ loaderData }) {
 	if (!loaderData) return [{ title: titled("事件不存在") }, {
 		name: "robots",
 		content: "noindex"
@@ -7317,7 +7333,7 @@ function meta$32({ loaderData }) {
 		])
 	});
 }
-function headers$20() {
+function headers$21() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=120" };
 }
 var STATUS = {
@@ -9509,9 +9525,9 @@ function ReportPaper({ report, index }) {
 //#region app/routes/report-latest.tsx
 var report_latest_exports = /* @__PURE__ */ __exportAll({
 	default: () => report_latest_default,
-	headers: () => headers$19,
+	headers: () => headers$20,
 	loader: () => loader$28,
-	meta: () => meta$31
+	meta: () => meta$32
 });
 async function loader$28({ request }) {
 	const kind = kindFromPath(new URL(request.url).pathname);
@@ -9523,7 +9539,7 @@ async function loader$28({ request }) {
 		today: beijingDate(Date.now())
 	};
 }
-function meta$31({ loaderData, location }) {
+function meta$32({ loaderData, location }) {
 	const kind = loaderData?.kind ?? "daily";
 	return pageMeta({
 		title: `火箭${KIND_LABEL$1[kind]}`,
@@ -9532,7 +9548,7 @@ function meta$31({ loaderData, location }) {
 		image: `/og/pages/${kind}.png`
 	});
 }
-function headers$19() {
+function headers$20() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=600, stale-while-revalidate=300" };
 }
 var report_latest_default = UNSAFE_withComponentProps(function ReportLatestPage() {
@@ -9555,9 +9571,9 @@ var report_latest_default = UNSAFE_withComponentProps(function ReportLatestPage(
 //#region app/routes/daily-archive.tsx
 var daily_archive_exports = /* @__PURE__ */ __exportAll({
 	default: () => daily_archive_default,
-	headers: () => headers$18,
+	headers: () => headers$19,
 	loader: () => loader$27,
-	meta: () => meta$30
+	meta: () => meta$31
 });
 async function loader$27({ request }) {
 	const { items: index } = await apiGet("/api/site/reports/daily", { signal: request.signal });
@@ -9566,7 +9582,7 @@ async function loader$27({ request }) {
 		today: beijingDate(Date.now())
 	};
 }
-function meta$30() {
+function meta$31() {
 	return pageMeta({
 		title: `${withSubject("日报")} · 历史存档`,
 		description: `${SITE.name} 历史日报，按日期归档。`,
@@ -9574,7 +9590,7 @@ function meta$30() {
 		image: "/og/pages/daily.png"
 	});
 }
-function headers$18() {
+function headers$19() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=600, stale-while-revalidate=300" };
 }
 var daily_archive_default = UNSAFE_withComponentProps(function DailyArchive() {
@@ -9664,9 +9680,9 @@ var daily_archive_default = UNSAFE_withComponentProps(function DailyArchive() {
 //#region app/routes/report-detail.tsx
 var report_detail_exports = /* @__PURE__ */ __exportAll({
 	default: () => report_detail_default,
-	headers: () => headers$17,
+	headers: () => headers$18,
 	loader: () => loader$26,
-	meta: () => meta$29
+	meta: () => meta$30
 });
 var PATTERN = {
 	daily: /^\d{4}-\d{2}-\d{2}$/,
@@ -9684,7 +9700,7 @@ async function loader$26({ request, params }) {
 		today: beijingDate(Date.now())
 	};
 }
-function meta$29({ loaderData }) {
+function meta$30({ loaderData }) {
 	if (!loaderData) return [{ title: titled("报告不存在") }, {
 		name: "robots",
 		content: "noindex"
@@ -9698,7 +9714,7 @@ function meta$29({ loaderData }) {
 		type: "article"
 	});
 }
-function headers$17() {
+function headers$18() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=600" };
 }
 var report_detail_default = UNSAFE_withComponentProps(function ReportDetailPage() {
@@ -10295,12 +10311,12 @@ function SignalRiver({ sources, focus, onArrive, className = "", children }) {
 //#region app/routes/about.tsx
 var about_exports = /* @__PURE__ */ __exportAll({
 	default: () => about_default,
-	headers: () => headers$16,
+	headers: () => headers$17,
 	loader: () => loader$23,
-	meta: () => meta$28
+	meta: () => meta$29
 });
 /** Shared caches may keep this page for five minutes. */
-function headers$16() {
+function headers$17() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=600" };
 }
 async function loader$23({ request }) {
@@ -10314,7 +10330,7 @@ async function loader$23({ request }) {
 		stats
 	};
 }
-function meta$28() {
+function meta$29() {
 	return pageMeta({
 		title: "关于",
 		description: `关于 ${SITE.name}：${SITE.description}`,
@@ -10412,104 +10428,6 @@ function stagesOf(stats) {
 			note: "主客战报与赛程日历即时同步"
 		}
 	];
-}
-/** The maker's round avatar before the greeting; it steps aside if the image fails. */
-function MakerFace({ src }) {
-	const [failed, setFailed] = useState(false);
-	if (failed) return null;
-	return /* @__PURE__ */ jsx("img", {
-		src,
-		alt: `${ABOUT.maker?.name ?? ""}的头像`,
-		width: 48,
-		height: 48,
-		onError: () => setFailed(true),
-		className: "size-11 shrink-0 rounded-full bg-bg-sunk object-cover ring-1 ring-line xl:size-12"
-	});
-}
-function QrCard({ src, kind, title, note }) {
-	return /* @__PURE__ */ jsxs("figure", {
-		className: "card flex items-center gap-5 p-5",
-		children: [/* @__PURE__ */ jsx("img", {
-			src,
-			alt: `${kind}二维码`,
-			width: 112,
-			height: 112,
-			loading: "lazy",
-			className: "size-[104px] shrink-0 rounded-tile border border-line bg-white object-contain p-1.5 sm:size-[112px]"
-		}), /* @__PURE__ */ jsxs("figcaption", {
-			className: "min-w-0",
-			children: [
-				/* @__PURE__ */ jsx("div", {
-					className: "text-[12px] text-ink-4",
-					children: kind
-				}),
-				/* @__PURE__ */ jsx("div", {
-					className: "mt-1 text-[16px] font-semibold leading-snug text-ink",
-					children: title
-				}),
-				/* @__PURE__ */ jsx("p", {
-					className: "mt-2 text-[13px] leading-[1.7] text-ink-3",
-					children: note
-				})
-			]
-		})]
-	});
-}
-/** The optional maker block (ABOUT.maker): a greeting on the left, the contact codes that are set on the right. */
-function Maker({ maker, contact }) {
-	const codes = [contact.wechatQr && maker.wechat ? /* @__PURE__ */ jsx(QrCard, {
-		src: contact.wechatQr,
-		kind: "微信公众号",
-		title: maker.wechat.title,
-		note: maker.wechat.note
-	}, "wechat") : null, contact.feishuQr && maker.feishu ? /* @__PURE__ */ jsx(QrCard, {
-		src: contact.feishuQr,
-		kind: "飞书群",
-		title: maker.feishu.title,
-		note: maker.feishu.note
-	}, "feishu") : null].filter(Boolean);
-	return /* @__PURE__ */ jsxs("section", {
-		"aria-labelledby": "maker",
-		className: "mt-20 grid gap-10 xl:mt-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16",
-		children: [/* @__PURE__ */ jsxs("div", { children: [
-			/* @__PURE__ */ jsx(Kicker, { children: "做这个站的人" }),
-			/* @__PURE__ */ jsxs("h2", {
-				id: "maker",
-				className: "mt-4 flex items-center gap-3.5 text-[26px] font-black leading-[1.3] tracking-[-0.02em] text-ink xl:gap-4 xl:text-[34px]",
-				children: [contact.makerAvatar && /* @__PURE__ */ jsx(MakerFace, { src: contact.makerAvatar }), /* @__PURE__ */ jsxs("span", { children: ["嗨，我是 ", /* @__PURE__ */ jsx("span", {
-					className: "whitespace-nowrap text-accent",
-					children: maker.name
-				})] })]
-			}),
-			/* @__PURE__ */ jsxs("div", {
-				className: "mt-5 space-y-4 text-[15.5px] leading-[1.9] text-ink-2 xl:text-[16.5px]",
-				children: [maker.greeting.map((line) => /* @__PURE__ */ jsx("p", { children: line }, line)), /* @__PURE__ */ jsxs("p", {
-					className: "text-ink-3",
-					children: [
-						"它一直在改，改了什么都写在",
-						/* @__PURE__ */ jsx(Link, {
-							to: "/changelog",
-							className: "text-accent hover:underline",
-							children: "更新日志"
-						}),
-						"里；有想法、遇到问题，去",
-						/* @__PURE__ */ jsx(Link, {
-							to: "/feedback",
-							className: "text-accent hover:underline",
-							children: "反馈页"
-						}),
-						"告诉我。"
-					]
-				})]
-			})
-		] }), codes.length > 0 && /* @__PURE__ */ jsxs("div", {
-			className: "grid content-start gap-3",
-			children: [/* @__PURE__ */ jsx("h3", {
-				className: "text-[15px] font-semibold text-ink",
-				children: "如果觉得有点用，欢迎加入"
-			}), codes]
-		})]
-	});
 }
 /** The latest 精选 under the river's paper; it moves on each time an item reaches the paper. */
 function Latest({ item, className = "" }) {
@@ -10651,12 +10569,36 @@ var about_default = UNSAFE_withComponentProps(function AboutPage() {
 					})
 				]
 			}),
-			ABOUT.maker && /* @__PURE__ */ jsx(Maker, {
-				maker: ABOUT.maker,
-				contact
+			/* @__PURE__ */ jsx("section", {
+				className: "mt-12 rounded-2xl border border-line bg-surface p-6 shadow-sm",
+				children: /* @__PURE__ */ jsxs("div", {
+					className: "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+					children: [/* @__PURE__ */ jsxs("div", {
+						className: "space-y-1",
+						children: [/* @__PURE__ */ jsxs("h3", {
+							className: "flex items-center gap-2 text-[16px] font-bold text-ink",
+							children: [
+								/* @__PURE__ */ jsx("span", {
+									className: "text-[18px]",
+									children: "☕"
+								}),
+								"支持 ",
+								SITE.name,
+								" 持续运营"
+							]
+						}), /* @__PURE__ */ jsx("p", {
+							className: "text-[13.5px] text-ink-3",
+							children: "纯粹无广告，靠火蜜同行。欢迎赞助支持云服务器与域名续费开销。"
+						})]
+					}), /* @__PURE__ */ jsxs(Link, {
+						to: "/sponsor",
+						className: "inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full bg-[#CE1141] px-4 text-[13px] font-bold text-white shadow-sm transition-all hover:bg-[#a50d34]",
+						children: ["请喝咖啡 · 赞助支持", /* @__PURE__ */ jsx(IconArrowRight, { size: 14 })]
+					})]
+				})
 			}),
 			/* @__PURE__ */ jsxs("p", {
-				className: "mt-16 well rounded-card px-5 py-4 text-[13px] leading-[1.85] text-ink-3",
+				className: "mt-10 well rounded-card px-5 py-4 text-[13px] leading-[1.85] text-ink-3",
 				children: [
 					ABOUT.copyright,
 					/* @__PURE__ */ jsx(Link, {
@@ -10681,6 +10623,229 @@ var about_default = UNSAFE_withComponentProps(function AboutPage() {
 						className: "transition-colors hover:text-accent",
 						children: "隐私说明"
 					})]
+				})]
+			})
+		]
+	});
+});
+//#endregion
+//#region app/assets/sponsor-wechat.jpg
+var sponsor_wechat_default = "/assets/sponsor-wechat-DAORMzhq.jpg";
+//#endregion
+//#region app/routes/sponsor.tsx
+var sponsor_exports = /* @__PURE__ */ __exportAll({
+	default: () => sponsor_default,
+	headers: () => headers$16,
+	meta: () => meta$28
+});
+function meta$28() {
+	return pageMeta({
+		title: "支持本站 · 请喝咖啡",
+		description: `支持 ${SITE.name} 运营维护，请站长喝杯咖啡，共同守护最纯粹的休斯敦火箭资讯空间。`,
+		path: "/sponsor"
+	});
+}
+function headers$16() {
+	return { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=600" };
+}
+var sponsor_default = UNSAFE_withComponentProps(function SponsorPage() {
+	return /* @__PURE__ */ jsxs("div", {
+		className: "mx-auto max-w-[var(--page-max-reading)] pb-12 pt-2",
+		children: [
+			/* @__PURE__ */ jsx("div", {
+				className: "mb-4",
+				children: /* @__PURE__ */ jsxs(Link, {
+					to: "/about",
+					className: "inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-3 transition-colors hover:text-ink",
+					children: [/* @__PURE__ */ jsx(IconArrowLeft, { size: 15 }), "返回关于"]
+				})
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "mb-8",
+				children: [
+					/* @__PURE__ */ jsxs("div", {
+						className: "inline-flex items-center gap-1.5 rounded-full border border-[#CE1141]/20 bg-[#CE1141]/5 px-3 py-1 text-[12px] font-semibold text-[#CE1141]",
+						children: [/* @__PURE__ */ jsx(IconCoffee, { size: 14 }), /* @__PURE__ */ jsx("span", { children: "请站长喝杯咖啡" })]
+					}),
+					/* @__PURE__ */ jsxs("h1", {
+						className: "mt-3 text-[26px] font-black tracking-tight text-ink lg:text-3xl",
+						children: [
+							"支持 ",
+							SITE.name,
+							" 持续运营"
+						]
+					}),
+					/* @__PURE__ */ jsxs("p", {
+						className: "mt-2 text-[15px] leading-relaxed text-ink-3",
+						children: [SITE.name, " 是由休斯敦火箭球迷独立搭建并维护的公益资讯索引，全站坚持无商业弹窗广告。"]
+					})
+				]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start",
+				children: [/* @__PURE__ */ jsx("div", {
+					className: "lg:col-span-6",
+					children: /* @__PURE__ */ jsxs("div", {
+						className: "card overflow-hidden border border-line bg-surface p-6 shadow-sm",
+						children: [
+							/* @__PURE__ */ jsxs("div", {
+								className: "text-center",
+								children: [
+									/* @__PURE__ */ jsx("div", {
+										className: "inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300",
+										children: /* @__PURE__ */ jsx("span", { children: "微信赞赏码" })
+									}),
+									/* @__PURE__ */ jsx("h2", {
+										className: "mt-3 text-[17px] font-bold text-ink",
+										children: "扫码赞助支持"
+									}),
+									/* @__PURE__ */ jsx("p", {
+										className: "mt-1 text-[13px] text-ink-4",
+										children: "微信扫描下方赞赏码，随意金额皆是心意"
+									})
+								]
+							}),
+							/* @__PURE__ */ jsxs("div", {
+								className: "mx-auto my-5 max-w-[280px] overflow-hidden rounded-2xl border-2 border-line-soft bg-white p-3 shadow-inner",
+								children: [/* @__PURE__ */ jsx("img", {
+									src: sponsor_wechat_default,
+									alt: "微信赞赏码",
+									className: "h-auto w-full rounded-xl object-contain",
+									loading: "eager"
+								}), /* @__PURE__ */ jsx("div", {
+									className: "mt-2 text-center text-[12px] font-medium text-neutral-500",
+									children: "one step b... 的赞赏码"
+								})]
+							}),
+							/* @__PURE__ */ jsxs("div", {
+								className: "rounded-xl bg-bg-sunk/60 p-3.5 text-center text-[12.5px] leading-relaxed text-ink-3",
+								children: [
+									/* @__PURE__ */ jsx("p", {
+										className: "hidden lg:block",
+										children: "💻 电脑端：打开微信直接使用“扫一扫”"
+									}),
+									/* @__PURE__ */ jsx("p", {
+										className: "lg:hidden",
+										children: "📱 手机端：长按图片或截屏保存，微信扫码识别"
+									}),
+									/* @__PURE__ */ jsx("p", {
+										className: "mt-1 text-[11.5px] text-ink-4",
+										children: "（赞赏时可在微信附带留言，每一条站长都会认真看）"
+									})
+								]
+							})
+						]
+					})
+				}), /* @__PURE__ */ jsxs("div", {
+					className: "space-y-5 lg:col-span-6",
+					children: [
+						/* @__PURE__ */ jsxs("div", {
+							className: "card border border-line bg-surface p-5 shadow-sm",
+							children: [
+								/* @__PURE__ */ jsxs("h3", {
+									className: "flex items-center gap-2 text-[15px] font-bold text-ink",
+									children: [/* @__PURE__ */ jsx(IconBolt, {
+										size: 18,
+										className: "text-[#CE1141]"
+									}), "为什么需要你的赞助？"]
+								}),
+								/* @__PURE__ */ jsx("p", {
+									className: "mt-2.5 text-[13.5px] leading-relaxed text-ink-2",
+									children: "ClutchWire 致力于为火箭球迷提供秒级推特追踪、外媒战术专栏、赛程前瞻与热点归组。为了维持网站的极速响应与全天候滚动，需要持续投入实际的基础设施成本："
+								}),
+								/* @__PURE__ */ jsxs("ul", {
+									className: "mt-3.5 space-y-2.5 text-[13px] text-ink-3",
+									children: [
+										/* @__PURE__ */ jsxs("li", {
+											className: "flex items-start gap-2",
+											children: [/* @__PURE__ */ jsx(IconCheck, {
+												size: 16,
+												className: "mt-0.5 shrink-0 text-emerald-600"
+											}), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
+												className: "text-ink",
+												children: "高性能 VPS 云服务器"
+											}), "：全天候 24 小时运行信源采集引擎、数据库与渲染节点。"] })]
+										}),
+										/* @__PURE__ */ jsxs("li", {
+											className: "flex items-start gap-2",
+											children: [/* @__PURE__ */ jsx(IconCheck, {
+												size: 16,
+												className: "mt-0.5 shrink-0 text-emerald-600"
+											}), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
+												className: "text-ink",
+												children: "Cloudflare 全球边缘防护"
+											}), "：提供全球 CDN 加速与高并发 DDoS 流量清洗，确保千人万人同时看球也不卡。"] })]
+										}),
+										/* @__PURE__ */ jsxs("li", {
+											className: "flex items-start gap-2",
+											children: [/* @__PURE__ */ jsx(IconCheck, {
+												size: 16,
+												className: "mt-0.5 shrink-0 text-emerald-600"
+											}), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
+												className: "text-ink",
+												children: "独立域名长期续费"
+											}), "：保障 clutchwire.org 品牌的长期稳定解析。"] })]
+										})
+									]
+								})
+							]
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							className: "card border border-line bg-surface p-5 shadow-sm",
+							children: [/* @__PURE__ */ jsxs("h3", {
+								className: "flex items-center gap-2 text-[15px] font-bold text-ink",
+								children: [/* @__PURE__ */ jsx(IconHeart, {
+									size: 18,
+									className: "text-[#CE1141]"
+								}), "站长的真诚承诺"]
+							}), /* @__PURE__ */ jsxs("ul", {
+								className: "mt-3 space-y-2 text-[13px] leading-relaxed text-ink-2",
+								children: [
+									/* @__PURE__ */ jsxs("li", { children: [
+										"✨ ",
+										/* @__PURE__ */ jsx("strong", {
+											className: "text-ink",
+											children: "坚持永久无恶性广告"
+										}),
+										"：绝不投放影响阅读体验的弹窗、信息流软文或牛皮癣广告。"
+									] }),
+									/* @__PURE__ */ jsxs("li", { children: [
+										"🔒 ",
+										/* @__PURE__ */ jsx("strong", {
+											className: "text-ink",
+											children: "专款专用"
+										}),
+										"：收到的所有赞赏资金，将 100% 优先用于支付服务器带宽和域名维护费用。"
+									] }),
+									/* @__PURE__ */ jsxs("li", { children: [
+										"🚀 ",
+										/* @__PURE__ */ jsx("strong", {
+											className: "text-ink",
+											children: "持续迭代更新"
+										}),
+										"：新赛季将持续跟进火箭每场赛况、球员伤病战报与交易流言，陪伴休斯敦红军每一天！"
+									] })
+								]
+							})]
+						}),
+						/* @__PURE__ */ jsx("div", {
+							className: "card border border-line bg-surface p-5 shadow-sm",
+							children: /* @__PURE__ */ jsxs("div", {
+								className: "flex items-center justify-between",
+								children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h4", {
+									className: "text-[14px] font-bold text-ink",
+									children: "有想看的新信源或功能建议？"
+								}), /* @__PURE__ */ jsx("p", {
+									className: "mt-1 text-[12.5px] text-ink-4",
+									children: "欢迎随时提交，站长会第一时间回复跟进"
+								})] }), /* @__PURE__ */ jsxs(Link, {
+									to: "/feedback",
+									className: "inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[#CE1141] hover:text-[#CE1141]",
+									children: [/* @__PURE__ */ jsx(IconMessage, { size: 14 }), "意见反馈"]
+								})]
+							})
+						})
+					]
 				})]
 			})
 		]
@@ -11583,15 +11748,23 @@ var GROUPS = [{
 	}]
 }, {
 	title: "关于与反馈",
-	rows: [{
-		to: "/about",
-		label: `关于 ${SITE.name}`,
-		icon: /* @__PURE__ */ jsx(IconHeart, { size: 18 })
-	}, {
-		to: "/feedback",
-		label: "意见反馈",
-		icon: /* @__PURE__ */ jsx(IconMessage, { size: 18 })
-	}]
+	rows: [
+		{
+			to: "/about",
+			label: `关于 ${SITE.name}`,
+			icon: /* @__PURE__ */ jsx(IconHeart, { size: 18 })
+		},
+		{
+			to: "/feedback",
+			label: "意见反馈",
+			icon: /* @__PURE__ */ jsx(IconMessage, { size: 18 })
+		},
+		{
+			to: "/sponsor",
+			label: "支持本站 ☕",
+			icon: /* @__PURE__ */ jsx(IconCoffee, { size: 18 })
+		}
+	]
 }];
 function Group({ title, children }) {
 	return /* @__PURE__ */ jsxs("section", {
@@ -21238,15 +21411,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-BZXauibP.js",
+			"module": "/assets/root-x7zv96xy.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/Sidebar-CQQoryZf.js",
-				"/assets/Chrome-PolQA66S.js",
+				"/assets/shared-cQzGIa91.js",
+				"/assets/Sidebar-D-HdtoSy.js",
+				"/assets/Chrome-WfzNcYzY.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-Ba_oGgpH.css"],
+			"css": ["/assets/root-rFFPOjlj.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -21286,11 +21459,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-DiTEtWJH.js",
+			"module": "/assets/all-BZAvKb-1.js",
 			"imports": [
-				"/assets/all-CUsVu_zs.js",
+				"/assets/all-Bq2OfSAU.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -21312,8 +21485,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-BRVSduL-.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/schedule-CDBDX0r1.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21333,11 +21506,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-BpBcKu_F.js",
+			"module": "/assets/search-busy-CPvUAWAs.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/all-CUsVu_zs.js",
+				"/assets/shared-cQzGIa91.js",
+				"/assets/all-Bq2OfSAU.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -21359,11 +21532,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-BpBcKu_F.js",
+			"module": "/assets/search-busy-CPvUAWAs.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/all-CUsVu_zs.js",
+				"/assets/shared-cQzGIa91.js",
+				"/assets/all-Bq2OfSAU.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -21385,11 +21558,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-CPjqbQlb.js",
+			"module": "/assets/item-3hfuZX5n.js",
 			"imports": [
-				"/assets/item-CWTeeQY9.js",
+				"/assets/item-DPYh-xSX.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js"
+				"/assets/shared-cQzGIa91.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21410,11 +21583,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-CPjqbQlb.js",
+			"module": "/assets/item-original-3hfuZX5n.js",
 			"imports": [
-				"/assets/item-CWTeeQY9.js",
+				"/assets/item-DPYh-xSX.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js"
+				"/assets/shared-cQzGIa91.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21435,8 +21608,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-Doh4lY8c.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/hot-DVP-5K0h.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21456,8 +21629,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-CWweq6-Q.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/story-DmC0Ptvs.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21477,11 +21650,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-D-gApQUX.js",
+			"module": "/assets/report-latest-DP7ZVuNY.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/ReportPaper-DHOqmL_y.js"
+				"/assets/shared-cQzGIa91.js",
+				"/assets/ReportPaper-Dp0BNPe6.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21502,11 +21675,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-CUHmAtnJ.js",
+			"module": "/assets/daily-archive-PlhflEGd.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/ReportPaper-DHOqmL_y.js"
+				"/assets/shared-cQzGIa91.js",
+				"/assets/ReportPaper-Dp0BNPe6.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21527,11 +21700,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-n2rKQMcT.js",
+			"module": "/assets/report-detail-CZNNM_Gr.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/ReportPaper-DHOqmL_y.js"
+				"/assets/shared-cQzGIa91.js",
+				"/assets/ReportPaper-Dp0BNPe6.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21552,11 +21725,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-D-gApQUX.js",
+			"module": "/assets/report-latest-DP7ZVuNY.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/ReportPaper-DHOqmL_y.js"
+				"/assets/shared-cQzGIa91.js",
+				"/assets/ReportPaper-Dp0BNPe6.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21577,11 +21750,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-n2rKQMcT.js",
+			"module": "/assets/report-detail-CZNNM_Gr.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/ReportPaper-DHOqmL_y.js"
+				"/assets/shared-cQzGIa91.js",
+				"/assets/ReportPaper-Dp0BNPe6.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21602,11 +21775,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-D-gApQUX.js",
+			"module": "/assets/report-latest-DP7ZVuNY.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/ReportPaper-DHOqmL_y.js"
+				"/assets/shared-cQzGIa91.js",
+				"/assets/ReportPaper-Dp0BNPe6.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21627,11 +21800,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-n2rKQMcT.js",
+			"module": "/assets/report-detail-CZNNM_Gr.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/ReportPaper-DHOqmL_y.js"
+				"/assets/shared-cQzGIa91.js",
+				"/assets/ReportPaper-Dp0BNPe6.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21715,8 +21888,29 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-DQR7Wm4i.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/about-4ovubHXH.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"css": [],
+			"clientActionModule": void 0,
+			"clientLoaderModule": void 0,
+			"clientMiddlewareModule": void 0,
+			"hydrateFallbackModule": void 0
+		},
+		"routes/sponsor": {
+			"id": "routes/sponsor",
+			"parentId": "root",
+			"path": "sponsor",
+			"index": void 0,
+			"caseSensitive": void 0,
+			"hasAction": false,
+			"hasLoader": false,
+			"hasClientAction": false,
+			"hasClientLoader": false,
+			"hasClientMiddleware": false,
+			"hasDefaultExport": true,
+			"hasErrorBoundary": false,
+			"module": "/assets/sponsor-C6ef0M7g.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21736,11 +21930,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-CtokT-RN.js",
+			"module": "/assets/terms-ChPvyZkJ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/CopyPage-CrqTWUH2.js"
+				"/assets/shared-cQzGIa91.js",
+				"/assets/CopyPage-iF7Qm4s7.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21761,11 +21955,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-DXUA4s4l.js",
+			"module": "/assets/privacy-CFlGDVAc.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/CopyPage-CrqTWUH2.js"
+				"/assets/shared-cQzGIa91.js",
+				"/assets/CopyPage-iF7Qm4s7.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21786,8 +21980,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-BZVTXQfo.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/changelog-DQgvjQmU.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21807,8 +22001,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-BM_2373d.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/feedback-BlrWExcd.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21828,11 +22022,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-8OMIRMrG.js",
+			"module": "/assets/more-CJ5wr_Gt.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
-				"/assets/Sidebar-CQQoryZf.js",
+				"/assets/shared-cQzGIa91.js",
+				"/assets/Sidebar-D-HdtoSy.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -21854,8 +22048,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-DxuN1338.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/starred-C0FaJGdI.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21875,10 +22069,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-cqhcc8Cc.js",
+			"module": "/assets/agent-CK9uCXna.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/features-DbRQZ5Mo.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
@@ -21901,8 +22095,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-DhT8Ecum.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/codex-reset-XF2QBnEe.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21922,8 +22116,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-DhT8Ecum.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/codex-reset-XF2QBnEe.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21943,10 +22137,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-D9Evol0x.js",
+			"module": "/assets/leaderboard-boards-C2gnvDpt.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -21968,10 +22162,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-C1pn7QZi.js",
+			"module": "/assets/leaderboard-BPLcZmbZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -21994,10 +22188,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-C1pn7QZi.js",
+			"module": "/assets/leaderboard-BPLcZmbZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22020,10 +22214,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-CUNZ2gDQ.js",
+			"module": "/assets/leaderboard-sources-CElWxAuZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22046,10 +22240,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-CJuytgOx.js",
+			"module": "/assets/leaderboard-source-DLyfN34Z.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22072,8 +22266,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-BSunlv-7.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/leaderboard-rules-DLTrIlE6.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22093,10 +22287,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-ClCh6ybz.js",
+			"module": "/assets/leaderboard-model-3AfurhEv.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
@@ -22120,8 +22314,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-DqWB62yY.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-l8N5al4k.js"],
+			"module": "/assets/admin-login-Cy6izKP6.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22141,12 +22335,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-DJPqfYRg.js",
+			"module": "/assets/layout-BJjPGL2v.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-PolQA66S.js",
+				"/assets/Chrome-WfzNcYzY.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -22190,10 +22384,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-D5PWErqg.js",
+			"module": "/assets/content-Dme2vmlJ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22217,10 +22411,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-CXlfpbYp.js",
+			"module": "/assets/content-item-F_2ryCBf.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
@@ -22247,10 +22441,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-Dfoo1xbk.js",
+			"module": "/assets/sources-j4PfIdlp.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22274,10 +22468,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-DKIcpAvV.js",
+			"module": "/assets/source-new-BtQ7mqHP.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22303,10 +22497,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-By78tXyA.js",
+			"module": "/assets/source-BJBz1sOZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22332,10 +22526,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-CN_5fJy3.js",
+			"module": "/assets/monitor-CqklNd14.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22360,10 +22554,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-BFD_FZBJ.js",
+			"module": "/assets/feedback-ZWYCP8W7.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22389,10 +22583,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-DtRBnE9A.js",
+			"module": "/assets/runs-58vye36C.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22417,10 +22611,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-Cjmi2Khz.js",
+			"module": "/assets/models-DeXOE3QW.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22445,10 +22639,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-CFM-E1Si.js",
+			"module": "/assets/selectbench-Bbbobn7k.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22473,10 +22667,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-cz-omK0M.js",
+			"module": "/assets/selectbench-run-D-MpmGGU.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22500,10 +22694,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-CuVJwxkK.js",
+			"module": "/assets/settings-BcSX_j3x.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22528,10 +22722,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-DFhoHB44.js",
+			"module": "/assets/audit-C9A5adqs.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-l8N5al4k.js",
+				"/assets/shared-cQzGIa91.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -22542,8 +22736,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-ec5de7c0.js",
-	"version": "ec5de7c0",
+	"url": "/assets/manifest-5b163835.js",
+	"version": "5b163835",
 	"sri": void 0
 };
 //#endregion
@@ -22728,6 +22922,14 @@ var routes = {
 		index: void 0,
 		caseSensitive: void 0,
 		module: about_exports
+	},
+	"routes/sponsor": {
+		id: "routes/sponsor",
+		parentId: "root",
+		path: "sponsor",
+		index: void 0,
+		caseSensitive: void 0,
+		module: sponsor_exports
 	},
 	"routes/terms": {
 		id: "routes/terms",
