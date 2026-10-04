@@ -62,48 +62,50 @@ function getLiveItems() {
     const liveScrapedPath = path.join(import.meta.dirname, "../.data/live-scraped.json");
     if (!fs.existsSync(liveScrapedPath)) return [];
     const candidates = JSON.parse(fs.readFileSync(liveScrapedPath, "utf8"));
-    return candidates.map((c: any, idx: number) => {
-      const pubDate = c.publishedAt ? new Date(c.publishedAt) : new Date(Date.now() - idx * 3600 * 1000);
-      const pubIso = pubDate.toISOString();
-      const isVideo = c.sourceId?.startsWith("yt-") || c.url?.includes("youtube.com") || c.url?.includes("youtu.be") || c.media?.some((m: any) => m.kind === "video");
-      const category = isVideo ? "videos" : (c.category || "news");
-      const cleanExcerpt = (c.excerpt || "")
-        .replace(/\[?&#8230;\]?/g, "...")
-        .replace(/&#8217;/g, "'")
-        .replace(/&#8216;/g, "'")
-        .replace(/&#8220;/g, '"')
-        .replace(/&#8221;/g, '"')
-        .replace(/&#038;/g, "&")
-        .replace(/&amp;/g, "&")
-        .replace(/&quot;/g, '"')
-        .trim();
+    return candidates
+      .filter((c: any) => {
+        const isYt = c.sourceId?.startsWith("yt-") || c.sourceName?.includes("YouTube") || c.url?.includes("youtube.com") || c.url?.includes("youtu.be");
+        return !isYt;
+      })
+      .map((c: any, idx: number) => {
+        const pubDate = c.publishedAt ? new Date(c.publishedAt) : new Date(Date.now() - idx * 3600 * 1000);
+        const pubIso = pubDate.toISOString();
+        const category = c.category || "news";
+        const cleanExcerpt = (c.excerpt || "")
+          .replace(/\[?&#8230;\]?/g, "...")
+          .replace(/&#8217;/g, "'")
+          .replace(/&#8216;/g, "'")
+          .replace(/&#8220;/g, '"')
+          .replace(/&#8221;/g, '"')
+          .replace(/&#038;/g, "&")
+          .replace(/&amp;/g, "&")
+          .replace(/&quot;/g, '"')
+          .trim();
 
-      const summary = cleanExcerpt || `${c.title} — 来自随队媒体 ${c.sourceName} 的最新前线深度报道。`;
-      const reason = isVideo
-        ? `随队官方高清视讯与采访原声`
-        : `随队核心媒体 ${c.sourceName} 重点前线报道`;
+        const summary = cleanExcerpt || `${c.title} — 来自随队媒体 ${c.sourceName} 的最新前线深度报道。`;
+        const reason = `随队核心媒体 ${c.sourceName} 重点前线报道`;
 
-      return {
-        id: `item-live-${idx + 1}`,
-        revision: 1,
-        title: c.title.replace(/&#8217;/g, "'").replace(/&#8220;/g, '"').replace(/&#8221;/g, '"'),
-        originalTitle: c.title,
-        summary,
-        reason,
-        source: { id: c.sourceId || "rss-scraped", name: c.sourceName || "实时信源", kind: "rss" as const, firstParty: false, iconUrl: null },
-        links: { aihot: `/items/item-live-${idx + 1}`, original: c.url },
-        publishedAt: pubIso,
-        discoveredAt: isoNow,
-        timelineAt: pubIso,
-        category,
-        tags: isVideo ? ["视频专栏", "比赛视讯"] : [c.sourceName, "赛季动态"],
-        score: Number((9.6 - (idx * 0.1)).toFixed(1)),
-        selected: true,
-        channel: "news" as const,
-        story: null,
-        x: null,
-      };
-    });
+        return {
+          id: `item-live-${idx + 1}`,
+          revision: 1,
+          title: c.title.replace(/&#8217;/g, "'").replace(/&#8220;/g, '"').replace(/&#8221;/g, '"'),
+          originalTitle: c.title,
+          summary,
+          reason,
+          source: { id: c.sourceId || "rss-scraped", name: c.sourceName || "实时信源", kind: "rss" as const, firstParty: false, iconUrl: null },
+          links: { aihot: `/items/item-live-${idx + 1}`, original: c.url },
+          publishedAt: pubIso,
+          discoveredAt: isoNow,
+          timelineAt: pubIso,
+          category,
+          tags: [c.sourceName, "赛季动态"],
+          score: Number((9.6 - (idx * 0.1)).toFixed(1)),
+          selected: true,
+          channel: "news" as const,
+          story: null,
+          x: null,
+        };
+      });
   } catch (err) {
     console.error("Error reading live-scraped.json:", err);
     return [];
@@ -239,17 +241,17 @@ const MOCK_ITEMS = [
   {
     id: "item-rockets-7",
     revision: 1,
-    title: "【官方原声视频】火箭2026-27赛季训练营第一天：乌度卡讲话与队内分组高强度全场对抗",
-    originalTitle: "Houston Rockets Day 1 Training Camp Highlights & Coach Udoka Mic'd Up",
-    summary: "休斯敦火箭官方 YouTube 今日发布训练营首日原声集锦视频：乌度卡强调防守换防细节，阿门·汤普森与谢泼德同组展现精妙传切配合，杜兰特在半场阵地单打中连续命中高难度跳投。",
-    reason: "官方训练原声录像与高光集锦",
-    source: { id: "yt-houston-rockets", name: "休斯敦火箭官方 YouTube", kind: "rss" as const, firstParty: true, iconUrl: null },
-    links: { aihot: "/items/item-rockets-7", original: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+    title: "休斯敦纪事报：火箭全队开展首日训练营对抗，乌度卡重点演练防守换防细节",
+    originalTitle: "Houston Rockets Day 1 Training Camp: Udoka emphasizes defensive switching",
+    summary: "休斯敦纪事报随队记者报道：火箭训练营首日正式打响，主帅乌度卡强调防守换防细节与无球压迫，阿门·汤普森与谢泼德同组展现精妙传切配合，杜兰特在半场阵地单打中连续命中高难度跳投。",
+    reason: "随队主流权威媒体现场训练营报道",
+    source: { id: "rss-houstonchronicle-rockets", name: "休斯敦纪事报", kind: "rss" as const, firstParty: false, iconUrl: null },
+    links: { aihot: "/items/item-rockets-7", original: "https://www.houstonchronicle.com/sports/rockets/" },
     publishedAt: new Date(Date.now() - 18000 * 1000).toISOString(),
     discoveredAt: isoNow,
     timelineAt: new Date(Date.now() - 18000 * 1000).toISOString(),
-    category: "videos" as const,
-    tags: ["视频专栏", "官方视频", "乌度卡", "凯文·杜兰特"],
+    category: "news" as const,
+    tags: ["球队动态", "乌度卡", "凯文·杜兰特", "阿门·汤普森"],
     score: 9.2,
     selected: true,
     channel: "news" as const,
@@ -259,17 +261,17 @@ const MOCK_ITEMS = [
   {
     id: "item-rockets-8",
     revision: 1,
-    title: "【战术录像复盘视频】申京高位策应与谢泼德无球跑动如何重塑火箭半场进攻空间",
-    originalTitle: "Rockets Film Room: Alperen Sengun & Reed Sheppard 2-Man Chemistry Breakdown",
-    summary: "知名战术拆解博主 Rockets Film Room 录制长达 15 分钟深度分析视频：详细拆解了申京在肘区支配球时与谢泼德的掩护手递手配合（DHO），对手无论是选择夹击还是挤过掩护都会付出沉重防守代价。",
-    reason: "高阶战术录像剖析视频",
-    source: { id: "yt-locked-on-rockets", name: "Locked On Rockets (YouTube 播客)", kind: "rss" as const, firstParty: false, iconUrl: null },
-    links: { aihot: "/items/item-rockets-8", original: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+    title: "The Dream Shake 专栏：申京高位策应与谢泼德跑位配合如何重塑半场阵地战",
+    originalTitle: "Rockets Tactical Room: Alperen Sengun & Reed Sheppard 2-Man Chemistry Breakdown",
+    summary: "The Dream Shake 资深专栏深度分析：详细拆解了申京在肘区支配球时与谢泼德的掩护手递手配合（DHO），对手无论是选择夹击还是挤过掩护都会付出沉重防守代价，空间利用率大幅跃升。",
+    reason: "战术专栏深度剖析",
+    source: { id: "rss-thedreamshake", name: "The Dream Shake", kind: "rss" as const, firstParty: false, iconUrl: null },
+    links: { aihot: "/items/item-rockets-8", original: "https://www.thedreamshake.com/" },
     publishedAt: new Date(Date.now() - 25000 * 1000).toISOString(),
     discoveredAt: isoNow,
     timelineAt: new Date(Date.now() - 25000 * 1000).toISOString(),
-    category: "videos" as const,
-    tags: ["视频专栏", "深度专栏", "阿尔佩伦·申京", "里德·谢泼德"],
+    category: "analysis" as const,
+    tags: ["深度专栏", "阿尔佩伦·申京", "里德·谢泼德"],
     score: 8.9,
     selected: true,
     channel: "news" as const,
@@ -279,58 +281,18 @@ const MOCK_ITEMS = [
   {
     id: "item-rockets-9",
     revision: 1,
-    title: "【ClutchFans 视讯专栏】阿门·汤普森持球攻防进阶拆解：挡拆阅读与空切威慑力",
-    originalTitle: "ClutchFans: Amen Thompson Sophomore Leap & Playmaking Breakdown",
-    summary: "ClutchFans 资深专栏作者针对阿门·汤普森在夏季联赛与训练营的录像进行逐帧剖析。当阿门作为挡拆持球人发起进攻时，他的首步爆发力结合高位视野能制造极佳外线空位投篮机会。",
-    reason: "随队知名媒体独家视讯战术拆解",
-    source: { id: "yt-clutchfans", name: "ClutchFans", kind: "rss" as const, firstParty: false, iconUrl: null },
-    links: { aihot: "/items/item-rockets-9", original: "https://www.youtube.com/watch?v=HXAWBBwAtKw" },
+    title: "Space City Scoop：阿门·汤普森新赛季进攻角色定位分析，挡拆发起与空切双核驱动",
+    originalTitle: "Space City Scoop: Amen Thompson Sophomore Leap & Playmaking Breakdown",
+    summary: "Space City Scoop 深度剖析阿门·汤普森的休赛期进化。当阿门作为挡拆持球人发起进攻时，他的首步爆发力结合高位视野能制造极佳外线空位投篮机会，防守转换进攻也是火箭核心武器。",
+    reason: "随队媒体球员深度前瞻",
+    source: { id: "rss-spacecityscoop", name: "Space City Scoop", kind: "rss" as const, firstParty: false, iconUrl: null },
+    links: { aihot: "/items/item-rockets-9", original: "https://spacecityscoop.com/" },
     publishedAt: new Date(Date.now() - 36000 * 1000).toISOString(),
     discoveredAt: isoNow,
     timelineAt: new Date(Date.now() - 36000 * 1000).toISOString(),
-    category: "videos" as const,
-    tags: ["视频专栏", "阿门·汤普森", "ClutchFans"],
+    category: "analysis" as const,
+    tags: ["深度专栏", "阿门·汤普森"],
     score: 9.1,
-    selected: true,
-    channel: "news" as const,
-    story: null,
-    x: null,
-  },
-  {
-    id: "item-rockets-10",
-    revision: 1,
-    title: "【澳门赛前瞻视讯】独行侠 vs 火箭：得州宿敌空降金光综艺馆五大看点分析",
-    originalTitle: "NBA Macau Games 2026 Preview: Houston Rockets vs Dallas Mavericks",
-    summary: "Bleav in Rockets 播客视频版：深度剖析 10月9日 与 10月11日 澳门金光综艺馆两场季前焦点战。凯文·杜兰特与阿门·汤普森锋卫线如何对阵东契奇与欧文，以及两队季前赛主力出战时间推测。",
-    reason: "澳门赛重磅专题视讯分析",
-    source: { id: "yt-bleav-in-rockets", name: "Bleav in Rockets", kind: "rss" as const, firstParty: false, iconUrl: null },
-    links: { aihot: "/items/item-rockets-10", original: "https://www.youtube.com/watch?v=e23iE7u_D5E" },
-    publishedAt: new Date(Date.now() - 48000 * 1000).toISOString(),
-    discoveredAt: isoNow,
-    timelineAt: new Date(Date.now() - 48000 * 1000).toISOString(),
-    category: "videos" as const,
-    tags: ["视频专栏", "澳门赛", "独行侠", "季前赛"],
-    score: 9.5,
-    selected: true,
-    channel: "news" as const,
-    story: null,
-    x: null,
-  },
-  {
-    id: "item-rockets-11",
-    revision: 1,
-    title: "【SCHN 专访录像】主教练伊梅·乌度卡谈新赛季防守定位：我们要保持全联盟最强侵略性",
-    originalTitle: "Space City Home Network: Ime Udoka 1-on-1 Camp Interview",
-    summary: "Space City Home Network 随队记者现场一对一专访主帅乌度卡。乌度卡明确提出新赛季防守效率力争进入联盟前三，并对亚当斯伤愈复出后的内线护框和掩护质量给予极高评价。",
-    reason: "电视台随队官方权威专访录像",
-    source: { id: "yt-schn-rockets", name: "Space City Home Network", kind: "rss" as const, firstParty: true, iconUrl: null },
-    links: { aihot: "/items/item-rockets-11", original: "https://www.youtube.com/watch?v=WqG_h6cO8q4" },
-    publishedAt: new Date(Date.now() - 60000 * 1000).toISOString(),
-    discoveredAt: isoNow,
-    timelineAt: new Date(Date.now() - 60000 * 1000).toISOString(),
-    category: "videos" as const,
-    tags: ["视频专栏", "乌度卡", "专访", "SCHN"],
-    score: 9.0,
     selected: true,
     channel: "news" as const,
     story: null,
@@ -457,13 +419,16 @@ const server = http.createServer((req, res) => {
     const tag = url.searchParams.get("tag");
 
     const allItems = getAllItems();
-    let filtered = allItems;
+    let filtered = allItems.filter(i => {
+      const srcId = String(i.source?.id || "").toLowerCase();
+      const srcName = String(i.source?.name || "");
+      const orig = String(i.links?.original || "").toLowerCase();
+      const cat = String(i.category || "");
+      const title = String(i.title || "");
+      return !srcId.startsWith("yt-") && !srcId.includes("youtube") && !srcName.includes("YouTube") && !orig.includes("youtube.com") && !orig.includes("youtu.be") && !orig.includes("youtube") && !title.includes("YouTube") && cat !== "videos";
+    });
     if (category && category !== "all") {
-      if (category === "videos") {
-        filtered = filtered.filter(i => i.category === "videos" || i.source.id.startsWith("yt-") || i.source.name.toLowerCase().includes("youtube") || (i.links.original && (i.links.original.includes("youtube.com") || i.links.original.includes("youtu.be"))));
-      } else {
-        filtered = filtered.filter(i => i.category === category);
-      }
+      filtered = filtered.filter(i => i.category === category);
     }
     if (tag) {
       filtered = filtered.filter(i => i.tags.includes(tag));

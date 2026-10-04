@@ -256,9 +256,20 @@ export function Timeline({ initial, filters }: { initial: TimelineResponse; filt
   }, [state.nextCursor, state.batches, loadMore]);
 
   const today = beijingDate(Date.now());
+  const isYoutube = (item: any) => {
+    if (!item) return false;
+    const srcId = String(item.source?.id || "").toLowerCase();
+    const srcName = String(item.source?.name || "");
+    const orig = String(item.links?.original || item.url || "").toLowerCase();
+    const cat = String(item.category || "");
+    const title = String(item.title || "");
+    return srcId.startsWith("yt-") || srcId.includes("youtube") || srcName.includes("YouTube") || orig.includes("youtube.com") || orig.includes("youtu.be") || orig.includes("youtube") || title.includes("YouTube") || cat === "videos";
+  };
+
   const days = useMemo(() => {
     const out: Array<{ day: string; cards: TimelineCard[] }> = [];
     for (const c of state.cards) {
+      if (isYoutube(c.item)) continue;
       const d = beijingDate(c.anchorAt);
       const last = out[out.length - 1];
       if (last && last.day === d) last.cards.push(c);

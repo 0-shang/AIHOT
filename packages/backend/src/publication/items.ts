@@ -76,14 +76,14 @@ export const ITEM_FROM = sql`
   LEFT JOIN translations tr ON tr.article_id = p.article_id AND tr.lang = 'zh' AND tr.revision >= a.revision
   LEFT JOIN quote_translations qt ON p.channel = 'x' AND qt.tweet_id = substring(a.x_post->'quoted'->>'url' from '/status/([0-9]+)')`;
 
-/** Listed items: public, not a reply tweet, and a selected item only after its release gate. */
+/** Listed items: public, not a reply tweet, no youtube, and a selected item only after its release gate. */
 export function listedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND (NOT p.selected OR p.visible_after <= ${now})`;
+  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND p.source_id NOT LIKE 'yt-%' AND p.source_id NOT LIKE '%youtube%' AND p.url NOT LIKE '%youtube.com%' AND p.url NOT LIKE '%youtu.be%' AND p.url NOT LIKE '%youtube%' AND p.title NOT LIKE '%YouTube%' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND (NOT p.selected OR p.visible_after <= ${now})`;
 }
 
 /** Selected set as shown on the home timeline, v1 selected mode and RSS. */
 export function selectedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND p.selected AND p.visible_after <= ${now}`;
+  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND p.source_id NOT LIKE 'yt-%' AND p.source_id NOT LIKE '%youtube%' AND p.url NOT LIKE '%youtube.com%' AND p.url NOT LIKE '%youtu.be%' AND p.url NOT LIKE '%youtube%' AND p.title NOT LIKE '%YouTube%' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND p.selected AND p.visible_after <= ${now}`;
 }
 
 export function channelCondition(channel: ChannelKey | null | undefined) {

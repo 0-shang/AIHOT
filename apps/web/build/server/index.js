@@ -2722,9 +2722,19 @@ function DayList({ items, todayCount = null, showTags = true, animate = false })
 	const readSet = useReadSet();
 	const today = beijingDate(Date.now());
 	const days = useMemo(() => {
+		const isYoutube = (item) => {
+			if (!item) return false;
+			const srcId = String(item.source?.id || "").toLowerCase();
+			const srcName = String(item.source?.name || "");
+			const orig = String(item.links?.original || item.url || "").toLowerCase();
+			const cat = String(item.category || "");
+			const title = String(item.title || "");
+			return srcId.startsWith("yt-") || srcId.includes("youtube") || srcName.includes("YouTube") || orig.includes("youtube.com") || orig.includes("youtu.be") || orig.includes("youtube") || title.includes("YouTube") || cat === "videos";
+		};
 		const deduplicated = [];
 		const norm = (s) => (s || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
 		for (const it of items) {
+			if (isYoutube(it)) continue;
 			if (it.channel === "x" || it.category === "beat_tweets" || it.category === "videos") {
 				deduplicated.push(it);
 				continue;
@@ -21553,13 +21563,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-D3a_qns6.js",
+			"module": "/assets/all-BhNGH5Vf.js",
 			"imports": [
-				"/assets/all-B2rMmiLc.js",
+				"/assets/all-DT5njIMl.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CZuJbGC3.js",
 				"/assets/taxonomy-CCGfN8IS.js",
-				"/assets/DayList-CC69M2lH.js"
+				"/assets/DayList-CAS4CNPA.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21601,13 +21611,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-BKzE65Nv.js",
+			"module": "/assets/search-busy-C_2n1R1k.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CZuJbGC3.js",
-				"/assets/all-B2rMmiLc.js",
+				"/assets/all-DT5njIMl.js",
 				"/assets/taxonomy-CCGfN8IS.js",
-				"/assets/DayList-CC69M2lH.js"
+				"/assets/DayList-CAS4CNPA.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21628,13 +21638,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-BKzE65Nv.js",
+			"module": "/assets/search-busy-C_2n1R1k.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CZuJbGC3.js",
-				"/assets/all-B2rMmiLc.js",
+				"/assets/all-DT5njIMl.js",
 				"/assets/taxonomy-CCGfN8IS.js",
-				"/assets/DayList-CC69M2lH.js"
+				"/assets/DayList-CAS4CNPA.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21943,11 +21953,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-B110h34m.js",
+			"module": "/assets/topic-DqMgekP6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CZuJbGC3.js",
-				"/assets/DayList-CC69M2lH.js",
+				"/assets/DayList-CAS4CNPA.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -21969,11 +21979,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-B110h34m.js",
+			"module": "/assets/topic-DqMgekP6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CZuJbGC3.js",
-				"/assets/DayList-CC69M2lH.js",
+				"/assets/DayList-CAS4CNPA.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -22822,8 +22832,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-5e36126a.js",
-	"version": "5e36126a",
+	"url": "/assets/manifest-131a08fc.js",
+	"version": "131a08fc",
 	"sri": void 0
 };
 //#endregion

@@ -61,10 +61,31 @@ for (const s of sources) {
 }
 const activeIds = sources.map((s) => s.id);
 if (activeIds.length > 0) {
-  const disabledYt = await sql`UPDATE sources SET enabled = false WHERE NOT (id = ANY(${activeIds}::text[])) AND id LIKE 'yt-%' RETURNING id`;
+  const disabledYt = await sql`UPDATE sources SET enabled = false WHERE (NOT (id = ANY(${activeIds}::text[])) AND id LIKE 'yt-%') OR id LIKE 'yt-%' OR id LIKE '%youtube%' OR name LIKE '%YouTube%' RETURNING id`;
   if (disabledYt.length > 0) {
-    console.log(`disabled ${disabledYt.length} retired sources: ${disabledYt.map((r: any) => r.id).join(", ")}`);
+    console.log(`disabled ${disabledYt.length} retired/youtube sources: ${disabledYt.map((r: any) => r.id).join(", ")}`);
   }
+}
+const hiddenYt = await sql`
+  UPDATE publications
+  SET visibility = 'withdrawn', eligible = false, selected = false
+  WHERE source_id LIKE 'yt-%'
+     OR source_id LIKE '%youtube%'
+     OR url LIKE '%youtube.com%'
+     OR url LIKE '%youtu.be%'
+     OR title LIKE '%YouTube%'
+     OR original_title LIKE '%YouTube%'
+     OR article_id IN (
+       SELECT id FROM articles
+       WHERE url LIKE '%youtube.com%'
+          OR url LIKE '%youtu.be%'
+          OR url LIKE '%youtube%'
+          OR source_id LIKE 'yt-%'
+     )
+  RETURNING article_id
+`;
+if (hiddenYt.length > 0) {
+  console.log(`withdrew ${hiddenYt.length} historical YouTube publications`);
 }
 const hiddenReplies = await sql`UPDATE publications SET visibility = 'withdrawn', eligible = false, selected = false WHERE channel = 'x' AND (title LIKE '@%' OR original_title LIKE '@%') RETURNING article_id`;
 if (hiddenReplies.length > 0) {

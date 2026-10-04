@@ -13,10 +13,21 @@ export function DayList({ items, todayCount = null, showTags = true, animate = f
   const readSet = useReadSet();
   const today = beijingDate(Date.now());
   const days = useMemo(() => {
+    const isYoutube = (item: any) => {
+      if (!item) return false;
+      const srcId = String(item.source?.id || "").toLowerCase();
+      const srcName = String(item.source?.name || "");
+      const orig = String(item.links?.original || item.url || "").toLowerCase();
+      const cat = String(item.category || "");
+      const title = String(item.title || "");
+      return srcId.startsWith("yt-") || srcId.includes("youtube") || srcName.includes("YouTube") || orig.includes("youtube.com") || orig.includes("youtu.be") || orig.includes("youtube") || title.includes("YouTube") || cat === "videos";
+    };
+
     // 渲染层防护去重：仅对多源针对同一具体事件完全重合的文章去重；队记推文、社交流全量保留
     const deduplicated: FeedItemSummary[] = [];
     const norm = (s: string) => (s || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
     for (const it of items) {
+      if (isYoutube(it)) continue;
       if ((it as any).channel === "x" || (it as any).category === "beat_tweets" || (it as any).category === "videos") {
         deduplicated.push(it);
         continue;
