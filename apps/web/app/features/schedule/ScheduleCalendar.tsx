@@ -117,55 +117,38 @@ export function ScheduleCalendar() {
     <div className="space-y-4 lg:space-y-6">
       {/* ── 焦点战役看板（专业体育比赛中心风格） ── */}
       {featuredGame && (
-        <div className="relative overflow-hidden rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-5 lg:p-6">
+        <div className="relative overflow-hidden rounded-2xl border border-line bg-surface p-4.5 shadow-xs sm:p-5 lg:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* 赛事属性与时间 */}
             <div>
               <div className="flex items-center gap-2">
-                <span className="rounded-md bg-[#CE1141] px-2 py-0.5 text-[10.5px] font-bold text-white uppercase tracking-wide">
-                  {featuredGame.arena.includes("澳门") ? "NBA 澳门赛" : featuredGame.stage === "cup" ? "NBA 杯赛" : "2026-27 赛季"}
+                <span className="rounded-md bg-[#CE1141] px-2 py-0.5 text-[10.5px] font-bold text-white tracking-wide">
+                  {featuredGame.arena.includes("澳门") ? "NBA 澳门季前赛" : featuredGame.stage === "cup" ? "NBA 杯赛" : "2026-27 赛季"}
                 </span>
                 <span className="font-mono text-xs font-semibold text-ink-3">
                   {featuredGame.date} {getWeekday(featuredGame.date)} · 北京时间 {featuredGame.time}
                 </span>
               </div>
-              <h2 className="mt-1.5 text-lg font-black tracking-tight text-ink sm:text-xl">
+              <h2 className="mt-2 text-xl font-black tracking-tight text-ink sm:text-2xl">
                 休斯敦火箭 {featuredGame.isHome ? "VS" : "@"} {featuredGame.opponent.name}
               </h2>
-              <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-ink-4">
+              <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-ink-4">
                 <span>📍 {featuredGame.arena}</span>
                 <span>📺 {featuredGame.broadcast}</span>
-                {featuredGame.keyMatchup && (
-                  <span className="font-medium text-ink-2">焦点对位：{featuredGame.keyMatchup}</span>
-                )}
+                <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 font-medium text-ink-3">
+                  {featuredGame.isHome ? "休斯敦主场" : "火箭客场远征"}
+                </span>
               </div>
             </div>
 
-            {/* 对决双方队标板 */}
+            {/* 操作按钮 */}
             <div className="flex shrink-0 items-center gap-3 self-start sm:self-center">
-              <div className="flex items-center gap-2 rounded-xl border border-line-soft bg-bg-sunk/60 px-3 py-2">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-[#CE1141] text-xs font-black text-white shadow-xs">
-                  HOU
-                </div>
-                <span className="font-mono text-xs font-black text-ink-3">VS</span>
-                <div
-                  className="flex size-8 items-center justify-center rounded-lg text-xs font-black text-white shadow-xs"
-                  style={{ backgroundColor: featuredGame.opponent.color }}
-                >
-                  {featuredGame.opponent.abbr.slice(0, 3)}
-                </div>
-                <div className="text-left pl-1">
-                  <div className="text-xs font-bold text-ink">{featuredGame.opponent.name}</div>
-                  <div className="text-[10px] text-ink-4">{featuredGame.isHome ? "客场来访" : "火箭客战"}</div>
-                </div>
-              </div>
-
               <button
                 type="button"
                 onClick={() => handleCopyReminder(featuredGame)}
-                className="hidden rounded-xl border border-line bg-surface px-3 py-2 text-xs font-semibold text-ink-2 shadow-xs transition-colors hover:border-[#CE1141] hover:text-[#CE1141] sm:inline-flex"
+                className="rounded-xl bg-[#CE1141] text-white px-4 py-2 text-xs font-bold shadow-xs transition-opacity hover:opacity-90 inline-flex items-center gap-1.5"
               >
-                {copiedId === featuredGame.id ? "已复制 ✓" : "提醒"}
+                <span>{copiedId === featuredGame.id ? "已添加日程备忘 ✓" : "添加到日历提醒"}</span>
               </button>
             </div>
           </div>
@@ -297,23 +280,11 @@ export function ScheduleCalendar() {
                         </span>
                       </div>
 
-                      <div className="mt-1 flex items-center gap-2">
-                        <div
-                          className="flex size-5 shrink-0 items-center justify-center rounded text-[9px] font-black text-white"
-                          style={{ backgroundColor: game.opponent.color }}
-                        >
-                          {game.opponent.abbr.slice(0, 3)}
-                        </div>
+                      <div className="mt-1">
                         <h3 className="text-sm font-bold text-ink transition-colors group-hover:text-[#CE1141] sm:text-base">
                           休斯敦火箭 {game.isHome ? "VS" : "@"} {game.opponent.name}
                         </h3>
                       </div>
-
-                      {game.keyMatchup && (
-                        <p className="mt-0.5 line-clamp-1 text-[11.5px] text-ink-3">
-                          焦点：<span className="font-medium text-ink">{game.keyMatchup}</span>
-                        </p>
-                      )}
                     </div>
                   </div>
 
@@ -389,17 +360,9 @@ export function ScheduleCalendar() {
 
                     {game && (
                       <div className="mt-1 flex-1 flex flex-col justify-center">
-                        <div className="flex items-center gap-1">
-                          <div
-                            className="flex size-4 shrink-0 items-center justify-center rounded text-[8px] font-black text-white"
-                            style={{ backgroundColor: game.opponent.color }}
-                          >
-                            {game.opponent.abbr.slice(0, 3)}
-                          </div>
-                          <span className="truncate text-[11px] font-extrabold text-ink">
-                            {game.opponent.name}
-                          </span>
-                        </div>
+                        <span className="truncate text-[11px] font-extrabold text-ink">
+                          {game.isHome ? "vs" : "@"} {game.opponent.name}
+                        </span>
                         <div className="mt-0.5 font-mono text-[10px] text-ink-4">
                           {game.time}
                         </div>
@@ -455,44 +418,31 @@ export function ScheduleCalendar() {
             <div className="my-5 flex items-center justify-around">
               {/* 火箭 */}
               <div className="text-center">
-                <div className="mx-auto flex size-12 items-center justify-center rounded-xl bg-[#CE1141] text-lg font-black text-white shadow-sm">
-                  HOU
+                <div className="text-base font-black text-ink">休斯敦火箭</div>
+                <div className="mt-1 inline-flex rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-ink-3">
+                  {activeGame.isHome ? "休斯敦主场" : "客场作战"}
                 </div>
-                <div className="mt-1.5 text-sm font-bold text-ink">休斯敦火箭</div>
-                <div className="text-[10.5px] text-ink-4">{activeGame.isHome ? "主场" : "客场"}</div>
               </div>
 
-              <div className="font-mono text-base font-black italic text-ink-4">VS</div>
+              <div className="font-mono text-sm font-bold text-[#CE1141]">VS</div>
 
               {/* 对手 */}
               <div className="text-center">
-                <div
-                  className="mx-auto flex size-12 items-center justify-center rounded-xl text-lg font-black text-white shadow-sm"
-                  style={{ backgroundColor: activeGame.opponent.color }}
-                >
-                  {activeGame.opponent.abbr.slice(0, 3)}
+                <div className="text-base font-black text-ink">{activeGame.opponent.name}</div>
+                <div className="mt-1 inline-flex rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-ink-3">
+                  {activeGame.isHome ? "客队挑战" : "对手主场"}
                 </div>
-                <div className="mt-1.5 text-sm font-bold text-ink">{activeGame.opponent.name}</div>
-                <div className="text-[10.5px] text-ink-4">{activeGame.isHome ? "客场" : "主场"}</div>
               </div>
             </div>
 
-            <div className="space-y-2 rounded-xl bg-bg-sunk/60 p-3 text-xs text-ink-2">
-              {activeGame.keyMatchup && (
-                <div>
-                  <span className="font-bold text-ink">焦点对位：</span>
-                  <span>{activeGame.keyMatchup}</span>
-                </div>
-              )}
-              {activeGame.previewNotes && (
-                <div>
-                  <span className="font-bold text-ink">赛事前瞻：</span>
-                  <span>{activeGame.previewNotes}</span>
-                </div>
-              )}
-              <div className="border-t border-line-soft pt-1.5 text-ink-4">
-                <div>场馆：{activeGame.arena}</div>
-                <div>转播：{activeGame.broadcast}</div>
+            <div className="space-y-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3.5 text-xs text-ink-2">
+              <div className="flex items-center justify-between">
+                <span className="text-ink-4">比赛场馆</span>
+                <span className="font-semibold text-ink">{activeGame.arena}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-ink-4">转播平台</span>
+                <span className="font-semibold text-ink">{activeGame.broadcast}</span>
               </div>
             </div>
 

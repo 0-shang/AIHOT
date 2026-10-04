@@ -60,29 +60,7 @@ export function Sidebar({ changelogVersion }: { changelogVersion: string | null 
         ))}
       </nav>
 
-      {/* 赛程快速预告看板卡片 */}
-      <Link
-        to="/schedule"
-        className="group mb-2 mt-auto block rounded-xl border border-line-soft bg-gradient-to-br from-bg-sunk/60 to-surface p-2.5 shadow-2xs transition-all hover:border-[#CE1141]/60 hover:shadow-md"
-      >
-        <div className="flex items-center justify-between text-[10px] font-bold text-ink-4">
-          <span className="flex items-center gap-1 text-[#CE1141]">
-            <span className="size-1.5 animate-ping rounded-full bg-[#CE1141]" />
-            焦点赛事
-          </span>
-          <span className="font-mono text-ink-3">10.09 20:00</span>
-        </div>
-        <div className="mt-1 flex items-center justify-between text-[12px] font-black text-ink">
-          <span>HOU 火箭</span>
-          <span className="font-sans text-[10px] font-semibold text-ink-4">VS</span>
-          <span>DAL 独行侠</span>
-        </div>
-        <div className="mt-0.5 text-[9.5px] font-bold text-amber-600 dark:text-amber-400">
-          🇲🇴 NBA 澳门赛 G1
-        </div>
-      </Link>
-
-      <div className="space-y-2 px-1 pt-1">
+      <div className="mt-auto space-y-2 px-1 pt-3">
         <ThemeSwitch className="mx-1" />
         {SITE.icp && (
           <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="block px-2 text-[10px] text-ink-4 hover:text-ink-3">
