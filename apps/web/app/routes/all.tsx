@@ -61,7 +61,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export function headers() {
-  return { "Cache-Control": "public, max-age=0, s-maxage=60, stale-while-revalidate=30" };
+  return { "Cache-Control": "public, max-age=0, s-maxage=15, stale-while-revalidate=10" };
 }
 
 function pageHref(params: URLSearchParams, page: number) {

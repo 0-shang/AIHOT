@@ -26,22 +26,35 @@ export function DayList({ items, todayCount = null, showTags = true, animate = f
     // 渲染层防护去重：仅对多源针对同一具体事件完全重合的文章去重；队记推文、社交流全量保留
     const deduplicated: FeedItemSummary[] = [];
     const norm = (s: string) => (s || "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+    // Strip common boilerplate prefixes (team name, media outlet prefixes) before comparing
+    const stripPrefixes = (s: string) =>
+      s
+        .replace(/^(休斯敦|火箭|houstонrockets|houstonrockets)/i, "")
+        .replace(/^(报道|消息|据|独家)/i, "")
+        .trim();
+    const normCore = (s: string) => norm(stripPrefixes(s || ""));
+    // Rough similarity: if core of one title is a substring of the other (length >= 8 chars), treat as same event
+    const isSimilar = (a: string, b: string) => {
+      if (a === b) return true;
+      if (a.length < 6 || b.length < 6) return false;
+      const shorter = a.length <= b.length ? a : b;
+      const longer = a.length <= b.length ? b : a;
+      // Substring inclusion with reasonable length threshold
+      return shorter.length >= 8 && longer.includes(shorter);
+    };
     for (const it of items) {
       if (isYoutube(it)) continue;
       if ((it as any).channel === "x" || (it as any).category === "beat_tweets" || (it as any).category === "videos") {
         deduplicated.push(it);
         continue;
       }
-      const nt = norm(it.title);
+      const nt = normCore(it.title);
       const dup = deduplicated.some((prev) => {
         if ((prev as any).channel === "x" || (prev as any).category === "beat_tweets" || (prev as any).category === "videos") {
           return false;
         }
-        const pt = norm(prev.title);
-        if (nt === pt) return true;
-        // 关键核心相同事件（如卡斯特罗双向合同）才去重
-        if (nt.includes("卡斯特罗") && pt.includes("卡斯特罗") && (nt.includes("裁掉") || pt.includes("裁掉"))) return true;
-        return false;
+        const pt = normCore(prev.title);
+        return isSimilar(nt, pt);
       });
       if (!dup) deduplicated.push(it);
     }
