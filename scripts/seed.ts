@@ -59,7 +59,14 @@ for (const s of sources) {
     RETURNING id`;
   added += inserted.length;
 }
-console.log(`sources: ${added} added, ${sources.length - added} already there`);
+const activeIds = sources.map((s) => s.id);
+if (activeIds.length > 0) {
+  const disabledYt = await sql`UPDATE sources SET enabled = false WHERE id NOT IN ${sql(activeIds)} AND (id LIKE 'yt-%' OR kind = 'x_search') RETURNING id`;
+  if (disabledYt.length > 0) {
+    console.log(`disabled ${disabledYt.length} retired sources: ${disabledYt.map((r: any) => r.id).join(", ")}`);
+  }
+}
+console.log(`sources: ${added} added/updated, ${sources.length} active in pack`);
 if (FEATURES.leaderboard) {
   const { models, aliases } = await importModelDirectory();
   console.log(`leaderboard directory: ${models} models, ${aliases} names added`);
