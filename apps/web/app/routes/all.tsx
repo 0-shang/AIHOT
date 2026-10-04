@@ -8,7 +8,6 @@ import { listPath, pageMeta } from "../lib/seo";
 import { CategoryTabs, SearchField } from "../features/feed/Filters";
 import { PillTabs } from "../components/ui/Tabs";
 import { DayList, Pagination } from "../features/feed/DayList";
-import { YouTubeVideoGrid } from "../features/feed/YouTubeVideoGrid";
 import { EmptyState } from "../components/ui/Page";
 import { RingMark } from "../components/Logo";
 
@@ -120,7 +119,7 @@ export default function AllPage() {
           <SearchField variant="track" defaultValue={f.q ?? ""} keep={keep} />
         </div>
         {f.category === "beat_tweets" && (
-          <div className="-mt-1 mb-5 flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none">
+          <div className="-mt-1 mb-5 flex flex-wrap items-center gap-2">
             <span className="shrink-0 text-[12.5px] font-bold text-ink-3">随队记者:</span>
             {BEAT_REPORTERS.map((r) => {
               const isActive = activeReporter === r.key;
@@ -210,8 +209,6 @@ export default function AllPage() {
               {f.q ? "换个说法，或者去掉筛选再试。" : "这个筛选下暂时没有内容。"}
             </EmptyState>
           </div>
-        ) : f.category === "videos" ? (
-          <YouTubeVideoGrid items={data.items} />
         ) : (
           <DayList items={data.items} todayCount={f.q ? null : data.todayCount} showTags />
         )}

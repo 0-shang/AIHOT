@@ -12,7 +12,6 @@ export const CATEGORIES = [
   { key: "analysis", label: "深度专栏", section: "战术与专栏", guide: "战术打法剖析、挡拆攻防复盘、高阶数据模型、薪资空间结构、选秀前景及行业深度分析" },
   { key: "trades", label: "交易流言", section: "交易与流言", guide: "正式交易、自由球员签约、转会传闻与谈判动向、名记引援爆料、选秀大会与裁员下放；随队记者发布的涉及火箭队实质引援与交易动向的推文" },
   { key: "beat_tweets", label: "队记推文", section: "队记推文", guide: "随队名记（Jonathan Feigen, Kelly Iko, Adam Spolane 等）在 X/推特发布的日常推文、观赛随感、现场花絮、实时看球动态与互动；默认所有队记推文归入此栏，若内容属于高度实质的球队新闻或采访则归入球队动态，交易爆料则归入交易流言" },
-  { key: "videos", label: "视频专栏", section: "视频专栏", guide: "休斯敦火箭相关的赛场集锦、球员集锦、官方视频、赛后更衣室采访原声录像、YouTube 视频、播客视频切片等所有视频类内容；所有来自 YouTube 信源或包含实质视频媒体的内容均强制归入此栏" },
 ] as const;
 
 /**
@@ -38,7 +37,6 @@ export const CATEGORY_TAGS = [
   "球队动态",
   "深度专栏",
   "队记推文",
-  "视频专栏",
   "非火箭/联盟其他",
   "其他",
 ] as const;

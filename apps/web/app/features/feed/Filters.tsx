@@ -25,14 +25,13 @@ export function hrefWith(base: string, params: URLSearchParams, patch: Record<st
  */
 export function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", className = "" }: { base: string; category: CategoryKey | null; channel?: ChannelKey; layoutId: string; size?: "md" | "sm"; className?: string }) {
   const [params] = useSearchParams();
-  // Tab order: 全部 → 球队动态 → 深度专栏 → 交易流言 → 队记推文 → 视频专栏
+  // Tab order: 全部 → 球队动态 → 深度专栏 → 交易流言 → 队记推文
   const items = [
     { key: "all", label: "全部", to: hrefWith(base, params, { category: null, channel: null }) },
     { key: "news", label: "球队动态", to: hrefWith(base, params, { category: "news", channel: null }) },
     { key: "analysis", label: "深度专栏", to: hrefWith(base, params, { category: "analysis", channel: null }) },
     { key: "trades", label: "交易流言", to: hrefWith(base, params, { category: "trades", channel: null }) },
     { key: "beat_tweets", label: "队记推文", to: hrefWith(base, params, { category: "beat_tweets", channel: null }) },
-    { key: "videos", label: "视频专栏", to: hrefWith(base, params, { category: "videos", channel: null }) },
   ];
   const active = category ?? "all";
   return <PillTabs items={items} active={active} layoutId={layoutId} label="筛选" size={size} className={className} />;

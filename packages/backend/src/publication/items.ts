@@ -98,26 +98,20 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     // 队记推文栏目：展示所有随队记者的推文流、x频道推文以及明确分类为 beat_tweets 的动态
     return sql`AND (p.category = 'beat_tweets' OR p.channel = 'x' OR p.source_id LIKE 'x-%')`;
   }
-  if (category === "videos") {
-    // 视频专栏：包含所有 YouTube 视频、带有原声/高光录像与分类为 videos 的内容
-    return sql`AND (p.category = 'videos' OR p.source_id LIKE 'yt-%' OR p.url LIKE '%youtube.com%' OR p.url LIKE '%youtu.be%')`;
+  if (category === "analysis") {
+    // 深度专栏：战术打法剖析、深度复盘、高阶数据、薪资结构、选秀前景及行业深度分析，聚合所有深度来源与标签
+    return sql`AND (
+      p.category = 'analysis'
+      OR p.tags && ARRAY['深度专栏', '战术分析', '随队专栏', '球员前瞻', '战术拆解', '高阶战术', '战术复盘', '复盘', '深度分析']::text[]
+      OR p.source_id IN ('rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets', 'rss-si-rockets', 'rss-theringer-nba', 'rss-realgm-rockets')
+    )`;
   }
   if (category === "news") {
-    // 球队动态栏目：
-    // 1. 包含官方发布（first_party）、官方电视转播、官方指定资讯账号（RocketsNationCP, SleeperRockets, SpaceCityHN）、官方公告/战报/伤病
-    // 2. 包含球员/教练采访原声、媒体日、赛后发布会、更衣室发言与事件回应（即使来自视频信源）
-    // 3. 排除球衣历史、琐事盘点等非实质动态
+    // 球队动态栏目：官方发布、一手资讯、采访原声、战报与伤病
     return sql`AND (
       p.category = 'news'
       OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn')
       OR p.tags && ARRAY['球队动态', '官方动态']::text[]
-      OR (
-        p.category = 'videos'
-        AND (
-          p.tags && ARRAY['赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音', '训练', '媒体日', '发布会', '言论', '回应']::text[]
-          OR p.title ~ '采访|回应|谈|发声|更衣室|言论|发布会|训练|媒体日'
-        )
-      )
     )
       AND (p.channel != 'x' OR p.first_party OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn') OR p.tags && ARRAY['球队动态', '官方动态', '赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
       AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
@@ -205,19 +199,34 @@ export function tagCondition(tag: string | null | undefined) {
   return sql`AND p.tags @> ${[tag]}::text[]`;
 }
 
+const REPORTER_SOURCE_MAP: Record<string, string[]> = {
+  "kelly iko": ["x-kelly-iko"],
+  "ben dubose": ["x-ben-dubose"],
+  "jackson gatlin": ["x-jackson-gatlin"],
+  "adam spolane": ["x-adam-spolane"],
+  "lachard binkley": ["x-lachard-binkley"],
+  "varun shankar": ["x-varun-shankar"],
+  "fyrebear": ["x-roosh-williams"],
+  "roosh": ["x-roosh-williams"],
+  "bradeaux": ["x-bradeaux"],
+  "big sarge": ["x-big-sarge"],
+  "biased houston": ["x-biased-houston"],
+  "michael shapiro": ["x-michael-shapiro"],
+  "matt thomas": ["x-matt-thomas"],
+  "clutchfans": ["x-clutchfans", "rss-clutchfans", "rss-clutchfans-news"],
+  "houston rockets": ["x-houston-rockets"],
+};
+
 export function reporterCondition(reporter: string | null | undefined) {
   if (!reporter || reporter === "all") return sql``;
   const raw = reporter.trim().toLowerCase();
+  const known = REPORTER_SOURCE_MAP[raw];
+  if (known && known.length > 0) {
+    return sql`AND p.source_id = ANY(${known}::text[])`;
+  }
   const slug = raw.replace(/\s+/g, "-");
-  const words = raw.split(/\s+/).filter(Boolean);
-
   const slugTerm = "%" + slug + "%";
-  const andWords = words.reduce(
-    (acc, w) => sql`${acc} AND (p.source_id LIKE ${"%" + w + "%"} OR p.search_text LIKE ${"%" + w + "%"})`,
-    sql`TRUE`,
-  );
-
-  return sql`AND (p.source_id LIKE ${slugTerm} OR (${andWords}))`;
+  return sql`AND p.source_id LIKE ${slugTerm}`;
 }
 
 export function topicCondition(topicTags: string[] | null | undefined) {
@@ -289,7 +298,7 @@ export function toItemSummary(row: ItemRow): ItemSummary {
     publishedAt: row.published_at?.toISOString() ?? null,
     discoveredAt: row.discovered_at.toISOString(),
     timelineAt: row.timeline_at.toISOString(),
-    category: ((row.category === "videos" || row.source_id.startsWith("yt-") || (row.url && (row.url.includes("youtube.com") || row.url.includes("youtu.be")))) ? "videos" : (row.category as CategoryKey | null)) ?? null,
+    category: (row.category as CategoryKey | null) ?? null,
     tags: displayTags(row.tags),
     score: row.score === null ? null : Math.round(Number(row.score)),
     selected: row.selected,

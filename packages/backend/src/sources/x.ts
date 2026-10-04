@@ -174,8 +174,15 @@ export async function readXSearch(base: string, opts: { lastId: string | null; b
     else stretch.next = res.nextCursor;
   }
 
+  const isReply = (t: SdTweet) => {
+    if (t.in_reply_to_status_id_str || t.in_reply_to_screen_name) return true;
+    const txt = tweetText(t).trim();
+    if (txt.startsWith("@")) return true;
+    return false;
+  };
+
   const seen = new Set<string>();
-  const tweets = all.filter((t) => !t.retweeted_status && !seen.has(t.id_str) && !!seen.add(t.id_str));
+  const tweets = all.filter((t) => !t.retweeted_status && !isReply(t) && !seen.has(t.id_str) && !!seen.add(t.id_str));
   const maxId = tweets.reduce<string | null>((m, t) => (m === null || BigInt(t.id_str) > BigInt(m) ? t.id_str : m), lastId);
   return { tweets, lastId: maxId, backlog, pages, truncated, backlogPages, dropped };
 }

@@ -250,310 +250,82 @@
       "syndicate_fulltext": false
     },
     {
-      "id": "yt-houston-rockets",
-      "name": "休斯敦火箭官方 YouTube (官方比赛录像与训练原声)",
+      "id": "rss-realgm-rockets",
+      "name": "RealGM (休斯敦火箭战术与签约深度跟踪)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UChdTjGHWrl-scbthhYSGB3g",
+        "feedUrl": "https://basketball.realgm.com/rss/wiretap/team/10.xml",
         "_aihot": {
-          "initialBackfillLimit": 15
+          "initialBackfillLimit": 10
+        }
+      },
+      "tier": "T1_5",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "深度专栏",
+        "战术复盘",
+        "球队动态"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-theringer-nba",
+      "name": "The Ringer NBA (专家硬核战术与深度复盘)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.theringer.com/rss/nba/index.xml",
+        "_aihot": {
+          "initialBackfillLimit": 10
         }
       },
       "tier": "T1",
-      "first_party": true,
+      "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 30,
       "tags": [
-        "官方视频",
-        "原声集锦",
-        "赛后发布会"
+        "深度专栏",
+        "战术分析",
+        "战术拆解"
       ],
-      "site_fulltext": false,
+      "site_fulltext": true,
       "syndicate_fulltext": false
     },
     {
-      "id": "yt-locked-on-rockets",
-      "name": "Locked On Rockets (Jackson Gatlin 火箭每日播客)",
+      "id": "rss-hoopshype-rockets",
+      "name": "HoopsHype (火箭深度薪资与长文专区)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCnizQkhQWv7GwQ1PY2EJGLw",
+        "feedUrl": "https://hoopshype.com/team/houston-rockets/feed/",
         "_aihot": {
-          "initialBackfillLimit": 15
+          "initialBackfillLimit": 10
         }
       },
       "tier": "T1_5",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 25,
-      "tags": [
-        "随队播客",
-        "深度战术",
-        "每日分析"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-clutchfans",
-      "name": "ClutchFans 官方 YouTube (休斯敦权威现场与专访)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCBjyAXoDVcVfhL74LjbtC8w",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 25,
-      "tags": [
-        "现场专访",
-        "赛后原声",
-        "随队独家"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-clutchcityproductions",
-      "name": "Clutch City Productions (经典火箭战术集锦)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCfl0QNvGYY11yaF5fUjkeow",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
       "interval_minutes": 30,
       "tags": [
-        "精彩剪辑",
-        "球星集锦",
-        "比赛复盘"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-apollo-hou",
-      "name": "Apollo Media (休斯敦本土体育火箭专栏)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYLBFr-T-gDL5kEVXwFVLzA",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "本地播客",
-        "赛后连线",
-        "阵容分析"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-thedreamshake",
-      "name": "The Dream Shake YouTube (休斯敦战术播客)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCn9dfngQe9qYb4mjgaRu7Vw",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "战术复盘",
-        "深度分析",
-        "球迷连线"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-rednationhoops",
-      "name": "Red Nation Hoops (Salman Ali 火箭播客频道)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC5YVbqiWquOImlRlXq_zTYQ",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 25,
-      "tags": [
-        "随队播客",
-        "专业解析",
+        "深度专栏",
+        "薪资空间",
         "交易流言"
       ],
-      "site_fulltext": false,
+      "site_fulltext": true,
       "syndicate_fulltext": false
     },
     {
-      "id": "yt-rooshwilliams",
-      "name": "The Roosh Williams Show (休斯敦资深名嘴)",
+      "id": "rss-si-rockets",
+      "name": "Sports Illustrated (体育画报·火箭深度专区)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCoE3FSquGGYmZnrSWOQM_0Q",
+        "feedUrl": "https://www.si.com/nba/rockets/.rss/full-feed",
         "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "赛后连线",
-        "犀利点评",
-        "阵容轮换"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-stateoftherockets",
-      "name": "State of the Rockets (休斯敦球迷频道)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCErZbUFqecLvQsRRIQlfJ0w",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "赛程前瞻",
-        "胜负复盘",
-        "选秀前景"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-houstonroundball",
-      "name": "Houston Roundball Review (休斯敦篮球评论)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCpU_x6lMKaGEBJikhSo6CPA",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "随队评论",
-        "更衣室观察"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-spacecityhighlights",
-      "name": "Space City Highlights (航天城赛事实况剪辑)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCmToHRBwZRuBhRP_y54bRIg",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "赛事集锦",
-        "高清高光"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-sportstalk790",
-      "name": "SportsTalk 790 Houston (休斯敦旗舰体育广播)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCVb3Jihl358FcOfAJV8zWzg",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 25,
-      "tags": [
-        "本地电台",
-        "赛后连线",
-        "主帅发言"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-fox26houston",
-      "name": "FOX 26 Houston (休斯敦FOX电视台体育频道)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC4OqEJz6oABzz_7nu29zF3A",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 25,
-      "tags": [
-        "电视新闻",
-        "现场原声",
-        "跟队报道"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-houstonchronicle",
-      "name": "Houston Chronicle (休斯敦纪事报视频专区)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCnqTK-gPZiJ7hlT4xyvMQ0g",
-        "_aihot": {
-          "initialBackfillLimit": 15
+          "initialBackfillLimit": 12
         }
       },
       "tier": "T1",
@@ -562,21 +334,21 @@
       "participation_mode": "editorial",
       "interval_minutes": 25,
       "tags": [
-        "纪事报视频",
-        "深度访谈",
-        "现场报道"
+        "深度专栏",
+        "战术分析",
+        "随队深度"
       ],
-      "site_fulltext": false,
+      "site_fulltext": true,
       "syndicate_fulltext": false
     },
     {
-      "id": "yt-kprc2",
-      "name": "KPRC 2 Click2Houston (NBC休斯敦火箭现场)",
+      "id": "rss-bleacherreport-rockets",
+      "name": "Bleacher Report (休斯敦火箭专题深度分析)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCKQECjul8nw1KW_JzfBTP1A",
+        "feedUrl": "https://bleacherreport.com/houston-rockets.rss",
         "_aihot": {
-          "initialBackfillLimit": 15
+          "initialBackfillLimit": 12
         }
       },
       "tier": "T1_5",
@@ -585,167 +357,34 @@
       "participation_mode": "editorial",
       "interval_minutes": 25,
       "tags": [
-        "现场直击",
-        "球员专访",
-        "赛后速递"
+        "深度专栏",
+        "球员前瞻",
+        "战术分析"
       ],
-      "site_fulltext": false,
+      "site_fulltext": true,
       "syndicate_fulltext": false
     },
     {
-      "id": "yt-chancellorjohnson",
-      "name": "Chancellor Johnson (KPRC 2 体育首席记者)",
+      "id": "rss-clutchfans-news",
+      "name": "ClutchFans 深度专栏 (火箭权威社区原创专栏)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCB9y6SuNbmBwQZgluU_oUyA",
+        "feedUrl": "https://clutchfans.net/feed/",
         "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 25,
-      "tags": [
-        "随队名记",
-        "一手专访",
-        "训练营直击"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-nba-official",
-      "name": "NBA 官方 YouTube (休斯敦火箭官方高光及发布会)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCWJ2lWNubArHWmf3FIHbfcQ",
-        "_aihot": {
-          "initialBackfillLimit": 15
+          "initialBackfillLimit": 12
         }
       },
       "tier": "T1",
-      "first_party": true,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 20,
-      "tags": [
-        "联盟官方",
-        "全场集锦",
-        "高光时刻"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-houseofhighlights",
-      "name": "House of Highlights (全网超燃赛事高光与花絮)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCqQo7ewe87aYAe7ub5UqXMw",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
       "interval_minutes": 25,
       "tags": [
-        "比赛高光",
-        "现场花絮"
+        "深度专栏",
+        "随队专栏",
+        "战术分析"
       ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-swishcultures",
-      "name": "Swish Cultures (球星训练与休赛期对抗原声)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCEPvuGitHpo3Yt-W8Jyr8Ug",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "训练原声",
-        "对抗赛录像"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-thinkingbasketball",
-      "name": "Thinking Basketball (高阶战术与球星解析)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UC3HPbvB6f58X_7SMIp6OPYw",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "高阶战术",
-        "球星拆解"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-hoopsreference",
-      "name": "Hoops Reference (数据分析与前瞻预测)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCrIfvcoVTi0r6OMX8IHd7wA",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "数据前瞻",
-        "赛季预测"
-      ],
-      "site_fulltext": false,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "yt-lockedonnba",
-      "name": "Locked On NBA (全联盟战局与西南区形势)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZkd1SsoIdSY-8FEvvwRyEw",
-        "_aihot": {
-          "initialBackfillLimit": 15
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "联盟格局",
-        "战绩前瞻"
-      ],
-      "site_fulltext": false,
+      "site_fulltext": true,
       "syndicate_fulltext": false
     },
     {
@@ -754,7 +393,7 @@
       "kind": "x_search",
       "enabled": false,
       "config": {
-        "query": "from:Jonathan_Feigen",
+        "query": "from:Jonathan_Feigen -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -775,7 +414,7 @@
       "name": "Kelly Iko (The Athletic / Yahoo 火箭随队记者)",
       "kind": "x_search",
       "config": {
-        "query": "from:KellyIko",
+        "query": "from:KellyIko -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -797,7 +436,7 @@
       "kind": "x_search",
       "enabled": false,
       "config": {
-        "query": "from:danielle_lerner",
+        "query": "from:danielle_lerner -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -818,7 +457,7 @@
       "name": "Lachard Binkley (The Dream Shake 火箭首席)",
       "kind": "x_search",
       "config": {
-        "query": "from:BinkleyHoops",
+        "query": "from:BinkleyHoops -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1_5",
@@ -838,7 +477,7 @@
       "name": "Ben DuBose (Rockets Wire 主编/NBA播客)",
       "kind": "x_search",
       "config": {
-        "query": "from:BenDuBose",
+        "query": "from:BenDuBose -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1_5",
@@ -858,7 +497,7 @@
       "name": "Michael Shapiro (休斯顿纪事报火箭记者)",
       "kind": "x_search",
       "config": {
-        "query": "from:mshap2",
+        "query": "from:mshap2 -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -878,7 +517,7 @@
       "name": "Jackson Gatlin (火箭赛后转播/Locked On主播)",
       "kind": "x_search",
       "config": {
-        "query": "from:JTGatlin",
+        "query": "from:JTGatlin -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -899,7 +538,7 @@
       "kind": "x_search",
       "enabled": false,
       "config": {
-        "query": "from:SalmanAliNBA",
+        "query": "from:SalmanAliNBA -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1_5",
@@ -919,7 +558,7 @@
       "name": "Bradeaux (火箭高阶数据与高光切片)",
       "kind": "x_search",
       "config": {
-        "query": "from:BradeauxNBA",
+        "query": "from:BradeauxNBA -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1_5",
@@ -939,7 +578,7 @@
       "name": "Alykhan Bijani (The Athletic 火箭战术分析师)",
       "kind": "x_search",
       "config": {
-        "query": "from:Rockets_Insider",
+        "query": "from:Rockets_Insider -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -959,7 +598,7 @@
       "name": "Adam Spolane (SportsRadio 610 火箭专职随队)",
       "kind": "x_search",
       "config": {
-        "query": "from:AdamSpolane",
+        "query": "from:AdamSpolane -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -979,7 +618,7 @@
       "name": "ClutchFans (休斯顿火箭权威社区官方推特)",
       "kind": "x_search",
       "config": {
-        "query": "from:clutchfans",
+        "query": "from:clutchfans -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -999,7 +638,7 @@
       "name": "Roosh Williams (火箭深度战术/播客 @fyrebear)",
       "kind": "x_search",
       "config": {
-        "query": "from:fyrebear",
+        "query": "from:fyrebear -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1_5",
@@ -1020,7 +659,7 @@
       "name": "David Weiner (休斯敦火箭劳资协议与薪资专家)",
       "kind": "x_search",
       "config": {
-        "query": "from:BimaThug",
+        "query": "from:BimaThug -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1041,7 +680,7 @@
       "name": "Will Kunkel (FOX 26 Houston 体育总监)",
       "kind": "x_search",
       "config": {
-        "query": "from:WillKunkelFOX",
+        "query": "from:WillKunkelFOX -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1061,7 +700,7 @@
       "name": "Mark Berman (休斯顿传奇资深体育总监)",
       "kind": "x_search",
       "config": {
-        "query": "from:MarkBermanFox26",
+        "query": "from:MarkBermanFox26 -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1082,7 +721,7 @@
       "name": "Craig Ackerman (休斯敦火箭官方现场解说)",
       "kind": "x_search",
       "config": {
-        "query": "from:ca_rockets",
+        "query": "from:ca_rockets -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1102,7 +741,7 @@
       "name": "Cayleigh Griffin (火箭官方场边连线主持)",
       "kind": "x_search",
       "config": {
-        "query": "from:cayleighgriffin",
+        "query": "from:cayleighgriffin -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1122,7 +761,7 @@
       "name": "Houston Rockets (火箭官方推特)",
       "kind": "x_search",
       "config": {
-        "query": "from:HoustonRockets",
+        "query": "from:HoustonRockets -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1143,7 +782,7 @@
       "name": "Varun Shankar (休斯顿纪事报火箭随队记者 @ByVarunShankar)",
       "kind": "x_search",
       "config": {
-        "query": "from:ByVarunShankar",
+        "query": "from:ByVarunShankar -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1164,7 +803,7 @@
       "name": "Big Sarge (火箭赛场原声与更衣室专访 @BigSargeSportz)",
       "kind": "x_search",
       "config": {
-        "query": "from:BigSargeSportz",
+        "query": "from:BigSargeSportz -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1185,7 +824,7 @@
       "name": "Biased Houston (火箭情报与前瞻 @BiasedHouston)",
       "kind": "x_search",
       "config": {
-        "query": "from:BiasedHouston",
+        "query": "from:BiasedHouston -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1_5",
@@ -1206,7 +845,7 @@
       "name": "Rockets Nation (@RocketsNationCP / ClutchPoints 火箭情报)",
       "kind": "x_search",
       "config": {
-        "query": "from:RocketsNationCP",
+        "query": "from:RocketsNationCP -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1227,7 +866,7 @@
       "name": "SleeperRockets (@SleeperRockets 火箭阵容与出战情报)",
       "kind": "x_search",
       "config": {
-        "query": "from:SleeperRockets",
+        "query": "from:SleeperRockets -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",
@@ -1248,7 +887,7 @@
       "name": "Space City Home Network (@SpaceCityHN 火箭官方电视转播)",
       "kind": "x_search",
       "config": {
-        "query": "from:SpaceCityHN",
+        "query": "from:SpaceCityHN -filter:replies",
         "searchType": "Latest"
       },
       "tier": "T1",

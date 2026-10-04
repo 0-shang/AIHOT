@@ -565,11 +565,6 @@ var SIDEBAR = [
 				icon: IconFlame
 			},
 			{
-				to: "/daily",
-				label: withSubject("日报"),
-				icon: IconDoc
-			},
-			{
 				to: "/topics",
 				label: "主题专区",
 				icon: IconGrid
@@ -618,9 +613,9 @@ var TABBAR = [
 		icon: IconCalendar
 	},
 	{
-		to: "/daily",
-		label: "日报",
-		icon: IconDoc
+		to: "/hot",
+		label: "热点",
+		icon: IconFlame
 	},
 	{
 		to: "/more",
@@ -632,7 +627,6 @@ var TABBAR = [
 /** Pages reached from the mobile "更多" tab keep that tab highlighted. */
 var MORE_PATHS = [
 	"/more",
-	"/hot",
 	"/topics",
 	"/starred",
 	"/about",
@@ -643,7 +637,6 @@ var MORE_PATHS = [
 function tabIsActive(item, pathname) {
 	if (item.end) return pathname === item.to;
 	if (item.to === "/more") return MORE_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-	if (item.to === "/daily") return /^\/(daily|weekly|monthly)(\/|$)/.test(pathname);
 	return pathname === item.to || pathname.startsWith(`${item.to}/`);
 }
 //#endregion
@@ -1210,12 +1203,6 @@ var CATEGORIES = [
 		label: "队记推文",
 		section: "队记推文",
 		guide: "随队名记（Jonathan Feigen, Kelly Iko, Adam Spolane 等）在 X/推特发布的日常推文、观赛随感、现场花絮、实时看球动态与互动；默认所有队记推文归入此栏，若内容属于高度实质的球队新闻或采访则归入球队动态，交易爆料则归入交易流言"
-	},
-	{
-		key: "videos",
-		label: "视频专栏",
-		section: "视频专栏",
-		guide: "休斯敦火箭相关的赛场集锦、球员集锦、官方视频、赛后更衣室采访原声录像、YouTube 视频、播客视频切片等所有视频类内容；所有来自 YouTube 信源或包含实质视频媒体的内容均强制归入此栏"
 	}
 ];
 //#endregion
@@ -1465,14 +1452,6 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			label: "队记推文",
 			to: hrefWith(base, params, {
 				category: "beat_tweets",
-				channel: null
-			})
-		},
-		{
-			key: "videos",
-			label: "视频专栏",
-			to: hrefWith(base, params, {
-				category: "videos",
 				channel: null
 			})
 		}
@@ -3004,367 +2983,6 @@ function Pagination({ page, pageCount, href }) {
 	});
 }
 //#endregion
-//#region app/features/feed/YouTubeVideoGrid.tsx
-var CHANNEL_BADGES = {
-	"Locked On Rockets": {
-		bg: "bg-red-700",
-		color: "text-white",
-		label: "LOR"
-	},
-	"ClutchFans": {
-		bg: "bg-neutral-800",
-		color: "text-amber-400",
-		label: "CF"
-	},
-	"Rockets Film Room": {
-		bg: "bg-sky-800",
-		color: "text-white",
-		label: "RFR"
-	},
-	"Bleav in Rockets": {
-		bg: "bg-rose-900",
-		color: "text-white",
-		label: "BIR"
-	},
-	"Space City Home Network": {
-		bg: "bg-neutral-900",
-		color: "text-sky-400",
-		label: "SCHN"
-	},
-	"Houston Rockets": {
-		bg: "bg-[#CE1141]",
-		color: "text-white",
-		label: "HOU"
-	},
-	"default": {
-		bg: "bg-[#CE1141]",
-		color: "text-white",
-		label: "NBA"
-	}
-};
-function getRealVideoId(item) {
-	const fromOriginal = extractYouTubeVideoId(item.links?.original || item.url || item.links?.original || item.url || "");
-	if (fromOriginal && /^[a-zA-Z0-9_-]{11}$/.test(fromOriginal)) return fromOriginal;
-	const fromSummary = extractYouTubeVideoId(item.summary || "");
-	if (fromSummary && /^[a-zA-Z0-9_-]{11}$/.test(fromSummary)) return fromSummary;
-	const yt = detectYouTube(item);
-	if (yt?.videoId && /^[a-zA-Z0-9_-]{11}$/.test(yt.videoId)) return yt.videoId;
-	return null;
-}
-function getVideoMeta(item, index, videoId) {
-	const durations = [
-		"14:32",
-		"18:45",
-		"22:10",
-		"11:58",
-		"29:40",
-		"08:52",
-		"16:20",
-		"25:05"
-	];
-	return {
-		videoId,
-		duration: durations[index % durations.length],
-		thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-		embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`
-	};
-}
-function YouTubeVideoGrid({ items }) {
-	const [activeVideo, setActiveVideo] = useState(null);
-	const deduplicatedItems = useMemo(() => {
-		const seen = /* @__PURE__ */ new Set();
-		return items.filter((it) => {
-			if (!getRealVideoId(it)) return false;
-			const key = it.title.trim().toLowerCase();
-			if (seen.has(key)) return false;
-			seen.add(key);
-			return true;
-		});
-	}, [items]);
-	return /* @__PURE__ */ jsxs("div", {
-		className: "py-2",
-		children: [
-			/* @__PURE__ */ jsxs("div", {
-				className: "mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-line-soft pb-4",
-				children: [/* @__PURE__ */ jsxs("div", {
-					className: "flex items-center gap-2.5",
-					children: [/* @__PURE__ */ jsx("div", {
-						className: "flex size-9 items-center justify-center rounded-xl bg-red-600 text-white shadow-md shadow-red-600/20",
-						children: /* @__PURE__ */ jsx("svg", {
-							width: "20",
-							height: "20",
-							viewBox: "0 0 24 24",
-							fill: "currentColor",
-							children: /* @__PURE__ */ jsx("path", { d: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" })
-						})
-					}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h2", {
-						className: "text-lg font-black tracking-tight text-ink sm:text-xl",
-						children: "YouTube 视频专栏 & 比赛录像"
-					}), /* @__PURE__ */ jsx("p", {
-						className: "text-xs text-ink-3",
-						children: "聚合休斯敦火箭官方、随队播客、深度战术分析及比赛高光录像"
-					})] })]
-				}), /* @__PURE__ */ jsx("div", {
-					className: "flex items-center gap-2 text-xs text-ink-4",
-					children: /* @__PURE__ */ jsxs("span", {
-						className: "inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/40 px-2.5 py-1 font-semibold text-red-600 dark:text-red-400",
-						children: [
-							/* @__PURE__ */ jsx("span", { className: "size-1.5 rounded-full bg-red-500 animate-pulse" }),
-							"已收录 ",
-							deduplicatedItems.length,
-							" 部视频"
-						]
-					})
-				})]
-			}),
-			deduplicatedItems.length === 0 ? /* @__PURE__ */ jsxs("div", {
-				className: "rounded-2xl border border-line-soft bg-surface py-16 text-center",
-				children: [
-					/* @__PURE__ */ jsx("div", {
-						className: "mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-bg-sunk text-ink-4",
-						children: /* @__PURE__ */ jsxs("svg", {
-							width: "24",
-							height: "24",
-							viewBox: "0 0 24 24",
-							fill: "none",
-							stroke: "currentColor",
-							strokeWidth: "2",
-							children: [/* @__PURE__ */ jsx("polygon", { points: "23 7 16 12 23 17 23 7" }), /* @__PURE__ */ jsx("rect", {
-								x: "1",
-								y: "5",
-								width: "15",
-								height: "14",
-								rx: "2",
-								ry: "2"
-							})]
-						})
-					}),
-					/* @__PURE__ */ jsx("h3", {
-						className: "text-sm font-bold text-ink",
-						children: "暂无视频专栏内容"
-					}),
-					/* @__PURE__ */ jsx("p", {
-						className: "mt-1 text-xs text-ink-4",
-						children: "稍后爬虫同步更新或切换其他分类浏览"
-					})
-				]
-			}) : /* @__PURE__ */ jsx("div", {
-				className: "grid grid-cols-1 gap-x-5 gap-y-7 sm:grid-cols-2 lg:grid-cols-3",
-				children: deduplicatedItems.map((item, idx) => {
-					const meta = getVideoMeta(item, idx, getRealVideoId(item));
-					const sourceName = item.source?.name || "火箭视讯";
-					const channelBadge = CHANNEL_BADGES[sourceName] || (sourceName.includes("Locked On") ? CHANNEL_BADGES["Locked On Rockets"] : CHANNEL_BADGES["default"]);
-					const dateStr = new Date(item.timelineAt || (item.publishedAt ?? Date.now())).toLocaleDateString("zh-CN", {
-						month: "numeric",
-						day: "numeric"
-					});
-					return /* @__PURE__ */ jsxs("div", {
-						onClick: () => setActiveVideo({
-							item,
-							videoId: meta.videoId,
-							embedUrl: meta.embedUrl
-						}),
-						className: "group flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-surface transition-all duration-200",
-						children: [/* @__PURE__ */ jsxs("div", {
-							className: "relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-sm transition-all duration-300 group-hover:shadow-xl group-hover:ring-2 group-hover:ring-red-500/60",
-							children: [
-								/* @__PURE__ */ jsx("img", {
-									src: meta.thumbnailUrl,
-									alt: item.title,
-									loading: "lazy",
-									onError: (e) => {
-										e.currentTarget.style.display = "none";
-									},
-									className: "size-full object-cover transition-transform duration-300 group-hover:scale-105"
-								}),
-								/* @__PURE__ */ jsx("div", {
-									className: "pointer-events-none absolute inset-0 -z-10 flex flex-col items-center justify-center bg-gradient-to-br from-neutral-900 via-neutral-800 to-[#1e070b] p-4 text-center",
-									children: /* @__PURE__ */ jsx("span", {
-										className: "text-3xl font-black italic tracking-tighter text-[#CE1141]/30",
-										children: "ROCKETS TV"
-									})
-								}),
-								/* @__PURE__ */ jsx("div", {
-									className: "absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-200 group-hover:opacity-100",
-									children: /* @__PURE__ */ jsx("div", {
-										className: "flex size-14 items-center justify-center rounded-2xl bg-red-600/95 text-white shadow-2xl shadow-red-600/50 backdrop-blur-xs transition-transform duration-200 group-hover:scale-110",
-										children: /* @__PURE__ */ jsx("svg", {
-											width: "26",
-											height: "26",
-											viewBox: "0 0 24 24",
-											fill: "currentColor",
-											className: "ml-0.5",
-											children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
-										})
-									})
-								}),
-								/* @__PURE__ */ jsx("div", {
-									className: "absolute left-2.5 top-2.5 flex items-center gap-1.5",
-									children: /* @__PURE__ */ jsxs("span", {
-										className: "flex items-center gap-1 rounded-md bg-black/75 px-2 py-0.5 text-[10.5px] font-bold text-white backdrop-blur-md",
-										children: [/* @__PURE__ */ jsx("svg", {
-											width: "12",
-											height: "12",
-											viewBox: "0 0 24 24",
-											fill: "#FF0000",
-											children: /* @__PURE__ */ jsx("path", { d: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" })
-										}), sourceName.includes("YouTube") ? "YouTube" : "视频"]
-									})
-								}),
-								/* @__PURE__ */ jsx("div", {
-									className: "absolute bottom-2.5 right-2.5 rounded-md bg-black/85 px-1.5 py-0.5 font-mono text-[11px] font-bold text-white shadow-xs backdrop-blur-xs",
-									children: meta.duration
-								})
-							]
-						}), /* @__PURE__ */ jsxs("div", {
-							className: "mt-3 flex items-start gap-3 px-1",
-							children: [/* @__PURE__ */ jsx("div", {
-								className: `flex size-9 shrink-0 items-center justify-center rounded-full font-black text-xs shadow-sm ${channelBadge.bg} ${channelBadge.color}`,
-								children: channelBadge.label
-							}), /* @__PURE__ */ jsxs("div", {
-								className: "min-w-0 flex-1",
-								children: [
-									/* @__PURE__ */ jsx("h3", {
-										className: "line-clamp-2 text-[14.5px] font-bold leading-snug text-ink transition-colors group-hover:text-accent",
-										children: item.title
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "mt-1 flex items-center gap-1 text-[12.5px] font-medium text-ink-3",
-										children: [/* @__PURE__ */ jsx("span", {
-											className: "truncate",
-											children: sourceName
-										}), /* @__PURE__ */ jsx("svg", {
-											width: "13",
-											height: "13",
-											viewBox: "0 0 24 24",
-											fill: "currentColor",
-											className: "shrink-0 text-ink-4",
-											children: /* @__PURE__ */ jsx("path", { d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" })
-										})]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px] text-ink-4",
-										children: [
-											/* @__PURE__ */ jsx("span", { children: dateStr }),
-											/* @__PURE__ */ jsx("span", { children: "•" }),
-											/* @__PURE__ */ jsxs("span", {
-												className: "font-semibold text-accent/90",
-												children: ["热度评级 ", item.score]
-											}),
-											item.tags.length > 0 && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("span", { children: "•" }), /* @__PURE__ */ jsxs("span", {
-												className: "truncate text-ink-4",
-												children: ["#", item.tags[0]]
-											})] })
-										]
-									}),
-									item.summary && /* @__PURE__ */ jsx("p", {
-										className: "mt-1.5 line-clamp-1 text-[11.5px] text-ink-3 opacity-80",
-										children: item.summary
-									})
-								]
-							})]
-						})]
-					}, item.id);
-				})
-			}),
-			activeVideo && /* @__PURE__ */ jsx("div", {
-				className: "fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-fade-in",
-				onClick: () => setActiveVideo(null),
-				children: /* @__PURE__ */ jsxs("div", {
-					className: "w-full max-w-4xl overflow-hidden rounded-3xl border border-white/10 bg-neutral-950 text-white shadow-2xl",
-					onClick: (e) => e.stopPropagation(),
-					children: [
-						/* @__PURE__ */ jsxs("div", {
-							className: "flex items-center justify-between border-b border-white/10 px-5 py-3.5",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center gap-2.5 min-w-0",
-								children: [/* @__PURE__ */ jsx("span", {
-									className: "flex size-6 items-center justify-center rounded-md bg-red-600 text-white",
-									children: /* @__PURE__ */ jsx("svg", {
-										width: "14",
-										height: "14",
-										viewBox: "0 0 24 24",
-										fill: "currentColor",
-										children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
-									})
-								}), /* @__PURE__ */ jsx("h4", {
-									className: "truncate text-sm font-bold text-white/90",
-									children: activeVideo.item.title
-								})]
-							}), /* @__PURE__ */ jsx("button", {
-								type: "button",
-								onClick: () => setActiveVideo(null),
-								className: "grid size-8 place-items-center rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-colors",
-								children: "✕"
-							})]
-						}),
-						/* @__PURE__ */ jsx("div", {
-							className: "relative aspect-[16/9] w-full bg-black",
-							children: /* @__PURE__ */ jsx("iframe", {
-								src: activeVideo.embedUrl,
-								title: activeVideo.item.title,
-								allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
-								allowFullScreen: true,
-								className: "size-full border-0"
-							})
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-amber-500/10 px-5 py-2 text-xs text-amber-300",
-							children: [/* @__PURE__ */ jsxs("span", {
-								className: "flex items-center gap-1.5",
-								children: [/* @__PURE__ */ jsx("span", { children: "💡" }), /* @__PURE__ */ jsx("span", { children: "若提示“视频无法播放”，系频道官方开启了第三方网站播放限制，请直接点击右侧：" })]
-							}), /* @__PURE__ */ jsx("a", {
-								href: activeVideo.item.links?.original || `https://www.youtube.com/watch?v=${activeVideo.videoId}`,
-								target: "_blank",
-								rel: "noopener noreferrer",
-								className: "font-bold underline hover:text-white",
-								children: "在 YouTube 官方观看完整高清视频 ↗"
-							})]
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "p-5",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4",
-								children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
-									className: "text-base font-extrabold text-white sm:text-lg",
-									children: activeVideo.item.title
-								}), /* @__PURE__ */ jsxs("div", {
-									className: "mt-1 flex items-center gap-2 text-xs text-white/70",
-									children: [
-										/* @__PURE__ */ jsx("span", {
-											className: "font-semibold text-amber-400",
-											children: activeVideo.item.source?.name
-										}),
-										/* @__PURE__ */ jsx("span", { children: "•" }),
-										/* @__PURE__ */ jsxs("span", { children: ["发布于 ", activeVideo.item.publishedAt?.slice(0, 10)] }),
-										/* @__PURE__ */ jsx("span", { children: "•" }),
-										/* @__PURE__ */ jsxs("span", {
-											className: "rounded bg-white/10 px-1.5 py-0.5 text-white/80",
-											children: ["热度评级 ", activeVideo.item.score]
-										})
-									]
-								})] }), (activeVideo.item.links?.original || activeVideo.embedUrl) && /* @__PURE__ */ jsx("a", {
-									href: activeVideo.item.links?.original || `https://www.youtube.com/watch?v=${activeVideo.videoId}`,
-									target: "_blank",
-									rel: "noopener noreferrer",
-									className: "flex items-center gap-1.5 rounded-full bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-red-600/30 hover:bg-red-700 transition-colors",
-									children: "在 YouTube 观看原片 ↗"
-								})]
-							}), activeVideo.item.summary && /* @__PURE__ */ jsxs("div", {
-								className: "mt-4 rounded-xl bg-white/[0.05] p-3.5 text-xs leading-relaxed text-white/80",
-								children: [/* @__PURE__ */ jsx("div", {
-									className: "mb-1 font-bold text-amber-300",
-									children: "💡 视讯核心要点速览："
-								}), activeVideo.item.summary]
-							})]
-						})
-					]
-				})
-			})
-		]
-	});
-}
-//#endregion
 //#region app/routes/all.tsx
 var all_exports = /* @__PURE__ */ __exportAll({
 	SearchBusy: () => SearchBusy,
@@ -3564,7 +3182,7 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 						})]
 					}),
 					f.category === "beat_tweets" && /* @__PURE__ */ jsxs("div", {
-						className: "-mt-1 mb-5 flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none",
+						className: "-mt-1 mb-5 flex flex-wrap items-center gap-2",
 						children: [/* @__PURE__ */ jsx("span", {
 							className: "shrink-0 text-[12.5px] font-bold text-ink-3",
 							children: "随队记者:"
@@ -3673,7 +3291,7 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 						}) : void 0,
 						children: f.q ? "换个说法，或者去掉筛选再试。" : "这个筛选下暂时没有内容。"
 					})
-				}) : f.category === "videos" ? /* @__PURE__ */ jsx(YouTubeVideoGrid, { items: data.items }) : /* @__PURE__ */ jsx(DayList, {
+				}) : /* @__PURE__ */ jsx(DayList, {
 					items: data.items,
 					todayCount: f.q ? null : data.todayCount,
 					showTags: true
@@ -22200,12 +21818,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-Oy26BO7-.js",
+			"module": "/assets/root-DG-zXl9q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/Sidebar-BKZ8liQm.js",
-				"/assets/Chrome-DuG_H9cO.js",
+				"/assets/shared-8YD28xdt.js",
+				"/assets/Sidebar-CElbQw3o.js",
+				"/assets/Chrome-DrkFwdNV.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": ["/assets/root-DyaZXV_Y.css"],
@@ -22248,13 +21866,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-BqJcSgfQ.js",
+			"module": "/assets/all-C_ilRIck.js",
 			"imports": [
-				"/assets/all-BLztA3IT.js",
+				"/assets/all-CpPun-w3.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/taxonomy-CrAe8mz1.js",
-				"/assets/DayList-CxjsETCf.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/taxonomy-CCGfN8IS.js",
+				"/assets/DayList-BkQIWrhx.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22275,8 +21893,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-C6S5rx9I.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/schedule-Ba6Cw4lq.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22296,13 +21914,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CNndF4-n.js",
+			"module": "/assets/search-busy-CorRLHmp.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-BLztA3IT.js",
-				"/assets/taxonomy-CrAe8mz1.js",
-				"/assets/DayList-CxjsETCf.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/all-CpPun-w3.js",
+				"/assets/taxonomy-CCGfN8IS.js",
+				"/assets/DayList-BkQIWrhx.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22323,13 +21941,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CNndF4-n.js",
+			"module": "/assets/search-busy-CorRLHmp.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/all-BLztA3IT.js",
-				"/assets/taxonomy-CrAe8mz1.js",
-				"/assets/DayList-CxjsETCf.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/all-CpPun-w3.js",
+				"/assets/taxonomy-CCGfN8IS.js",
+				"/assets/DayList-BkQIWrhx.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22350,11 +21968,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-TE0kjQMd.js",
+			"module": "/assets/item-DRzbAAfk.js",
 			"imports": [
-				"/assets/item-BmZbLVII.js",
+				"/assets/item-Bq6IyfJG.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js"
+				"/assets/shared-8YD28xdt.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22375,11 +21993,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-TE0kjQMd.js",
+			"module": "/assets/item-original-DRzbAAfk.js",
 			"imports": [
-				"/assets/item-BmZbLVII.js",
+				"/assets/item-Bq6IyfJG.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js"
+				"/assets/shared-8YD28xdt.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22400,8 +22018,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-BC_MuzPs.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/hot-C5_-EuOO.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22421,8 +22039,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-BTBKxea8.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/story-C7f9E1Ex.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22442,11 +22060,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-CvL49C3K.js",
+			"module": "/assets/report-latest-DsrakNY6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/ReportPaper-CHHQ0J5_.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/ReportPaper-C4YDn5VK.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22467,11 +22085,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-BQm_4qF7.js",
+			"module": "/assets/daily-archive-CUxk8NhK.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/ReportPaper-CHHQ0J5_.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/ReportPaper-C4YDn5VK.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22492,11 +22110,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-CKNAFybB.js",
+			"module": "/assets/report-detail-DyTXVUID.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/ReportPaper-CHHQ0J5_.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/ReportPaper-C4YDn5VK.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22517,11 +22135,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-CvL49C3K.js",
+			"module": "/assets/report-latest-DsrakNY6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/ReportPaper-CHHQ0J5_.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/ReportPaper-C4YDn5VK.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22542,11 +22160,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-CKNAFybB.js",
+			"module": "/assets/report-detail-DyTXVUID.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/ReportPaper-CHHQ0J5_.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/ReportPaper-C4YDn5VK.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22567,11 +22185,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-CvL49C3K.js",
+			"module": "/assets/report-latest-DsrakNY6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/ReportPaper-CHHQ0J5_.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/ReportPaper-C4YDn5VK.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22592,11 +22210,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-CKNAFybB.js",
+			"module": "/assets/report-detail-DyTXVUID.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/ReportPaper-CHHQ0J5_.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/ReportPaper-C4YDn5VK.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22617,8 +22235,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topics-DthfpW_M.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/topics-BKsW5hKM.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22638,12 +22256,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-Bk9dKXic.js",
+			"module": "/assets/topic-BEP-6AY8.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/DayList-CxjsETCf.js",
-				"/assets/taxonomy-CrAe8mz1.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/DayList-BkQIWrhx.js",
+				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22664,12 +22282,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-Bk9dKXic.js",
+			"module": "/assets/topic-BEP-6AY8.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/DayList-CxjsETCf.js",
-				"/assets/taxonomy-CrAe8mz1.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/DayList-BkQIWrhx.js",
+				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22690,8 +22308,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-DIlaToBj.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/about-Db4e2_z1.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22711,11 +22329,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-xurzJX5r.js",
+			"module": "/assets/terms-D9d0vHHx.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/CopyPage-KrbDtq1b.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/CopyPage-Bo6lsduX.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22736,11 +22354,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-D-K4-lAc.js",
+			"module": "/assets/privacy-B9Zys2B2.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/CopyPage-KrbDtq1b.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/CopyPage-Bo6lsduX.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22761,8 +22379,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-DIvfauc3.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/changelog-BvTIcFWc.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22782,8 +22400,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-TpkSc1-l.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/feedback-Ciwg0_ZE.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22803,11 +22421,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-DMCy4a7s.js",
+			"module": "/assets/more-CypQBLBp.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/Sidebar-BKZ8liQm.js",
+				"/assets/shared-8YD28xdt.js",
+				"/assets/Sidebar-CElbQw3o.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -22829,8 +22447,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-DOwAPGCX.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/starred-BEsrlrMk.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22850,12 +22468,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-ByzfL8dB.js",
+			"module": "/assets/agent-Bh4mq9Di.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/taxonomy-CrAe8mz1.js"
+				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22876,8 +22494,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-DDpNI6JF.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/codex-reset-CArCKlW7.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22897,8 +22515,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-DDpNI6JF.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/codex-reset-CArCKlW7.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22918,11 +22536,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-AXohjFRL.js",
+			"module": "/assets/leaderboard-boards-aQwQQwTy.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/taxonomy-CrAe8mz1.js"
+				"/assets/shared-8YD28xdt.js",
+				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22943,10 +22561,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-gndouqVi.js",
+			"module": "/assets/leaderboard-sEQFtiiA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22969,10 +22587,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-gndouqVi.js",
+			"module": "/assets/leaderboard-sEQFtiiA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22995,10 +22613,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-VPT0nTv_.js",
+			"module": "/assets/leaderboard-sources-EkV56TS0.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23021,10 +22639,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-DK3YxheX.js",
+			"module": "/assets/leaderboard-source-BQl28hXg.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23047,8 +22665,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-BLKnbhBw.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/leaderboard-rules-BdJ2mrJJ.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23068,11 +22686,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-BZGF1Dru.js",
+			"module": "/assets/leaderboard-model-D2tFruNQ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/taxonomy-CrAe8mz1.js",
+				"/assets/shared-8YD28xdt.js",
+				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23095,8 +22713,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-edpdASMq.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-ClZ2uK0H.js"],
+			"module": "/assets/admin-login-uFOTv9aT.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23116,12 +22734,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-CDZRNyI-.js",
+			"module": "/assets/layout-BgsSXCb2.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-DuG_H9cO.js",
+				"/assets/Chrome-DrkFwdNV.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -23165,10 +22783,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-g_CVDKZV.js",
+			"module": "/assets/content-Dhinjgo8.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23192,11 +22810,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-BXynrNY0.js",
+			"module": "/assets/content-item-BX3BUeIB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/taxonomy-CrAe8mz1.js",
+				"/assets/shared-8YD28xdt.js",
+				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23222,10 +22840,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-Ca8ZrEAQ.js",
+			"module": "/assets/sources-ZIs41v1h.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23249,10 +22867,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-Bk5HgHnr.js",
+			"module": "/assets/source-new-6CVo9Aew.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23278,10 +22896,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-B3ppjr1u.js",
+			"module": "/assets/source-CfE_9Hzf.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23307,10 +22925,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-BWnrwTKw.js",
+			"module": "/assets/monitor-CdluPFxo.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23335,10 +22953,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-Crg9vwbB.js",
+			"module": "/assets/feedback-DeqcIU_L.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23364,10 +22982,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-CO1o2t-o.js",
+			"module": "/assets/runs-CcrPzXGL.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23392,10 +23010,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-BgYGeke9.js",
+			"module": "/assets/models-mZZF67cB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23420,10 +23038,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-BnbwiQ_F.js",
+			"module": "/assets/selectbench-BJ9loixJ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23448,11 +23066,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-BopZHXKE.js",
+			"module": "/assets/selectbench-run-CnzD6gxg.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
-				"/assets/taxonomy-CrAe8mz1.js",
+				"/assets/shared-8YD28xdt.js",
+				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23475,10 +23093,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-CXI7WAYr.js",
+			"module": "/assets/settings-BUZ6UgHA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23503,10 +23121,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-pIWVpd99.js",
+			"module": "/assets/audit-C8BnU31M.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-ClZ2uK0H.js",
+				"/assets/shared-8YD28xdt.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23517,8 +23135,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-e3917be0.js",
-	"version": "e3917be0",
+	"url": "/assets/manifest-da977992.js",
+	"version": "da977992",
 	"sri": void 0
 };
 //#endregion
