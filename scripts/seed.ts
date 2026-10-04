@@ -61,7 +61,7 @@ for (const s of sources) {
 }
 const activeIds = sources.map((s) => s.id);
 if (activeIds.length > 0) {
-  const disabledYt = await sql`UPDATE sources SET enabled = false WHERE id NOT IN ${sql(activeIds)} AND (id LIKE 'yt-%' OR kind = 'x_search') RETURNING id`;
+  const disabledYt = await sql`UPDATE sources SET enabled = false WHERE NOT (id = ANY(${activeIds}::text[])) AND (id LIKE 'yt-%' OR kind = 'x_search') RETURNING id`;
   if (disabledYt.length > 0) {
     console.log(`disabled ${disabledYt.length} retired sources: ${disabledYt.map((r: any) => r.id).join(", ")}`);
   }
