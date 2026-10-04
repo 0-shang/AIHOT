@@ -27,11 +27,11 @@ function SideLink({ item, dot }: { item: NavItem; dot: boolean }) {
       aria-current={isActive ? "page" : undefined}
       className={`flex h-10 items-center gap-2.5 rounded-xl px-3 text-[14px] transition-all duration-150 ${
         isActive
-          ? "bg-red-50/90 text-[#CE1141] font-bold shadow-2xs dark:bg-red-950/40 dark:text-[#ff4a6f]"
+          ? "bg-bg-sunk text-ink font-bold dark:bg-slate-800"
           : "font-medium text-ink-3 hover:bg-bg-sunk hover:text-ink"
       }`}
     >
-      <span className={`flex w-[22px] shrink-0 justify-center ${isActive ? "text-[#CE1141] dark:text-[#ff3864]" : ""}`}>
+      <span className={`flex w-[22px] shrink-0 justify-center ${isActive ? "text-ink" : ""}`}>
         <Icon size={17} />
       </span>
       <span className="min-w-0 truncate">{item.label}</span>
