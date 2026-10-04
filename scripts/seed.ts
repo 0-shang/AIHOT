@@ -66,6 +66,10 @@ if (activeIds.length > 0) {
     console.log(`disabled ${disabledYt.length} retired sources: ${disabledYt.map((r: any) => r.id).join(", ")}`);
   }
 }
+const hiddenReplies = await sql`UPDATE publications SET visibility = 'hidden', eligible = false WHERE channel = 'x' AND (title LIKE '@%' OR original_title LIKE '@%') RETURNING article_id`;
+if (hiddenReplies.length > 0) {
+  console.log(`cleaned up ${hiddenReplies.length} historical reply tweets`);
+}
 console.log(`sources: ${added} added/updated, ${sources.length} active in pack`);
 if (FEATURES.leaderboard) {
   const { models, aliases } = await importModelDirectory();
