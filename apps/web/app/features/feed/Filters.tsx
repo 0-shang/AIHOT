@@ -68,31 +68,28 @@ export function SearchField({ action = "/all", defaultValue = "", keep = {}, var
 
   if (variant === "bar") {
     return (
-      <Form method="get" action={action} role="search" className="flex gap-2">
+      <Form method="get" action={action} role="search" className="relative w-full">
         {hidden}
-        <label className="relative flex-1">
+        <label className="relative block w-full">
           <span className="sr-only">搜索标题、摘要与正文</span>
-          <IconSearch size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-4" />
+          <IconSearch size={17} className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${searching ? "text-accent" : "text-ink-4"}`} />
           <input
             ref={inputRef}
             name="q"
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="搜索标题、摘要…"
+            placeholder="搜索火箭球员、交易流言、队记专栏…"
             maxLength={200}
             autoComplete="off"
             enterKeyHint="search"
-            className="h-11 w-full rounded-full border border-line-strong bg-surface pl-10 pr-9 text-[15px] text-ink outline-none transition-[border-color,box-shadow] placeholder:text-ink-4 focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-soft)]"
+            className="h-10.5 w-full rounded-2xl border border-line-strong/80 bg-surface pl-10 pr-9 text-[14px] text-ink shadow-2xs outline-none transition-all placeholder:text-ink-4 focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-soft)] dark:border-white/10"
           />
           {value && (
-            <button type="button" aria-label="清空" onClick={() => { setValue(""); inputRef.current?.focus(); }} className="absolute right-2.5 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-ink-4">
+            <button type="button" aria-label="清空" onClick={() => { setValue(""); inputRef.current?.focus(); }} className="absolute right-2.5 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-ink-4 transition-colors hover:text-ink">
               <IconClose size={15} />
             </button>
           )}
         </label>
-        <button type="submit" className={`h-11 shrink-0 rounded-full bg-accent px-5 text-[14.5px] font-semibold text-accent-contrast transition-[background-color,transform] active:scale-[0.98] ${searching ? "opacity-60" : ""}`}>
-          搜索
-        </button>
       </Form>
     );
   }

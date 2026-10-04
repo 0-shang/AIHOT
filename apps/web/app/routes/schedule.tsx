@@ -8,8 +8,8 @@ export function headers() {
 
 export function meta() {
   return pageMeta({
-    title: "火箭赛程日历 · NBA 2K 战绩比分",
-    description: `${SITE.name} 独家赛程日历：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分与最佳球员统计。`,
+    title: "火箭赛程日历 · 比赛日程与转播看板",
+    description: `${SITE.name} 独家赛程日历：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分与核心球员统计。`,
     path: "/schedule",
   });
 }
@@ -23,11 +23,11 @@ export default function SchedulePage() {
           赛程日历
         </h1>
         <p className="mt-1 text-sm text-ink-3">
-          休斯敦火箭 2026-27 赛季比赛日程与 2K 战绩比分看板
+          休斯敦火箭 2026-27 赛季官方赛程与转播看板
         </p>
       </div>
 
-      {/* 2K 赛程日历主体 */}
+      {/* 赛程日历主体 */}
       <ScheduleCalendar />
     </div>
   );

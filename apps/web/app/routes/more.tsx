@@ -24,7 +24,6 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
     title: "内容",
     rows: [
       { to: "/topics", label: "主题专区", icon: <IconGrid size={18} /> },
-      { to: "/hot", label: "热点榜", icon: <IconFlame size={18} /> },
       { to: "/starred", label: "我的收藏", icon: <IconBookmark size={18} /> },
     ],
   },

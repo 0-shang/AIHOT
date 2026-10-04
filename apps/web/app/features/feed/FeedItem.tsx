@@ -61,7 +61,7 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
 
   return (
     <article
-      className="group/card relative min-w-0 rounded-2xl bg-surface p-4 shadow-2xs ring-1 ring-line/60 transition-all duration-200 hover:ring-[#CE1141]/40 hover:shadow-xs lg:card lg:card-hover lg:rounded-panel lg:p-4.5 lg:shadow-none"
+      className="group/card relative min-w-0 rounded-2xl bg-surface p-4.5 border border-line shadow-xs hover:border-[#CE1141]/40 hover:shadow-md transition-all duration-200"
       data-item-id={item.id}
     >
       <header className="flex min-h-[22px] items-center gap-2 text-[12px] leading-none text-ink-4">
@@ -115,7 +115,7 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
             <Link
               key={t}
               to={`/all?tag=${encodeURIComponent(t)}`}
-              className="inline-flex items-center rounded-md bg-bg-sunk/80 px-2 py-0.5 text-[11px] font-medium text-ink-3 transition-colors hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-ink"
+              className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800/80 px-2.5 py-0.5 text-[11px] font-medium text-ink-3 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-ink"
             >
               {t}
             </Link>

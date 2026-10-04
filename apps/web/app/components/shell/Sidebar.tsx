@@ -25,9 +25,9 @@ function SideLink({ item, dot }: { item: NavItem; dot: boolean }) {
       to={item.to}
       prefetch="intent"
       aria-current={isActive ? "page" : undefined}
-      className={`flex h-10 items-center gap-2.5 rounded-control px-2.5 text-[14px] transition-all duration-150 ${
+      className={`flex h-10 items-center gap-2.5 rounded-xl px-3 text-[14px] transition-all duration-150 ${
         isActive
-          ? "bg-gradient-to-r from-[#CE1141]/15 via-[#CE1141]/5 to-transparent border-l-[3px] border-[#CE1141] font-bold text-[#CE1141] dark:text-[#ff3864]"
+          ? "bg-red-50/90 text-[#CE1141] font-bold shadow-2xs dark:bg-red-950/40 dark:text-[#ff4a6f]"
           : "font-medium text-ink-3 hover:bg-bg-sunk hover:text-ink"
       }`}
     >

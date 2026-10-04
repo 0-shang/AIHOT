@@ -107,7 +107,7 @@ export default function AllPage() {
       {/* Desktop */}
       <div className="hidden lg:block">
         <div className="flex items-baseline justify-between">
-          <h1 className="text-[26px] font-black tracking-tight text-ink lg:text-3xl">{title ?? "休斯敦火箭 前沿情报"}</h1>
+          <h1 className="text-[26px] font-black tracking-tight text-ink lg:text-3xl">{title ?? "火箭队资讯"}</h1>
           {!f.q && (
             <span className="text-[13px] text-ink-4">
               今日 <span className="num font-bold text-accent">{data.todayCount}</span> 条
@@ -144,10 +144,10 @@ export default function AllPage() {
       {/* Phones: title with today's count, the search bar, then the same filter row */}
       <div className="lg:hidden">
         <div className="flex items-baseline justify-between pb-3 pt-3">
-          <h1 className="text-[22px] font-black text-ink">{title ?? "休斯敦火箭 前沿情报"}</h1>
+          <h1 className="text-[22px] font-black text-ink">{title ?? "火箭队资讯"}</h1>
           {!f.q && (
             <span className="text-[12.5px] text-ink-4">
-              今日 <span className="num">{data.todayCount}</span> 条
+              今日 <span className="num font-bold text-accent">{data.todayCount}</span> 条
             </span>
           )}
         </div>

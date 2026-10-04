@@ -715,7 +715,7 @@ function SideLink({ item, dot }) {
 		to: item.to,
 		prefetch: "intent",
 		"aria-current": isActive ? "page" : void 0,
-		className: `flex h-10 items-center gap-2.5 rounded-control px-2.5 text-[14px] transition-all duration-150 ${isActive ? "bg-gradient-to-r from-[#CE1141]/15 via-[#CE1141]/5 to-transparent border-l-[3px] border-[#CE1141] font-bold text-[#CE1141] dark:text-[#ff3864]" : "font-medium text-ink-3 hover:bg-bg-sunk hover:text-ink"}`,
+		className: `flex h-10 items-center gap-2.5 rounded-xl px-3 text-[14px] transition-all duration-150 ${isActive ? "bg-red-50/90 text-[#CE1141] font-bold shadow-2xs dark:bg-red-950/40 dark:text-[#ff4a6f]" : "font-medium text-ink-3 hover:bg-bg-sunk hover:text-ink"}`,
 		children: [
 			/* @__PURE__ */ jsx("span", {
 				className: `flex w-[22px] shrink-0 justify-center ${isActive ? "text-[#CE1141] dark:text-[#ff3864]" : ""}`,
@@ -1500,49 +1500,41 @@ function SearchField({ action = "/all", defaultValue = "", keep = {}, variant = 
 		method: "get",
 		action,
 		role: "search",
-		className: "flex gap-2",
-		children: [
-			hidden,
-			/* @__PURE__ */ jsxs("label", {
-				className: "relative flex-1",
-				children: [
-					/* @__PURE__ */ jsx("span", {
-						className: "sr-only",
-						children: "搜索标题、摘要与正文"
-					}),
-					/* @__PURE__ */ jsx(IconSearch, {
-						size: 17,
-						className: "pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-4"
-					}),
-					/* @__PURE__ */ jsx("input", {
-						ref: inputRef,
-						name: "q",
-						value,
-						onChange: (e) => setValue(e.target.value),
-						placeholder: "搜索标题、摘要…",
-						maxLength: 200,
-						autoComplete: "off",
-						enterKeyHint: "search",
-						className: "h-11 w-full rounded-full border border-line-strong bg-surface pl-10 pr-9 text-[15px] text-ink outline-none transition-[border-color,box-shadow] placeholder:text-ink-4 focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-soft)]"
-					}),
-					value && /* @__PURE__ */ jsx("button", {
-						type: "button",
-						"aria-label": "清空",
-						onClick: () => {
-							setValue("");
-							inputRef.current?.focus();
-						},
-						className: "absolute right-2.5 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-ink-4",
-						children: /* @__PURE__ */ jsx(IconClose, { size: 15 })
-					})
-				]
-			}),
-			/* @__PURE__ */ jsx("button", {
-				type: "submit",
-				className: `h-11 shrink-0 rounded-full bg-accent px-5 text-[14.5px] font-semibold text-accent-contrast transition-[background-color,transform] active:scale-[0.98] ${searching ? "opacity-60" : ""}`,
-				children: "搜索"
-			})
-		]
+		className: "relative w-full",
+		children: [hidden, /* @__PURE__ */ jsxs("label", {
+			className: "relative block w-full",
+			children: [
+				/* @__PURE__ */ jsx("span", {
+					className: "sr-only",
+					children: "搜索标题、摘要与正文"
+				}),
+				/* @__PURE__ */ jsx(IconSearch, {
+					size: 17,
+					className: `pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors ${searching ? "text-accent" : "text-ink-4"}`
+				}),
+				/* @__PURE__ */ jsx("input", {
+					ref: inputRef,
+					name: "q",
+					value,
+					onChange: (e) => setValue(e.target.value),
+					placeholder: "搜索火箭球员、交易流言、队记专栏…",
+					maxLength: 200,
+					autoComplete: "off",
+					enterKeyHint: "search",
+					className: "h-10.5 w-full rounded-2xl border border-line-strong/80 bg-surface pl-10 pr-9 text-[14px] text-ink shadow-2xs outline-none transition-all placeholder:text-ink-4 focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-soft)] dark:border-white/10"
+				}),
+				value && /* @__PURE__ */ jsx("button", {
+					type: "button",
+					"aria-label": "清空",
+					onClick: () => {
+						setValue("");
+						inputRef.current?.focus();
+					},
+					className: "absolute right-2.5 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-ink-4 transition-colors hover:text-ink",
+					children: /* @__PURE__ */ jsx(IconClose, { size: 15 })
+				})
+			]
+		})]
 	});
 	return /* @__PURE__ */ jsxs(Form, {
 		method: "get",
@@ -2481,7 +2473,7 @@ var FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOp
 		return Array.from(new Set(rawTags.map((t) => t.trim()))).filter((t) => t && !IGNORED.has(t) && t !== item.source.name).slice(0, 4);
 	}, [item.tags, item.source.name]);
 	return /* @__PURE__ */ jsxs("article", {
-		className: "group/card relative min-w-0 rounded-2xl bg-surface p-4 shadow-2xs ring-1 ring-line/60 transition-all duration-200 hover:ring-[#CE1141]/40 hover:shadow-xs lg:card lg:card-hover lg:rounded-panel lg:p-4.5 lg:shadow-none",
+		className: "group/card relative min-w-0 rounded-2xl bg-surface p-4.5 border border-line shadow-xs hover:border-[#CE1141]/40 hover:shadow-md transition-all duration-200",
 		"data-item-id": item.id,
 		children: [
 			/* @__PURE__ */ jsxs("header", {
@@ -2537,7 +2529,7 @@ var FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOp
 				className: "relative z-10 mt-3 flex flex-wrap items-center gap-1.5",
 				children: cleanTags.map((t) => /* @__PURE__ */ jsx(Link, {
 					to: `/all?tag=${encodeURIComponent(t)}`,
-					className: "inline-flex items-center rounded-md bg-bg-sunk/80 px-2 py-0.5 text-[11px] font-medium text-ink-3 transition-colors hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-ink",
+					className: "inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800/80 px-2.5 py-0.5 text-[11px] font-medium text-ink-3 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-ink",
 					children: t
 				}, t))
 			}),
@@ -2695,21 +2687,25 @@ function DayHeader({ day, today, count, collapsed, onToggle }) {
 	const weekday = beijingWeekday(day);
 	const short = WEEKDAY_SHORT[(/* @__PURE__ */ new Date(`${day}T12:00:00+08:00`)).getUTCDay()] ?? "";
 	return /* @__PURE__ */ jsxs("div", {
-		className: "sticky top-0 z-20 -mx-4 bg-daybar px-4 lg:mx-0 lg:bg-bg lg:px-0",
+		className: "sticky top-0 z-20 -mx-4 bg-bg/90 backdrop-blur-md px-4 py-2 border-b border-line-soft/80 lg:mx-0 lg:bg-transparent lg:border-0 lg:px-0 lg:py-0",
 		children: [/* @__PURE__ */ jsxs("div", {
-			className: "flex h-9 items-center gap-2 lg:hidden",
+			className: "flex h-7 items-center gap-2 lg:hidden",
 			children: [
 				/* @__PURE__ */ jsx("span", {
-					className: "text-[14px] font-bold text-ink",
+					className: "text-[13.5px] font-extrabold text-ink",
 					children: day === today ? "今天" : date
 				}),
 				day === today && /* @__PURE__ */ jsx("span", {
-					className: "text-[12.5px] text-ink-4",
+					className: "text-[12px] text-ink-3",
 					children: date
 				}),
 				/* @__PURE__ */ jsx("span", {
-					className: "text-[12.5px] text-ink-4",
+					className: "text-[12px] text-ink-4",
 					children: short
+				}),
+				count !== null && /* @__PURE__ */ jsxs("span", {
+					className: "ml-auto text-[11.5px] font-mono text-ink-4",
+					children: [count, " 条资讯"]
 				})
 			]
 		}), /* @__PURE__ */ jsxs("div", {
@@ -3046,7 +3042,7 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 						className: "flex items-baseline justify-between",
 						children: [/* @__PURE__ */ jsx("h1", {
 							className: "text-[26px] font-black tracking-tight text-ink lg:text-3xl",
-							children: title ?? "休斯敦火箭 前沿情报"
+							children: title ?? "火箭队资讯"
 						}), !f.q && /* @__PURE__ */ jsxs("span", {
 							className: "text-[13px] text-ink-4",
 							children: [
@@ -3096,13 +3092,13 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 						className: "flex items-baseline justify-between pb-3 pt-3",
 						children: [/* @__PURE__ */ jsx("h1", {
 							className: "text-[22px] font-black text-ink",
-							children: title ?? "休斯敦火箭 前沿情报"
+							children: title ?? "火箭队资讯"
 						}), !f.q && /* @__PURE__ */ jsxs("span", {
 							className: "text-[12.5px] text-ink-4",
 							children: [
 								"今日 ",
 								/* @__PURE__ */ jsx("span", {
-									className: "num",
+									className: "num font-bold text-accent",
 									children: data.todayCount
 								}),
 								" 条"
@@ -5373,8 +5369,8 @@ function headers$26() {
 }
 function meta$38() {
 	return pageMeta({
-		title: "火箭赛程日历 · NBA 2K 战绩比分",
-		description: `${SITE.name} 独家赛程日历：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分与最佳球员统计。`,
+		title: "火箭赛程日历 · 比赛日程与转播看板",
+		description: `${SITE.name} 独家赛程日历：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分与核心球员统计。`,
 		path: "/schedule"
 	});
 }
@@ -5388,7 +5384,7 @@ var schedule_default = UNSAFE_withComponentProps(function SchedulePage() {
 				children: "赛程日历"
 			}), /* @__PURE__ */ jsx("p", {
 				className: "mt-1 text-sm text-ink-3",
-				children: "休斯敦火箭 2026-27 赛季比赛日程与 2K 战绩比分看板"
+				children: "休斯敦火箭 2026-27 赛季官方赛程与转播看板"
 			})]
 		}), /* @__PURE__ */ jsx(ScheduleCalendar, {})]
 	});
@@ -11944,23 +11940,15 @@ function meta$23() {
 }
 var GROUPS = [{
 	title: "内容",
-	rows: [
-		{
-			to: "/topics",
-			label: "主题专区",
-			icon: /* @__PURE__ */ jsx(IconGrid, { size: 18 })
-		},
-		{
-			to: "/hot",
-			label: "热点榜",
-			icon: /* @__PURE__ */ jsx(IconFlame, { size: 18 })
-		},
-		{
-			to: "/starred",
-			label: "我的收藏",
-			icon: /* @__PURE__ */ jsx(IconBookmark, { size: 18 })
-		}
-	]
+	rows: [{
+		to: "/topics",
+		label: "主题专区",
+		icon: /* @__PURE__ */ jsx(IconGrid, { size: 18 })
+	}, {
+		to: "/starred",
+		label: "我的收藏",
+		icon: /* @__PURE__ */ jsx(IconBookmark, { size: 18 })
+	}]
 }, {
 	title: "关于与反馈",
 	rows: [{
@@ -21618,15 +21606,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-CQPSWXFx.js",
+			"module": "/assets/root-DlgzkXda.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-Co_WCooI.js",
-				"/assets/Sidebar-BEzZ5ff5.js",
+				"/assets/Sidebar-CWHjqBhe.js",
 				"/assets/Chrome-BY56ABVE.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-DuTDjcj0.css"],
+			"css": ["/assets/root-5l2fILHP.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -21666,13 +21654,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-BPrTfNEd.js",
+			"module": "/assets/all-CCmjUZpD.js",
 			"imports": [
-				"/assets/all-B8uBXWjl.js",
+				"/assets/all-1tN-7nTf.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-Co_WCooI.js",
 				"/assets/taxonomy-CCGfN8IS.js",
-				"/assets/DayList-DJ8KQS2P.js"
+				"/assets/DayList-B1Vd-mVZ.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21693,7 +21681,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-DbRfDL1y.js",
+			"module": "/assets/schedule-wEajuaQF.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21714,13 +21702,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-PTi4pyq3.js",
+			"module": "/assets/search-busy-BiBF8IA2.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-Co_WCooI.js",
-				"/assets/all-B8uBXWjl.js",
+				"/assets/all-1tN-7nTf.js",
 				"/assets/taxonomy-CCGfN8IS.js",
-				"/assets/DayList-DJ8KQS2P.js"
+				"/assets/DayList-B1Vd-mVZ.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21741,13 +21729,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-PTi4pyq3.js",
+			"module": "/assets/search-busy-BiBF8IA2.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-Co_WCooI.js",
-				"/assets/all-B8uBXWjl.js",
+				"/assets/all-1tN-7nTf.js",
 				"/assets/taxonomy-CCGfN8IS.js",
-				"/assets/DayList-DJ8KQS2P.js"
+				"/assets/DayList-B1Vd-mVZ.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22056,11 +22044,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-CfqA6lYC.js",
+			"module": "/assets/topic-CMvFUzNY.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-Co_WCooI.js",
-				"/assets/DayList-DJ8KQS2P.js",
+				"/assets/DayList-B1Vd-mVZ.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -22082,11 +22070,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-CfqA6lYC.js",
+			"module": "/assets/topic-CMvFUzNY.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-Co_WCooI.js",
-				"/assets/DayList-DJ8KQS2P.js",
+				"/assets/DayList-B1Vd-mVZ.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -22221,11 +22209,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-B9Litf8V.js",
+			"module": "/assets/more-vU_uYRrX.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-Co_WCooI.js",
-				"/assets/Sidebar-BEzZ5ff5.js",
+				"/assets/Sidebar-CWHjqBhe.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -22935,8 +22923,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-7bfd5e9e.js",
-	"version": "7bfd5e9e",
+	"url": "/assets/manifest-68130a9d.js",
+	"version": "68130a9d",
 	"sri": void 0
 };
 //#endregion

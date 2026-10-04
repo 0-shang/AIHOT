@@ -46,12 +46,13 @@ export function DayHeader({ day, today, count, collapsed, onToggle }: { day: str
   const weekday = beijingWeekday(day);
   const short = WEEKDAY_SHORT[new Date(`${day}T12:00:00+08:00`).getUTCDay()] ?? "";
   return (
-    <div className="sticky top-0 z-20 -mx-4 bg-daybar px-4 lg:mx-0 lg:bg-bg lg:px-0">
-      {/* Phones: a full-width day bar. */}
-      <div className="flex h-9 items-center gap-2 lg:hidden">
-        <span className="text-[14px] font-bold text-ink">{day === today ? "今天" : date}</span>
-        {day === today && <span className="text-[12.5px] text-ink-4">{date}</span>}
-        <span className="text-[12.5px] text-ink-4">{short}</span>
+    <div className="sticky top-0 z-20 -mx-4 bg-bg/90 backdrop-blur-md px-4 py-2 border-b border-line-soft/80 lg:mx-0 lg:bg-transparent lg:border-0 lg:px-0 lg:py-0">
+      {/* Phones: a sleek sticky day bar with blur */}
+      <div className="flex h-7 items-center gap-2 lg:hidden">
+        <span className="text-[13.5px] font-extrabold text-ink">{day === today ? "今天" : date}</span>
+        {day === today && <span className="text-[12px] text-ink-3">{date}</span>}
+        <span className="text-[12px] text-ink-4">{short}</span>
+        {count !== null && <span className="ml-auto text-[11.5px] font-mono text-ink-4">{count} 条资讯</span>}
       </div>
       {/* Desktop: the date ends where the times end, the fold toggle sits on the rail. */}
       <div className="hidden h-11 grid-cols-[64px_22px_minmax(0,1fr)] items-center lg:grid">
