@@ -50,8 +50,8 @@ export const SIDEBAR: Array<{ title: string; items: NavItem[] }> = [
 
 export const TABBAR: NavItem[] = [
   { to: "/all", label: "动态", icon: IconList },
-  { to: "/schedule", label: "赛程", icon: IconCalendar },
   { to: "/hot", label: "热点", icon: IconFlame },
+  { to: "/schedule", label: "赛程", icon: IconCalendar },
   { to: "/more", label: "更多", icon: IconApps, changelog: false },
 ];
 

@@ -17,16 +17,16 @@ export function Wordmark({ size = 22, className = "" }: { size?: number; classNa
 
       {/* 品牌名称排版 */}
       <div className="flex flex-col text-left leading-none">
-        <div className="flex items-baseline gap-1">
+        <div className="flex items-baseline gap-0.5">
           <span className="font-black tracking-tight text-ink" style={{ fontSize: size * 0.95 }}>
-            Rockets
+            Clutch
           </span>
-          <span className="font-black italic text-[#CE1141] tracking-tighter" style={{ fontSize: size * 0.95 }}>
-            HOT
+          <span className="font-black italic text-[#CE1141] tracking-tight" style={{ fontSize: size * 0.95 }}>
+            Wire
           </span>
         </div>
-        <span className="mt-0.5 text-[9.5px] font-semibold tracking-[0.15em] text-ink-4">
-          休斯敦篮球前线
+        <span className="mt-0.5 text-[9.5px] font-bold tracking-[0.18em] text-ink-3">
+          火箭队资讯
         </span>
       </div>
     </div>

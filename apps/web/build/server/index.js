@@ -1,6 +1,6 @@
 import { t as __exportAll } from "./assets/rolldown-runtime-D7D4PA-g.js";
 import { t as entry_server_node_exports } from "./assets/framework-DvgSLGWb.js";
-import { A as IconMoon, C as IconHistory, D as IconMenu, E as IconList, F as ABOUT, I as SITE, L as withSubject, M as IconShare, N as IconSun, O as IconMessage, P as IconUsers, S as IconHeart, T as IconInfo, _ as IconDoc, a as IconArrowRight, b as IconFlame, c as IconBookmark, d as IconCheck, f as IconChevronDown, g as IconCopy, h as IconClose, i as IconArrowLeft, j as IconSearch, k as IconMonitor, l as IconCalendar, m as IconClock, n as Presence, o as IconArrowUp, p as IconChevronRight, r as IconApps, s as IconArrowUpRight, t as Collapse, u as IconChart, v as IconDownload, w as IconImage, x as IconGrid, y as IconExternal } from "./assets/Presence-HLsYgPy3.js";
+import { A as IconMoon, C as IconHistory, D as IconMenu, E as IconList, F as ABOUT, I as SITE, L as withSubject, M as IconShare, N as IconSun, O as IconMessage, P as IconUsers, S as IconHeart, T as IconInfo, _ as IconDoc, a as IconArrowRight, b as IconFlame, c as IconBookmark, d as IconCheck, f as IconChevronDown, g as IconCopy, h as IconClose, i as IconArrowLeft, j as IconSearch, k as IconMonitor, l as IconCalendar, m as IconClock, n as Presence, o as IconArrowUp, p as IconChevronRight, r as IconApps, s as IconArrowUpRight, t as Collapse, u as IconChart, v as IconDownload, w as IconImage, x as IconGrid, y as IconExternal } from "./assets/Presence-Bf5d1f1_.js";
 import { Form, Link, Links, Meta, NavLink, Outlet, Scripts, ScrollRestoration, UNSAFE_withComponentProps, UNSAFE_withErrorBoundaryProps, data, isRouteErrorResponse, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation, useRevalidator, useRouteError, useRouteLoaderData, useSearchParams } from "react-router";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { Fragment as Fragment$1, Suspense, forwardRef, lazy, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -171,19 +171,19 @@ function Wordmark({ size = 22, className = "" }) {
 		}), /* @__PURE__ */ jsxs("div", {
 			className: "flex flex-col text-left leading-none",
 			children: [/* @__PURE__ */ jsxs("div", {
-				className: "flex items-baseline gap-1",
+				className: "flex items-baseline gap-0.5",
 				children: [/* @__PURE__ */ jsx("span", {
 					className: "font-black tracking-tight text-ink",
 					style: { fontSize: size * .95 },
-					children: "Rockets"
+					children: "Clutch"
 				}), /* @__PURE__ */ jsx("span", {
-					className: "font-black italic text-[#CE1141] tracking-tighter",
+					className: "font-black italic text-[#CE1141] tracking-tight",
 					style: { fontSize: size * .95 },
-					children: "HOT"
+					children: "Wire"
 				})]
 			}), /* @__PURE__ */ jsx("span", {
-				className: "mt-0.5 text-[9.5px] font-semibold tracking-[0.15em] text-ink-4",
-				children: "休斯敦篮球前线"
+				className: "mt-0.5 text-[9.5px] font-bold tracking-[0.18em] text-ink-3",
+				children: "火箭队资讯"
 			})]
 		})]
 	});
@@ -608,14 +608,14 @@ var TABBAR = [
 		icon: IconList
 	},
 	{
-		to: "/schedule",
-		label: "赛程",
-		icon: IconCalendar
-	},
-	{
 		to: "/hot",
 		label: "热点",
 		icon: IconFlame
+	},
+	{
+		to: "/schedule",
+		label: "赛程",
+		icon: IconCalendar
 	},
 	{
 		to: "/more",
@@ -1618,29 +1618,6 @@ function sourceInitial(name) {
 	return (shortSourceName(name).replace(/^[^\p{L}\p{N}]+/u, "")[0] ?? "A").toUpperCase();
 }
 //#endregion
-//#region app/components/ui/Score.tsx
-/**
-* 篮球资讯前线热度评级标签 (纯净、专业体育媒体风格)
-*/
-function ScoreLabel({ score, compact = false }) {
-	if (score === null || score === void 0) return null;
-	const isTenScale = score <= 10;
-	const numDisplay = isTenScale ? Number.isInteger(score) ? score.toFixed(1) : String(score) : String(Math.round(score));
-	const colorCls = (isTenScale ? score * 10 : score) >= 85 ? "bg-red-50 text-[#CE1141] ring-[#CE1141]/25 dark:bg-red-950/40 dark:text-red-300 dark:ring-red-900" : "bg-neutral-100 text-ink-3 ring-line dark:bg-neutral-800/60 dark:text-ink-3";
-	return /* @__PURE__ */ jsxs("span", {
-		title: `前线热度评级：${numDisplay}`,
-		"aria-label": `热度评级 ${numDisplay}`,
-		className: `inline-flex h-[20px] shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-1.5 text-[10.5px] font-medium ring-1 ring-inset ${colorCls}`,
-		children: [/* @__PURE__ */ jsx("span", {
-			className: "font-mono text-[11px] font-black tabular-nums tracking-tight",
-			children: numDisplay
-		}), !compact && /* @__PURE__ */ jsx("span", {
-			className: "text-[10px] font-semibold opacity-80",
-			children: "热度"
-		})]
-	});
-}
-//#endregion
 //#region app/components/ui/SourceAvatar.tsx
 /** Round avatar for X accounts (or a source icon); a tinted initial when there is no image. */
 function SourceAvatar({ name, iconUrl, avatarUrl, iconSrcSet, avatarSrcSet, size = 18 }) {
@@ -2473,89 +2450,6 @@ function QuotedLine({ quoted }) {
 	});
 }
 //#endregion
-//#region app/lib/youtube.ts
-var KNOWN_CHANNELS = {
-	lockedonrockets: {
-		playlistId: "UUnizQkhQWv7GwQ1PY2EJGLw",
-		defaultVideoId: "HXAWBBwAtKw",
-		name: "Locked On Rockets"
-	},
-	houstonrockets: {
-		playlistId: "UUhdTjGHWrl-scbthhYSGB3g",
-		name: "休斯顿火箭官方 YouTube"
-	}
-};
-/**
-* Extracts a YouTube video ID from a URL or text string.
-*/
-function extractYouTubeVideoId(text) {
-	if (!text) return null;
-	const match = text.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|v\/|live\/))([a-zA-Z0-9_-]{11})/i);
-	return match ? match[1] : null;
-}
-/**
-* Extracts a YouTube channel handle (e.g. "@LockedOnRockets") from a URL or text string.
-*/
-function extractYouTubeChannel(text) {
-	if (!text) return null;
-	const match = text.match(/youtube\.com\/@([a-zA-Z0-9_.-]+)/i);
-	return match ? match[1] : null;
-}
-/**
-* Detects any YouTube video or channel embedded in an item's fields.
-*/
-function detectYouTube(item) {
-	const original = item.links?.original ?? "";
-	const directVid = extractYouTubeVideoId(original);
-	if (directVid) return {
-		videoId: directVid,
-		playlistId: null,
-		channelHandle: null,
-		embedUrl: `https://www.youtube-nocookie.com/embed/${directVid}`,
-		originalUrl: original
-	};
-	const candidates = [
-		item.links?.original ?? "",
-		item.summary ?? "",
-		item.x?.text ?? "",
-		item.x?.quoted?.text ?? "",
-		item.x?.quoted?.url ?? "",
-		item.body?.original ?? "",
-		item.body?.zh ?? ""
-	].filter(Boolean);
-	for (const text of candidates) {
-		const vid = extractYouTubeVideoId(text);
-		if (vid) return {
-			videoId: vid,
-			playlistId: null,
-			channelHandle: null,
-			embedUrl: `https://www.youtube-nocookie.com/embed/${vid}`,
-			originalUrl: `https://www.youtube.com/watch?v=${vid}`
-		};
-	}
-	for (const text of candidates) {
-		const handle = extractYouTubeChannel(text);
-		if (handle) {
-			const known = KNOWN_CHANNELS[handle.toLowerCase()];
-			const videoId = known?.defaultVideoId ?? null;
-			const playlistId = known?.playlistId ?? null;
-			let embedUrl;
-			if (videoId) embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}`;
-			else if (playlistId) embedUrl = `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}`;
-			else embedUrl = `https://www.youtube-nocookie.com/embed?listType=search&list=${encodeURIComponent(handle)}`;
-			return {
-				videoId,
-				playlistId,
-				channelHandle: handle,
-				embedUrl,
-				originalUrl: `https://www.youtube.com/@${handle}`,
-				channelName: known?.name ?? `@${handle}`
-			};
-		}
-	}
-	return null;
-}
-//#endregion
 //#region app/features/feed/FeedItem.tsx
 function cleanSportsText(text) {
 	if (!text) return "";
@@ -2563,61 +2457,59 @@ function cleanSportsText(text) {
 }
 var FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOpen, showTags = false }) {
 	const isX = item.channel === "x" && !!item.x;
-	const isYouTube = detectYouTube(item);
 	const open = () => onOpen?.(item.id);
 	const showSources = !!group && (group.additionalSourceCount > 0 || group.developmentCount <= 1 && group.reportCount > 1);
 	const showDevelopments = !!group?.story && group.developmentCount > 1;
 	const cleanTitle = useMemo(() => cleanSportsText(item.title), [item.title]);
 	const cleanSummary = useMemo(() => cleanSportsText(item.summary), [item.summary]);
 	const cleanTags = useMemo(() => {
-		const catLabel = item.category ? CATEGORY_LABELS[item.category] : "";
 		const rawTags = item.tags || [];
-		return Array.from(new Set(rawTags.map((t) => t.trim()))).filter((t) => t && t !== catLabel && t !== item.source.name && t !== "休斯敦火箭").slice(0, 3);
-	}, [
-		item.tags,
-		item.category,
-		item.source.name
-	]);
+		const IGNORED = /* @__PURE__ */ new Set([
+			"非火箭/联盟其他",
+			"视频专栏",
+			"其他",
+			"队记推文",
+			"球队动态",
+			"深度专栏",
+			"交易流言",
+			"赛程战报",
+			"休斯敦火箭",
+			"NBA",
+			"NBA官方",
+			"官方动态"
+		]);
+		return Array.from(new Set(rawTags.map((t) => t.trim()))).filter((t) => t && !IGNORED.has(t) && t !== item.source.name).slice(0, 4);
+	}, [item.tags, item.source.name]);
 	return /* @__PURE__ */ jsxs("article", {
-		className: "group/card relative min-w-0 rounded-2xl bg-surface/50 p-3.5 shadow-2xs ring-1 ring-line/50 transition-all duration-200 hover:bg-surface hover:ring-[#CE1141]/30 hover:shadow-xs lg:card lg:card-hover lg:rounded-panel lg:p-4 lg:shadow-none lg:ring-0",
+		className: "group/card relative min-w-0 rounded-2xl bg-surface p-4 shadow-2xs ring-1 ring-line/60 transition-all duration-200 hover:ring-[#CE1141]/40 hover:shadow-xs lg:card lg:card-hover lg:rounded-panel lg:p-4.5 lg:shadow-none",
 		"data-item-id": item.id,
 		children: [
 			/* @__PURE__ */ jsxs("header", {
-				className: "flex min-h-[20px] items-center gap-2 text-[12px] leading-none text-ink-4",
+				className: "flex min-h-[22px] items-center gap-2 text-[12px] leading-none text-ink-4",
 				children: [
 					/* @__PURE__ */ jsx(SourceLine, {
 						item,
-						className: "font-semibold text-ink-3"
+						className: "font-bold text-ink-2"
 					}),
 					/* @__PURE__ */ jsxs("time", {
 						dateTime: item.timelineAt,
-						className: "text-[11px] text-ink-4 lg:hidden",
+						className: "text-[11.5px] text-ink-4 font-mono lg:hidden",
 						children: ["· ", beijingTime(item.timelineAt)]
 					}),
-					isYouTube && /* @__PURE__ */ jsxs("span", {
-						className: "inline-flex items-center gap-1 rounded-md bg-[#FF0000]/10 px-1.5 py-0.5 text-[10px] font-bold text-[#FF0000] ring-1 ring-[#FF0000]/25",
-						children: [/* @__PURE__ */ jsx("svg", {
-							width: "9",
-							height: "9",
-							viewBox: "0 0 24 24",
-							fill: "currentColor",
-							children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
-						}), "视讯"]
-					}),
 					/* @__PURE__ */ jsxs("span", {
-						className: "ml-auto flex shrink-0 items-center gap-1.5 pl-2",
-						children: [/* @__PURE__ */ jsx(ScoreLabel, {
-							score: item.score,
-							compact: true
-						}), /* @__PURE__ */ jsx("span", {
-							className: "-my-1 hidden lg:inline-flex",
+						className: "ml-auto flex shrink-0 items-center gap-2 pl-2",
+						children: [item.score && item.score >= 85 ? /* @__PURE__ */ jsxs("span", {
+							className: "inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-950/50 px-2 py-0.5 text-[10.5px] font-bold text-[#CE1141] ring-1 ring-[#CE1141]/25",
+							children: [/* @__PURE__ */ jsx("span", { className: "size-1 rounded-full bg-[#CE1141]" }), "焦点"]
+						}) : null, /* @__PURE__ */ jsx("span", {
+							className: "-my-1 inline-flex",
 							children: /* @__PURE__ */ jsx(StarButton, { item })
 						})]
 					})
 				]
 			}),
 			isX ? /* @__PURE__ */ jsx("p", {
-				className: `mt-2 whitespace-pre-line text-[14.5px] leading-[1.65] line-clamp-4 lg:text-[15px] lg:leading-[1.7] ${read ? "text-ink-4" : "font-normal text-ink"}`,
+				className: `mt-2.5 whitespace-pre-line text-[14.5px] leading-[1.68] line-clamp-4 lg:text-[15.5px] lg:leading-[1.72] ${read ? "text-ink-4" : "font-normal text-ink"}`,
 				children: /* @__PURE__ */ jsx(IntentLink, {
 					to: `/items/${item.id}`,
 					onClick: open,
@@ -2625,7 +2517,7 @@ var FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOp
 					children: cleanSummary || cleanTitle
 				})
 			}) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("h3", {
-				className: `mt-2 text-[15.5px] font-bold leading-[1.45] tracking-tight transition-colors group-hover/card:text-[#CE1141] lg:text-[17px] lg:leading-[1.5] ${read ? "text-ink-4" : "text-ink"}`,
+				className: `mt-2.5 text-[16px] font-extrabold leading-[1.45] tracking-tight transition-colors group-hover/card:text-[#CE1141] lg:text-[17.5px] lg:leading-[1.48] ${read ? "text-ink-4" : "text-ink"}`,
 				children: /* @__PURE__ */ jsx(IntentLink, {
 					to: `/items/${item.id}`,
 					onClick: open,
@@ -2633,20 +2525,20 @@ var FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOp
 					children: cleanTitle
 				})
 			}), cleanSummary && /* @__PURE__ */ jsx("p", {
-				className: "mt-1.5 line-clamp-2 text-[13px] leading-[1.65] text-ink-3 lg:mt-2 lg:line-clamp-3 lg:text-[14px] lg:leading-[1.7]",
+				className: "mt-2 line-clamp-2 text-[13.5px] leading-[1.65] text-ink-3 lg:mt-2.5 lg:line-clamp-3 lg:text-[14px] lg:leading-[1.7]",
 				children: cleanSummary
 			})] }),
 			isX && item.x.media.length > 0 && /* @__PURE__ */ jsx(MediaThumbs, {
 				media: item.x.media,
-				className: "mt-2.5"
+				className: "mt-3"
 			}),
 			isX && item.x.quoted?.text && /* @__PURE__ */ jsx(QuotedLine, { quoted: item.x.quoted }),
-			(cleanTags.length > 0 || showTags && item.category) && /* @__PURE__ */ jsx("div", {
-				className: "relative z-10 mt-2.5 flex flex-wrap items-center gap-1 text-[11px] text-ink-4",
-				children: cleanTags.map((t) => /* @__PURE__ */ jsxs(Link, {
+			cleanTags.length > 0 && /* @__PURE__ */ jsx("div", {
+				className: "relative z-10 mt-3 flex flex-wrap items-center gap-1.5",
+				children: cleanTags.map((t) => /* @__PURE__ */ jsx(Link, {
 					to: `/all?tag=${encodeURIComponent(t)}`,
-					className: "rounded bg-bg-sunk/70 px-1.5 py-0.5 font-medium text-ink-4 transition-colors hover:bg-red-50 hover:text-[#CE1141] dark:hover:bg-red-950/40",
-					children: ["#", t]
+					className: "inline-flex items-center rounded-md bg-bg-sunk/80 px-2 py-0.5 text-[11px] font-medium text-ink-3 transition-colors hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-ink",
+					children: t
 				}, t))
 			}),
 			group && /* @__PURE__ */ jsx(LatestDevelopment, { group }),
@@ -4923,42 +4815,42 @@ var ROCKETS_GAMES = [
 ];
 //#endregion
 //#region app/features/schedule/ScheduleCalendar.tsx
-var MONTH_NAMES = [
+var MONTHS = [
 	{
 		year: 2026,
 		month: 10,
 		label: "10月",
-		subtitle: "澳门赛 & 揭幕战"
+		subtitle: "季前赛 & 揭幕战"
 	},
 	{
 		year: 2026,
 		month: 11,
 		label: "11月",
-		subtitle: "NBA杯 & 常规赛"
+		subtitle: "常规赛 & NBA杯"
 	},
 	{
 		year: 2026,
 		month: 12,
 		label: "12月",
-		subtitle: "常规硬仗"
+		subtitle: "常规赛"
 	},
 	{
 		year: 2027,
 		month: 1,
 		label: "1月",
-		subtitle: "新年东征"
+		subtitle: "常规赛"
 	},
 	{
 		year: 2027,
 		month: 2,
 		label: "2月",
-		subtitle: "全明星 & 排位"
+		subtitle: "全明星周末"
 	},
 	{
 		year: 2027,
 		month: 3,
 		label: "3月",
-		subtitle: "冲刺阶段"
+		subtitle: "常规赛排位"
 	},
 	{
 		year: 2027,
@@ -4985,32 +4877,34 @@ var WEEKDAYS_LONG = [
 	"周五",
 	"周六"
 ];
+function getWeekday(dateStr) {
+	return WEEKDAYS_LONG[new Date(dateStr).getDay()] || "";
+}
 function ScheduleCalendar() {
 	const [selectedMonthIdx, setSelectedMonthIdx] = useState(0);
-	const [viewMode, setViewMode] = useState("calendar");
-	const [typeFilter, setTypeFilter] = useState("all");
+	const [viewMode, setViewMode] = useState("list");
+	const [stageFilter, setStageFilter] = useState("all");
 	const [activeGame, setActiveGame] = useState(null);
 	const [selectedCalendarDate, setSelectedCalendarDate] = useState("2026-10-09");
 	const [copiedId, setCopiedId] = useState(null);
-	const currentMonth = MONTH_NAMES[selectedMonthIdx];
+	const currentMonth = MONTHS[selectedMonthIdx];
 	const monthPrefix = `${currentMonth.year}-${String(currentMonth.month).padStart(2, "0")}`;
 	const monthGames = useMemo(() => {
 		return ROCKETS_GAMES.filter((g) => g.date.startsWith(monthPrefix));
 	}, [monthPrefix]);
 	const filteredGames = useMemo(() => {
 		return monthGames.filter((g) => {
-			if (typeFilter === "home") return g.isHome;
-			if (typeFilter === "away") return !g.isHome;
-			if (typeFilter === "macau") return g.arena.includes("澳门");
-			if (typeFilter === "cup") return g.stage === "cup";
+			if (stageFilter === "home") return g.isHome;
+			if (stageFilter === "away") return !g.isHome;
+			if (stageFilter === "cup") return g.stage === "cup";
 			return true;
 		});
-	}, [monthGames, typeFilter]);
-	const nextGame = useMemo(() => {
-		const macauGame = ROCKETS_GAMES.find((g) => g.date === "2026-10-09");
-		if (macauGame) return macauGame;
-		return ROCKETS_GAMES.filter((g) => g.status === "upcoming" && g.date >= "2026-10-01")[0] || ROCKETS_GAMES[0];
-	}, []);
+	}, [monthGames, stageFilter]);
+	const featuredGame = useMemo(() => {
+		const macau = ROCKETS_GAMES.find((g) => g.date === "2026-10-09");
+		if (macau) return macau;
+		return monthGames[0] || ROCKETS_GAMES[0];
+	}, [monthGames]);
 	const calendarDays = useMemo(() => {
 		const firstDay = new Date(currentMonth.year, currentMonth.month - 1, 1).getDay();
 		const daysInMonth = new Date(currentMonth.year, currentMonth.month, 0).getDate();
@@ -5052,454 +4946,288 @@ function ScheduleCalendar() {
 		return ROCKETS_GAMES.find((g) => g.date === selectedCalendarDate);
 	}, [selectedCalendarDate]);
 	const handleCopyReminder = (game) => {
-		const text = `【休斯敦火箭比赛日程提醒】\n对决：${game.isHome ? "休斯敦火箭 VS " + game.opponent.name : "休斯敦火箭 @ " + game.opponent.name}\n时间：${game.date} ${game.time} (北京时间)\n球馆：${game.arena}\n转播平台：${game.broadcast}`;
+		const text = `【休斯敦火箭比赛日程提醒】\n对阵：${game.isHome ? "休斯敦火箭 VS " + game.opponent.name : "休斯敦火箭 @ " + game.opponent.name}\n时间：${game.date} ${game.time} (北京时间)\n场馆：${game.arena}\n直播：${game.broadcast}`;
 		navigator.clipboard?.writeText(text);
 		setCopiedId(game.id);
-		setTimeout(() => setCopiedId(null), 2500);
+		setTimeout(() => setCopiedId(null), 2e3);
 	};
 	return /* @__PURE__ */ jsxs("div", {
-		className: "space-y-5",
+		className: "space-y-4 lg:space-y-6",
 		children: [
-			/* @__PURE__ */ jsxs("div", {
-				className: "relative overflow-hidden rounded-2xl border border-line-soft bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-950 p-4 text-white shadow-xl sm:p-6 lg:p-7",
-				children: [
-					/* @__PURE__ */ jsx("div", { className: "pointer-events-none absolute -right-16 -top-16 size-80 rounded-full bg-[#CE1141]/20 blur-3xl" }),
-					/* @__PURE__ */ jsx("div", { className: "pointer-events-none absolute -bottom-16 -left-16 size-60 rounded-full bg-amber-500/10 blur-3xl" }),
-					/* @__PURE__ */ jsxs("div", {
-						className: "relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between",
-						children: [/* @__PURE__ */ jsxs("div", {
-							className: "flex items-center gap-3 sm:gap-4",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "relative flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#CE1141] to-[#8C001A] shadow-md shadow-[#CE1141]/30 ring-1 ring-white/20 sm:size-14",
-								children: [/* @__PURE__ */ jsx("span", {
-									className: "text-xl font-black italic tracking-tighter text-white sm:text-2xl",
-									children: "HOU"
-								}), /* @__PURE__ */ jsx("span", {
-									className: "absolute -bottom-1 -right-1 rounded-full bg-amber-400 px-1 text-[8.5px] font-black text-neutral-950",
-									children: "26-27"
-								})]
-							}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex flex-wrap items-center gap-1.5",
-								children: [/* @__PURE__ */ jsx("span", {
-									className: "rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold tracking-wider text-amber-300 ring-1 ring-amber-400/40",
-									children: "🇲🇴 NBA 澳门赛重磅开启"
-								}), /* @__PURE__ */ jsx("span", {
-									className: "text-[11px] text-white/60",
-									children: "2026-27 赛季赛程"
-								})]
-							}), /* @__PURE__ */ jsx("h2", {
-								className: "mt-1 text-xl font-black tracking-tight text-white sm:text-2xl lg:text-3xl",
-								children: "休斯敦火箭 比赛赛程"
-							})] })]
-						}), nextGame && /* @__PURE__ */ jsxs("div", {
-							onClick: () => setActiveGame(nextGame),
-							className: "group cursor-pointer rounded-xl border border-white/10 bg-white/[0.07] p-3 backdrop-blur-md transition-all hover:border-[#CE1141] hover:bg-white/[0.1] sm:p-3.5",
+			featuredGame && /* @__PURE__ */ jsx("div", {
+				className: "relative overflow-hidden rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-5 lg:p-6",
+				children: /* @__PURE__ */ jsxs("div", {
+					className: "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+					children: [/* @__PURE__ */ jsxs("div", { children: [
+						/* @__PURE__ */ jsxs("div", {
+							className: "flex items-center gap-2",
+							children: [/* @__PURE__ */ jsx("span", {
+								className: "rounded-md bg-[#CE1141] px-2 py-0.5 text-[10.5px] font-bold text-white uppercase tracking-wide",
+								children: featuredGame.arena.includes("澳门") ? "NBA 澳门赛" : featuredGame.stage === "cup" ? "NBA 杯赛" : "2026-27 赛季"
+							}), /* @__PURE__ */ jsxs("span", {
+								className: "font-mono text-xs font-semibold text-ink-3",
+								children: [
+									featuredGame.date,
+									" ",
+									getWeekday(featuredGame.date),
+									" · 北京时间 ",
+									featuredGame.time
+								]
+							})]
+						}),
+						/* @__PURE__ */ jsxs("h2", {
+							className: "mt-1.5 text-lg font-black tracking-tight text-ink sm:text-xl",
 							children: [
-								/* @__PURE__ */ jsxs("div", {
-									className: "flex items-center justify-between gap-2 text-[11px] font-semibold text-white/70",
-									children: [/* @__PURE__ */ jsxs("span", {
-										className: "flex items-center gap-1 text-amber-300",
-										children: [/* @__PURE__ */ jsx("span", { className: "size-2 animate-ping rounded-full bg-amber-400" }), "焦点战 · 中国澳门站"]
-									}), /* @__PURE__ */ jsxs("span", {
-										className: "rounded bg-black/40 px-2 py-0.5 font-mono text-white/90",
-										children: [
-											nextGame.date,
-											" ",
-											nextGame.time
-										]
-									})]
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									className: "mt-2 flex items-center justify-between gap-3",
-									children: [/* @__PURE__ */ jsxs("div", {
-										className: "flex items-center gap-2",
-										children: [
-											/* @__PURE__ */ jsx("div", {
-												className: "flex size-7 items-center justify-center rounded-lg bg-[#CE1141] text-xs font-black text-white",
-												children: "HOU"
-											}),
-											/* @__PURE__ */ jsx("span", {
-												className: "text-xs font-bold text-white/90",
-												children: "VS"
-											}),
-											/* @__PURE__ */ jsx("div", {
-												className: "flex size-7 items-center justify-center rounded-lg text-xs font-black text-white",
-												style: { backgroundColor: nextGame.opponent.color },
-												children: nextGame.opponent.abbr.slice(0, 3)
-											}),
-											/* @__PURE__ */ jsx("div", {
-												className: "text-xs font-bold text-white sm:text-sm",
-												children: nextGame.opponent.name
-											})
-										]
-									}), /* @__PURE__ */ jsx("span", {
-										className: "rounded-lg bg-amber-500 px-2.5 py-1 text-[11px] font-black text-neutral-950 transition-transform group-hover:scale-105",
-										children: "对决档案 →"
-									})]
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									className: "mt-1.5 text-[10.5px] text-white/70",
-									children: [
-										"📍 ",
-										nextGame.arena,
-										" · ",
-										/* @__PURE__ */ jsx("span", {
-											className: "text-amber-200",
-											children: nextGame.keyMatchup
-										})
-									]
+								"休斯敦火箭 ",
+								featuredGame.isHome ? "VS" : "@",
+								" ",
+								featuredGame.opponent.name
+							]
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							className: "mt-1 flex flex-wrap items-center gap-3 text-xs text-ink-4",
+							children: [
+								/* @__PURE__ */ jsxs("span", { children: ["📍 ", featuredGame.arena] }),
+								/* @__PURE__ */ jsxs("span", { children: ["📺 ", featuredGame.broadcast] }),
+								featuredGame.keyMatchup && /* @__PURE__ */ jsxs("span", {
+									className: "font-medium text-ink-2",
+									children: ["焦点对位：", featuredGame.keyMatchup]
 								})
 							]
-						})]
-					}),
-					/* @__PURE__ */ jsxs("div", {
-						className: "relative z-10 mt-5 flex flex-col gap-3 border-t border-white/10 pt-3 sm:pt-4",
+						})
+					] }), /* @__PURE__ */ jsxs("div", {
+						className: "flex shrink-0 items-center gap-3 self-start sm:self-center",
 						children: [/* @__PURE__ */ jsxs("div", {
-							className: "flex flex-wrap items-center justify-between gap-3",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center gap-2",
-								children: [
-									/* @__PURE__ */ jsx("button", {
-										type: "button",
-										disabled: selectedMonthIdx === 0,
-										onClick: () => setSelectedMonthIdx((prev) => Math.max(0, prev - 1)),
-										className: "grid size-8 place-items-center rounded-lg bg-white/10 text-white/80 transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-30",
-										"aria-label": "上个月",
-										children: /* @__PURE__ */ jsx("svg", {
-											width: "16",
-											height: "16",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: "2.5",
-											children: /* @__PURE__ */ jsx("polyline", { points: "15 18 9 12 15 6" })
-										})
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "flex items-baseline gap-2",
-										children: [
-											/* @__PURE__ */ jsxs("span", {
-												className: "text-base font-black text-white sm:text-lg",
-												children: [
-													currentMonth.year,
-													"年 ",
-													currentMonth.month,
-													"月"
-												]
-											}),
-											/* @__PURE__ */ jsx("span", {
-												className: "text-xs font-semibold text-amber-300",
-												children: currentMonth.subtitle
-											}),
-											/* @__PURE__ */ jsxs("span", {
-												className: "text-xs text-white/60",
-												children: [
-													"(",
-													monthGames.length,
-													" 场)"
-												]
-											})
-										]
-									}),
-									/* @__PURE__ */ jsx("button", {
-										type: "button",
-										disabled: selectedMonthIdx === MONTH_NAMES.length - 1,
-										onClick: () => setSelectedMonthIdx((prev) => Math.min(MONTH_NAMES.length - 1, prev + 1)),
-										className: "grid size-8 place-items-center rounded-lg bg-white/10 text-white/80 transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-30",
-										"aria-label": "下个月",
-										children: /* @__PURE__ */ jsx("svg", {
-											width: "16",
-											height: "16",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: "2.5",
-											children: /* @__PURE__ */ jsx("polyline", { points: "9 18 15 12 9 6" })
-										})
-									})
-								]
-							}), /* @__PURE__ */ jsx("div", {
-								className: "flex items-center gap-1.5 text-xs",
-								children: /* @__PURE__ */ jsxs("div", {
-									className: "flex items-center rounded-lg bg-black/40 p-0.5",
-									children: [/* @__PURE__ */ jsxs("button", {
-										type: "button",
-										onClick: () => setViewMode("list"),
-										className: `flex items-center gap-1 rounded-md px-3 py-1 font-semibold transition-colors ${viewMode === "list" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"}`,
-										children: [/* @__PURE__ */ jsxs("svg", {
-											width: "13",
-											height: "13",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: "2.5",
-											children: [
-												/* @__PURE__ */ jsx("line", {
-													x1: "8",
-													y1: "6",
-													x2: "21",
-													y2: "6"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "8",
-													y1: "12",
-													x2: "21",
-													y2: "12"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "8",
-													y1: "18",
-													x2: "21",
-													y2: "18"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "3",
-													y1: "6",
-													x2: "3.01",
-													y2: "6"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "3",
-													y1: "12",
-													x2: "3.01",
-													y2: "12"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "3",
-													y1: "18",
-													x2: "3.01",
-													y2: "18"
-												})
-											]
-										}), "赛程清单"]
-									}), /* @__PURE__ */ jsxs("button", {
-										type: "button",
-										onClick: () => setViewMode("calendar"),
-										className: `flex items-center gap-1 rounded-md px-3 py-1 font-semibold transition-colors ${viewMode === "calendar" ? "bg-white text-neutral-950 shadow-xs" : "text-white/70 hover:text-white"}`,
-										children: [/* @__PURE__ */ jsxs("svg", {
-											width: "13",
-											height: "13",
-											viewBox: "0 0 24 24",
-											fill: "none",
-											stroke: "currentColor",
-											strokeWidth: "2.5",
-											children: [
-												/* @__PURE__ */ jsx("rect", {
-													x: "3",
-													y: "4",
-													width: "18",
-													height: "18",
-													rx: "2",
-													ry: "2"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "16",
-													y1: "2",
-													x2: "16",
-													y2: "6"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "8",
-													y1: "2",
-													x2: "8",
-													y2: "6"
-												}),
-												/* @__PURE__ */ jsx("line", {
-													x1: "3",
-													y1: "10",
-													x2: "21",
-													y2: "10"
-												})
-											]
-										}), "日历视图"]
+							className: "flex items-center gap-2 rounded-xl border border-line-soft bg-bg-sunk/60 px-3 py-2",
+							children: [
+								/* @__PURE__ */ jsx("div", {
+									className: "flex size-8 items-center justify-center rounded-lg bg-[#CE1141] text-xs font-black text-white shadow-xs",
+									children: "HOU"
+								}),
+								/* @__PURE__ */ jsx("span", {
+									className: "font-mono text-xs font-black text-ink-3",
+									children: "VS"
+								}),
+								/* @__PURE__ */ jsx("div", {
+									className: "flex size-8 items-center justify-center rounded-lg text-xs font-black text-white shadow-xs",
+									style: { backgroundColor: featuredGame.opponent.color },
+									children: featuredGame.opponent.abbr.slice(0, 3)
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "text-left pl-1",
+									children: [/* @__PURE__ */ jsx("div", {
+										className: "text-xs font-bold text-ink",
+										children: featuredGame.opponent.name
+									}), /* @__PURE__ */ jsx("div", {
+										className: "text-[10px] text-ink-4",
+										children: featuredGame.isHome ? "客场来访" : "火箭客战"
 									})]
 								})
-							})]
-						}), /* @__PURE__ */ jsx("div", {
-							className: "grid grid-cols-7 gap-1 rounded-xl bg-black/40 p-1 sm:gap-1.5",
-							children: MONTH_NAMES.map((m, idx) => /* @__PURE__ */ jsxs("button", {
-								type: "button",
-								onClick: () => setSelectedMonthIdx(idx),
-								className: `flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-all sm:py-2 ${selectedMonthIdx === idx ? "bg-white text-neutral-950 shadow-sm font-black" : "text-white/70 hover:bg-white/10 hover:text-white"}`,
-								children: [/* @__PURE__ */ jsx("span", {
-									className: "font-bold",
-									children: m.label
-								}), /* @__PURE__ */ jsx("span", {
-									className: `hidden text-[10px] font-normal sm:inline ${selectedMonthIdx === idx ? "text-neutral-600" : "text-white/40"}`,
-									children: m.year
-								})]
-							}, m.label))
+							]
+						}), /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => handleCopyReminder(featuredGame),
+							className: "hidden rounded-xl border border-line bg-surface px-3 py-2 text-xs font-semibold text-ink-2 shadow-xs transition-colors hover:border-[#CE1141] hover:text-[#CE1141] sm:inline-flex",
+							children: copiedId === featuredGame.id ? "已复制 ✓" : "提醒"
 						})]
+					})]
+				})
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-line-soft pb-3",
+				children: [/* @__PURE__ */ jsx("div", {
+					className: "flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none sm:pb-0",
+					children: MONTHS.map((m, idx) => {
+						return /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setSelectedMonthIdx(idx),
+							className: `inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[13px] font-bold transition-colors ${selectedMonthIdx === idx ? "bg-[#CE1141] text-white shadow-xs" : "bg-bg-sunk text-ink-3 hover:text-ink hover:bg-neutral-200 dark:hover:bg-neutral-800"}`,
+							children: m.label
+						}, m.label);
 					})
-				]
+				}), /* @__PURE__ */ jsxs("div", {
+					className: "flex items-center justify-between sm:justify-end gap-2 text-xs",
+					children: [/* @__PURE__ */ jsx("div", {
+						className: "flex items-center rounded-lg border border-line-soft bg-surface p-0.5",
+						children: [
+							{
+								key: "all",
+								label: "全部"
+							},
+							{
+								key: "home",
+								label: "主场"
+							},
+							{
+								key: "away",
+								label: "客场"
+							},
+							{
+								key: "cup",
+								label: "杯赛"
+							}
+						].map((f) => /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setStageFilter(f.key),
+							className: `rounded-md px-2 py-0.5 font-medium transition-colors ${stageFilter === f.key ? "bg-bg-sunk font-bold text-ink" : "text-ink-4 hover:text-ink"}`,
+							children: f.label
+						}, f.key))
+					}), /* @__PURE__ */ jsxs("div", {
+						className: "flex items-center rounded-lg border border-line-soft bg-surface p-0.5",
+						children: [/* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setViewMode("list"),
+							className: `flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-colors ${viewMode === "list" ? "bg-[#CE1141] text-white shadow-xs" : "text-ink-3 hover:text-ink"}`,
+							children: "清单"
+						}), /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setViewMode("calendar"),
+							className: `flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-colors ${viewMode === "calendar" ? "bg-[#CE1141] text-white shadow-xs" : "text-ink-3 hover:text-ink"}`,
+							children: "日历"
+						})]
+					})]
+				})]
 			}),
 			viewMode === "list" && /* @__PURE__ */ jsx("div", {
 				className: "space-y-2.5",
 				children: filteredGames.length === 0 ? /* @__PURE__ */ jsx("div", {
-					className: "rounded-2xl border border-line-soft bg-surface py-12 text-center text-ink-4",
-					children: "当前月份暂无匹配比赛"
+					className: "rounded-2xl border border-line-soft bg-surface py-14 text-center text-xs text-ink-4",
+					children: "该筛选下当月暂无比赛安排"
 				}) : filteredGames.map((game) => {
 					const isMacau = game.arena.includes("澳门");
 					return /* @__PURE__ */ jsxs("div", {
 						onClick: () => setActiveGame(game),
-						className: `group relative flex cursor-pointer flex-col gap-3 overflow-hidden rounded-2xl border bg-surface p-3.5 shadow-xs transition-all hover:border-accent hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-4 ${isMacau ? "border-amber-400/60 ring-1 ring-amber-400/20" : "border-line-soft"}`,
-						children: [
-							isMacau && /* @__PURE__ */ jsx("div", {
-								className: "absolute right-0 top-0 rounded-bl-xl bg-gradient-to-l from-amber-500 to-amber-600 px-2 py-0.5 text-[9.5px] font-black text-neutral-950 shadow-sm",
-								children: "🇲🇴 澳门赛焦点战"
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center gap-3 sm:gap-4",
-								children: [/* @__PURE__ */ jsxs("div", {
-									className: `flex size-12 shrink-0 flex-col items-center justify-center rounded-xl font-mono text-center sm:size-14 ${isMacau ? "bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200" : "bg-bg-sunk text-ink"}`,
-									children: [/* @__PURE__ */ jsxs("span", {
-										className: "text-[9.5px] uppercase opacity-75",
-										children: [game.date.slice(5, 7), "月"]
-									}), /* @__PURE__ */ jsx("span", {
-										className: "text-lg font-black leading-none sm:text-xl",
-										children: game.date.slice(8, 10)
-									})]
-								}), /* @__PURE__ */ jsxs("div", { children: [
-									/* @__PURE__ */ jsxs("div", {
-										className: "flex flex-wrap items-center gap-1.5",
-										children: [
-											/* @__PURE__ */ jsx("span", {
-												className: `rounded px-1.5 py-0.2 text-[9.5px] font-extrabold uppercase ${game.isHome ? "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300" : "bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"}`,
-												children: game.isHome ? "主场 vs" : "客场 @"
-											}),
-											game.stage === "cup" && !isMacau && /* @__PURE__ */ jsx("span", {
-												className: "rounded bg-amber-100 px-1.5 py-0.2 text-[9.5px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-												children: "🏆 NBA杯"
-											}),
-											/* @__PURE__ */ jsxs("span", {
-												className: "font-mono text-[11px] font-semibold text-accent",
-												children: ["北京时间 ", game.time]
-											})
-										]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "mt-1 flex items-center gap-2",
-										children: [/* @__PURE__ */ jsx("div", {
-											className: "flex size-5 shrink-0 items-center justify-center rounded text-[9px] font-black text-white",
-											style: { backgroundColor: game.opponent.color },
-											children: game.opponent.abbr.slice(0, 3)
-										}), /* @__PURE__ */ jsxs("h3", {
-											className: "text-sm font-extrabold text-ink sm:text-base",
-											children: [
-												"休斯敦火箭 ",
-												game.isHome ? "VS" : "@",
-												" ",
-												game.opponent.name
-											]
-										})]
-									}),
-									game.keyMatchup && /* @__PURE__ */ jsxs("p", {
-										className: "mt-0.5 line-clamp-1 text-[11.5px] text-ink-3",
-										children: ["焦点：", /* @__PURE__ */ jsx("span", {
-											className: "text-ink font-medium",
-											children: game.keyMatchup
-										})]
-									})
-								] })]
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center justify-between gap-3 border-t border-line-soft pt-2 sm:border-t-0 sm:pt-0",
-								children: [/* @__PURE__ */ jsxs("div", {
-									className: "text-left sm:text-right",
-									children: [/* @__PURE__ */ jsx("div", {
-										className: "text-[11.5px] font-medium text-ink-2",
-										children: game.arena
-									}), /* @__PURE__ */ jsx("div", {
-										className: "text-[10.5px] text-ink-4",
-										children: game.broadcast
-									})]
-								}), /* @__PURE__ */ jsx("button", {
-									type: "button",
-									onClick: (e) => {
-										e.stopPropagation();
-										handleCopyReminder(game);
-									},
-									className: "rounded-lg border border-line-soft bg-surface px-2.5 py-1 text-xs font-semibold text-ink-2 hover:bg-bg-sunk transition-colors",
-									children: copiedId === game.id ? "已复制 ✓" : "提醒"
+						className: "group flex cursor-pointer flex-col justify-between gap-3 rounded-2xl border border-line-soft bg-surface p-3.5 shadow-2xs transition-all hover:border-[#CE1141]/50 hover:shadow-xs sm:flex-row sm:items-center sm:p-4",
+						children: [/* @__PURE__ */ jsxs("div", {
+							className: "flex items-center gap-3.5 sm:gap-4",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "flex size-12 shrink-0 flex-col items-center justify-center rounded-xl bg-bg-sunk text-center",
+								children: [/* @__PURE__ */ jsxs("span", {
+									className: "text-[10px] font-bold text-ink-4 uppercase",
+									children: [
+										game.date.slice(5, 7),
+										".",
+										game.date.slice(8, 10)
+									]
+								}), /* @__PURE__ */ jsx("span", {
+									className: "text-[11px] font-extrabold text-ink leading-tight",
+									children: getWeekday(game.date).replace("周", "")
 								})]
-							})
-						]
+							}), /* @__PURE__ */ jsxs("div", { children: [
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex flex-wrap items-center gap-1.5 text-[11px]",
+									children: [
+										/* @__PURE__ */ jsx("span", {
+											className: `rounded px-1.5 py-0.2 text-[10px] font-bold ${game.isHome ? "bg-red-50 text-[#CE1141] dark:bg-red-950/40" : "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"}`,
+											children: game.isHome ? "主场 vs" : "客场 @"
+										}),
+										isMacau && /* @__PURE__ */ jsx("span", {
+											className: "rounded bg-amber-100 dark:bg-amber-950/60 px-1.5 py-0.2 text-[10px] font-black text-amber-800 dark:text-amber-300",
+											children: "澳门站"
+										}),
+										game.stage === "cup" && /* @__PURE__ */ jsx("span", {
+											className: "rounded bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.2 text-[10px] font-bold text-amber-700 dark:text-amber-300",
+											children: "NBA杯"
+										}),
+										/* @__PURE__ */ jsxs("span", {
+											className: "font-mono text-xs font-bold text-ink-2",
+											children: [game.time, " (北京时间)"]
+										})
+									]
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "mt-1 flex items-center gap-2",
+									children: [/* @__PURE__ */ jsx("div", {
+										className: "flex size-5 shrink-0 items-center justify-center rounded text-[9px] font-black text-white",
+										style: { backgroundColor: game.opponent.color },
+										children: game.opponent.abbr.slice(0, 3)
+									}), /* @__PURE__ */ jsxs("h3", {
+										className: "text-sm font-bold text-ink transition-colors group-hover:text-[#CE1141] sm:text-base",
+										children: [
+											"休斯敦火箭 ",
+											game.isHome ? "VS" : "@",
+											" ",
+											game.opponent.name
+										]
+									})]
+								}),
+								game.keyMatchup && /* @__PURE__ */ jsxs("p", {
+									className: "mt-0.5 line-clamp-1 text-[11.5px] text-ink-3",
+									children: ["焦点：", /* @__PURE__ */ jsx("span", {
+										className: "font-medium text-ink",
+										children: game.keyMatchup
+									})]
+								})
+							] })]
+						}), /* @__PURE__ */ jsxs("div", {
+							className: "flex items-center justify-between border-t border-line-soft pt-2 text-xs sm:border-t-0 sm:pt-0 sm:text-right",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "text-ink-3",
+								children: [/* @__PURE__ */ jsx("div", {
+									className: "font-medium text-ink-2",
+									children: game.arena
+								}), /* @__PURE__ */ jsx("div", {
+									className: "text-[11px] text-ink-4",
+									children: game.broadcast
+								})]
+							}), /* @__PURE__ */ jsx("button", {
+								type: "button",
+								onClick: (e) => {
+									e.stopPropagation();
+									handleCopyReminder(game);
+								},
+								className: "ml-3 rounded-lg border border-line-soft bg-surface px-2.5 py-1 text-xs font-semibold text-ink-3 transition-colors hover:border-[#CE1141] hover:text-[#CE1141]",
+								children: copiedId === game.id ? "已复制 ✓" : "提醒"
+							})]
+						})]
 					}, game.id);
 				})
 			}),
 			viewMode === "calendar" && /* @__PURE__ */ jsxs("div", {
-				className: "space-y-4",
+				className: "space-y-3",
 				children: [/* @__PURE__ */ jsxs("div", {
-					className: "overflow-hidden rounded-2xl border border-line-soft bg-surface shadow-xs",
+					className: "overflow-hidden rounded-2xl border border-line bg-surface shadow-xs",
 					children: [/* @__PURE__ */ jsx("div", {
-						className: "grid grid-cols-7 border-b border-line-soft bg-bg-sunk/60 text-center text-xs font-bold uppercase tracking-wider text-ink-3",
-						children: WEEKDAYS_LONG.map((w, idx) => /* @__PURE__ */ jsxs("div", {
-							className: `py-2.5 ${idx === 0 || idx === 6 ? "text-accent font-black" : ""}`,
-							children: [/* @__PURE__ */ jsx("span", {
-								className: "hidden sm:inline",
-								children: w
-							}), /* @__PURE__ */ jsx("span", {
-								className: "sm:hidden",
-								children: WEEKDAYS$1[idx]
-							})]
+						className: "grid grid-cols-7 border-b border-line bg-bg-sunk/40 text-center text-xs font-bold text-ink-3",
+						children: WEEKDAYS$1.map((w, idx) => /* @__PURE__ */ jsxs("div", {
+							className: `py-2 ${idx === 0 || idx === 6 ? "text-[#CE1141]" : ""}`,
+							children: ["周", w]
 						}, w))
 					}), /* @__PURE__ */ jsx("div", {
 						className: "grid grid-cols-7 divide-x divide-y divide-line-soft bg-line-soft",
 						children: calendarDays.map((cell, idx) => {
 							const game = cell.game;
-							const isMacau = game?.arena.includes("澳门");
 							const isSelected = cell.dateStr === selectedCalendarDate;
 							return /* @__PURE__ */ jsxs("div", {
 								onClick: () => {
 									setSelectedCalendarDate(cell.dateStr);
 									if (game) setActiveGame(game);
 								},
-								className: `relative flex min-h-[58px] cursor-pointer flex-col bg-surface p-1 transition-colors sm:min-h-[115px] sm:p-2 lg:min-h-[125px] ${!cell.isCurrentMonth ? "bg-bg-sunk/40 opacity-30" : "hover:bg-bg-sunk/40"} ${isSelected ? "ring-2 ring-inset ring-accent bg-accent-soft/30" : ""}`,
+								className: `relative flex min-h-[64px] cursor-pointer flex-col bg-surface p-1.5 transition-colors sm:min-h-[110px] sm:p-2 ${!cell.isCurrentMonth ? "bg-bg-sunk/40 opacity-30" : "hover:bg-bg-sunk/50"} ${isSelected ? "ring-2 ring-inset ring-[#CE1141] bg-red-50/10" : ""}`,
 								children: [/* @__PURE__ */ jsxs("div", {
 									className: "flex items-center justify-between",
-									children: [
-										/* @__PURE__ */ jsx("span", {
-											className: `font-mono text-xs font-bold ${cell.isCurrentMonth ? "text-ink-2" : "text-ink-4"}`,
-											children: cell.dayNum
-										}),
-										game && /* @__PURE__ */ jsx("span", {
-											className: `hidden sm:inline-block rounded px-1.5 py-0.5 text-[9px] font-extrabold uppercase ${isMacau ? "bg-amber-100 text-amber-900 ring-1 ring-amber-400 font-black dark:bg-amber-950 dark:text-amber-300" : game.isHome ? "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300" : "bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"}`,
-											children: isMacau ? "澳门赛" : game.isHome ? "主场" : "客场"
-										}),
-										game && /* @__PURE__ */ jsxs("div", {
-											className: "sm:hidden mt-0.5 flex flex-col items-center justify-center",
-											children: [/* @__PURE__ */ jsx("div", {
-												className: "flex size-5 items-center justify-center rounded text-[8px] font-black text-white shadow-xs",
-												style: { backgroundColor: game.opponent.color },
-												children: game.opponent.abbr.slice(0, 3)
-											}), /* @__PURE__ */ jsx("span", {
-												className: `text-[8.5px] font-extrabold mt-0.5 leading-none ${isMacau ? "text-amber-500 font-black" : "text-ink-3"}`,
-												children: isMacau ? "🇲🇴澳门" : game.isHome ? "主场" : "客场"
-											})]
-										})
-									]
+									children: [/* @__PURE__ */ jsx("span", {
+										className: `font-mono text-xs font-bold ${cell.isCurrentMonth ? "text-ink-2" : "text-ink-4"}`,
+										children: cell.dayNum
+									}), game && /* @__PURE__ */ jsx("span", {
+										className: `rounded px-1 text-[9px] font-bold ${game.isHome ? "bg-red-50 text-[#CE1141] dark:bg-red-950/40" : "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"}`,
+										children: game.isHome ? "主" : "客"
+									})]
 								}), game && /* @__PURE__ */ jsxs("div", {
-									className: "hidden sm:flex mt-1 flex-1 flex-col justify-between overflow-hidden rounded-xl border border-line-soft p-1.5 text-left bg-raised",
-									children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
-										className: "flex items-center gap-1.5",
+									className: "mt-1 flex-1 flex flex-col justify-center",
+									children: [/* @__PURE__ */ jsxs("div", {
+										className: "flex items-center gap-1",
 										children: [/* @__PURE__ */ jsx("div", {
 											className: "flex size-4 shrink-0 items-center justify-center rounded text-[8px] font-black text-white",
 											style: { backgroundColor: game.opponent.color },
 											children: game.opponent.abbr.slice(0, 3)
-										}), /* @__PURE__ */ jsxs("span", {
-											className: "truncate text-[11.5px] font-bold text-ink",
-											children: [
-												game.isHome ? "vs" : "@",
-												" ",
-												game.opponent.name
-											]
+										}), /* @__PURE__ */ jsx("span", {
+											className: "truncate text-[11px] font-extrabold text-ink",
+											children: game.opponent.name
 										})]
 									}), /* @__PURE__ */ jsx("div", {
-										className: "mt-0.5 font-mono text-[10.5px] text-ink-3",
+										className: "mt-0.5 font-mono text-[10px] text-ink-4",
 										children: game.time
-									})] }), /* @__PURE__ */ jsx("div", {
-										className: "mt-1 text-[9px] font-medium text-ink-4 truncate",
-										children: isMacau ? "威尼斯人金光馆" : game.arena.slice(0, 4)
 									})]
 								})]
 							}, cell.dateStr + idx);
@@ -5507,158 +5235,124 @@ function ScheduleCalendar() {
 					})]
 				}), selectedDayGame && /* @__PURE__ */ jsxs("div", {
 					onClick: () => setActiveGame(selectedDayGame),
-					className: "sm:hidden rounded-2xl border border-accent/40 bg-accent-soft/20 p-3.5 shadow-sm",
-					children: [
-						/* @__PURE__ */ jsxs("div", {
-							className: "flex items-center justify-between text-xs",
-							children: [/* @__PURE__ */ jsxs("span", {
-								className: "font-bold text-accent",
-								children: [selectedDayGame.date, " · 比赛日安排"]
-							}), /* @__PURE__ */ jsxs("span", {
-								className: "font-mono text-ink-3",
-								children: ["北京时间 ", selectedDayGame.time]
-							})]
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "mt-2 flex items-center justify-between",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center gap-2",
-								children: [/* @__PURE__ */ jsx("div", {
-									className: "flex size-6 items-center justify-center rounded text-[10px] font-black text-white",
-									style: { backgroundColor: selectedDayGame.opponent.color },
-									children: selectedDayGame.opponent.abbr.slice(0, 3)
-								}), /* @__PURE__ */ jsxs("span", {
-									className: "text-sm font-black text-ink",
-									children: [
-										"休斯敦火箭 ",
-										selectedDayGame.isHome ? "VS" : "@",
-										" ",
-										selectedDayGame.opponent.name
-									]
-								})]
-							}), /* @__PURE__ */ jsx("span", {
-								className: "rounded bg-accent px-2 py-0.5 text-[11px] font-bold text-accent-contrast",
-								children: "详情"
-							})]
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "mt-1 text-xs text-ink-3",
-							children: [
-								"📍 ",
-								selectedDayGame.arena,
-								" · 📺 ",
-								selectedDayGame.broadcast
-							]
-						})
-					]
+					className: "sm:hidden rounded-xl border border-line bg-surface p-3 text-xs shadow-xs",
+					children: [/* @__PURE__ */ jsxs("div", {
+						className: "flex items-center justify-between font-bold text-ink",
+						children: [/* @__PURE__ */ jsxs("span", { children: [
+							selectedDayGame.date,
+							" · ",
+							selectedDayGame.isHome ? "主场 vs" : "客场 @",
+							" ",
+							selectedDayGame.opponent.name
+						] }), /* @__PURE__ */ jsx("span", {
+							className: "font-mono text-ink-3",
+							children: selectedDayGame.time
+						})]
+					}), /* @__PURE__ */ jsxs("div", {
+						className: "mt-1 text-ink-4",
+						children: [
+							"📍 ",
+							selectedDayGame.arena,
+							" · 📺 ",
+							selectedDayGame.broadcast
+						]
+					})]
 				})]
 			}),
 			activeGame && /* @__PURE__ */ jsx("div", {
-				className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in",
+				className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-fade-in",
 				onClick: () => setActiveGame(null),
 				children: /* @__PURE__ */ jsxs("div", {
-					className: "w-full max-w-lg overflow-hidden rounded-3xl border border-line bg-surface p-5 sm:p-6 shadow-2xl transition-all",
+					className: "w-full max-w-md overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-xl transition-all",
 					onClick: (e) => e.stopPropagation(),
 					children: [
 						/* @__PURE__ */ jsxs("div", {
-							className: "flex items-center justify-between border-b border-line-soft pb-3.5",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center gap-2",
-								children: [/* @__PURE__ */ jsx("span", {
-									className: `rounded-full px-2.5 py-0.5 text-xs font-bold ${activeGame.arena.includes("澳门") ? "bg-amber-400 text-neutral-950 font-black shadow-xs" : activeGame.stage === "cup" ? "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" : "bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300"}`,
-									children: activeGame.arena.includes("澳门") ? "🇲🇴 NBA 中国澳门赛" : activeGame.stage === "cup" ? "🏆 Emirates NBA Cup 锦标赛" : "2026-27 常规赛"
-								}), /* @__PURE__ */ jsxs("span", {
-									className: "font-mono text-xs text-ink-3",
-									children: [
-										activeGame.date,
-										" ",
-										activeGame.time
-									]
-								})]
+							className: "flex items-center justify-between border-b border-line-soft pb-3",
+							children: [/* @__PURE__ */ jsxs("span", {
+								className: "text-xs font-bold text-ink-3",
+								children: [
+									activeGame.date,
+									" ",
+									getWeekday(activeGame.date),
+									" · ",
+									activeGame.time,
+									" (北京时间)"
+								]
 							}), /* @__PURE__ */ jsx("button", {
 								type: "button",
 								onClick: () => setActiveGame(null),
-								className: "grid size-8 place-items-center rounded-full text-ink-4 hover:bg-bg-sunk hover:text-ink transition-colors",
+								className: "grid size-7 place-items-center rounded-full text-ink-4 hover:bg-bg-sunk hover:text-ink transition-colors",
 								children: "✕"
 							})]
 						}),
 						/* @__PURE__ */ jsxs("div", {
-							className: "my-5 flex items-center justify-around sm:my-6",
+							className: "my-5 flex items-center justify-around",
 							children: [
 								/* @__PURE__ */ jsxs("div", {
 									className: "text-center",
 									children: [
 										/* @__PURE__ */ jsx("div", {
-											className: "mx-auto flex size-14 items-center justify-center rounded-2xl bg-[#CE1141] text-xl font-black text-white shadow-lg shadow-[#CE1141]/20 sm:size-16 sm:text-2xl",
+											className: "mx-auto flex size-12 items-center justify-center rounded-xl bg-[#CE1141] text-lg font-black text-white shadow-sm",
 											children: "HOU"
 										}),
 										/* @__PURE__ */ jsx("div", {
-											className: "mt-2 text-sm font-bold text-ink sm:text-base",
+											className: "mt-1.5 text-sm font-bold text-ink",
 											children: "休斯敦火箭"
 										}),
 										/* @__PURE__ */ jsx("div", {
-											className: "text-[11px] text-ink-4",
-											children: activeGame.isHome ? "主队" : "客队"
+											className: "text-[10.5px] text-ink-4",
+											children: activeGame.isHome ? "主场" : "客场"
 										})
 									]
 								}),
-								/* @__PURE__ */ jsxs("div", {
-									className: "text-center",
-									children: [/* @__PURE__ */ jsx("div", {
-										className: "font-mono text-xl font-black italic text-ink-3 sm:text-2xl",
-										children: "VS"
-									}), /* @__PURE__ */ jsxs("div", {
-										className: "mt-1 rounded-full bg-bg-sunk px-2 py-0.5 text-[10.5px] font-semibold text-accent",
-										children: ["北京时间 ", activeGame.time]
-									})]
+								/* @__PURE__ */ jsx("div", {
+									className: "font-mono text-base font-black italic text-ink-4",
+									children: "VS"
 								}),
 								/* @__PURE__ */ jsxs("div", {
 									className: "text-center",
 									children: [
 										/* @__PURE__ */ jsx("div", {
-											className: "mx-auto flex size-14 items-center justify-center rounded-2xl text-xl font-black text-white shadow-lg sm:size-16 sm:text-2xl",
+											className: "mx-auto flex size-12 items-center justify-center rounded-xl text-lg font-black text-white shadow-sm",
 											style: { backgroundColor: activeGame.opponent.color },
 											children: activeGame.opponent.abbr.slice(0, 3)
 										}),
 										/* @__PURE__ */ jsx("div", {
-											className: "mt-2 text-sm font-bold text-ink sm:text-base",
+											className: "mt-1.5 text-sm font-bold text-ink",
 											children: activeGame.opponent.name
 										}),
 										/* @__PURE__ */ jsx("div", {
-											className: "text-[11px] text-ink-4",
-											children: activeGame.isHome ? "客队" : "主队"
+											className: "text-[10.5px] text-ink-4",
+											children: activeGame.isHome ? "客场" : "主场"
 										})
 									]
 								})
 							]
 						}),
 						/* @__PURE__ */ jsxs("div", {
-							className: "space-y-2.5 rounded-2xl bg-bg-sunk/60 p-3.5 text-xs leading-relaxed text-ink-2 sm:p-4",
+							className: "space-y-2 rounded-xl bg-bg-sunk/60 p-3 text-xs text-ink-2",
 							children: [
 								activeGame.keyMatchup && /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("span", {
 									className: "font-bold text-ink",
-									children: "🔥 焦点对决："
-								}), /* @__PURE__ */ jsx("span", {
-									className: "font-semibold text-accent",
-									children: activeGame.keyMatchup
-								})] }),
+									children: "焦点对位："
+								}), /* @__PURE__ */ jsx("span", { children: activeGame.keyMatchup })] }),
 								activeGame.previewNotes && /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("span", {
 									className: "font-bold text-ink",
-									children: "📋 赛事看点："
+									children: "赛事前瞻："
 								}), /* @__PURE__ */ jsx("span", { children: activeGame.previewNotes })] }),
 								/* @__PURE__ */ jsxs("div", {
-									className: "border-t border-line-soft pt-2 text-ink-3",
-									children: [/* @__PURE__ */ jsxs("div", { children: ["📍 比赛场馆：", activeGame.arena] }), /* @__PURE__ */ jsxs("div", { children: ["📺 直播平台：", activeGame.broadcast] })]
+									className: "border-t border-line-soft pt-1.5 text-ink-4",
+									children: [/* @__PURE__ */ jsxs("div", { children: ["场馆：", activeGame.arena] }), /* @__PURE__ */ jsxs("div", { children: ["转播：", activeGame.broadcast] })]
 								})
 							]
 						}),
 						/* @__PURE__ */ jsx("div", {
-							className: "mt-4 flex items-center justify-end gap-2 sm:mt-5",
+							className: "mt-4 flex justify-end",
 							children: /* @__PURE__ */ jsx("button", {
 								type: "button",
 								onClick: () => handleCopyReminder(activeGame),
-								className: "flex items-center gap-1.5 rounded-full bg-accent px-5 py-2 text-xs font-semibold text-accent-contrast shadow-sm hover:bg-accent-ink transition-colors",
-								children: copiedId === activeGame.id ? "已复制提醒到剪贴板 ✓" : "复制观赛提醒"
+								className: "rounded-full bg-[#CE1141] px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:opacity-90 transition-opacity",
+								children: copiedId === activeGame.id ? "已复制提醒到剪贴板 ✓" : "复制比赛日程提醒"
 							})
 						})
 					]
@@ -5743,6 +5437,29 @@ function SelectedBadge() {
 		tone: "selected",
 		dot: true,
 		children: "精选"
+	});
+}
+//#endregion
+//#region app/components/ui/Score.tsx
+/**
+* 篮球资讯前线热度评级标签 (纯净、专业体育媒体风格)
+*/
+function ScoreLabel({ score, compact = false }) {
+	if (score === null || score === void 0) return null;
+	const isTenScale = score <= 10;
+	const numDisplay = isTenScale ? Number.isInteger(score) ? score.toFixed(1) : String(score) : String(Math.round(score));
+	const colorCls = (isTenScale ? score * 10 : score) >= 85 ? "bg-red-50 text-[#CE1141] ring-[#CE1141]/25 dark:bg-red-950/40 dark:text-red-300 dark:ring-red-900" : "bg-neutral-100 text-ink-3 ring-line dark:bg-neutral-800/60 dark:text-ink-3";
+	return /* @__PURE__ */ jsxs("span", {
+		title: `前线热度评级：${numDisplay}`,
+		"aria-label": `热度评级 ${numDisplay}`,
+		className: `inline-flex h-[20px] shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-1.5 text-[10.5px] font-medium ring-1 ring-inset ${colorCls}`,
+		children: [/* @__PURE__ */ jsx("span", {
+			className: "font-mono text-[11px] font-black tabular-nums tracking-tight",
+			children: numDisplay
+		}), !compact && /* @__PURE__ */ jsx("span", {
+			className: "text-[10px] font-semibold opacity-80",
+			children: "热度"
+		})]
 	});
 }
 //#endregion
@@ -6105,6 +5822,89 @@ function YouTubeEmbed({ info, poster, className = "", autoPlay = false }) {
 	});
 }
 //#endregion
+//#region app/lib/youtube.ts
+var KNOWN_CHANNELS = {
+	lockedonrockets: {
+		playlistId: "UUnizQkhQWv7GwQ1PY2EJGLw",
+		defaultVideoId: "HXAWBBwAtKw",
+		name: "Locked On Rockets"
+	},
+	houstonrockets: {
+		playlistId: "UUhdTjGHWrl-scbthhYSGB3g",
+		name: "休斯顿火箭官方 YouTube"
+	}
+};
+/**
+* Extracts a YouTube video ID from a URL or text string.
+*/
+function extractYouTubeVideoId(text) {
+	if (!text) return null;
+	const match = text.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|v\/|live\/))([a-zA-Z0-9_-]{11})/i);
+	return match ? match[1] : null;
+}
+/**
+* Extracts a YouTube channel handle (e.g. "@LockedOnRockets") from a URL or text string.
+*/
+function extractYouTubeChannel(text) {
+	if (!text) return null;
+	const match = text.match(/youtube\.com\/@([a-zA-Z0-9_.-]+)/i);
+	return match ? match[1] : null;
+}
+/**
+* Detects any YouTube video or channel embedded in an item's fields.
+*/
+function detectYouTube(item) {
+	const original = item.links?.original ?? "";
+	const directVid = extractYouTubeVideoId(original);
+	if (directVid) return {
+		videoId: directVid,
+		playlistId: null,
+		channelHandle: null,
+		embedUrl: `https://www.youtube-nocookie.com/embed/${directVid}`,
+		originalUrl: original
+	};
+	const candidates = [
+		item.links?.original ?? "",
+		item.summary ?? "",
+		item.x?.text ?? "",
+		item.x?.quoted?.text ?? "",
+		item.x?.quoted?.url ?? "",
+		item.body?.original ?? "",
+		item.body?.zh ?? ""
+	].filter(Boolean);
+	for (const text of candidates) {
+		const vid = extractYouTubeVideoId(text);
+		if (vid) return {
+			videoId: vid,
+			playlistId: null,
+			channelHandle: null,
+			embedUrl: `https://www.youtube-nocookie.com/embed/${vid}`,
+			originalUrl: `https://www.youtube.com/watch?v=${vid}`
+		};
+	}
+	for (const text of candidates) {
+		const handle = extractYouTubeChannel(text);
+		if (handle) {
+			const known = KNOWN_CHANNELS[handle.toLowerCase()];
+			const videoId = known?.defaultVideoId ?? null;
+			const playlistId = known?.playlistId ?? null;
+			let embedUrl;
+			if (videoId) embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}`;
+			else if (playlistId) embedUrl = `https://www.youtube-nocookie.com/embed/videoseries?list=${playlistId}`;
+			else embedUrl = `https://www.youtube-nocookie.com/embed?listType=search&list=${encodeURIComponent(handle)}`;
+			return {
+				videoId,
+				playlistId,
+				channelHandle: handle,
+				embedUrl,
+				originalUrl: `https://www.youtube.com/@${handle}`,
+				channelName: known?.name ?? `@${handle}`
+			};
+		}
+	}
+	return null;
+}
+//#endregion
 //#region app/routes/item.tsx
 var item_exports = /* @__PURE__ */ __exportAll({
 	default: () => item_default,
@@ -6112,7 +5912,7 @@ var item_exports = /* @__PURE__ */ __exportAll({
 	loader: () => loader$32,
 	meta: () => meta$36
 });
-var PosterSheet = lazy(() => import("./assets/PosterSheet-CFht5Ufd.js"));
+var PosterSheet = lazy(() => import("./assets/PosterSheet-CJByAUzu.js"));
 async function loader$32({ params, request }) {
 	return { item: await loadOr404(`/api/site/items/${encodeURIComponent(params.id)}`, { signal: request.signal }) };
 }
@@ -21818,15 +21618,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-DG-zXl9q.js",
+			"module": "/assets/root-CQPSWXFx.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/Sidebar-CElbQw3o.js",
-				"/assets/Chrome-DrkFwdNV.js",
+				"/assets/shared-Co_WCooI.js",
+				"/assets/Sidebar-BEzZ5ff5.js",
+				"/assets/Chrome-BY56ABVE.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-DyaZXV_Y.css"],
+			"css": ["/assets/root-DuTDjcj0.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -21866,13 +21666,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-C_ilRIck.js",
+			"module": "/assets/all-BPrTfNEd.js",
 			"imports": [
-				"/assets/all-CpPun-w3.js",
+				"/assets/all-B8uBXWjl.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/taxonomy-CCGfN8IS.js",
-				"/assets/DayList-BkQIWrhx.js"
+				"/assets/DayList-DJ8KQS2P.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21893,8 +21693,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-Ba6Cw4lq.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/schedule-DbRfDL1y.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21914,13 +21714,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CorRLHmp.js",
+			"module": "/assets/search-busy-PTi4pyq3.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/all-CpPun-w3.js",
+				"/assets/shared-Co_WCooI.js",
+				"/assets/all-B8uBXWjl.js",
 				"/assets/taxonomy-CCGfN8IS.js",
-				"/assets/DayList-BkQIWrhx.js"
+				"/assets/DayList-DJ8KQS2P.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21941,13 +21741,13 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CorRLHmp.js",
+			"module": "/assets/search-busy-PTi4pyq3.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/all-CpPun-w3.js",
+				"/assets/shared-Co_WCooI.js",
+				"/assets/all-B8uBXWjl.js",
 				"/assets/taxonomy-CCGfN8IS.js",
-				"/assets/DayList-BkQIWrhx.js"
+				"/assets/DayList-DJ8KQS2P.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21968,11 +21768,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-DRzbAAfk.js",
+			"module": "/assets/item-Ci50M40z.js",
 			"imports": [
-				"/assets/item-Bq6IyfJG.js",
+				"/assets/item-B2FrX839.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js"
+				"/assets/shared-Co_WCooI.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21993,11 +21793,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-DRzbAAfk.js",
+			"module": "/assets/item-original-Ci50M40z.js",
 			"imports": [
-				"/assets/item-Bq6IyfJG.js",
+				"/assets/item-B2FrX839.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js"
+				"/assets/shared-Co_WCooI.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22018,8 +21818,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-C5_-EuOO.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/hot-Cl25rUn_.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22039,8 +21839,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-C7f9E1Ex.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/story-Q5gGCDCC.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22060,11 +21860,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DsrakNY6.js",
+			"module": "/assets/report-latest-C_wVZv_Q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/ReportPaper-C4YDn5VK.js"
+				"/assets/shared-Co_WCooI.js",
+				"/assets/ReportPaper-CnI9i050.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22085,11 +21885,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-CUxk8NhK.js",
+			"module": "/assets/daily-archive-k8Bsjww3.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/ReportPaper-C4YDn5VK.js"
+				"/assets/shared-Co_WCooI.js",
+				"/assets/ReportPaper-CnI9i050.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22110,11 +21910,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DyTXVUID.js",
+			"module": "/assets/report-detail-BnZZO39j.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/ReportPaper-C4YDn5VK.js"
+				"/assets/shared-Co_WCooI.js",
+				"/assets/ReportPaper-CnI9i050.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22135,11 +21935,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DsrakNY6.js",
+			"module": "/assets/report-latest-C_wVZv_Q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/ReportPaper-C4YDn5VK.js"
+				"/assets/shared-Co_WCooI.js",
+				"/assets/ReportPaper-CnI9i050.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22160,11 +21960,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DyTXVUID.js",
+			"module": "/assets/report-detail-BnZZO39j.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/ReportPaper-C4YDn5VK.js"
+				"/assets/shared-Co_WCooI.js",
+				"/assets/ReportPaper-CnI9i050.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22185,11 +21985,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DsrakNY6.js",
+			"module": "/assets/report-latest-C_wVZv_Q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/ReportPaper-C4YDn5VK.js"
+				"/assets/shared-Co_WCooI.js",
+				"/assets/ReportPaper-CnI9i050.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22210,11 +22010,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DyTXVUID.js",
+			"module": "/assets/report-detail-BnZZO39j.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/ReportPaper-C4YDn5VK.js"
+				"/assets/shared-Co_WCooI.js",
+				"/assets/ReportPaper-CnI9i050.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22235,8 +22035,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topics-BKsW5hKM.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/topics-DiXDEQt5.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22256,11 +22056,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-BEP-6AY8.js",
+			"module": "/assets/topic-CfqA6lYC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/DayList-BkQIWrhx.js",
+				"/assets/shared-Co_WCooI.js",
+				"/assets/DayList-DJ8KQS2P.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -22282,11 +22082,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/topic-BEP-6AY8.js",
+			"module": "/assets/topic-CfqA6lYC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/DayList-BkQIWrhx.js",
+				"/assets/shared-Co_WCooI.js",
+				"/assets/DayList-DJ8KQS2P.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -22308,8 +22108,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-Db4e2_z1.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/about-C_nBwSAD.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22329,11 +22129,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-D9d0vHHx.js",
+			"module": "/assets/terms-OCR78TdC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/CopyPage-Bo6lsduX.js"
+				"/assets/shared-Co_WCooI.js",
+				"/assets/CopyPage-BIYEHBf5.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22354,11 +22154,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-B9Zys2B2.js",
+			"module": "/assets/privacy-DHMtoxER.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/CopyPage-Bo6lsduX.js"
+				"/assets/shared-Co_WCooI.js",
+				"/assets/CopyPage-BIYEHBf5.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22379,8 +22179,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-BvTIcFWc.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/changelog-B0TOkw11.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22400,8 +22200,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-Ciwg0_ZE.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/feedback-BkhWRfju.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22421,11 +22221,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-CypQBLBp.js",
+			"module": "/assets/more-B9Litf8V.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
-				"/assets/Sidebar-CElbQw3o.js",
+				"/assets/shared-Co_WCooI.js",
+				"/assets/Sidebar-BEzZ5ff5.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -22447,8 +22247,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-BEsrlrMk.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/starred-RJeejGF1.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22468,10 +22268,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-Bh4mq9Di.js",
+			"module": "/assets/agent-DWd2A1SS.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/features-DbRQZ5Mo.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
@@ -22494,8 +22294,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-CArCKlW7.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/codex-reset-ccoQz6Xb.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22515,8 +22315,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-CArCKlW7.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/codex-reset-ccoQz6Xb.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22536,10 +22336,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-aQwQQwTy.js",
+			"module": "/assets/leaderboard-boards-vmfFimi3.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -22561,10 +22361,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sEQFtiiA.js",
+			"module": "/assets/leaderboard-B7Nrz4yi.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22587,10 +22387,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sEQFtiiA.js",
+			"module": "/assets/leaderboard-B7Nrz4yi.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22613,10 +22413,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-EkV56TS0.js",
+			"module": "/assets/leaderboard-sources-CC7Ykye4.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22639,10 +22439,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-BQl28hXg.js",
+			"module": "/assets/leaderboard-source-xkyR7bYF.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22665,8 +22465,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-BdJ2mrJJ.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/leaderboard-rules-bfgM7GEA.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22686,10 +22486,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-D2tFruNQ.js",
+			"module": "/assets/leaderboard-model-DvfvDHgk.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
@@ -22713,8 +22513,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-uFOTv9aT.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-8YD28xdt.js"],
+			"module": "/assets/admin-login-T4n-LIHY.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Co_WCooI.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22734,12 +22534,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-BgsSXCb2.js",
+			"module": "/assets/layout-gtKA_tkS.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-DrkFwdNV.js",
+				"/assets/Chrome-BY56ABVE.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -22783,10 +22583,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-Dhinjgo8.js",
+			"module": "/assets/content-l08OawCu.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22810,10 +22610,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-BX3BUeIB.js",
+			"module": "/assets/content-item-DlqodYoA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
@@ -22840,10 +22640,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-ZIs41v1h.js",
+			"module": "/assets/sources-DDVvCSmu.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22867,10 +22667,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-6CVo9Aew.js",
+			"module": "/assets/source-new-D6KCvYA-.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22896,10 +22696,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-CfE_9Hzf.js",
+			"module": "/assets/source-BUQTFj0U.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22925,10 +22725,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-CdluPFxo.js",
+			"module": "/assets/monitor-DZSzlWcW.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22953,10 +22753,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-DeqcIU_L.js",
+			"module": "/assets/feedback-P-yLsCiN.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22982,10 +22782,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-CcrPzXGL.js",
+			"module": "/assets/runs-8L6Bz06i.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23010,10 +22810,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-mZZF67cB.js",
+			"module": "/assets/models-DdoYTqB9.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23038,10 +22838,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-BJ9loixJ.js",
+			"module": "/assets/selectbench-Bteukde0.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23066,10 +22866,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-CnzD6gxg.js",
+			"module": "/assets/selectbench-run-BsixVNEd.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23093,10 +22893,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-BUZ6UgHA.js",
+			"module": "/assets/settings-qJoaZMMi.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23121,10 +22921,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-C8BnU31M.js",
+			"module": "/assets/audit-BlIFSODS.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-8YD28xdt.js",
+				"/assets/shared-Co_WCooI.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23135,8 +22935,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-da977992.js",
-	"version": "da977992",
+	"url": "/assets/manifest-7bfd5e9e.js",
+	"version": "7bfd5e9e",
 	"sri": void 0
 };
 //#endregion

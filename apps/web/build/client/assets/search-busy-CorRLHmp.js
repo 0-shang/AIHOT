@@ -1,1 +1,0 @@
-import{p as e}from"./entry.client-6tyZgf_X.js";import{Kt as t}from"./shared-8YD28xdt.js";import{t as n}from"./all-CpPun-w3.js";function r(){return[{title:t(`搜索繁忙`)},{name:`robots`,content:`noindex, follow`}]}var i=e(n);export{i as default,r as meta};
