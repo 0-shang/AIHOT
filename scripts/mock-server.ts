@@ -354,11 +354,24 @@ const server = http.createServer((req, res) => {
   if (pathname === "/api/site/stats") {
     res.writeHead(200);
     return res.end(JSON.stringify({
-      sourcesCount: 12,
-      itemsTotal: 256,
-      selectedTotal: 184,
-      dailyIssuesCount: 30,
-      runningDays: 45,
+      sources: 42,
+      sourceKinds: { rss: 20, x_search: 22 },
+      heatOnlySources: 0,
+      items: 1456,
+      selected: 184,
+      dailies: 11,
+      day: { collected: 138, selected: 12 },
+      sampleSources: [
+        { name: "休斯敦纪事报", kind: "rss", heatOnly: false },
+        { name: "The Dream Shake", kind: "rss", heatOnly: false },
+        { name: "Jonathan Feigen", kind: "x_search", heatOnly: false },
+        { name: "Kelly Iko", kind: "x_search", heatOnly: false },
+        { name: "ClutchFans", kind: "rss", heatOnly: false },
+      ],
+      latest: [
+        { id: "item-rockets-1", title: "申京 28+12+7 全能表现，杜兰特关键跳投率火箭终结连败力克强敌", source: "ClutchFans" },
+        { id: "item-rockets-2", title: "随队名记：火箭休赛期拒绝盲目全明星交易，全力绑定年轻核心班底", source: "The Athletic" },
+      ],
     }));
   }
 

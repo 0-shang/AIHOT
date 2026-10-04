@@ -82,35 +82,35 @@ interface Stage {
 }
 
 function stagesOf(stats: SiteStats | null): Stage[] {
-  const kinds = stats ? KIND_ORDER.filter(([k]) => stats.sourceKinds[k]).map(([k, label]) => `${label} ${stats.sourceKinds[k]}`).join(" · ") : null;
+  const kinds = stats?.sourceKinds ? KIND_ORDER.filter(([k]) => stats.sourceKinds[k]).map(([k, label]) => `${label} ${stats.sourceKinds[k]}`).join(" · ") : null;
   return [
     {
       no: "01",
-      title: "采集",
+      title: "信源监测",
       figure: stats && <Figure n={stats.sources} unit="个信源" />,
       text: ABOUT.steps.collect,
       note: kinds,
     },
     {
       no: "02",
-      title: "收录",
+      title: "全天候收录",
       figure: stats && <Figure n={stats.items} unit="条动态" />,
       text: ABOUT.steps.store,
       note: stats && <>过去 24 小时收进 {stats.day.collected.toLocaleString("en-US")} 条</>,
     },
     {
       no: "03",
-      title: "精选",
-      figure: stats && <Figure n={stats.selected} unit="条精选" />,
+      title: "热点感知",
+      figure: <Figure n={10} unit="个焦点热榜" />,
       text: ABOUT.steps.select,
-      note: stats && <>过去 24 小时 {stats.day.selected} 条进了精选</>,
+      note: "48 小时全网多源讨论交叉验证",
     },
     {
       no: "04",
-      title: "成刊",
-      figure: stats && <Figure n={stats.dailies} unit="期日报" />,
+      title: "赛程前瞻",
+      figure: <Figure n={82} unit="场全季赛程" />,
       text: ABOUT.steps.publish,
-      note: "也可以用 RSS、API、MCP 订阅",
+      note: "主客战报与赛程日历即时同步",
     },
   ];
 }
@@ -183,7 +183,7 @@ function Latest({ item, className = "" }: { item: SiteStats["latest"][number] | 
   if (!item) return null;
   return (
     <Link to={`/items/${item.id}`} prefetch="intent" className={`group block ${className}`}>
-      <span className="text-[11px] font-semibold tracking-[0.2em] text-accent">最近精选</span>
+      <span className="text-[11px] font-semibold tracking-[0.2em] text-accent">最新焦点动态</span>
       <span key={item.id} className="animate-fade-up mt-1.5 block">
         <span className="line-clamp-2 text-[13.5px] font-semibold leading-[1.55] text-ink transition-colors group-hover:text-accent">{item.title}</span>
         <span className="mt-1 block truncate text-[12px] text-ink-4">{shortSourceName(item.source)}</span>
@@ -221,18 +221,18 @@ export default function AboutPage() {
           <p className="mt-5 max-w-[36em] text-[15.5px] leading-[1.85] text-ink-3 xl:text-[17px]">
             {ABOUT.lead.split("{sources}").map((part, i) => (
               <span key={i}>
-                {i > 0 && (stats ? <span className="num font-semibold text-ink">{stats.sources}</span> : "上百")}
+                {i > 0 && (stats ? <span className="num font-semibold text-ink">{stats.sources}</span> : "40+")}
                 {part}
               </span>
             ))}
           </p>
         </div>
         <div className="flex flex-wrap gap-3 lg:pb-2">
-          <Link to="/" prefetch="intent" className={buttonClass("primary", "lg")}>
-            看今天的精选 <IconArrowRight size={15} />
+          <Link to="/all" prefetch="intent" className={buttonClass("primary", "lg")}>
+            浏览全部动态 <IconArrowRight size={15} />
           </Link>
-          <Link to="/daily" prefetch="intent" className={buttonClass("secondary", "lg")}>
-            读最新{withSubject("日报")}
+          <Link to="/schedule" prefetch="intent" className={buttonClass("secondary", "lg")}>
+            查看火箭赛程
           </Link>
         </div>
       </header>
@@ -244,7 +244,7 @@ export default function AboutPage() {
         <SignalRiver sources={sources} focus={focus} onArrive={onArrive} className="h-[230px] sm:h-[300px] lg:h-[360px] 2xl:h-[420px]">
           <Latest item={latest[at]} className="absolute left-[75%] top-[calc(42%+42px)] hidden w-[25%] px-6 lg:block" />
         </SignalRiver>
-        <p className="sr-only">示意图：每条线是一个信源；线汇成一束束，代表同一件事的多篇报道；经过精选的闸门，只有少数几束通过，汇入每天的{withSubject("日报")}。</p>
+        <p className="sr-only">示意图：每条线是一个信源；线汇成一束束，代表同一事件的多方报道，汇聚成实时情报动态与热点讨论。</p>
         <Latest item={latest[at]} className="mt-2 border-t border-line pt-4 lg:hidden" />
         <ol className="mt-4 grid grid-cols-1 border-t border-line-strong sm:grid-cols-2 lg:mt-0 lg:grid-cols-4">
           {stages.map((s, i) => (
