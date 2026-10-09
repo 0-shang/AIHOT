@@ -1,6 +1,7 @@
 // SocialData (X search). Paid per request: every call goes through receipts and the budget.
 import { credential } from "../config.ts";
 import { guardedFetch } from "../lib/http-fetch.ts";
+import { prefetchVideo } from "../media/videocache.ts";
 import { paidRequest, ProviderRejectedError } from "./receipts.ts";
 
 export interface SdUser {
@@ -121,6 +122,11 @@ export function pickVideoUrl(m: SdMedia): string | null {
     const anyUrl = variants.find((v) => v && typeof v.url === "string")?.url;
     return anyUrl ?? null;
   }
+  // Prefer balanced 720p/540p bitrate (around 800k - 2.5M) for fast instant streaming,
+  // falling back to highest available if no sweet-spot variant exists.
+  const balanced = mp4s.find((v) => (v.bitrate ?? 0) >= 700_000 && (v.bitrate ?? 0) <= 2_500_000);
+  if (balanced) return balanced.url;
+
   mp4s.sort((a, b) => (b.bitrate ?? 0) - (a.bitrate ?? 0));
   return mp4s[0].url;
 }
@@ -128,6 +134,9 @@ export function pickVideoUrl(m: SdMedia): string | null {
 export function tweetMedia(t: SdTweet) {
   return (t.extended_entities?.media ?? t.entities?.media ?? []).map((m) => {
     const videoUrl = m.type === "video" || m.type === "animated_gif" ? pickVideoUrl(m) : null;
+    if (videoUrl) {
+      prefetchVideo(videoUrl);
+    }
     return {
       kind: m.type === "photo" ? ("image" as const) : ("video" as const),
       url: m.media_url_https,

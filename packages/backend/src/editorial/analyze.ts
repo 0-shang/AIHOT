@@ -151,7 +151,7 @@ const STRUCTURE_SYSTEM = promptText("structure", {
 });
 
 export interface AnalysisRun {
-  prefilter: { label: "PASS" | "BLOCK" | "UNKNOWN"; reason: string; model: string; receiptId: number; reused: boolean };
+  prefilter: { label: "PASS" | "BLOCK" | "UNKNOWN"; reason: string; model: string; receiptId?: number; reused: boolean };
   /**
    * The independent score calls and the tier threshold they are held against; absent when the material
    * is not scored. `refused`: the model's content filter declined it, so it is not selected.
@@ -171,7 +171,7 @@ export interface AnalysisRun {
     receiptIds: number[];
     reused: boolean;
   } | null;
-  structure: { model: string; category: string | null; tags: string[]; subjects: string[]; fact: z.infer<typeof FactSchema>; receiptId: number; reused: boolean } | null;
+  structure: { model: string; category: string | null; tags: string[]; subjects: string[]; fact: z.infer<typeof FactSchema>; receiptId?: number; reused: boolean } | null;
 }
 
 const isContentFilter = (error: unknown) => error instanceof ProviderRejectedError && !error.retryable && /contentFilter|"1301"/.test(error.message);
@@ -191,7 +191,53 @@ function checkAnalysisRunning() {
 const subjectOf = (a: AnalyzeInputArticle) => `article:${a.id}@${a.revision}`;
 const tagged = (attemptTag: string | undefined, step: string) => [attemptTag, step].filter(Boolean).join(":") || undefined;
 
+function checkPrefilterRule(a: AnalyzeInputArticle): { label: "PASS" | "BLOCK"; reason: string } | null {
+  const text = `${a.title} ${a.xPost?.text ?? ""} ${a.xPost?.quoted?.text ?? ""} ${a.bodyText ?? a.excerpt ?? ""}`.trim();
+  const clean = text.replace(/https?:\/\/\S+/g, "").trim();
+  const hasMedia = (a.xPost?.media && a.xPost.media.length > 0) || (a.media && a.media.length > 0);
+
+  // 1. 无实质内容纯噪音拦截：去除URL后字符 < 6 且没有任何多媒体
+  if (clean.length < 6 && !hasMedia) {
+    return { label: "BLOCK", reason: "内容过短且无媒体，规则过滤噪音" };
+  }
+
+  // 2. 休斯敦火箭队核心实体/球员/教练关键词直接放行（直通）
+  const rocketsKeywords = /(rockets|houston|udoka|sengun|jalen\s*green|amen\s*thompson|reed\s*sheppard|tari\s*eason|jabari\s*smith|fred\s*vanvleet|vanvleet|adams|dillon\s*brooks|cam\s*whitmore|clutchfans|toyota\s*center|vipers|nba|火箭|休斯敦|休斯顿|申京|乌度卡|阿门|格林|谢泼德|伊森|史密斯|范弗里特|狄龙|惠特莫尔)/i;
+  if (rocketsKeywords.test(text)) {
+    return { label: "PASS", reason: "命中火箭队实体或关键词，规则直通" };
+  }
+
+  // 3. T1 级别随队记者账号且内容有基本文字量
+  if (a.source.tier === "T1" && clean.length >= 12) {
+    return { label: "PASS", reason: "T1 随队权威媒体信源规则直通" };
+  }
+
+  return null;
+}
+
+function calculateRuleScore(a: AnalyzeInputArticle, threshold: number): number {
+  let baseScore = 78;
+  if (a.source.tier === "T1") baseScore = 86;
+  else if (a.source.tier === "T1_5") baseScore = 80;
+  else if (a.source.tier === "T2") baseScore = 72;
+
+  const hasMedia = (a.xPost?.media && a.xPost.media.length > 0) || (a.media && a.media.length > 0);
+  if (hasMedia) baseScore += 2;
+
+  const textLen = (a.xPost?.text ?? a.bodyText ?? a.title ?? "").length;
+  if (textLen > 150) baseScore += 2;
+  else if (textLen < 30 && !hasMedia) baseScore -= 4;
+
+  return Math.min(96, Math.max(40, baseScore));
+}
+
 async function runPrefilter(a: AnalyzeInputArticle, opts: StepOpts): Promise<AnalysisRun["prefilter"]> {
+  // Fast rule-based bypass to save model calls on obviously relevant or spam material
+  const rule = checkPrefilterRule(a);
+  if (rule) {
+    return { label: rule.label, reason: rule.reason, model: "rule", reused: true };
+  }
+
   const model = await modelFor("prefilter");
   checkAnalysisRunning();
   const res = await chatJson({
@@ -212,6 +258,12 @@ async function runPrefilter(a: AnalyzeInputArticle, opts: StepOpts): Promise<Ana
 }
 
 async function runScores(a: AnalyzeInputArticle, threshold: number, opts: StepOpts): Promise<NonNullable<AnalysisRun["scores"]>> {
+  // Rule-based scoring saves 2 expensive LLM calls per article unless explicit model scoring is forced
+  if (process.env.ENABLE_MODEL_SCORING !== "true" && !opts.scoreModel) {
+    const val = calculateRuleScore(a, threshold);
+    return { model: "rule-score", threshold, values: [val, val], receiptIds: [], reused: true };
+  }
+
   const model = opts.scoreModel ?? (await modelFor("score"));
   const call = scoreCall(model);
   const input = buildScoreInput(a);
@@ -241,6 +293,23 @@ async function runScores(a: AnalyzeInputArticle, threshold: number, opts: StepOp
 }
 
 async function runStructure(a: AnalyzeInputArticle, opts: StepOpts): Promise<NonNullable<AnalysisRun["structure"]>> {
+  const t = translateInputOf(a);
+  if (isShortTweetInput(t)) {
+    // Short tweets (reporter updates/videos) follow straightforward taxonomy, avoiding extra model calls
+    const hasVideo = a.xPost?.media?.some((m: Record<string, any>) => m.kind === "video");
+    const category = hasVideo ? "videos" : "beat_tweets";
+    const authorTag = a.xPost?.authorName ? a.xPost.authorName : null;
+    const tags = [authorTag, "休斯敦火箭"].filter(Boolean) as string[];
+    return {
+      model: "rule-structure",
+      category,
+      tags: normalizeTags(tags),
+      subjects: ["houston-rockets"],
+      fact: null,
+      reused: true,
+    };
+  }
+
   const model = await modelFor("structure");
   checkAnalysisRunning();
   const res = await chatJson({
@@ -424,8 +493,8 @@ export async function analyzeArticle(articleId: string, opts: StepOpts = {}): Pr
   const run = await runAnalysis(input, opts);
   const out = normalizeAnalysis(run);
   const receiptIds = [
-    run.prefilter.receiptId, ...(run.scores?.receiptIds ?? []), ...(run.writing?.receiptIds ?? []), ...(run.structure ? [run.structure.receiptId] : []),
-  ];
+    run.prefilter.receiptId, ...(run.scores?.receiptIds ?? []), ...(run.writing?.receiptIds ?? []), ...(run.structure?.receiptId ? [run.structure.receiptId] : []),
+  ].filter((id): id is number => typeof id === "number");
   const w = run.writing;
   const detail = {
     prefilter: { label: run.prefilter.label, reason: run.prefilter.reason },

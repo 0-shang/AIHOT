@@ -4,6 +4,7 @@ import http from "node:http";
 import https from "node:https";
 import { produceImage } from "@aihot/backend/media/images";
 import { verifyProxyRequest, verifyVideoProxyRequest } from "@aihot/backend/media/imgproxy";
+import { downloadAndCacheVideo, isVideoCached, prefetchVideo, serveLocalVideoFile, videoFilePath } from "@aihot/backend/media/videocache";
 import { looseQuery } from "../http/respond.ts";
 
 function streamUpstream(
@@ -71,6 +72,15 @@ export function registerMedia(app: FastifyInstance) {
       if (!verdict.ok) {
         return reply.code(403).header("Cache-Control", "no-store").type("text/plain; charset=utf-8").send("Forbidden");
       }
+
+      // If already cached on local disk, serve immediately with ultra-low latency & 206 Range support
+      if (await isVideoCached(verdict.url)) {
+        await serveLocalVideoFile(videoFilePath(verdict.url), req, reply);
+        return;
+      }
+
+      // Trigger background download to local disk so subsequent requests/seeks are instant
+      prefetchVideo(verdict.url);
 
       const upstreamHeaders: Record<string, string> = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",

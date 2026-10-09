@@ -39,7 +39,8 @@ export async function composeStoryDigest(storyId: number, opts: { afterCorrectio
     JOIN sources s ON s.id = p.source_id
     WHERE f.story_id = ${storyId} AND p.visibility = 'public' AND p.eligible
     ORDER BY p.article_id`;
-  if (reports.length === 0) return { updated: false };
+  // Only compose an AI story digest when there are at least 2 reports to synthesize
+  if (reports.length < 2) return { updated: false };
   reports.sort((a, b) => a.at.getTime() - b.at.getTime());
   const ids = reports.map((r) => r.id).sort();
   // What this version is written from: the reports and what they currently say (corrections included).
