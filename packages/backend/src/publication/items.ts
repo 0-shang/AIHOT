@@ -108,7 +108,7 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
         'rss-si-rockets', 'rss-theringer-nba', 'rss-realgm-rockets', 'rss-houstonchronicle-rockets',
         'rss-rocketswire', 'rss-hoopshype-rockets', 'rss-clutchpoints-rockets',
         'rss-nbaanalysis', 'rss-sircharlesincharge', 'rss-fadeawayworld', 'rss-theleadsports',
-        'x-lockedon-rockets', 'x-salman-ali', 'x-spacecity-scoop'
+        'x-lockedon-rockets', 'x-spacecity-scoop'
       )
     )`;
   }

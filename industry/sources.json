@@ -162,51 +162,7 @@
       "site_fulltext": true,
       "syndicate_fulltext": false
     },
-    {
-      "id": "rss-click2houston-rockets",
-      "name": "KPRC 2 Click2Houston (休斯敦NBC电视台火箭专栏)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.click2houston.com/arc/outboundfeeds/rss/category/sports/rockets/?outputType=xml",
-        "_aihot": {
-          "initialBackfillLimit": 10
-        }
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 25,
-      "tags": [
-        "本地电视",
-        "现场连线",
-        "官方新闻"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-khou11-rockets",
-      "name": "KHOU 11 Houston (休斯敦CBS电视台体育)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://www.khou.com/feeds/syndication/rss/sports/nba/rockets",
-        "_aihot": {
-          "initialBackfillLimit": 10
-        }
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "本地电视",
-        "赛后采访"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
+
     {
       "id": "rss-fox26-rockets",
       "name": "FOX 26 Houston (休斯敦FOX电视台火箭专区)",
@@ -605,27 +561,7 @@
       "site_fulltext": true,
       "syndicate_fulltext": false
     },
-    {
-      "id": "x-salman-ali",
-      "name": "Salman Ali (ESPN 97.5 休斯顿火箭嘉宾)",
-      "kind": "x_search",
-      "enabled": false,
-      "config": {
-        "query": "from:SalmanAliNBA -filter:replies",
-        "searchType": "Latest"
-      },
-      "tier": "T1_5",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 15,
-      "tags": [
-        "电台连线",
-        "现场跟队"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
+
     {
       "id": "x-bradeaux",
       "name": "Bradeaux (火箭高阶数据与高光切片)",
@@ -997,27 +933,7 @@
       "site_fulltext": true,
       "syndicate_fulltext": false
     },
-    {
-      "id": "x-salman-ali",
-      "name": "Salman Ali (@SalmanAliNBA 火箭深度战术分析专家)",
-      "kind": "x_search",
-      "config": {
-        "query": "from:SalmanAliNBA -filter:replies",
-        "searchType": "Latest"
-      },
-      "tier": "T1",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 15,
-      "tags": [
-        "深度专栏",
-        "战术拆解",
-        "随队专栏"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
+
     {
       "id": "x-rockets-wire",
       "name": "The Rockets Wire (@TheRocketsWire USA Today火箭推特号)",
