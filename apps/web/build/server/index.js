@@ -4856,424 +4856,644 @@ var ROCKETS_GAMES = [
 ];
 //#endregion
 //#region app/features/schedule/nbaData.ts
-/** 比赛技术统计详细数据（以 10.9 澳门季前赛首战 135-117 胜独行侠为例） */
+var PLAYER_NAME_CN = {
+	"Alperen Sengun": "阿尔佩伦·申京",
+	"Kevin Durant": "凯文·杜兰特",
+	"Fred VanVleet": "弗雷德·范弗里特",
+	"Tari Eason": "塔里·伊森",
+	"Jabari Smith Jr.": "小贾巴里·史密斯",
+	"Reed Sheppard": "里德·谢泼德",
+	"Amen Thompson": "阿门·汤普森",
+	"Steven Adams": "史蒂文·亚当斯",
+	"Oscar Tshiebwe": "奥斯卡·希布韦",
+	"Bogdan Bogdanovic": "博格丹·博格达诺维奇",
+	"Bruce Thornton": "布鲁斯·桑顿",
+	"Julian Phillips": "朱利安·菲利普斯",
+	"Isaiah Crawford": "以赛亚·克劳福德",
+	"Quadir Copeland": "夸迪尔·科普兰",
+	"Sean Pedulla": "肖恩·佩杜拉",
+	"Cooper Flagg": "库珀·弗拉格",
+	"Naji Marshall": "纳吉·马绍尔",
+	"Max Christie": "马克斯·克里斯蒂",
+	"Zaccharie Risacher": "扎卡里·里萨谢",
+	"Daniel Gafford": "丹尼尔·加福德",
+	"Dwight Powell": "德怀特·鲍威尔",
+	"Tobi Lawal": "托比·拉瓦尔",
+	"Tarik Biberovic": "塔里克·比贝罗维奇",
+	"Sergio de Larrea": "塞尔吉奥·德拉雷亚",
+	"Moussa Cisse": "穆萨·西塞",
+	"Seth Lundy": "赛斯·伦迪",
+	"John Poulakidas": "约翰·普拉基达斯",
+	"Jett Howard": "杰特·霍华德",
+	"Morez Johnson Jr.": "莫雷兹·约翰逊"
+};
+/** 真实抓取数据备份（从 ESPN 官方 summary 接口 2026-10-09 澳门赛真实数据提取） */
 var BOXSCORE_MAP = { "401898395": {
 	gameId: "401898395",
 	quarters: {
 		rockets: [
+			27,
 			38,
 			34,
-			33,
-			30
+			36
 		],
 		opponent: [
-			28,
-			31,
-			29,
-			29
+			19,
+			26,
+			35,
+			37
 		]
 	},
 	rocketsPlayers: [
 		{
-			name: "阿尔佩伦·申京",
-			number: "28",
-			position: "C",
-			minutes: "28",
-			points: 16,
-			rebounds: 10,
-			assists: 10,
-			steals: 2,
-			blocks: 1,
-			turnovers: 2,
-			fg: "6-10",
-			fgPct: "60.0%",
-			threePt: "1-2",
-			threePtPct: "50.0%",
-			ft: "3-4",
-			plusMinus: "+18"
-		},
-		{
-			name: "杰伦·格林",
-			number: "4",
-			position: "G",
-			minutes: "26",
-			points: 21,
-			rebounds: 4,
-			assists: 4,
+			name: "凯文·杜兰特",
+			rawName: "Kevin Durant",
+			number: "7",
+			position: "F",
+			minutes: "23",
+			points: 15,
+			rebounds: 2,
+			assists: 1,
 			steals: 1,
 			blocks: 0,
-			turnovers: 1,
-			fg: "8-15",
-			fgPct: "53.3%",
-			threePt: "3-7",
-			threePtPct: "42.9%",
-			ft: "2-2",
-			plusMinus: "+15"
-		},
-		{
-			name: "塔里·伊森",
-			number: "17",
-			position: "F",
-			minutes: "24",
-			points: 20,
-			rebounds: 7,
-			assists: 2,
-			steals: 3,
-			blocks: 1,
-			turnovers: 1,
-			fg: "8-12",
-			fgPct: "66.7%",
-			threePt: "3-5",
-			threePtPct: "60.0%",
-			ft: "1-1",
-			plusMinus: "+16"
+			turnovers: 0,
+			fg: "7-12",
+			fgPct: "58.3%",
+			threePt: "1-1",
+			ft: "0-1",
+			plusMinus: "+11"
 		},
 		{
 			name: "小贾巴里·史密斯",
+			rawName: "Jabari Smith Jr.",
 			number: "10",
 			position: "F",
-			minutes: "26",
-			points: 19,
-			rebounds: 8,
-			assists: 1,
-			steals: 1,
+			minutes: "22",
+			points: 12,
+			rebounds: 1,
+			assists: 0,
+			steals: 0,
 			blocks: 2,
-			turnovers: 0,
-			fg: "7-13",
-			fgPct: "53.8%",
-			threePt: "3-7",
-			threePtPct: "42.9%",
-			ft: "2-2",
-			plusMinus: "+14"
+			turnovers: 2,
+			fg: "4-8",
+			fgPct: "50.0%",
+			threePt: "2-3",
+			ft: "2-4",
+			plusMinus: "+12"
+		},
+		{
+			name: "阿尔佩伦·申京",
+			rawName: "Alperen Sengun",
+			number: "28",
+			position: "C",
+			minutes: "22",
+			points: 16,
+			rebounds: 10,
+			assists: 10,
+			steals: 0,
+			blocks: 4,
+			turnovers: 6,
+			fg: "6-9",
+			fgPct: "66.7%",
+			threePt: "0-2",
+			ft: "4-5",
+			plusMinus: "+22"
 		},
 		{
 			name: "弗雷德·范弗里特",
+			rawName: "Fred VanVleet",
 			number: "5",
 			position: "G",
-			minutes: "25",
+			minutes: "24",
 			points: 17,
-			rebounds: 3,
-			assists: 7,
-			steals: 2,
+			rebounds: 7,
+			assists: 1,
+			steals: 0,
 			blocks: 0,
-			turnovers: 1,
-			fg: "6-11",
-			fgPct: "54.5%",
-			threePt: "5-8",
-			threePtPct: "62.5%",
-			ft: "0-0",
+			turnovers: 2,
+			fg: "5-12",
+			fgPct: "41.7%",
+			threePt: "5-12",
+			ft: "2-3",
 			plusMinus: "+15"
 		},
 		{
 			name: "阿门·汤普森",
+			rawName: "Amen Thompson",
 			number: "1",
 			position: "G",
-			minutes: "26",
-			points: 14,
-			rebounds: 6,
-			assists: 5,
-			steals: 2,
-			blocks: 1,
-			turnovers: 2,
-			fg: "6-9",
-			fgPct: "66.7%",
-			threePt: "0-1",
-			threePtPct: "0.0%",
-			ft: "2-3",
-			plusMinus: "+12"
+			minutes: "24",
+			points: 8,
+			rebounds: 2,
+			assists: 6,
+			steals: 1,
+			blocks: 3,
+			turnovers: 4,
+			fg: "4-8",
+			fgPct: "50.0%",
+			threePt: "0-0",
+			ft: "0-0",
+			plusMinus: "+7"
+		},
+		{
+			name: "塔里·伊森",
+			rawName: "Tari Eason",
+			number: "17",
+			position: "F",
+			minutes: "24",
+			points: 20,
+			rebounds: 2,
+			assists: 0,
+			steals: 0,
+			blocks: 3,
+			turnovers: 6,
+			fg: "6-10",
+			fgPct: "60.0%",
+			threePt: "2-2",
+			ft: "6-7",
+			plusMinus: "+17"
 		},
 		{
 			name: "里德·谢泼德",
+			rawName: "Reed Sheppard",
 			number: "15",
 			position: "G",
-			minutes: "20",
-			points: 13,
-			rebounds: 2,
-			assists: 4,
-			steals: 1,
+			minutes: "19",
+			points: 16,
+			rebounds: 1,
+			assists: 1,
+			steals: 0,
 			blocks: 0,
 			turnovers: 1,
-			fg: "5-8",
-			fgPct: "62.5%",
-			threePt: "3-5",
-			threePtPct: "60.0%",
+			fg: "6-10",
+			fgPct: "60.0%",
+			threePt: "4-7",
 			ft: "0-0",
-			plusMinus: "+8"
+			plusMinus: "+12"
 		},
 		{
-			name: "卡姆·惠特莫尔",
-			number: "7",
+			name: "布鲁斯·桑顿",
+			rawName: "Bruce Thornton",
+			number: "2",
+			position: "G",
+			minutes: "9",
+			points: 13,
+			rebounds: 2,
+			assists: 2,
+			steals: 1,
+			blocks: 0,
+			turnovers: 0,
+			fg: "4-6",
+			fgPct: "66.7%",
+			threePt: "3-3",
+			ft: "2-2",
+			plusMinus: "-8"
+		},
+		{
+			name: "以赛亚·克劳福德",
+			rawName: "Isaiah Crawford",
+			number: "27",
 			position: "F",
+			minutes: "12",
+			points: 4,
+			rebounds: 0,
+			assists: 1,
+			steals: 1,
+			blocks: 1,
+			turnovers: 0,
+			fg: "1-3",
+			fgPct: "33.3%",
+			threePt: "1-2",
+			ft: "1-2",
+			plusMinus: "+7"
+		},
+		{
+			name: "奥斯卡·希布韦",
+			rawName: "Oscar Tshiebwe",
+			number: "9",
+			position: "C",
+			minutes: "12",
+			points: 5,
+			rebounds: 1,
+			assists: 2,
+			steals: 0,
+			blocks: 1,
+			turnovers: 2,
+			fg: "2-2",
+			fgPct: "100.0%",
+			threePt: "0-0",
+			ft: "1-2",
+			plusMinus: "-1"
+		},
+		{
+			name: "博格丹·博格达诺维奇",
+			rawName: "Bogdan Bogdanovic",
+			number: "31",
+			position: "G",
 			minutes: "16",
-			points: 11,
-			rebounds: 3,
+			points: 4,
+			rebounds: 4,
 			assists: 1,
 			steals: 0,
 			blocks: 0,
 			turnovers: 2,
-			fg: "4-9",
-			fgPct: "44.4%",
-			threePt: "2-5",
-			threePtPct: "40.0%",
-			ft: "1-2",
-			plusMinus: "+5"
+			fg: "1-4",
+			fgPct: "25.0%",
+			threePt: "0-3",
+			ft: "2-2",
+			plusMinus: "+16"
 		},
 		{
-			name: "狄龙·布鲁克斯",
-			number: "9",
-			position: "F",
-			minutes: "20",
-			points: 9,
-			rebounds: 2,
+			name: "夸迪尔·科普兰",
+			rawName: "Quadir Copeland",
+			number: "25",
+			position: "G",
+			minutes: "9",
+			points: 3,
+			rebounds: 1,
 			assists: 2,
-			steals: 1,
-			blocks: 0,
-			turnovers: 1,
-			fg: "3-8",
-			fgPct: "37.5%",
-			threePt: "1-4",
-			threePtPct: "25.0%",
-			ft: "2-2",
-			plusMinus: "+6"
+			steals: 0,
+			blocks: 1,
+			turnovers: 0,
+			fg: "0-0",
+			fgPct: "0.0%",
+			threePt: "0-0",
+			ft: "3-4",
+			plusMinus: "-8"
 		},
 		{
 			name: "史蒂文·亚当斯",
+			rawName: "Steven Adams",
 			number: "12",
 			position: "C",
 			minutes: "14",
-			points: 6,
-			rebounds: 8,
+			points: 2,
+			rebounds: 1,
+			assists: 1,
+			steals: 0,
+			blocks: 1,
+			turnovers: 2,
+			fg: "1-1",
+			fgPct: "100.0%",
+			threePt: "0-0",
+			ft: "0-0",
+			plusMinus: "-3"
+		},
+		{
+			name: "朱利安·菲利普斯",
+			rawName: "Julian Phillips",
+			number: "3",
+			position: "F",
+			minutes: "7",
+			points: 0,
+			rebounds: 0,
+			assists: 0,
+			steals: 0,
+			blocks: 0,
+			turnovers: 0,
+			fg: "0-0",
+			fgPct: "0.0%",
+			threePt: "0-0",
+			ft: "0-0",
+			plusMinus: "-5"
+		},
+		{
+			name: "肖恩·佩杜拉",
+			rawName: "Sean Pedulla",
+			number: "0",
+			position: "G",
+			minutes: "4",
+			points: 0,
+			rebounds: 2,
+			assists: 0,
+			steals: 0,
+			blocks: 0,
+			turnovers: 0,
+			fg: "0-1",
+			fgPct: "0.0%",
+			threePt: "0-1",
+			ft: "0-0",
+			plusMinus: "-4"
+		}
+	],
+	opponentPlayers: [
+		{
+			name: "库珀·弗拉格",
+			rawName: "Cooper Flagg",
+			number: "32",
+			position: "F",
+			minutes: "19",
+			points: 19,
+			rebounds: 3,
+			assists: 2,
+			steals: 1,
+			blocks: 2,
+			turnovers: 4,
+			fg: "7-14",
+			fgPct: "50.0%",
+			threePt: "1-5",
+			ft: "4-4",
+			plusMinus: "-15"
+		},
+		{
+			name: "纳吉·马绍尔",
+			rawName: "Naji Marshall",
+			number: "3",
+			position: "F",
+			minutes: "24",
+			points: 16,
+			rebounds: 3,
 			assists: 2,
 			steals: 0,
 			blocks: 1,
 			turnovers: 1,
-			fg: "3-4",
-			fgPct: "75.0%",
-			threePt: "0-0",
-			threePtPct: "0.0%",
-			ft: "0-2",
-			plusMinus: "+7"
+			fg: "7-14",
+			fgPct: "50.0%",
+			threePt: "1-5",
+			ft: "1-2",
+			plusMinus: "-13"
 		},
 		{
-			name: "阿隆·霍勒迪",
+			name: "马克斯·克里斯蒂",
+			rawName: "Max Christie",
 			number: "0",
 			position: "G",
-			minutes: "12",
-			points: 2,
+			minutes: "24",
+			points: 14,
+			rebounds: 2,
+			assists: 0,
+			steals: 0,
+			blocks: 1,
+			turnovers: 1,
+			fg: "5-12",
+			fgPct: "41.7%",
+			threePt: "4-11",
+			ft: "0-0",
+			plusMinus: "-12"
+		},
+		{
+			name: "托比·拉瓦尔",
+			rawName: "Tobi Lawal",
+			number: "33",
+			position: "F",
+			minutes: "15",
+			points: 13,
+			rebounds: 0,
+			assists: 2,
+			steals: 0,
+			blocks: 1,
+			turnovers: 0,
+			fg: "5-6",
+			fgPct: "83.3%",
+			threePt: "0-1",
+			ft: "3-3",
+			plusMinus: "+2"
+		},
+		{
+			name: "塞尔吉奥·德拉雷亚",
+			rawName: "Sergio de Larrea",
+			number: "55",
+			position: "F",
+			minutes: "24",
+			points: 11,
+			rebounds: 6,
+			assists: 4,
+			steals: 0,
+			blocks: 0,
+			turnovers: 2,
+			fg: "4-6",
+			fgPct: "66.7%",
+			threePt: "3-3",
+			ft: "0-0",
+			plusMinus: "-3"
+		},
+		{
+			name: "扎卡里·里萨谢",
+			rawName: "Zaccharie Risacher",
+			number: "10",
+			position: "F",
+			minutes: "24",
+			points: 9,
 			rebounds: 1,
-			assists: 3,
+			assists: 1,
+			steals: 0,
+			blocks: 3,
+			turnovers: 5,
+			fg: "4-9",
+			fgPct: "44.4%",
+			threePt: "1-3",
+			ft: "0-0",
+			plusMinus: "-13"
+		},
+		{
+			name: "塔里克·比贝罗维奇",
+			rawName: "Tarik Biberovic",
+			number: "13",
+			position: "F",
+			minutes: "19",
+			points: 9,
+			rebounds: 2,
+			assists: 0,
+			steals: 0,
+			blocks: 2,
+			turnovers: 1,
+			fg: "3-9",
+			fgPct: "33.3%",
+			threePt: "3-8",
+			ft: "0-0",
+			plusMinus: "-3"
+		},
+		{
+			name: "杰特·霍华德",
+			rawName: "Jett Howard",
+			number: "9",
+			position: "G",
+			minutes: "16",
+			points: 8,
+			rebounds: 3,
+			assists: 1,
+			steals: 0,
+			blocks: 0,
+			turnovers: 1,
+			fg: "3-6",
+			fgPct: "50.0%",
+			threePt: "1-3",
+			ft: "1-2",
+			plusMinus: "-2"
+		},
+		{
+			name: "丹尼尔·加福德",
+			rawName: "Daniel Gafford",
+			number: "21",
+			position: "F",
+			minutes: "8",
+			points: 7,
+			rebounds: 0,
+			assists: 1,
+			steals: 0,
+			blocks: 0,
+			turnovers: 3,
+			fg: "3-4",
+			fgPct: "75.0%",
+			threePt: "1-1",
+			ft: "0-0",
+			plusMinus: "-3"
+		},
+		{
+			name: "莫雷兹·约翰逊",
+			rawName: "Morez Johnson Jr.",
+			number: "14",
+			position: "F",
+			minutes: "12",
+			points: 4,
+			rebounds: 1,
+			assists: 0,
+			steals: 0,
+			blocks: 1,
+			turnovers: 1,
+			fg: "1-3",
+			fgPct: "33.3%",
+			threePt: "1-3",
+			ft: "1-2",
+			plusMinus: "-7"
+		},
+		{
+			name: "赛斯·伦迪",
+			rawName: "Seth Lundy",
+			number: "31",
+			position: "G",
+			minutes: "14",
+			points: 3,
+			rebounds: 0,
+			assists: 1,
+			steals: 0,
+			blocks: 0,
+			turnovers: 1,
+			fg: "1-4",
+			fgPct: "25.0%",
+			threePt: "1-4",
+			ft: "0-2",
+			plusMinus: "-8"
+		},
+		{
+			name: "约翰·普拉基达斯",
+			rawName: "John Poulakidas",
+			number: "1",
+			position: "G",
+			minutes: "14",
+			points: 3,
+			rebounds: 2,
+			assists: 1,
 			steals: 0,
 			blocks: 0,
 			turnovers: 0,
 			fg: "1-3",
 			fgPct: "33.3%",
-			threePt: "0-1",
-			threePtPct: "0.0%",
+			threePt: "1-3",
 			ft: "0-0",
-			plusMinus: "+0"
+			plusMinus: "-5"
 		},
 		{
-			name: "乔克·兰代尔",
-			number: "2",
-			position: "C",
-			minutes: "8",
-			points: 2,
-			rebounds: 2,
-			assists: 0,
-			steals: 0,
-			blocks: 0,
-			turnovers: 0,
-			fg: "1-2",
-			fgPct: "50.0%",
-			threePt: "0-0",
-			threePtPct: "0.0%",
-			ft: "0-0",
-			plusMinus: "+2"
-		}
-	],
-	opponentPlayers: [
-		{
-			name: "卢卡·东契奇",
-			number: "77",
-			position: "G",
-			minutes: "24",
-			points: 24,
-			rebounds: 6,
-			assists: 7,
-			steals: 1,
-			blocks: 0,
-			turnovers: 3,
-			fg: "8-16",
-			fgPct: "50.0%",
-			threePt: "3-8",
-			threePtPct: "37.5%",
-			ft: "5-6",
-			plusMinus: "-12"
-		},
-		{
-			name: "凯里·欧文",
-			number: "11",
-			position: "G",
-			minutes: "22",
-			points: 21,
-			rebounds: 3,
-			assists: 5,
-			steals: 1,
-			blocks: 0,
-			turnovers: 2,
-			fg: "8-15",
-			fgPct: "53.3%",
-			threePt: "3-6",
-			threePtPct: "50.0%",
-			ft: "2-2",
-			plusMinus: "-10"
-		},
-		{
-			name: "克莱·汤普森",
-			number: "31",
-			position: "G",
-			minutes: "20",
-			points: 14,
-			rebounds: 3,
-			assists: 2,
-			steals: 0,
-			blocks: 0,
-			turnovers: 1,
-			fg: "5-11",
-			fgPct: "45.5%",
-			threePt: "4-9",
-			threePtPct: "44.4%",
-			ft: "0-0",
-			plusMinus: "-14"
-		},
-		{
-			name: "PJ·华盛顿",
-			number: "25",
+			name: "德怀特·鲍威尔",
+			rawName: "Dwight Powell",
+			number: "7",
 			position: "F",
-			minutes: "22",
-			points: 12,
-			rebounds: 6,
-			assists: 2,
+			minutes: "13",
+			points: 1,
+			rebounds: 8,
+			assists: 1,
 			steals: 1,
 			blocks: 1,
-			turnovers: 1,
-			fg: "5-10",
-			fgPct: "50.0%",
-			threePt: "1-4",
-			threePtPct: "25.0%",
+			turnovers: 0,
+			fg: "0-1",
+			fgPct: "0.0%",
+			threePt: "0-1",
 			ft: "1-2",
-			plusMinus: "-11"
+			plusMinus: "0"
 		},
 		{
-			name: "德雷克·莱夫利二世",
-			number: "2",
+			name: "穆萨·西塞",
+			rawName: "Moussa Cisse",
+			number: "30",
 			position: "C",
-			minutes: "20",
-			points: 10,
-			rebounds: 8,
+			minutes: "14",
+			points: 0,
+			rebounds: 3,
 			assists: 2,
 			steals: 0,
 			blocks: 2,
-			turnovers: 2,
-			fg: "5-7",
-			fgPct: "71.4%",
+			turnovers: 4,
+			fg: "0-3",
+			fgPct: "0.0%",
 			threePt: "0-0",
-			threePtPct: "0.0%",
 			ft: "0-0",
 			plusMinus: "-8"
-		},
-		{
-			name: "丹尼尔·加福德",
-			number: "21",
-			position: "C",
-			minutes: "16",
-			points: 8,
-			rebounds: 6,
-			assists: 0,
-			steals: 0,
-			blocks: 1,
-			turnovers: 1,
-			fg: "4-6",
-			fgPct: "66.7%",
-			threePt: "0-0",
-			threePtPct: "0.0%",
-			ft: "0-1",
-			plusMinus: "-6"
-		},
-		{
-			name: "纳吉·马绍尔",
-			number: "13",
-			position: "F",
-			minutes: "17",
-			points: 9,
-			rebounds: 4,
-			assists: 2,
-			steals: 1,
-			blocks: 0,
-			turnovers: 1,
-			fg: "4-7",
-			fgPct: "57.1%",
-			threePt: "1-2",
-			threePtPct: "50.0%",
-			ft: "0-0",
-			plusMinus: "-5"
-		},
-		{
-			name: "昆汀·格兰姆斯",
-			number: "5",
-			position: "G",
-			minutes: "16",
-			points: 7,
-			rebounds: 2,
-			assists: 2,
-			steals: 1,
-			blocks: 0,
-			turnovers: 1,
-			fg: "3-7",
-			fgPct: "42.9%",
-			threePt: "1-4",
-			threePtPct: "25.0%",
-			ft: "0-0",
-			plusMinus: "-5"
-		},
-		{
-			name: "杰登·哈迪",
-			number: "1",
-			position: "G",
-			minutes: "15",
-			points: 6,
-			rebounds: 1,
-			assists: 2,
-			steals: 0,
-			blocks: 0,
-			turnovers: 2,
-			fg: "2-6",
-			fgPct: "33.3%",
-			threePt: "1-3",
-			threePtPct: "33.3%",
-			ft: "1-2",
-			plusMinus: "-6"
-		},
-		{
-			name: "斯潘塞·丁威迪",
-			number: "26",
-			position: "G",
-			minutes: "14",
-			points: 6,
-			rebounds: 2,
-			assists: 3,
-			steals: 0,
-			blocks: 0,
-			turnovers: 1,
-			fg: "2-5",
-			fgPct: "40.0%",
-			threePt: "1-3",
-			threePtPct: "33.3%",
-			ft: "1-1",
-			plusMinus: "-3"
 		}
 	]
 } };
+/** 客户端向数据站发起真实抓取，优先请求本地服务端抓取接口，网络失败时平滑降级 */
+async function fetchLiveBoxscore(gameId) {
+	try {
+		const res = await fetch(`/api/site/boxscore?gameId=${encodeURIComponent(gameId)}`);
+		if (res.ok) {
+			const data = await res.json();
+			if (data && data.rocketsPlayers && data.rocketsPlayers.length > 0) return data;
+		}
+	} catch {}
+	try {
+		const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${encodeURIComponent(gameId)}`, { signal: AbortSignal.timeout(6e3) });
+		if (res.ok) {
+			const data = await res.json();
+			const competitors = (data.header?.competitions?.[0])?.competitors || [];
+			const rocketsComp = competitors.find((c) => c.team?.id === "10" || c.team?.displayName?.includes("Rockets"));
+			const oppComp = competitors.find((c) => c !== rocketsComp);
+			const quarters = {
+				rockets: (rocketsComp?.linescores || []).map((l) => Number(l.displayValue)),
+				opponent: (oppComp?.linescores || []).map((l) => Number(l.displayValue))
+			};
+			const parsePlayers = (teamKeyword) => {
+				const teamSection = (data.boxscore?.players || []).find((p) => p.team?.displayName?.toLowerCase().includes(teamKeyword.toLowerCase()));
+				if (!teamSection) return [];
+				const statItem = teamSection.statistics?.[0];
+				if (!statItem) return [];
+				return (statItem.athletes || []).map((ath) => {
+					const s = ath.stats || [];
+					const rawName = ath.athlete?.displayName || "";
+					const displayName = PLAYER_NAME_CN[rawName] || rawName;
+					const fgParts = (s[2] || "0-0").split("-");
+					const fgPct = fgParts[1] && Number(fgParts[1]) > 0 ? (Math.round(Number(fgParts[0]) / Number(fgParts[1]) * 1e3) / 10).toFixed(1) + "%" : "0.0%";
+					return {
+						name: displayName,
+						rawName,
+						number: ath.athlete?.jersey || "",
+						position: ath.athlete?.position?.abbreviation || "F",
+						minutes: s[0] || "0",
+						points: Number(s[1]) || 0,
+						rebounds: Number(s[5]) || 0,
+						assists: Number(s[6]) || 0,
+						turnovers: Number(s[7]) || 0,
+						steals: Number(s[8]) || 0,
+						blocks: Number(s[9]) || 0,
+						fg: s[2] || "0-0",
+						fgPct,
+						threePt: s[3] || "0-0",
+						ft: s[4] || "0-0",
+						plusMinus: s[13] || "0"
+					};
+				}).filter((p) => p.minutes !== "DNP" && p.minutes !== "0");
+			};
+			const rocketsPlayers = parsePlayers("Rockets");
+			const opponentPlayers = parsePlayers(oppComp?.team?.name || "Opponent");
+			if (rocketsPlayers.length > 0) return {
+				gameId,
+				quarters,
+				rocketsPlayers,
+				opponentPlayers
+			};
+		}
+	} catch {}
+	return BOXSCORE_MAP[gameId] ?? null;
+}
 //#endregion
 //#region app/features/schedule/ScheduleCalendar.tsx
 var MONTHS = [
@@ -5356,13 +5576,19 @@ function ScheduleCalendar() {
 	const featuredGame = useMemo(() => {
 		return ROCKETS_GAMES.find((g) => g.status === "final") || ROCKETS_GAMES[0];
 	}, []);
+	const [isLoadingLive, setIsLoadingLive] = useState(false);
 	const handleOpenDetail = (game) => {
 		if (game.status !== "final") return;
 		setActiveGame(game);
 		setActiveTeamTab("rockets");
-		const box = BOXSCORE_MAP[game.id];
-		if (box) setActiveBoxScore(box);
-		else setActiveBoxScore(null);
+		const initialBox = BOXSCORE_MAP[game.id] ?? null;
+		setActiveBoxScore(initialBox);
+		setIsLoadingLive(true);
+		fetchLiveBoxscore(game.id).then((liveData) => {
+			if (liveData) setActiveBoxScore(liveData);
+		}).finally(() => {
+			setIsLoadingLive(false);
+		});
 	};
 	return /* @__PURE__ */ jsxs("div", {
 		className: "space-y-6",
@@ -5620,32 +5846,45 @@ function ScheduleCalendar() {
 							className: "flex items-center justify-between border-b border-line bg-bg-sunk/30 px-5 py-3.5",
 							children: [/* @__PURE__ */ jsxs("div", {
 								className: "space-y-0.5",
-								children: [/* @__PURE__ */ jsxs("span", {
-									className: "text-xs font-bold text-ink-4",
-									children: [
-										activeGame.date,
-										" ",
-										getWeekday(activeGame.date),
-										" · ",
-										activeGame.arena
-									]
-								}), /* @__PURE__ */ jsxs("h3", {
-									className: "text-base font-black text-ink sm:text-lg",
-									children: [
-										"休斯敦火箭 ",
-										activeGame.isHome ? "VS" : "@",
-										" ",
-										activeGame.opponent.name,
-										activeGame.result && /* @__PURE__ */ jsxs("span", {
-											className: "ml-3 font-mono text-[#CE1141]",
-											children: [
-												activeGame.result.rocketsScore,
-												" - ",
-												activeGame.result.opponentScore
-											]
-										})
-									]
-								})]
+								children: [
+									/* @__PURE__ */ jsxs("span", {
+										className: "text-xs font-bold text-ink-4",
+										children: [
+											activeGame.date,
+											" ",
+											getWeekday(activeGame.date),
+											" · ",
+											activeGame.arena
+										]
+									}),
+									/* @__PURE__ */ jsxs("h3", {
+										className: "text-base font-black text-ink sm:text-lg",
+										children: [
+											"休斯敦火箭 ",
+											activeGame.isHome ? "VS" : "@",
+											" ",
+											activeGame.opponent.name,
+											activeGame.result && /* @__PURE__ */ jsxs("span", {
+												className: "ml-3 font-mono text-[#CE1141]",
+												children: [
+													activeGame.result.rocketsScore,
+													" - ",
+													activeGame.result.opponentScore
+												]
+											})
+										]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "flex items-center gap-2 text-[11px] text-ink-4",
+										children: [/* @__PURE__ */ jsxs("span", {
+											className: "flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400",
+											children: [/* @__PURE__ */ jsx("span", { className: "size-1.5 rounded-full bg-emerald-500 animate-pulse" }), "官方比赛战报数据实时同步"]
+										}), isLoadingLive && /* @__PURE__ */ jsx("span", {
+											className: "text-accent animate-pulse",
+											children: "· 正在刷新中…"
+										})]
+									})
+								]
 							}), /* @__PURE__ */ jsx("button", {
 								type: "button",
 								onClick: () => setActiveGame(null),
@@ -21977,7 +22216,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-CeUtSWUR.js",
+			"module": "/assets/root-D_vBxX1S.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
@@ -21985,7 +22224,7 @@ var server_manifest_default = {
 				"/assets/Chrome-BmT2qpYg.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-wP1XU6CM.css"],
+			"css": ["/assets/root-2Egzg7lh.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22051,7 +22290,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-BP_BRhkj.js",
+			"module": "/assets/schedule-CeG80SaE.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23302,8 +23541,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-5c422de7.js",
-	"version": "5c422de7",
+	"url": "/assets/manifest-60f2b289.js",
+	"version": "60f2b289",
 	"sri": void 0
 };
 //#endregion

@@ -245,6 +245,18 @@ export function registerSite(app: FastifyInstance) {
     return sendJsonWithEtag(req, reply, data, { etagPrefix: "report", cacheControl: "public, max-age=120, s-maxage=120" });
   }));
 
+  // Live NBA Boxscore fetched directly from ESPN NBA summary API
+  app.get("/api/site/boxscore", siteHandler(async (req, reply) => {
+    const q = req.query as { gameId?: string };
+    const gameId = q.gameId?.trim() || "401898395";
+    if (!/^[0-9]{5,15}$/.test(gameId)) {
+      return sendProblem(req, reply, { status: 400, code: "invalid_request", detail: "Invalid gameId" });
+    }
+    const data = await fetchEspnBoxscoreData(gameId);
+    reply.header("Cache-Control", "public, max-age=180, s-maxage=300");
+    return data;
+  }));
+
   // Markdown export: attachment, 404 when there is nothing to export (same predicate as the button).
   app.get("/items/:id/markdown", siteHandler(async (req, reply) => {
     const id = (req.params as { id: string }).id;
@@ -258,6 +270,109 @@ export function registerSite(app: FastifyInstance) {
       .header("X-Robots-Tag", "noindex")
       .send(md.body);
   }));
+}
+
+const PLAYER_NAME_CN: Record<string, string> = {
+  "Alperen Sengun": "阿尔佩伦·申京",
+  "Kevin Durant": "凯文·杜兰特",
+  "Fred VanVleet": "弗雷德·范弗里特",
+  "Tari Eason": "塔里·伊森",
+  "Jabari Smith Jr.": "小贾巴里·史密斯",
+  "Reed Sheppard": "里德·谢泼德",
+  "Amen Thompson": "阿门·汤普森",
+  "Steven Adams": "史蒂文·亚当斯",
+  "Oscar Tshiebwe": "奥斯卡·希布韦",
+  "Bogdan Bogdanovic": "博格丹·博格达诺维奇",
+  "Bruce Thornton": "布鲁斯·桑顿",
+  "Julian Phillips": "朱利安·菲利普斯",
+  "Isaiah Crawford": "以赛亚·克劳福德",
+  "Quadir Copeland": "夸迪尔·科普兰",
+  "Sean Pedulla": "肖恩·佩杜拉",
+  "Cooper Flagg": "库珀·弗拉格",
+  "Naji Marshall": "纳吉·马绍尔",
+  "Max Christie": "马克斯·克里斯蒂",
+  "Zaccharie Risacher": "扎卡里·里萨谢",
+  "Daniel Gafford": "丹尼尔·加福德",
+  "Dwight Powell": "德怀特·鲍威尔",
+  "Tobi Lawal": "托比·拉瓦尔",
+  "Tarik Biberovic": "塔里克·比贝罗维奇",
+  "Sergio de Larrea": "塞尔吉奥·德拉雷亚",
+  "Moussa Cisse": "穆萨·西塞",
+  "Seth Lundy": "赛斯·伦迪",
+  "John Poulakidas": "约翰·普拉基达斯",
+  "Jett Howard": "杰特·霍华德",
+  "Morez Johnson Jr.": "莫雷兹·约翰逊",
+};
+
+const boxscoreCache = new Map<string, { data: unknown; savedAt: number }>();
+
+async function fetchEspnBoxscoreData(gameId: string) {
+  const cached = boxscoreCache.get(gameId);
+  if (cached && Date.now() - cached.savedAt < 300_000) {
+    return cached.data;
+  }
+  const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${gameId}`, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) throw new Error(`ESPN API returned ${res.status}`);
+  const data = (await res.json()) as any;
+  const comp = data.header?.competitions?.[0];
+  const competitors = comp?.competitors || [];
+
+  const rocketsComp = competitors.find((c: any) => c.team?.id === "10" || c.team?.displayName?.includes("Rockets"));
+  const oppComp = competitors.find((c: any) => c !== rocketsComp);
+
+  const quarters = {
+    rockets: (rocketsComp?.linescores || []).map((l: any) => Number(l.displayValue)),
+    opponent: (oppComp?.linescores || []).map((l: any) => Number(l.displayValue)),
+  };
+
+  const parsePlayers = (teamKeyword: string) => {
+    const teamSection = (data.boxscore?.players || []).find((p: any) => p.team?.displayName?.toLowerCase().includes(teamKeyword.toLowerCase()));
+    if (!teamSection) return [];
+    const statItem = teamSection.statistics?.[0];
+    if (!statItem) return [];
+    return (statItem.athletes || []).map((ath: any) => {
+      const s = ath.stats || [];
+      const rawName = ath.athlete?.displayName || "";
+      const cnName = PLAYER_NAME_CN[rawName];
+      const displayName = cnName ? `${cnName} (${rawName})` : rawName;
+      const fgParts = (s[2] || "0-0").split("-");
+      const fgPct = fgParts[1] && Number(fgParts[1]) > 0 ? (Math.round((Number(fgParts[0]) / Number(fgParts[1])) * 1000) / 10).toFixed(1) + "%" : "0.0%";
+      return {
+        name: displayName,
+        rawName,
+        number: ath.athlete?.jersey || "",
+        position: ath.athlete?.position?.abbreviation || "F",
+        minutes: s[0] || "0",
+        points: Number(s[1]) || 0,
+        rebounds: Number(s[5]) || 0,
+        assists: Number(s[6]) || 0,
+        turnovers: Number(s[7]) || 0,
+        steals: Number(s[8]) || 0,
+        blocks: Number(s[9]) || 0,
+        fg: s[2] || "0-0",
+        fgPct,
+        threePt: s[3] || "0-0",
+        ft: s[4] || "0-0",
+        plusMinus: s[13] || "0",
+      };
+    }).filter((p: any) => p.minutes !== "DNP" && p.minutes !== "0");
+  };
+
+  const rocketsPlayers = parsePlayers("Rockets");
+  const opponentPlayers = parsePlayers(oppComp?.team?.name || "Opponent");
+
+  const result = {
+    gameId,
+    quarters,
+    rocketsPlayers,
+    opponentPlayers,
+  };
+
+  boxscoreCache.set(gameId, { data: result, savedAt: Date.now() });
+  return result;
 }
 
 /** The Codex reset monitor's page data (an optional module, industry/features.ts). */

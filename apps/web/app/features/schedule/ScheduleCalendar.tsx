@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { ROCKETS_GAMES, type GameData } from "./rocketsSchedule";
-import { BOXSCORE_MAP, type GameBoxScore } from "./nbaData";
+import { BOXSCORE_MAP, fetchLiveBoxscore, type GameBoxScore } from "./nbaData";
 import { IconCalendar, IconClose } from "../../components/icons";
 
 const MONTHS = [
@@ -50,16 +50,27 @@ export function ScheduleCalendar() {
     return ROCKETS_GAMES.find((g) => g.status === "final") || ROCKETS_GAMES[0]!;
   }, []);
 
+  const [isLoadingLive, setIsLoadingLive] = useState(false);
+
   const handleOpenDetail = (game: GameData) => {
     if (game.status !== "final") return; // 仅完赛比赛可查看技术统计
     setActiveGame(game);
     setActiveTeamTab("rockets");
-    const box = BOXSCORE_MAP[game.id];
-    if (box) {
-      setActiveBoxScore(box);
-    } else {
-      setActiveBoxScore(null);
-    }
+    // 先加载本地兜底数据，保证弹窗即开不卡顿
+    const initialBox = BOXSCORE_MAP[game.id] ?? null;
+    setActiveBoxScore(initialBox);
+
+    // 立即向数据站发起真实数据拉取
+    setIsLoadingLive(true);
+    fetchLiveBoxscore(game.id)
+      .then((liveData) => {
+        if (liveData) {
+          setActiveBoxScore(liveData);
+        }
+      })
+      .finally(() => {
+        setIsLoadingLive(false);
+      });
   };
 
   return (
@@ -302,6 +313,13 @@ export function ScheduleCalendar() {
                     </span>
                   )}
                 </h3>
+                <div className="flex items-center gap-2 text-[11px] text-ink-4">
+                  <span className="flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
+                    <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    官方比赛战报数据实时同步
+                  </span>
+                  {isLoadingLive && <span className="text-accent animate-pulse">· 正在刷新中…</span>}
+                </div>
               </div>
               <button
                 type="button"
