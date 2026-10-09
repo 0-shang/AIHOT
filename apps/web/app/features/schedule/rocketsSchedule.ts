@@ -327,9 +327,19 @@ export const ROCKETS_GAMES: GameData[] = [
     "arena": "中国澳门·威尼斯人金光综艺馆",
     "broadcast": "腾讯体育 / 咪咕视频",
     "stage": "preseason",
-    "status": "upcoming",
+    "status": "final",
     "keyMatchup": "杜兰特 & 申京 vs 东契奇 & 欧文",
-    "previewNotes": "NBA 澳门赛首战，威尼斯人金光综艺馆全场爆满，杜兰特火箭正式首秀战宿敌独行侠！"
+    "previewNotes": "NBA 澳门赛首战，威尼斯人金光综艺馆全场爆满，杜兰特火箭正式首秀战宿敌独行侠！",
+    "result": {
+      "outcome": "W",
+      "rocketsScore": 135,
+      "opponentScore": 117,
+      "topPerformer": {
+        "name": "阿尔佩伦·申京",
+        "stats": "16分 10篮板 10助攻 (三双)"
+      },
+      "highlights": "伊森狂砍20分7板3断，申京轻取三双，范弗里特5记三分，火箭末节一波流135-117大胜独行侠！"
+    }
   },
   {
     "id": "401898400",

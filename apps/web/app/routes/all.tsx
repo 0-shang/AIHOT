@@ -13,7 +13,9 @@ import { RingMark } from "../components/Logo";
 
 const BEAT_REPORTERS = [
   { key: "all", label: "全部" },
+  { key: "Jonathan Feigen", label: "Jonathan Feigen" },
   { key: "Kelly Iko", label: "Kelly Iko" },
+  { key: "Danielle Lerner", label: "Danielle Lerner" },
   { key: "Ben DuBose", label: "Ben DuBose" },
   { key: "Jackson Gatlin", label: "Jackson Gatlin" },
   { key: "Adam Spolane", label: "Adam Spolane" },
@@ -36,8 +38,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   const channel = isChannelKey(channelParam) ? channelParam : "all";
   const tag = url.searchParams.get("tag")?.trim() || null;
   const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
-  const reporter = url.searchParams.get("reporter")?.trim() || null;
   const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : null;
+  // 随队记者仅在“队记推文”栏目生效；切换到其他栏目时自动忽略，保证内容立即呈现
+  const rawReporter = url.searchParams.get("reporter")?.trim() || null;
+  const reporter = category === "beat_tweets" ? rawReporter : null;
   const tab = url.searchParams.get("tab") === "relevance" ? "relevance" : null;
   // Legacy deep-paging parameters (deep, anchorAt) still open a normal page.
   const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);

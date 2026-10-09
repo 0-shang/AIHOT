@@ -1,7 +1,7 @@
 import { SITE } from "@aihot/industry/site";
 import { Link } from "react-router";
 import { pageMeta } from "../lib/seo";
-import { IconCoffee, IconHeart, IconBolt, IconCheck, IconMessage, IconArrowLeft } from "../components/icons";
+import { IconCoffee, IconBolt, IconCheck, IconMessage, IconArrowLeft } from "../components/icons";
 import sponsorWechat from "../assets/sponsor-wechat.jpg";
 
 export function meta() {
@@ -103,25 +103,6 @@ export default function SponsorPage() {
               <li className="flex items-start gap-2">
                 <IconCheck size={16} className="mt-0.5 shrink-0 text-emerald-600" />
                 <span><strong className="text-ink">独立域名长期续费</strong>：保障 clutchwire.org 品牌的长期稳定解析。</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Card: Commitments */}
-          <div className="card border border-line bg-surface p-5 shadow-sm">
-            <h3 className="flex items-center gap-2 text-[15px] font-bold text-ink">
-              <IconHeart size={18} className="text-[#CE1141]" />
-              站长的真诚承诺
-            </h3>
-            <ul className="mt-3 space-y-2 text-[13px] leading-relaxed text-ink-2">
-              <li>
-                ✨ <strong className="text-ink">坚持永久无恶性广告</strong>：绝不投放影响阅读体验的弹窗、信息流软文或牛皮癣广告。
-              </li>
-              <li>
-                🔒 <strong className="text-ink">专款专用</strong>：收到的所有赞赏资金，将 100% 优先用于支付服务器带宽和域名维护费用。
-              </li>
-              <li>
-                🚀 <strong className="text-ink">持续迭代更新</strong>：新赛季将持续跟进火箭每场赛况、球员伤病战报与交易流言，陪伴休斯敦红军每一天！
               </li>
             </ul>
           </div>

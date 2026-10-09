@@ -26,11 +26,12 @@ export function hrefWith(base: string, params: URLSearchParams, patch: Record<st
 export function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", className = "" }: { base: string; category: CategoryKey | null; channel?: ChannelKey; layoutId: string; size?: "md" | "sm"; className?: string }) {
   const [params] = useSearchParams();
   // Tab order: 全部 → 球队动态 → 深度专栏 → 交易流言 → 队记推文
+  // 切换到非队记推文分类时，必须强制清除 reporter 参数，避免 URL 滞留导致 0 结果与跳转异常
   const items = [
-    { key: "all", label: "全部", to: hrefWith(base, params, { category: null, channel: null }) },
-    { key: "news", label: "球队动态", to: hrefWith(base, params, { category: "news", channel: null }) },
-    { key: "analysis", label: "深度专栏", to: hrefWith(base, params, { category: "analysis", channel: null }) },
-    { key: "trades", label: "交易流言", to: hrefWith(base, params, { category: "trades", channel: null }) },
+    { key: "all", label: "全部", to: hrefWith(base, params, { category: null, channel: null, reporter: null }) },
+    { key: "news", label: "球队动态", to: hrefWith(base, params, { category: "news", channel: null, reporter: null }) },
+    { key: "analysis", label: "深度专栏", to: hrefWith(base, params, { category: "analysis", channel: null, reporter: null }) },
+    { key: "trades", label: "交易流言", to: hrefWith(base, params, { category: "trades", channel: null, reporter: null }) },
     { key: "beat_tweets", label: "队记推文", to: hrefWith(base, params, { category: "beat_tweets", channel: null }) },
   ];
   const active = category ?? "all";

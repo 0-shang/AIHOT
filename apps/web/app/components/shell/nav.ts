@@ -21,7 +21,7 @@ export const SIDEBAR: Array<{ title: string; items: NavItem[] }> = [
     title: "内容",
     items: [
       { to: "/all", label: `全部${withSubject("动态")}`, icon: IconList },
-      { to: "/schedule", label: "赛程日历", icon: IconCalendar },
+      { to: "/schedule", label: "赛程战绩", icon: IconCalendar },
       { to: "/hot", label: "热点榜", icon: IconFlame },
       { to: "/starred", label: "收藏", icon: IconBookmark },
     ],

@@ -391,7 +391,6 @@
       "id": "x-jonathan-feigen",
       "name": "Jonathan Feigen (休斯顿纪事报火箭首席名记)",
       "kind": "x_search",
-      "enabled": false,
       "config": {
         "query": "from:Jonathan_Feigen -filter:replies",
         "searchType": "Latest"
@@ -434,7 +433,6 @@
       "id": "x-danielle-lerner",
       "name": "Danielle Lerner (休斯顿纪事报火箭资深跟队)",
       "kind": "x_search",
-      "enabled": false,
       "config": {
         "query": "from:danielle_lerner -filter:replies",
         "searchType": "Latest"

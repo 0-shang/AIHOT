@@ -76,14 +76,14 @@ export const ITEM_FROM = sql`
   LEFT JOIN translations tr ON tr.article_id = p.article_id AND tr.lang = 'zh' AND tr.revision >= a.revision
   LEFT JOIN quote_translations qt ON p.channel = 'x' AND qt.tweet_id = substring(a.x_post->'quoted'->>'url' from '/status/([0-9]+)')`;
 
-/** Listed items: public, not a reply tweet, no youtube, and a selected item only after its release gate. */
+/** Listed items: public, not a reply tweet, no youtube, exclude deleted old articles, and a selected item only after its release gate. */
 export function listedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND p.source_id NOT LIKE 'yt-%' AND p.source_id NOT LIKE '%youtube%' AND p.url NOT LIKE '%youtube.com%' AND p.url NOT LIKE '%youtu.be%' AND p.url NOT LIKE '%youtube%' AND p.title NOT LIKE '%YouTube%' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND (NOT p.selected OR p.visible_after <= ${now})`;
+  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND p.source_id NOT LIKE 'yt-%' AND p.source_id NOT LIKE '%youtube%' AND p.url NOT LIKE '%youtube.com%' AND p.url NOT LIKE '%youtu.be%' AND p.url NOT LIKE '%youtube%' AND p.title NOT LIKE '%YouTube%' AND p.title NOT LIKE '%卡斯特罗%' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND (NOT p.selected OR p.visible_after <= ${now})`;
 }
 
 /** Selected set as shown on the home timeline, v1 selected mode and RSS. */
 export function selectedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND p.source_id NOT LIKE 'yt-%' AND p.source_id NOT LIKE '%youtube%' AND p.url NOT LIKE '%youtube.com%' AND p.url NOT LIKE '%youtu.be%' AND p.url NOT LIKE '%youtube%' AND p.title NOT LIKE '%YouTube%' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND p.selected AND p.visible_after <= ${now}`;
+  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND p.source_id NOT LIKE 'yt-%' AND p.source_id NOT LIKE '%youtube%' AND p.url NOT LIKE '%youtube.com%' AND p.url NOT LIKE '%youtu.be%' AND p.url NOT LIKE '%youtube%' AND p.title NOT LIKE '%YouTube%' AND p.title NOT LIKE '%卡斯特罗%' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND p.selected AND p.visible_after <= ${now}`;
 }
 
 export function channelCondition(channel: ChannelKey | null | undefined) {
@@ -95,15 +95,19 @@ export function channelCondition(channel: ChannelKey | null | undefined) {
 export function categoryCondition(category: CategoryKey | null | undefined, v1 = false) {
   if (!category) return sql``;
   if (category === "beat_tweets") {
-    // 队记推文栏目：展示所有随队记者的推文流、x频道推文以及明确分类为 beat_tweets 的动态
-    return sql`AND (p.category = 'beat_tweets' OR p.channel = 'x' OR p.source_id LIKE 'x-%')`;
+    // 队记推文栏目：严格限定为随队记者的推文流与 X 渠道内容（严禁任何 RSS 媒体新闻混入）
+    return sql`AND (p.channel = 'x' OR p.source_id LIKE 'x-%')`;
   }
   if (category === "analysis") {
-    // 深度专栏：战术打法剖析、深度复盘、高阶数据、薪资结构、选秀前景及行业深度分析，聚合所有深度来源与标签
+    // 深度专栏：战术打法剖析、深度复盘、高阶数据、薪资结构、球员前瞻及行业深度分析，聚合所有深度来源与标签
     return sql`AND (
       p.category = 'analysis'
-      OR p.tags && ARRAY['深度专栏', '战术分析', '随队专栏', '球员前瞻', '战术拆解', '高阶战术', '战术复盘', '复盘', '深度分析']::text[]
-      OR p.source_id IN ('rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets', 'rss-si-rockets', 'rss-theringer-nba', 'rss-realgm-rockets')
+      OR p.tags && ARRAY['深度专栏', '战术分析', '随队专栏', '球员前瞻', '战术拆解', '高阶战术', '战术复盘', '复盘', '深度分析', '战术剖析', '深度']::text[]
+      OR p.source_id IN (
+        'rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets',
+        'rss-si-rockets', 'rss-theringer-nba', 'rss-realgm-rockets', 'rss-houstonchronicle-rockets',
+        'rss-rocketswire', 'rss-hoopshype-rockets', 'rss-clutchpoints-rockets'
+      )
     )`;
   }
   if (category === "news") {
@@ -167,9 +171,7 @@ export function deduplicateFeedItems<T extends { id: string; title: string; summ
         isDuplicate = true;
       } else {
         const sim = similarity(normTitle, existingNormTitle);
-        const isSamePlayerAction = (normTitle.includes("卡斯特罗") && existingNormTitle.includes("卡斯特罗")) ||
-                                   (normTitle.includes("双向合同") && existingNormTitle.includes("双向合同") && sim >= 0.75);
-        if (sim >= 0.85 || isSamePlayerAction) {
+        if (sim >= 0.82) {
           isDuplicate = true;
         }
       }
@@ -200,6 +202,9 @@ export function tagCondition(tag: string | null | undefined) {
 }
 
 const REPORTER_SOURCE_MAP: Record<string, string[]> = {
+  "jonathan feigen": ["x-jonathan-feigen"],
+  "feigen": ["x-jonathan-feigen"],
+  "danielle lerner": ["x-danielle-lerner"],
   "kelly iko": ["x-kelly-iko"],
   "ben dubose": ["x-ben-dubose"],
   "jackson gatlin": ["x-jackson-gatlin"],

@@ -94,7 +94,7 @@ export function registerMedia(app: FastifyInstance) {
           const resHeaders: Record<string, string | string[]> = {
             "Content-Type": upstreamRes.headers["content-type"] || "video/mp4",
             "Accept-Ranges": "bytes",
-            "Cache-Control": "public, max-age=86400",
+            "Cache-Control": "public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400",
             "X-Content-Type-Options": "nosniff",
           };
           if (upstreamRes.headers["content-length"]) {

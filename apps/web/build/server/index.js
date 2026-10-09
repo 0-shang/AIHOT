@@ -1,6 +1,6 @@
 import { t as __exportAll } from "./assets/rolldown-runtime-D7D4PA-g.js";
 import { t as entry_server_node_exports } from "./assets/framework-DvgSLGWb.js";
-import { A as IconMonitor, C as IconHeart, D as IconList, E as IconInfo, F as IconUsers, I as ABOUT, L as SITE, M as IconSearch, N as IconShare, O as IconMenu, P as IconSun, R as withSubject, S as IconFlame, T as IconImage, _ as IconCoffee, a as IconArrowRight, b as IconDownload, c as IconBolt, d as IconChart, f as IconCheck, g as IconClose, h as IconClock, i as IconArrowLeft, j as IconMoon, k as IconMessage, l as IconBookmark, m as IconChevronRight, n as Presence, o as IconArrowUp, p as IconChevronDown, r as IconApps, s as IconArrowUpRight, t as Collapse, u as IconCalendar, v as IconCopy, w as IconHistory, x as IconExternal, y as IconDoc } from "./assets/Presence-DpO2dEKi.js";
+import { A as IconMonitor, C as IconHeart, D as IconList, E as IconInfo, F as IconUsers, I as ABOUT, L as SITE, M as IconSearch, N as IconShare, O as IconMenu, P as IconSun, R as withSubject, S as IconFlame, T as IconImage, _ as IconCoffee, a as IconArrowRight, b as IconDownload, c as IconBolt, d as IconChart, f as IconCheck, g as IconClose, h as IconClock, i as IconArrowLeft, j as IconMoon, k as IconMessage, l as IconBookmark, m as IconChevronRight, n as Presence, o as IconArrowUp, p as IconChevronDown, r as IconApps, s as IconArrowUpRight, t as Collapse, u as IconCalendar, v as IconCopy, w as IconHistory, x as IconExternal, y as IconDoc } from "./assets/Presence-gkduGZJ4.js";
 import { Form, Link, Links, Meta, NavLink, Outlet, Scripts, ScrollRestoration, UNSAFE_withComponentProps, UNSAFE_withErrorBoundaryProps, data, isRouteErrorResponse, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation, useRevalidator, useRouteError, useRouteLoaderData, useSearchParams } from "react-router";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { Fragment as Fragment$1, Suspense, forwardRef, lazy, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -532,7 +532,7 @@ var SIDEBAR = [
 			},
 			{
 				to: "/schedule",
-				label: "赛程日历",
+				label: "赛程战绩",
 				icon: IconCalendar
 			},
 			{
@@ -1368,7 +1368,8 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			label: "全部",
 			to: hrefWith(base, params, {
 				category: null,
-				channel: null
+				channel: null,
+				reporter: null
 			})
 		},
 		{
@@ -1376,7 +1377,8 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			label: "球队动态",
 			to: hrefWith(base, params, {
 				category: "news",
-				channel: null
+				channel: null,
+				reporter: null
 			})
 		},
 		{
@@ -1384,7 +1386,8 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			label: "深度专栏",
 			to: hrefWith(base, params, {
 				category: "analysis",
-				channel: null
+				channel: null,
+				reporter: null
 			})
 		},
 		{
@@ -1392,7 +1395,8 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			label: "交易流言",
 			to: hrefWith(base, params, {
 				category: "trades",
-				channel: null
+				channel: null,
+				reporter: null
 			})
 		},
 		{
@@ -1717,8 +1721,14 @@ function VideoModal({ open, videoUrl, poster, onClose }) {
 	const dialog = useRef(null);
 	const videoRef = useRef(null);
 	const closeButton = useRef(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(false);
 	useEffect(() => {
-		if (!open) return;
+		if (!open) {
+			setLoading(true);
+			setError(false);
+			return;
+		}
 		const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 		const root = document.documentElement;
 		const overflow = root.style.overflow;
@@ -1746,27 +1756,86 @@ function VideoModal({ open, videoUrl, poster, onClose }) {
 			"aria-modal": "true",
 			"aria-label": "视频播放器",
 			onClick: onClose,
-			className: "fixed inset-0 z-[80] grid place-items-center bg-black/85 p-3 sm:p-8",
-			children: [/* @__PURE__ */ jsx("div", {
-				className: "relative max-h-[calc(100dvh-4rem)] max-w-full overflow-hidden rounded-tile bg-black shadow-2xl flex items-center justify-center",
+			className: "fixed inset-0 z-[80] grid place-items-center bg-black/90 p-3 sm:p-8 backdrop-blur-sm",
+			children: [/* @__PURE__ */ jsxs("div", {
+				className: "relative max-h-[calc(100dvh-4rem)] max-w-full overflow-hidden rounded-2xl bg-black/95 shadow-2xl flex flex-col items-center justify-center border border-white/10",
 				onClick: (e) => e.stopPropagation(),
-				children: videoUrl && /* @__PURE__ */ jsx("video", {
-					ref: videoRef,
-					src: videoUrl,
-					poster: poster ?? void 0,
-					controls: true,
-					autoPlay: true,
-					playsInline: true,
-					preload: "metadata",
-					className: "max-h-[calc(100dvh-5rem)] max-w-[calc(100vw-2rem)] md:max-w-4xl rounded-control object-contain"
-				}, videoUrl)
+				children: [
+					loading && !error && /* @__PURE__ */ jsxs("div", {
+						className: "absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-xs text-white",
+						children: [/* @__PURE__ */ jsx("div", { className: "size-10 rounded-full border-3 border-white/20 border-t-[#CE1141] animate-spin" }), /* @__PURE__ */ jsx("span", {
+							className: "mt-3 text-[13px] font-medium text-white/80 tracking-wide",
+							children: "视频极速缓冲中…"
+						})]
+					}),
+					error && /* @__PURE__ */ jsxs("div", {
+						className: "absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 p-6 text-center text-white",
+						children: [
+							/* @__PURE__ */ jsx("span", {
+								className: "text-2xl mb-2",
+								children: "⚠️"
+							}),
+							/* @__PURE__ */ jsx("p", {
+								className: "text-[14px] font-bold text-white/90",
+								children: "视频源加载遇到波动"
+							}),
+							/* @__PURE__ */ jsx("p", {
+								className: "mt-1 text-[12.5px] text-white/60 max-w-xs",
+								children: "因原平台跨国节点延迟，可尝试重新缓冲或直接打开原视频链接。"
+							}),
+							/* @__PURE__ */ jsxs("div", {
+								className: "mt-4 flex items-center gap-3",
+								children: [/* @__PURE__ */ jsx("button", {
+									type: "button",
+									onClick: () => {
+										setError(false);
+										setLoading(true);
+										if (videoRef.current) {
+											videoRef.current.load();
+											videoRef.current.play().catch(() => {});
+										}
+									},
+									className: "rounded-full bg-[#CE1141] px-4 py-1.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#b00e36]",
+									children: "重新加载"
+								}), videoUrl && /* @__PURE__ */ jsx("a", {
+									href: videoUrl,
+									target: "_blank",
+									rel: "noreferrer",
+									className: "rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[12.5px] font-medium text-white hover:bg-white/20",
+									children: "新窗口播放"
+								})]
+							})
+						]
+					}),
+					videoUrl && /* @__PURE__ */ jsx("video", {
+						ref: videoRef,
+						src: videoUrl,
+						poster: poster ?? void 0,
+						controls: true,
+						autoPlay: true,
+						playsInline: true,
+						preload: "auto",
+						onLoadStart: () => {
+							setLoading(true);
+							setError(false);
+						},
+						onWaiting: () => setLoading(true),
+						onCanPlay: () => setLoading(false),
+						onPlaying: () => setLoading(false),
+						onError: () => {
+							setLoading(false);
+							setError(true);
+						},
+						className: "max-h-[calc(100dvh-5rem)] max-w-[calc(100vw-2rem)] md:max-w-4xl rounded-2xl object-contain shadow-inner"
+					}, videoUrl)
+				]
 			}), /* @__PURE__ */ jsx("button", {
 				ref: closeButton,
 				type: "button",
 				"aria-label": "关闭视频",
 				onClick: onClose,
-				className: "absolute right-4 top-4 grid size-9 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20",
-				children: /* @__PURE__ */ jsx(IconClose, { size: 18 })
+				className: "absolute right-4 top-4 grid size-10 place-items-center rounded-full bg-white/15 text-white shadow-lg transition-all hover:bg-white/25 active:scale-95",
+				children: /* @__PURE__ */ jsx(IconClose, { size: 20 })
 			})]
 		})
 	}), document.body);
@@ -2850,8 +2919,16 @@ var BEAT_REPORTERS = [
 		label: "全部"
 	},
 	{
+		key: "Jonathan Feigen",
+		label: "Jonathan Feigen"
+	},
+	{
 		key: "Kelly Iko",
 		label: "Kelly Iko"
+	},
+	{
+		key: "Danielle Lerner",
+		label: "Danielle Lerner"
 	},
 	{
 		key: "Ben DuBose",
@@ -2913,8 +2990,9 @@ async function loader$33({ request }) {
 	const channel = isChannelKey(channelParam) ? channelParam : "all";
 	const tag = url.searchParams.get("tag")?.trim() || null;
 	const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
-	const reporter = url.searchParams.get("reporter")?.trim() || null;
 	const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : null;
+	const rawReporter = url.searchParams.get("reporter")?.trim() || null;
+	const reporter = category === "beat_tweets" ? rawReporter : null;
 	const tab = url.searchParams.get("tab") === "relevance" ? "relevance" : null;
 	const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
 	return {
@@ -3211,9 +3289,19 @@ var ROCKETS_GAMES = [
 		"arena": "中国澳门·威尼斯人金光综艺馆",
 		"broadcast": "腾讯体育 / 咪咕视频",
 		"stage": "preseason",
-		"status": "upcoming",
+		"status": "final",
 		"keyMatchup": "杜兰特 & 申京 vs 东契奇 & 欧文",
-		"previewNotes": "NBA 澳门赛首战，威尼斯人金光综艺馆全场爆满，杜兰特火箭正式首秀战宿敌独行侠！"
+		"previewNotes": "NBA 澳门赛首战，威尼斯人金光综艺馆全场爆满，杜兰特火箭正式首秀战宿敌独行侠！",
+		"result": {
+			"outcome": "W",
+			"rocketsScore": 135,
+			"opponentScore": 117,
+			"topPerformer": {
+				"name": "阿尔佩伦·申京",
+				"stats": "16分 10篮板 10助攻 (三双)"
+			},
+			"highlights": "伊森狂砍20分7板3断，申京轻取三双，范弗里特5记三分，火箭末节一波流135-117大胜独行侠！"
+		}
 	},
 	{
 		"id": "401898400",
@@ -4775,6 +4863,1130 @@ var ROCKETS_GAMES = [
 	}
 ];
 //#endregion
+//#region app/features/schedule/nbaData.ts
+/** 比赛技术统计详细数据（以 10.9 澳门季前赛首战 135-117 胜独行侠为例，支持持续扩充） */
+var BOXSCORE_MAP = { "401898395": {
+	gameId: "401898395",
+	quarters: {
+		rockets: [
+			38,
+			34,
+			33,
+			30
+		],
+		opponent: [
+			28,
+			31,
+			29,
+			29
+		]
+	},
+	rocketsPlayers: [
+		{
+			name: "阿尔佩伦·申京",
+			number: "28",
+			position: "C",
+			minutes: "28",
+			points: 16,
+			rebounds: 10,
+			assists: 10,
+			steals: 2,
+			blocks: 1,
+			turnovers: 2,
+			fg: "6-10",
+			fgPct: "60.0%",
+			threePt: "1-2",
+			threePtPct: "50.0%",
+			ft: "3-4",
+			plusMinus: "+18"
+		},
+		{
+			name: "塔里·伊森",
+			number: "17",
+			position: "F",
+			minutes: "24",
+			points: 20,
+			rebounds: 7,
+			assists: 2,
+			steals: 3,
+			blocks: 1,
+			turnovers: 1,
+			fg: "8-12",
+			fgPct: "66.7%",
+			threePt: "3-5",
+			threePtPct: "60.0%",
+			ft: "1-1",
+			plusMinus: "+16"
+		},
+		{
+			name: "小贾巴里·史密斯",
+			number: "10",
+			position: "F",
+			minutes: "26",
+			points: 19,
+			rebounds: 8,
+			assists: 1,
+			steals: 1,
+			blocks: 2,
+			turnovers: 0,
+			fg: "7-13",
+			fgPct: "53.8%",
+			threePt: "3-7",
+			threePtPct: "42.9%",
+			ft: "2-2",
+			plusMinus: "+14"
+		},
+		{
+			name: "弗雷德·范弗里特",
+			number: "5",
+			position: "G",
+			minutes: "25",
+			points: 17,
+			rebounds: 3,
+			assists: 7,
+			steals: 2,
+			blocks: 0,
+			turnovers: 1,
+			fg: "6-11",
+			fgPct: "54.5%",
+			threePt: "5-8",
+			threePtPct: "62.5%",
+			ft: "0-0",
+			plusMinus: "+15"
+		},
+		{
+			name: "阿门·汤普森",
+			number: "1",
+			position: "G",
+			minutes: "26",
+			points: 14,
+			rebounds: 6,
+			assists: 5,
+			steals: 2,
+			blocks: 1,
+			turnovers: 2,
+			fg: "6-9",
+			fgPct: "66.7%",
+			threePt: "0-1",
+			threePtPct: "0.0%",
+			ft: "2-3",
+			plusMinus: "+12"
+		},
+		{
+			name: "凯文·杜兰特",
+			number: "35",
+			position: "F",
+			minutes: "18",
+			points: 8,
+			rebounds: 4,
+			assists: 3,
+			steals: 1,
+			blocks: 2,
+			turnovers: 1,
+			fg: "3-7",
+			fgPct: "42.9%",
+			threePt: "1-3",
+			threePtPct: "33.3%",
+			ft: "1-2",
+			plusMinus: "+9"
+		},
+		{
+			name: "里德·谢泼德",
+			number: "15",
+			position: "G",
+			minutes: "20",
+			points: 13,
+			rebounds: 2,
+			assists: 4,
+			steals: 1,
+			blocks: 0,
+			turnovers: 1,
+			fg: "5-8",
+			fgPct: "62.5%",
+			threePt: "3-5",
+			threePtPct: "60.0%",
+			ft: "0-0",
+			plusMinus: "+8"
+		},
+		{
+			name: "卡姆·惠特莫尔",
+			number: "7",
+			position: "F",
+			minutes: "16",
+			points: 11,
+			rebounds: 3,
+			assists: 1,
+			steals: 0,
+			blocks: 0,
+			turnovers: 2,
+			fg: "4-9",
+			fgPct: "44.4%",
+			threePt: "2-5",
+			threePtPct: "40.0%",
+			ft: "1-2",
+			plusMinus: "+5"
+		},
+		{
+			name: "史蒂文·亚当斯",
+			number: "12",
+			position: "C",
+			minutes: "14",
+			points: 6,
+			rebounds: 8,
+			assists: 2,
+			steals: 0,
+			blocks: 1,
+			turnovers: 1,
+			fg: "3-4",
+			fgPct: "75.0%",
+			threePt: "0-0",
+			threePtPct: "0.0%",
+			ft: "0-2",
+			plusMinus: "+7"
+		},
+		{
+			name: "狄龙·布鲁克斯",
+			number: "9",
+			position: "F",
+			minutes: "20",
+			points: 9,
+			rebounds: 2,
+			assists: 2,
+			steals: 1,
+			blocks: 0,
+			turnovers: 1,
+			fg: "3-8",
+			fgPct: "37.5%",
+			threePt: "1-4",
+			threePtPct: "25.0%",
+			ft: "2-2",
+			plusMinus: "+6"
+		},
+		{
+			name: "阿隆·霍勒迪",
+			number: "0",
+			position: "G",
+			minutes: "12",
+			points: 2,
+			rebounds: 1,
+			assists: 3,
+			steals: 0,
+			blocks: 0,
+			turnovers: 0,
+			fg: "1-3",
+			fgPct: "33.3%",
+			threePt: "0-1",
+			threePtPct: "0.0%",
+			ft: "0-0",
+			plusMinus: "+0"
+		}
+	],
+	opponentPlayers: [
+		{
+			name: "卢卡·东契奇",
+			number: "77",
+			position: "G",
+			minutes: "22",
+			points: 21,
+			rebounds: 6,
+			assists: 5,
+			steals: 1,
+			blocks: 0,
+			turnovers: 3,
+			fg: "7-14",
+			fgPct: "50.0%",
+			threePt: "3-8",
+			threePtPct: "37.5%",
+			ft: "4-5",
+			plusMinus: "-12"
+		},
+		{
+			name: "凯里·欧文",
+			number: "11",
+			position: "G",
+			minutes: "20",
+			points: 18,
+			rebounds: 3,
+			assists: 4,
+			steals: 1,
+			blocks: 0,
+			turnovers: 2,
+			fg: "7-13",
+			fgPct: "53.8%",
+			threePt: "2-5",
+			threePtPct: "40.0%",
+			ft: "2-2",
+			plusMinus: "-10"
+		},
+		{
+			name: "克莱·汤普森",
+			number: "31",
+			position: "G",
+			minutes: "18",
+			points: 11,
+			rebounds: 2,
+			assists: 1,
+			steals: 0,
+			blocks: 0,
+			turnovers: 1,
+			fg: "4-10",
+			fgPct: "40.0%",
+			threePt: "3-7",
+			threePtPct: "42.9%",
+			ft: "0-0",
+			plusMinus: "-14"
+		},
+		{
+			name: "PJ·华盛顿",
+			number: "25",
+			position: "F",
+			minutes: "22",
+			points: 12,
+			rebounds: 5,
+			assists: 1,
+			steals: 1,
+			blocks: 1,
+			turnovers: 1,
+			fg: "5-10",
+			fgPct: "50.0%",
+			threePt: "1-4",
+			threePtPct: "25.0%",
+			ft: "1-2",
+			plusMinus: "-11"
+		},
+		{
+			name: "德雷克·莱夫利二世",
+			number: "2",
+			position: "C",
+			minutes: "20",
+			points: 8,
+			rebounds: 7,
+			assists: 2,
+			steals: 0,
+			blocks: 2,
+			turnovers: 2,
+			fg: "4-6",
+			fgPct: "66.7%",
+			threePt: "0-0",
+			threePtPct: "0.0%",
+			ft: "0-0",
+			plusMinus: "-8"
+		},
+		{
+			name: "杰登·哈迪",
+			number: "1",
+			position: "G",
+			minutes: "18",
+			points: 14,
+			rebounds: 2,
+			assists: 3,
+			steals: 0,
+			blocks: 0,
+			turnovers: 2,
+			fg: "5-11",
+			fgPct: "45.5%",
+			threePt: "2-5",
+			threePtPct: "40.0%",
+			ft: "2-2",
+			plusMinus: "-7"
+		},
+		{
+			name: "纳吉·马绍尔",
+			number: "13",
+			position: "F",
+			minutes: "17",
+			points: 9,
+			rebounds: 4,
+			assists: 2,
+			steals: 1,
+			blocks: 0,
+			turnovers: 1,
+			fg: "4-7",
+			fgPct: "57.1%",
+			threePt: "1-2",
+			threePtPct: "50.0%",
+			ft: "0-0",
+			plusMinus: "-5"
+		},
+		{
+			name: "丹尼尔·加福德",
+			number: "21",
+			position: "C",
+			minutes: "16",
+			points: 7,
+			rebounds: 5,
+			assists: 0,
+			steals: 0,
+			blocks: 1,
+			turnovers: 1,
+			fg: "3-5",
+			fgPct: "60.0%",
+			threePt: "0-0",
+			threePtPct: "0.0%",
+			ft: "1-2",
+			plusMinus: "-6"
+		},
+		{
+			name: "昆汀·格兰姆斯",
+			number: "5",
+			position: "G",
+			minutes: "15",
+			points: 8,
+			rebounds: 2,
+			assists: 1,
+			steals: 1,
+			blocks: 0,
+			turnovers: 1,
+			fg: "3-8",
+			fgPct: "37.5%",
+			threePt: "2-5",
+			threePtPct: "40.0%",
+			ft: "0-0",
+			plusMinus: "-4"
+		}
+	]
+} };
+/** 西部联盟球队战绩排行榜（参考 NBA 官方标准） */
+var WESTERN_STANDINGS = [
+	{
+		rank: 1,
+		name: "俄克拉荷马雷霆",
+		abbr: "OKC",
+		wins: 1,
+		losses: 0,
+		winPct: "1.000",
+		gb: "-",
+		home: "1-0",
+		away: "0-0",
+		l10: "1-0",
+		streak: "1连胜",
+		ptsDiff: "+18.0"
+	},
+	{
+		rank: 2,
+		name: "休斯敦火箭",
+		abbr: "HOU",
+		wins: 1,
+		losses: 0,
+		winPct: "1.000",
+		gb: "-",
+		home: "0-0",
+		away: "1-0",
+		l10: "1-0",
+		streak: "1连胜",
+		ptsDiff: "+18.0",
+		isRockets: true
+	},
+	{
+		rank: 3,
+		name: "明尼苏达森林狼",
+		abbr: "MIN",
+		wins: 1,
+		losses: 0,
+		winPct: "1.000",
+		gb: "-",
+		home: "1-0",
+		away: "0-0",
+		l10: "1-0",
+		streak: "1连胜",
+		ptsDiff: "+12.0"
+	},
+	{
+		rank: 4,
+		name: "丹佛掘金",
+		abbr: "DEN",
+		wins: 1,
+		losses: 0,
+		winPct: "1.000",
+		gb: "-",
+		home: "1-0",
+		away: "0-0",
+		l10: "1-0",
+		streak: "1连胜",
+		ptsDiff: "+9.0"
+	},
+	{
+		rank: 5,
+		name: "金州勇士",
+		abbr: "GSW",
+		wins: 1,
+		losses: 0,
+		winPct: "1.000",
+		gb: "-",
+		home: "0-0",
+		away: "1-0",
+		l10: "1-0",
+		streak: "1连胜",
+		ptsDiff: "+7.0"
+	},
+	{
+		rank: 6,
+		name: "菲尼克斯太阳",
+		abbr: "PHX",
+		wins: 1,
+		losses: 0,
+		winPct: "1.000",
+		gb: "-",
+		home: "1-0",
+		away: "0-0",
+		l10: "1-0",
+		streak: "1连胜",
+		ptsDiff: "+5.0"
+	},
+	{
+		rank: 7,
+		name: "洛杉矶湖人",
+		abbr: "LAL",
+		wins: 0,
+		losses: 1,
+		winPct: ".000",
+		gb: "1.0",
+		home: "0-1",
+		away: "0-0",
+		l10: "0-1",
+		streak: "1连败",
+		ptsDiff: "-4.0"
+	},
+	{
+		rank: 8,
+		name: "萨克拉门托国王",
+		abbr: "SAC",
+		wins: 0,
+		losses: 1,
+		winPct: ".000",
+		gb: "1.0",
+		home: "0-1",
+		away: "0-0",
+		l10: "0-1",
+		streak: "1连败",
+		ptsDiff: "-6.0"
+	},
+	{
+		rank: 9,
+		name: "达拉斯独行侠",
+		abbr: "DAL",
+		wins: 0,
+		losses: 1,
+		winPct: ".000",
+		gb: "1.0",
+		home: "0-1",
+		away: "0-0",
+		l10: "0-1",
+		streak: "1连败",
+		ptsDiff: "-18.0"
+	},
+	{
+		rank: 10,
+		name: "孟菲斯灰熊",
+		abbr: "MEM",
+		wins: 0,
+		losses: 1,
+		winPct: ".000",
+		gb: "1.0",
+		home: "0-0",
+		away: "0-1",
+		l10: "0-1",
+		streak: "1连败",
+		ptsDiff: "-7.0"
+	},
+	{
+		rank: 11,
+		name: "新奥尔良鹈鹕",
+		abbr: "NOP",
+		wins: 0,
+		losses: 1,
+		winPct: ".000",
+		gb: "1.0",
+		home: "0-0",
+		away: "0-1",
+		l10: "0-1",
+		streak: "1连败",
+		ptsDiff: "-9.0"
+	},
+	{
+		rank: 12,
+		name: "洛杉矶快船",
+		abbr: "LAC",
+		wins: 0,
+		losses: 1,
+		winPct: ".000",
+		gb: "1.0",
+		home: "0-1",
+		away: "0-0",
+		l10: "0-1",
+		streak: "1连败",
+		ptsDiff: "-8.0"
+	},
+	{
+		rank: 13,
+		name: "圣安东尼奥马刺",
+		abbr: "SAS",
+		wins: 0,
+		losses: 1,
+		winPct: ".000",
+		gb: "1.0",
+		home: "0-1",
+		away: "0-0",
+		l10: "0-1",
+		streak: "1连败",
+		ptsDiff: "-11.0"
+	},
+	{
+		rank: 14,
+		name: "波特兰开拓者",
+		abbr: "POR",
+		wins: 0,
+		losses: 1,
+		winPct: ".000",
+		gb: "1.0",
+		home: "0-0",
+		away: "0-1",
+		l10: "0-1",
+		streak: "1连败",
+		ptsDiff: "-15.0"
+	},
+	{
+		rank: 15,
+		name: "犹他爵士",
+		abbr: "UTA",
+		wins: 0,
+		losses: 1,
+		winPct: ".000",
+		gb: "1.0",
+		home: "0-1",
+		away: "0-0",
+		l10: "0-1",
+		streak: "1连败",
+		ptsDiff: "-17.0"
+	}
+];
+/** 休斯敦火箭球员数据榜单（各项统计维度） */
+var ROCKETS_LEADERS = {
+	points: [
+		{
+			id: "eason",
+			name: "塔里·伊森",
+			number: "17",
+			position: "前锋",
+			gamesPlayed: 1,
+			value: 20,
+			subValue: "命中率 66.7%",
+			detail: {
+				points: 20,
+				rebounds: 7,
+				assists: 2,
+				steals: 3,
+				blocks: 1,
+				minutes: 24,
+				fgPct: "66.7%",
+				threePtPct: "60.0%"
+			}
+		},
+		{
+			id: "smith",
+			name: "小贾巴里·史密斯",
+			number: "10",
+			position: "前锋",
+			gamesPlayed: 1,
+			value: 19,
+			subValue: "命中率 53.8%",
+			detail: {
+				points: 19,
+				rebounds: 8,
+				assists: 1,
+				steals: 1,
+				blocks: 2,
+				minutes: 26,
+				fgPct: "53.8%",
+				threePtPct: "42.9%"
+			}
+		},
+		{
+			id: "vanvleet",
+			name: "弗雷德·范弗里特",
+			number: "5",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 17,
+			subValue: "三分 5/8",
+			detail: {
+				points: 17,
+				rebounds: 3,
+				assists: 7,
+				steals: 2,
+				blocks: 0,
+				minutes: 25,
+				fgPct: "54.5%",
+				threePtPct: "62.5%"
+			}
+		},
+		{
+			id: "sengun",
+			name: "阿尔佩伦·申京",
+			number: "28",
+			position: "中锋",
+			gamesPlayed: 1,
+			value: 16,
+			subValue: "命中率 60.0%",
+			detail: {
+				points: 16,
+				rebounds: 10,
+				assists: 10,
+				steals: 2,
+				blocks: 1,
+				minutes: 28,
+				fgPct: "60.0%",
+				threePtPct: "50.0%"
+			}
+		},
+		{
+			id: "amen",
+			name: "阿门·汤普森",
+			number: "1",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 14,
+			subValue: "命中率 66.7%",
+			detail: {
+				points: 14,
+				rebounds: 6,
+				assists: 5,
+				steals: 2,
+				blocks: 1,
+				minutes: 26,
+				fgPct: "66.7%",
+				threePtPct: "0.0%"
+			}
+		},
+		{
+			id: "sheppard",
+			name: "里德·谢泼德",
+			number: "15",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 13,
+			subValue: "三分 3/5",
+			detail: {
+				points: 13,
+				rebounds: 2,
+				assists: 4,
+				steals: 1,
+				blocks: 0,
+				minutes: 20,
+				fgPct: "62.5%",
+				threePtPct: "60.0%"
+			}
+		},
+		{
+			id: "kd",
+			name: "凯文·杜兰特",
+			number: "35",
+			position: "前锋",
+			gamesPlayed: 1,
+			value: 8,
+			subValue: "出战 18 分钟",
+			detail: {
+				points: 8,
+				rebounds: 4,
+				assists: 3,
+				steals: 1,
+				blocks: 2,
+				minutes: 18,
+				fgPct: "42.9%",
+				threePtPct: "33.3%"
+			}
+		}
+	],
+	rebounds: [
+		{
+			id: "sengun",
+			name: "阿尔佩伦·申京",
+			number: "28",
+			position: "中锋",
+			gamesPlayed: 1,
+			value: 10,
+			subValue: "前场板 3",
+			detail: {
+				points: 16,
+				rebounds: 10,
+				assists: 10,
+				steals: 2,
+				blocks: 1,
+				minutes: 28,
+				fgPct: "60.0%",
+				threePtPct: "50.0%"
+			}
+		},
+		{
+			id: "smith",
+			name: "小贾巴里·史密斯",
+			number: "10",
+			position: "前锋",
+			gamesPlayed: 1,
+			value: 8,
+			subValue: "后场板 6",
+			detail: {
+				points: 19,
+				rebounds: 8,
+				assists: 1,
+				steals: 1,
+				blocks: 2,
+				minutes: 26,
+				fgPct: "53.8%",
+				threePtPct: "42.9%"
+			}
+		},
+		{
+			id: "adams",
+			name: "史蒂文·亚当斯",
+			number: "12",
+			position: "中锋",
+			gamesPlayed: 1,
+			value: 8,
+			subValue: "前场板 4",
+			detail: {
+				points: 6,
+				rebounds: 8,
+				assists: 2,
+				steals: 0,
+				blocks: 1,
+				minutes: 14,
+				fgPct: "75.0%",
+				threePtPct: "0.0%"
+			}
+		},
+		{
+			id: "eason",
+			name: "塔里·伊森",
+			number: "17",
+			position: "前锋",
+			gamesPlayed: 1,
+			value: 7,
+			subValue: "前场板 2",
+			detail: {
+				points: 20,
+				rebounds: 7,
+				assists: 2,
+				steals: 3,
+				blocks: 1,
+				minutes: 24,
+				fgPct: "66.7%",
+				threePtPct: "60.0%"
+			}
+		},
+		{
+			id: "amen",
+			name: "阿门·汤普森",
+			number: "1",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 6,
+			subValue: "防守板 5",
+			detail: {
+				points: 14,
+				rebounds: 6,
+				assists: 5,
+				steals: 2,
+				blocks: 1,
+				minutes: 26,
+				fgPct: "66.7%",
+				threePtPct: "0.0%"
+			}
+		}
+	],
+	assists: [
+		{
+			id: "sengun",
+			name: "阿尔佩伦·申京",
+			number: "28",
+			position: "中锋",
+			gamesPlayed: 1,
+			value: 10,
+			subValue: "失误仅 2 次",
+			detail: {
+				points: 16,
+				rebounds: 10,
+				assists: 10,
+				steals: 2,
+				blocks: 1,
+				minutes: 28,
+				fgPct: "60.0%",
+				threePtPct: "50.0%"
+			}
+		},
+		{
+			id: "vanvleet",
+			name: "弗雷德·范弗里特",
+			number: "5",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 7,
+			subValue: "助攻失误比 7.0",
+			detail: {
+				points: 17,
+				rebounds: 3,
+				assists: 7,
+				steals: 2,
+				blocks: 0,
+				minutes: 25,
+				fgPct: "54.5%",
+				threePtPct: "62.5%"
+			}
+		},
+		{
+			id: "amen",
+			name: "阿门·汤普森",
+			number: "1",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 5,
+			subValue: "助攻率 28.5%",
+			detail: {
+				points: 14,
+				rebounds: 6,
+				assists: 5,
+				steals: 2,
+				blocks: 1,
+				minutes: 26,
+				fgPct: "66.7%",
+				threePtPct: "0.0%"
+			}
+		},
+		{
+			id: "sheppard",
+			name: "里德·谢泼德",
+			number: "15",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 4,
+			subValue: "失误 1 次",
+			detail: {
+				points: 13,
+				rebounds: 2,
+				assists: 4,
+				steals: 1,
+				blocks: 0,
+				minutes: 20,
+				fgPct: "62.5%",
+				threePtPct: "60.0%"
+			}
+		},
+		{
+			id: "holiday",
+			name: "阿隆·霍勒迪",
+			number: "0",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 3,
+			subValue: "0 失误",
+			detail: {
+				points: 2,
+				rebounds: 1,
+				assists: 3,
+				steals: 0,
+				blocks: 0,
+				minutes: 12,
+				fgPct: "33.3%",
+				threePtPct: "0.0%"
+			}
+		}
+	],
+	blocks: [
+		{
+			id: "smith",
+			name: "小贾巴里·史密斯",
+			number: "10",
+			position: "前锋",
+			gamesPlayed: 1,
+			value: 2,
+			subValue: "护筐率 38.0%",
+			detail: {
+				points: 19,
+				rebounds: 8,
+				assists: 1,
+				steals: 1,
+				blocks: 2,
+				minutes: 26,
+				fgPct: "53.8%",
+				threePtPct: "42.9%"
+			}
+		},
+		{
+			id: "kd",
+			name: "凯文·杜兰特",
+			number: "35",
+			position: "前锋",
+			gamesPlayed: 1,
+			value: 2,
+			subValue: "护筐率 40.0%",
+			detail: {
+				points: 8,
+				rebounds: 4,
+				assists: 3,
+				steals: 1,
+				blocks: 2,
+				minutes: 18,
+				fgPct: "42.9%",
+				threePtPct: "33.3%"
+			}
+		},
+		{
+			id: "sengun",
+			name: "阿尔佩伦·申京",
+			number: "28",
+			position: "中锋",
+			gamesPlayed: 1,
+			value: 1,
+			subValue: "盖帽 1",
+			detail: {
+				points: 16,
+				rebounds: 10,
+				assists: 10,
+				steals: 2,
+				blocks: 1,
+				minutes: 28,
+				fgPct: "60.0%",
+				threePtPct: "50.0%"
+			}
+		},
+		{
+			id: "adams",
+			name: "史蒂文·亚当斯",
+			number: "12",
+			position: "中锋",
+			gamesPlayed: 1,
+			value: 1,
+			subValue: "盖帽 1",
+			detail: {
+				points: 6,
+				rebounds: 8,
+				assists: 2,
+				steals: 0,
+				blocks: 1,
+				minutes: 14,
+				fgPct: "75.0%",
+				threePtPct: "0.0%"
+			}
+		},
+		{
+			id: "eason",
+			name: "塔里·伊森",
+			number: "17",
+			position: "前锋",
+			gamesPlayed: 1,
+			value: 1,
+			subValue: "追身盖帽 1",
+			detail: {
+				points: 20,
+				rebounds: 7,
+				assists: 2,
+				steals: 3,
+				blocks: 1,
+				minutes: 24,
+				fgPct: "66.7%",
+				threePtPct: "60.0%"
+			}
+		}
+	],
+	steals: [
+		{
+			id: "eason",
+			name: "塔里·伊森",
+			number: "17",
+			position: "前锋",
+			gamesPlayed: 1,
+			value: 3,
+			subValue: "破坏球权 5 次",
+			detail: {
+				points: 20,
+				rebounds: 7,
+				assists: 2,
+				steals: 3,
+				blocks: 1,
+				minutes: 24,
+				fgPct: "66.7%",
+				threePtPct: "60.0%"
+			}
+		},
+		{
+			id: "sengun",
+			name: "阿尔佩伦·申京",
+			number: "28",
+			position: "中锋",
+			gamesPlayed: 1,
+			value: 2,
+			subValue: "切球 2 次",
+			detail: {
+				points: 16,
+				rebounds: 10,
+				assists: 10,
+				steals: 2,
+				blocks: 1,
+				minutes: 28,
+				fgPct: "60.0%",
+				threePtPct: "50.0%"
+			}
+		},
+		{
+			id: "vanvleet",
+			name: "弗雷德·范弗里特",
+			number: "5",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 2,
+			subValue: "拦截 3 次",
+			detail: {
+				points: 17,
+				rebounds: 3,
+				assists: 7,
+				steals: 2,
+				blocks: 0,
+				minutes: 25,
+				fgPct: "54.5%",
+				threePtPct: "62.5%"
+			}
+		},
+		{
+			id: "amen",
+			name: "阿门·汤普森",
+			number: "1",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 2,
+			subValue: "全场领防抢断",
+			detail: {
+				points: 14,
+				rebounds: 6,
+				assists: 5,
+				steals: 2,
+				blocks: 1,
+				minutes: 26,
+				fgPct: "66.7%",
+				threePtPct: "0.0%"
+			}
+		},
+		{
+			id: "sheppard",
+			name: "里德·谢泼德",
+			number: "15",
+			position: "后卫",
+			gamesPlayed: 1,
+			value: 1,
+			subValue: "抢断 1 次",
+			detail: {
+				points: 13,
+				rebounds: 2,
+				assists: 4,
+				steals: 1,
+				blocks: 0,
+				minutes: 20,
+				fgPct: "62.5%",
+				threePtPct: "60.0%"
+			}
+		}
+	]
+};
+//#endregion
 //#region app/features/schedule/ScheduleCalendar.tsx
 var MONTHS = [
 	{
@@ -4793,13 +6005,13 @@ var MONTHS = [
 		year: 2026,
 		month: 12,
 		label: "12月",
-		subtitle: "常规赛"
+		subtitle: "常规赛征程"
 	},
 	{
 		year: 2027,
 		month: 1,
 		label: "1月",
-		subtitle: "常规赛"
+		subtitle: "得州内战焦点月"
 	},
 	{
 		year: 2027,
@@ -4811,7 +6023,7 @@ var MONTHS = [
 		year: 2027,
 		month: 3,
 		label: "3月",
-		subtitle: "常规赛排位"
+		subtitle: "季后赛卡位战"
 	},
 	{
 		year: 2027,
@@ -4821,15 +6033,6 @@ var MONTHS = [
 	}
 ];
 var WEEKDAYS$1 = [
-	"日",
-	"一",
-	"二",
-	"三",
-	"四",
-	"五",
-	"六"
-];
-var WEEKDAYS_LONG = [
 	"周日",
 	"周一",
 	"周二",
@@ -4839,15 +6042,16 @@ var WEEKDAYS_LONG = [
 	"周六"
 ];
 function getWeekday(dateStr) {
-	return WEEKDAYS_LONG[new Date(dateStr).getDay()] || "";
+	return WEEKDAYS$1[new Date(dateStr).getDay()] || "";
 }
 function ScheduleCalendar() {
+	const [mainTab, setMainTab] = useState("schedule");
 	const [selectedMonthIdx, setSelectedMonthIdx] = useState(0);
-	const [viewMode, setViewMode] = useState("list");
-	const [stageFilter, setStageFilter] = useState("all");
+	const [filterType, setFilterType] = useState("all");
+	const [activeBoxScore, setActiveBoxScore] = useState(null);
 	const [activeGame, setActiveGame] = useState(null);
-	const [selectedCalendarDate, setSelectedCalendarDate] = useState("2026-10-09");
 	const [copiedId, setCopiedId] = useState(null);
+	const [leaderCategory, setLeaderCategory] = useState("points");
 	const currentMonth = MONTHS[selectedMonthIdx];
 	const monthPrefix = `${currentMonth.year}-${String(currentMonth.month).padStart(2, "0")}`;
 	const monthGames = useMemo(() => {
@@ -4855,418 +6059,761 @@ function ScheduleCalendar() {
 	}, [monthPrefix]);
 	const filteredGames = useMemo(() => {
 		return monthGames.filter((g) => {
-			if (stageFilter === "home") return g.isHome;
-			if (stageFilter === "away") return !g.isHome;
-			if (stageFilter === "cup") return g.stage === "cup";
+			if (filterType === "final") return g.status === "final";
+			if (filterType === "upcoming") return g.status === "upcoming";
+			if (filterType === "home") return g.isHome;
+			if (filterType === "away") return !g.isHome;
+			if (filterType === "cup") return g.stage === "cup";
 			return true;
 		});
-	}, [monthGames, stageFilter]);
+	}, [monthGames, filterType]);
 	const featuredGame = useMemo(() => {
-		const macau = ROCKETS_GAMES.find((g) => g.date === "2026-10-09");
-		if (macau) return macau;
-		return monthGames[0] || ROCKETS_GAMES[0];
-	}, [monthGames]);
-	const calendarDays = useMemo(() => {
-		const firstDay = new Date(currentMonth.year, currentMonth.month - 1, 1).getDay();
-		const daysInMonth = new Date(currentMonth.year, currentMonth.month, 0).getDate();
-		const days = [];
-		const prevMonthDays = new Date(currentMonth.year, currentMonth.month - 1, 0).getDate();
-		for (let i = firstDay - 1; i >= 0; i--) {
-			const d = prevMonthDays - i;
-			const prevM = currentMonth.month === 1 ? 12 : currentMonth.month - 1;
-			const prevY = currentMonth.month === 1 ? currentMonth.year - 1 : currentMonth.year;
-			days.push({
-				dayNum: d,
-				dateStr: `${prevY}-${String(prevM).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
-				isCurrentMonth: false
-			});
-		}
-		for (let d = 1; d <= daysInMonth; d++) {
-			const dateStr = `${currentMonth.year}-${String(currentMonth.month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-			const game = ROCKETS_GAMES.find((g) => g.date === dateStr);
-			days.push({
-				dayNum: d,
-				dateStr,
-				isCurrentMonth: true,
-				game
-			});
-		}
-		const remaining = (days.length > 35 ? 42 : 35) - days.length;
-		for (let d = 1; d <= remaining; d++) {
-			const nextM = currentMonth.month === 12 ? 1 : currentMonth.month + 1;
-			const nextY = currentMonth.month === 12 ? currentMonth.year + 1 : currentMonth.year;
-			days.push({
-				dayNum: d,
-				dateStr: `${nextY}-${String(nextM).padStart(2, "0")}-${String(d).padStart(2, "0")}`,
-				isCurrentMonth: false
-			});
-		}
-		return days;
-	}, [currentMonth]);
-	const selectedDayGame = useMemo(() => {
-		return ROCKETS_GAMES.find((g) => g.date === selectedCalendarDate);
-	}, [selectedCalendarDate]);
-	const handleCopyReminder = (game) => {
-		const text = `【休斯敦火箭比赛日程提醒】\n对阵：${game.isHome ? "休斯敦火箭 VS " + game.opponent.name : "休斯敦火箭 @ " + game.opponent.name}\n时间：${game.date} ${game.time} (北京时间)\n场馆：${game.arena}\n直播：${game.broadcast}`;
+		return ROCKETS_GAMES.find((g) => g.status === "final") || ROCKETS_GAMES[0];
+	}, []);
+	const handleCopyNotice = (game) => {
+		const text = `【休斯敦火箭比赛日程提醒】\n对阵：${game.isHome ? "休斯敦火箭 VS " + game.opponent.name : "休斯敦火箭 @ " + game.opponent.name}\n时间：${game.date} ${game.time} (北京时间)\n场馆：${game.arena}\n转播：${game.broadcast}`;
 		navigator.clipboard?.writeText(text);
 		setCopiedId(game.id);
 		setTimeout(() => setCopiedId(null), 2e3);
 	};
+	const handleOpenDetail = (game) => {
+		setActiveGame(game);
+		const box = BOXSCORE_MAP[game.id];
+		if (box) setActiveBoxScore(box);
+		else setActiveBoxScore(null);
+	};
 	return /* @__PURE__ */ jsxs("div", {
-		className: "space-y-4 lg:space-y-6",
+		className: "space-y-6",
 		children: [
-			featuredGame && /* @__PURE__ */ jsx("div", {
-				className: "relative overflow-hidden rounded-2xl border border-line bg-surface p-4.5 shadow-xs sm:p-5 lg:p-6",
-				children: /* @__PURE__ */ jsxs("div", {
-					className: "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
-					children: [/* @__PURE__ */ jsxs("div", { children: [
-						/* @__PURE__ */ jsxs("div", {
-							className: "flex items-center gap-2 text-xs",
-							children: [
-								/* @__PURE__ */ jsx("span", {
-									className: "font-bold text-ink-2",
-									children: featuredGame.arena.includes("澳门") ? "NBA 澳门季前赛" : featuredGame.stage === "cup" ? "NBA 杯赛" : "2026-27 赛季"
-								}),
-								/* @__PURE__ */ jsx("span", {
-									className: "text-ink-4",
-									children: "·"
-								}),
-								/* @__PURE__ */ jsxs("span", {
-									className: "font-mono font-medium text-ink-3",
-									children: [
-										featuredGame.date,
-										" ",
-										getWeekday(featuredGame.date),
-										" · 北京时间 ",
-										featuredGame.time
-									]
-								})
-							]
-						}),
-						/* @__PURE__ */ jsxs("h2", {
-							className: "mt-2 text-xl font-black tracking-tight text-ink sm:text-2xl",
-							children: [
-								"休斯敦火箭 ",
-								featuredGame.isHome ? "VS" : "@",
-								" ",
-								featuredGame.opponent.name
-							]
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "mt-1.5 flex flex-wrap items-center gap-3 text-xs text-ink-4",
-							children: [
-								/* @__PURE__ */ jsxs("span", { children: ["📍 ", featuredGame.arena] }),
-								/* @__PURE__ */ jsxs("span", { children: ["📺 ", featuredGame.broadcast] }),
-								/* @__PURE__ */ jsx("span", {
-									className: "font-medium text-ink-3",
-									children: featuredGame.isHome ? "休斯敦主场" : "客场远征"
-								})
-							]
-						})
-					] }), /* @__PURE__ */ jsx("div", {
-						className: "flex shrink-0 items-center gap-3 self-start sm:self-center",
-						children: /* @__PURE__ */ jsx("button", {
-							type: "button",
-							onClick: () => handleCopyReminder(featuredGame),
-							className: "rounded-lg border border-line-strong bg-surface hover:bg-bg-sunk px-3.5 py-1.5 text-xs font-semibold text-ink shadow-2xs transition-colors",
-							children: copiedId === featuredGame.id ? "已添加日程备忘 ✓" : "添加到日历提醒"
-						})
-					})]
-				})
-			}),
 			/* @__PURE__ */ jsxs("div", {
-				className: "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-line-soft pb-3",
-				children: [/* @__PURE__ */ jsx("div", {
-					className: "flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none sm:pb-0",
-					children: MONTHS.map((m, idx) => {
-						return /* @__PURE__ */ jsx("button", {
-							type: "button",
-							onClick: () => setSelectedMonthIdx(idx),
-							className: `inline-flex shrink-0 items-center rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all ${selectedMonthIdx === idx ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-2xs" : "text-ink-4 hover:text-ink hover:bg-bg-sunk"}`,
-							children: m.label
-						}, m.label);
-					})
-				}), /* @__PURE__ */ jsxs("div", {
-					className: "flex items-center justify-between sm:justify-end gap-2 text-xs",
-					children: [/* @__PURE__ */ jsx("div", {
-						className: "flex items-center rounded-lg border border-line-soft bg-bg-sunk p-0.5",
-						children: [
-							{
-								key: "all",
-								label: "全部"
-							},
-							{
-								key: "home",
-								label: "主场"
-							},
-							{
-								key: "away",
-								label: "客场"
-							},
-							{
-								key: "cup",
-								label: "杯赛"
-							}
-						].map((f) => /* @__PURE__ */ jsx("button", {
-							type: "button",
-							onClick: () => setStageFilter(f.key),
-							className: `rounded-md px-2.5 py-1 font-medium transition-all ${stageFilter === f.key ? "bg-surface font-bold text-ink shadow-2xs" : "text-ink-4 hover:text-ink"}`,
-							children: f.label
-						}, f.key))
-					}), /* @__PURE__ */ jsxs("div", {
-						className: "flex items-center rounded-lg border border-line-soft bg-bg-sunk p-0.5",
-						children: [/* @__PURE__ */ jsx("button", {
-							type: "button",
-							onClick: () => setViewMode("list"),
-							className: `flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-all ${viewMode === "list" ? "bg-surface font-bold text-ink shadow-2xs" : "text-ink-4 hover:text-ink"}`,
-							children: "清单"
-						}), /* @__PURE__ */ jsx("button", {
-							type: "button",
-							onClick: () => setViewMode("calendar"),
-							className: `flex items-center gap-1 rounded-md px-2.5 py-1 font-semibold transition-all ${viewMode === "calendar" ? "bg-surface font-bold text-ink shadow-2xs" : "text-ink-4 hover:text-ink"}`,
-							children: "日历"
-						})]
+				className: "flex flex-wrap items-center justify-between gap-3 border-b border-line-soft pb-4",
+				children: [/* @__PURE__ */ jsxs("div", {
+					className: "inline-flex rounded-xl bg-bg-sunk p-1",
+					children: [/* @__PURE__ */ jsxs("button", {
+						type: "button",
+						onClick: () => setMainTab("schedule"),
+						className: `inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all ${mainTab === "schedule" ? "bg-surface text-ink shadow-sm" : "text-ink-3 hover:text-ink"}`,
+						children: [/* @__PURE__ */ jsx(IconCalendar, { size: 16 }), "赛程与战报流"]
+					}), /* @__PURE__ */ jsxs("button", {
+						type: "button",
+						onClick: () => setMainTab("standings"),
+						className: `inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all ${mainTab === "standings" ? "bg-surface text-ink shadow-sm" : "text-ink-3 hover:text-ink"}`,
+						children: [/* @__PURE__ */ jsx("span", {
+							className: "text-[#CE1141]",
+							children: "📊"
+						}), "球队排名与数据榜"]
 					})]
+				}), mainTab === "schedule" && /* @__PURE__ */ jsx("div", {
+					className: "flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none sm:pb-0",
+					children: [
+						{
+							key: "all",
+							label: "全部"
+						},
+						{
+							key: "final",
+							label: "已完赛"
+						},
+						{
+							key: "upcoming",
+							label: "未开赛"
+						},
+						{
+							key: "home",
+							label: "主场"
+						},
+						{
+							key: "away",
+							label: "客场"
+						},
+						{
+							key: "cup",
+							label: "NBA杯"
+						}
+					].map((f) => /* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => setFilterType(f.key),
+						className: `rounded-lg px-3 py-1.5 font-semibold transition-all ${filterType === f.key ? "bg-[#CE1141] text-white shadow-xs font-bold" : "border border-line-soft bg-surface text-ink-3 hover:border-line hover:text-ink"}`,
+						children: f.label
+					}, f.key))
 				})]
 			}),
-			viewMode === "list" && /* @__PURE__ */ jsx("div", {
-				className: "space-y-2.5",
-				children: filteredGames.length === 0 ? /* @__PURE__ */ jsx("div", {
-					className: "rounded-2xl border border-line-soft bg-surface py-14 text-center text-xs text-ink-4",
-					children: "该筛选下当月暂无比赛安排"
-				}) : filteredGames.map((game) => {
-					const isMacau = game.arena.includes("澳门");
-					return /* @__PURE__ */ jsxs("div", {
-						onClick: () => setActiveGame(game),
-						className: "group flex cursor-pointer flex-col justify-between gap-3 rounded-2xl border border-line-soft bg-surface p-3.5 shadow-2xs transition-all hover:border-[#CE1141]/50 hover:shadow-xs sm:flex-row sm:items-center sm:p-4",
-						children: [/* @__PURE__ */ jsxs("div", {
-							className: "flex items-center gap-3.5 sm:gap-4",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex w-12 shrink-0 flex-col items-center justify-center text-center",
-								children: [/* @__PURE__ */ jsxs("span", {
-									className: "text-sm font-mono font-bold text-ink",
-									children: [
-										game.date.slice(5, 7),
-										".",
-										game.date.slice(8, 10)
-									]
-								}), /* @__PURE__ */ jsx("span", {
-									className: "text-[11px] font-medium text-ink-4 leading-tight",
-									children: getWeekday(game.date)
-								})]
-							}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center gap-1.5 text-xs text-ink-4",
-								children: [
-									/* @__PURE__ */ jsx("span", {
-										className: "font-semibold text-ink-2",
-										children: game.isHome ? "主场 vs" : "客场 @"
-									}),
-									/* @__PURE__ */ jsx("span", { children: "·" }),
-									/* @__PURE__ */ jsxs("span", {
-										className: "font-mono text-ink-3",
-										children: [game.time, " (北京时间)"]
-									}),
-									isMacau && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("span", { children: "·" }), /* @__PURE__ */ jsx("span", {
-										className: "text-ink-4",
-										children: "澳门季前赛"
-									})] }),
-									game.stage === "cup" && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("span", { children: "·" }), /* @__PURE__ */ jsx("span", {
-										className: "text-ink-4",
-										children: "NBA杯"
-									})] })
-								]
-							}), /* @__PURE__ */ jsx("div", {
-								className: "mt-1",
-								children: /* @__PURE__ */ jsxs("h3", {
-									className: "text-sm font-bold text-ink transition-colors group-hover:text-[#CE1141] sm:text-base",
-									children: [
-										"休斯敦火箭 ",
-										game.isHome ? "VS" : "@",
-										" ",
-										game.opponent.name
-									]
-								})
-							})] })]
+			mainTab === "schedule" && /* @__PURE__ */ jsxs("div", {
+				className: "space-y-6",
+				children: [
+					featuredGame && /* @__PURE__ */ jsxs("div", {
+						className: "relative overflow-hidden rounded-2xl border-2 border-[#CE1141]/20 bg-surface p-5 shadow-sm transition-all hover:border-[#CE1141]/40",
+						children: [/* @__PURE__ */ jsx("div", {
+							className: "absolute right-0 top-0 rounded-bl-xl bg-[#CE1141] px-3 py-1 text-[11px] font-black uppercase tracking-wider text-white",
+							children: featuredGame.status === "final" ? "最新战报" : "下轮焦点"
 						}), /* @__PURE__ */ jsxs("div", {
-							className: "flex items-center justify-between border-t border-line-soft pt-2 text-xs sm:border-t-0 sm:pt-0 sm:text-right",
+							className: "flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between",
 							children: [/* @__PURE__ */ jsxs("div", {
-								className: "text-ink-3",
-								children: [/* @__PURE__ */ jsx("div", {
-									className: "font-medium text-ink-2",
-									children: game.arena
-								}), /* @__PURE__ */ jsx("div", {
-									className: "text-[11px] text-ink-4",
-									children: game.broadcast
+								className: "space-y-2",
+								children: [
+									/* @__PURE__ */ jsxs("div", {
+										className: "flex items-center gap-2 text-xs text-ink-3",
+										children: [
+											/* @__PURE__ */ jsx("span", {
+												className: "font-bold text-accent",
+												children: featuredGame.arena.includes("澳门") ? "NBA 澳门季前赛" : featuredGame.stage === "cup" ? "NBA 杯赛" : "常规赛"
+											}),
+											/* @__PURE__ */ jsx("span", { children: "·" }),
+											/* @__PURE__ */ jsxs("span", {
+												className: "font-mono",
+												children: [
+													featuredGame.date,
+													" ",
+													getWeekday(featuredGame.date),
+													" · 北京时间 ",
+													featuredGame.time
+												]
+											})
+										]
+									}),
+									featuredGame.status === "final" && featuredGame.result ? /* @__PURE__ */ jsxs("div", {
+										className: "flex flex-wrap items-center gap-4",
+										children: [/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-3",
+											children: [
+												/* @__PURE__ */ jsx("span", {
+													className: "text-2xl font-black text-ink",
+													children: "休斯敦火箭"
+												}),
+												/* @__PURE__ */ jsx("span", {
+													className: "font-mono text-3xl font-black text-[#CE1141]",
+													children: featuredGame.result.rocketsScore
+												}),
+												/* @__PURE__ */ jsx("span", {
+													className: "text-lg font-bold text-ink-4",
+													children: "-"
+												}),
+												/* @__PURE__ */ jsx("span", {
+													className: "font-mono text-2xl font-black text-ink-2",
+													children: featuredGame.result.opponentScore
+												}),
+												/* @__PURE__ */ jsx("span", {
+													className: "text-2xl font-black text-ink-2",
+													children: featuredGame.opponent.name
+												})
+											]
+										}), /* @__PURE__ */ jsx("span", {
+											className: "rounded-full bg-emerald-500/15 px-3 py-1 font-mono text-xs font-black text-emerald-600 dark:text-emerald-400",
+											children: featuredGame.result.outcome === "W" ? "胜 WIN" : "负 LOSS"
+										})]
+									}) : /* @__PURE__ */ jsxs("h2", {
+										className: "text-xl font-black tracking-tight text-ink sm:text-2xl",
+										children: [
+											"休斯敦火箭 ",
+											featuredGame.isHome ? "VS" : "@",
+											" ",
+											featuredGame.opponent.name
+										]
+									}),
+									featuredGame.result?.topPerformer && /* @__PURE__ */ jsxs("p", {
+										className: "text-xs font-semibold text-emerald-600 dark:text-emerald-400",
+										children: [
+											"★ 全场最佳：",
+											featuredGame.result.topPerformer.name,
+											" · ",
+											featuredGame.result.topPerformer.stats
+										]
+									}),
+									featuredGame.previewNotes && /* @__PURE__ */ jsx("p", {
+										className: "text-xs text-ink-3",
+										children: featuredGame.previewNotes
+									})
+								]
+							}), /* @__PURE__ */ jsxs("div", {
+								className: "flex shrink-0 items-center gap-3",
+								children: [featuredGame.status === "final" && /* @__PURE__ */ jsx("button", {
+									type: "button",
+									onClick: () => handleOpenDetail(featuredGame),
+									className: "rounded-xl bg-[#CE1141] px-4 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-[#b00e36]",
+									children: "查看球员技术统计 Boxscore →"
+								}), /* @__PURE__ */ jsx("button", {
+									type: "button",
+									onClick: () => handleCopyNotice(featuredGame),
+									className: "rounded-xl border border-line-strong bg-surface px-3 py-2 text-xs font-semibold text-ink transition-colors hover:bg-bg-sunk",
+									children: copiedId === featuredGame.id ? "已复制提醒 ✓" : "复制赛程"
 								})]
-							}), /* @__PURE__ */ jsx("button", {
-								type: "button",
-								onClick: (e) => {
-									e.stopPropagation();
-									handleCopyReminder(game);
-								},
-								className: "ml-3 rounded-lg border border-line-soft bg-surface px-2.5 py-1 text-xs font-semibold text-ink-3 transition-colors hover:border-[#CE1141] hover:text-[#CE1141]",
-								children: copiedId === game.id ? "已复制 ✓" : "提醒"
 							})]
 						})]
-					}, game.id);
-				})
-			}),
-			viewMode === "calendar" && /* @__PURE__ */ jsxs("div", {
-				className: "space-y-3",
-				children: [/* @__PURE__ */ jsxs("div", {
-					className: "overflow-hidden rounded-2xl border border-line bg-surface shadow-xs",
-					children: [/* @__PURE__ */ jsx("div", {
-						className: "grid grid-cols-7 border-b border-line bg-bg-sunk/40 text-center text-xs font-bold text-ink-3",
-						children: WEEKDAYS$1.map((w, idx) => /* @__PURE__ */ jsxs("div", {
-							className: `py-2 ${idx === 0 || idx === 6 ? "text-[#CE1141]" : ""}`,
-							children: ["周", w]
-						}, w))
-					}), /* @__PURE__ */ jsx("div", {
-						className: "grid grid-cols-7 divide-x divide-y divide-line-soft bg-line-soft",
-						children: calendarDays.map((cell, idx) => {
-							const game = cell.game;
-							const isSelected = cell.dateStr === selectedCalendarDate;
+					}),
+					/* @__PURE__ */ jsx("div", {
+						className: "flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none",
+						children: MONTHS.map((m, idx) => /* @__PURE__ */ jsxs("button", {
+							type: "button",
+							onClick: () => setSelectedMonthIdx(idx),
+							className: `inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${selectedMonthIdx === idx ? "bg-ink text-bg font-bold shadow-xs" : "border border-line-soft bg-surface text-ink-3 hover:border-line hover:text-ink"}`,
+							children: [/* @__PURE__ */ jsx("span", { children: m.label }), /* @__PURE__ */ jsx("span", {
+								className: "text-[11px] opacity-75",
+								children: m.subtitle
+							})]
+						}, m.label))
+					}),
+					/* @__PURE__ */ jsx("div", {
+						className: "grid gap-3.5 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3",
+						children: filteredGames.length === 0 ? /* @__PURE__ */ jsx("div", {
+							className: "col-span-full rounded-2xl border border-line-soft bg-surface py-16 text-center text-xs text-ink-4",
+							children: "当前筛选下暂无比赛安排"
+						}) : filteredGames.map((game) => {
+							const isFinal = game.status === "final" && game.result;
+							const isWin = isFinal && game.result?.outcome === "W";
 							return /* @__PURE__ */ jsxs("div", {
-								onClick: () => {
-									setSelectedCalendarDate(cell.dateStr);
-									if (game) setActiveGame(game);
-								},
-								className: `relative flex min-h-[64px] cursor-pointer flex-col bg-surface p-1.5 transition-colors sm:min-h-[110px] sm:p-2 ${!cell.isCurrentMonth ? "bg-bg-sunk/40 opacity-30" : "hover:bg-bg-sunk/50"} ${isSelected ? "ring-2 ring-inset ring-[#CE1141] bg-red-50/10" : ""}`,
-								children: [/* @__PURE__ */ jsxs("div", {
-									className: "flex items-center justify-between",
-									children: [/* @__PURE__ */ jsx("span", {
-										className: `font-mono text-xs font-bold ${cell.isCurrentMonth ? "text-ink-2" : "text-ink-4"}`,
-										children: cell.dayNum
-									}), game && /* @__PURE__ */ jsx("span", {
-										className: "text-[10px] font-semibold text-ink-4",
-										children: game.isHome ? "主" : "客"
-									})]
-								}), game && /* @__PURE__ */ jsxs("div", {
-									className: "mt-1 flex-1 flex flex-col justify-center",
-									children: [/* @__PURE__ */ jsxs("span", {
-										className: "truncate text-[11px] font-extrabold text-ink",
+								onClick: () => handleOpenDetail(game),
+								className: "group relative flex cursor-pointer flex-col justify-between rounded-2xl border border-line bg-surface p-4 shadow-2xs transition-all hover:-translate-y-0.5 hover:border-[#CE1141]/50 hover:shadow-sm",
+								children: [
+									/* @__PURE__ */ jsxs("div", {
+										className: "flex items-center justify-between border-b border-line-soft pb-2.5 text-xs",
+										children: [/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-2",
+											children: [/* @__PURE__ */ jsxs("span", {
+												className: "font-mono font-bold text-ink",
+												children: [
+													game.date.slice(5),
+													" ",
+													getWeekday(game.date)
+												]
+											}), /* @__PURE__ */ jsx("span", {
+												className: "font-mono text-ink-3",
+												children: game.time
+											})]
+										}), isFinal ? /* @__PURE__ */ jsx("span", {
+											className: `rounded-full px-2 py-0.5 font-mono text-[11px] font-black ${isWin ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-red-500/15 text-red-600 dark:text-red-400"}`,
+											children: isWin ? "胜 W" : "负 L"
+										}) : /* @__PURE__ */ jsx("span", {
+											className: "rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-ink-3",
+											children: game.stage === "cup" ? "NBA杯" : game.isHome ? "主场" : "客场"
+										})]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "my-3 space-y-2",
+										children: [/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center justify-between",
+											children: [/* @__PURE__ */ jsxs("div", {
+												className: "space-y-1",
+												children: [/* @__PURE__ */ jsxs("div", {
+													className: "flex items-center gap-2",
+													children: [/* @__PURE__ */ jsx("span", { className: "size-2 rounded-full bg-[#CE1141]" }), /* @__PURE__ */ jsx("span", {
+														className: "text-sm font-extrabold text-ink sm:text-base",
+														children: "休斯敦火箭"
+													})]
+												}), /* @__PURE__ */ jsxs("div", {
+													className: "flex items-center gap-2",
+													children: [/* @__PURE__ */ jsx("span", { className: "size-2 rounded-full bg-slate-400" }), /* @__PURE__ */ jsx("span", {
+														className: "text-sm font-extrabold text-ink-2 sm:text-base",
+														children: game.opponent.name
+													})]
+												})]
+											}), isFinal ? /* @__PURE__ */ jsxs("div", {
+												className: "text-right",
+												children: [/* @__PURE__ */ jsx("div", {
+													className: "font-mono text-lg font-black text-[#CE1141]",
+													children: game.result.rocketsScore
+												}), /* @__PURE__ */ jsx("div", {
+													className: "font-mono text-lg font-black text-ink-2",
+													children: game.result.opponentScore
+												})]
+											}) : /* @__PURE__ */ jsx("div", {
+												className: "text-right",
+												children: /* @__PURE__ */ jsx("span", {
+													className: "font-mono text-xs font-bold text-ink-4",
+													children: "VS"
+												})
+											})]
+										}), isFinal && game.result?.topPerformer ? /* @__PURE__ */ jsxs("div", {
+											className: "rounded-xl bg-bg-sunk/60 p-2 text-[11.5px] leading-relaxed text-emerald-700 dark:text-emerald-300",
+											children: [
+												"★ 最佳：",
+												game.result.topPerformer.name,
+												" · ",
+												game.result.topPerformer.stats
+											]
+										}) : game.keyMatchup && /* @__PURE__ */ jsxs("div", {
+											className: "rounded-xl bg-bg-sunk/60 p-2 text-[11.5px] text-ink-3",
+											children: ["🎯 焦点：", game.keyMatchup]
+										})]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "flex items-center justify-between border-t border-line-soft pt-2 text-[11.5px] text-ink-4",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "truncate max-w-[170px]",
+											children: game.arena
+										}), /* @__PURE__ */ jsx("span", {
+											className: "font-semibold text-accent group-hover:underline",
+											children: isFinal ? "技术统计 →" : "对决前瞻 →"
+										})]
+									})
+								]
+							}, game.id);
+						})
+					})
+				]
+			}),
+			mainTab === "standings" && /* @__PURE__ */ jsxs("div", {
+				className: "grid gap-6 lg:grid-cols-12",
+				children: [/* @__PURE__ */ jsxs("div", {
+					className: "space-y-3 lg:col-span-7",
+					children: [/* @__PURE__ */ jsxs("div", {
+						className: "flex items-center justify-between",
+						children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
+							className: "text-base font-black text-ink",
+							children: "NBA 2026-27 西部联盟排名"
+						}), /* @__PURE__ */ jsx("p", {
+							className: "text-xs text-ink-4",
+							children: "每日定时自动同步更新 · 胜率与胜场差"
+						})] }), /* @__PURE__ */ jsx("span", {
+							className: "rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-1 font-mono text-[11px] font-bold text-ink-3",
+							children: "西部赛区"
+						})]
+					}), /* @__PURE__ */ jsx("div", {
+						className: "overflow-hidden rounded-2xl border border-line bg-surface shadow-xs",
+						children: /* @__PURE__ */ jsx("div", {
+							className: "overflow-x-auto",
+							children: /* @__PURE__ */ jsxs("table", {
+								className: "w-full text-left text-xs",
+								children: [/* @__PURE__ */ jsx("thead", {
+									className: "border-b border-line bg-bg-sunk/50 text-[11.5px] font-bold text-ink-3",
+									children: /* @__PURE__ */ jsxs("tr", { children: [
+										/* @__PURE__ */ jsx("th", {
+											className: "py-2.5 pl-4 pr-2",
+											children: "排名"
+										}),
+										/* @__PURE__ */ jsx("th", {
+											className: "py-2.5 px-3",
+											children: "球队"
+										}),
+										/* @__PURE__ */ jsx("th", {
+											className: "py-2.5 px-2 text-right",
+											children: "胜"
+										}),
+										/* @__PURE__ */ jsx("th", {
+											className: "py-2.5 px-2 text-right",
+											children: "负"
+										}),
+										/* @__PURE__ */ jsx("th", {
+											className: "py-2.5 px-2 text-right",
+											children: "胜率"
+										}),
+										/* @__PURE__ */ jsx("th", {
+											className: "py-2.5 px-2 text-right",
+											children: "胜差"
+										}),
+										/* @__PURE__ */ jsx("th", {
+											className: "py-2.5 px-2 text-right",
+											children: "主场"
+										}),
+										/* @__PURE__ */ jsx("th", {
+											className: "py-2.5 px-2 text-right",
+											children: "客场"
+										}),
+										/* @__PURE__ */ jsx("th", {
+											className: "py-2.5 pl-2 pr-4 text-right",
+											children: "近况"
+										})
+									] })
+								}), /* @__PURE__ */ jsx("tbody", {
+									className: "divide-y divide-line-soft",
+									children: WESTERN_STANDINGS.map((t) => /* @__PURE__ */ jsxs("tr", {
+										className: `transition-colors hover:bg-bg-sunk/40 ${t.isRockets ? "bg-[#CE1141]/8 font-bold text-[#CE1141]" : "text-ink-2"}`,
 										children: [
-											game.isHome ? "vs" : "@",
-											" ",
-											game.opponent.name
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2.5 pl-4 pr-2 font-mono font-bold",
+												children: t.rank
+											}),
+											/* @__PURE__ */ jsxs("td", {
+												className: "py-2.5 px-3 font-semibold text-ink flex items-center gap-1.5",
+												children: [t.isRockets && /* @__PURE__ */ jsx("span", { className: "size-2 rounded-full bg-[#CE1141]" }), t.name]
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2.5 px-2 font-mono text-right",
+												children: t.wins
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2.5 px-2 font-mono text-right",
+												children: t.losses
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2.5 px-2 font-mono text-right",
+												children: t.winPct
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2.5 px-2 font-mono text-right text-ink-4",
+												children: t.gb
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2.5 px-2 font-mono text-right text-ink-4",
+												children: t.home
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2.5 px-2 font-mono text-right text-ink-4",
+												children: t.away
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2.5 pl-2 pr-4 font-mono text-right font-semibold",
+												children: t.streak
+											})
 										]
-									}), /* @__PURE__ */ jsx("div", {
-										className: "mt-0.5 font-mono text-[10px] text-ink-4",
-										children: game.time
-									})]
+									}, t.abbr))
 								})]
-							}, cell.dateStr + idx);
+							})
 						})
 					})]
-				}), selectedDayGame && /* @__PURE__ */ jsxs("div", {
-					onClick: () => setActiveGame(selectedDayGame),
-					className: "sm:hidden rounded-xl border border-line bg-surface p-3 text-xs shadow-xs",
-					children: [/* @__PURE__ */ jsxs("div", {
-						className: "flex items-center justify-between font-bold text-ink",
-						children: [/* @__PURE__ */ jsxs("span", { children: [
-							selectedDayGame.date,
-							" · ",
-							selectedDayGame.isHome ? "主场 vs" : "客场 @",
-							" ",
-							selectedDayGame.opponent.name
-						] }), /* @__PURE__ */ jsx("span", {
-							className: "font-mono text-ink-3",
-							children: selectedDayGame.time
-						})]
-					}), /* @__PURE__ */ jsxs("div", {
-						className: "mt-1 text-ink-4",
-						children: [
-							"📍 ",
-							selectedDayGame.arena,
-							" · 📺 ",
-							selectedDayGame.broadcast
-						]
-					})]
+				}), /* @__PURE__ */ jsxs("div", {
+					className: "space-y-3 lg:col-span-5",
+					children: [
+						/* @__PURE__ */ jsx("div", {
+							className: "flex items-center justify-between",
+							children: /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h3", {
+								className: "text-base font-black text-ink",
+								children: "休斯敦火箭 · 球员数据榜"
+							}), /* @__PURE__ */ jsx("p", {
+								className: "text-xs text-ink-4",
+								children: "核心阵容各项数据统计领跑者"
+							})] })
+						}),
+						/* @__PURE__ */ jsx("div", {
+							className: "flex items-center gap-1 rounded-xl bg-bg-sunk p-1 text-xs",
+							children: [
+								{
+									key: "points",
+									label: "得分榜"
+								},
+								{
+									key: "rebounds",
+									label: "篮板榜"
+								},
+								{
+									key: "assists",
+									label: "助攻榜"
+								},
+								{
+									key: "steals",
+									label: "抢断榜"
+								},
+								{
+									key: "blocks",
+									label: "盖帽榜"
+								}
+							].map((c) => /* @__PURE__ */ jsx("button", {
+								type: "button",
+								onClick: () => setLeaderCategory(c.key),
+								className: `flex-1 rounded-lg py-1.5 font-bold transition-all ${leaderCategory === c.key ? "bg-surface text-ink shadow-2xs" : "text-ink-4 hover:text-ink"}`,
+								children: c.label
+							}, c.key))
+						}),
+						/* @__PURE__ */ jsx("div", {
+							className: "space-y-2.5",
+							children: ROCKETS_LEADERS[leaderCategory].map((player, idx) => /* @__PURE__ */ jsxs("div", {
+								className: "flex items-center justify-between rounded-xl border border-line bg-surface p-3 shadow-2xs transition-all hover:border-[#CE1141]/40",
+								children: [/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-3",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: `flex size-6 items-center justify-center rounded-full font-mono text-xs font-black ${idx === 0 ? "bg-[#CE1141] text-white" : idx === 1 ? "bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900" : "bg-bg-sunk text-ink-3"}`,
+										children: idx + 1
+									}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
+										className: "flex items-center gap-1.5 font-bold text-ink",
+										children: [/* @__PURE__ */ jsx("span", { children: player.name }), /* @__PURE__ */ jsxs("span", {
+											className: "font-mono text-xs text-ink-4",
+											children: ["#", player.number]
+										})]
+									}), /* @__PURE__ */ jsxs("div", {
+										className: "text-[11px] text-ink-4",
+										children: [
+											player.position,
+											" · ",
+											player.subValue
+										]
+									})] })]
+								}), /* @__PURE__ */ jsxs("div", {
+									className: "text-right",
+									children: [/* @__PURE__ */ jsx("div", {
+										className: "font-mono text-base font-black text-ink",
+										children: player.value.toFixed(1)
+									}), /* @__PURE__ */ jsx("div", {
+										className: "text-[10px] text-ink-4",
+										children: "场均"
+									})]
+								})]
+							}, player.id))
+						})
+					]
 				})]
 			}),
 			activeGame && /* @__PURE__ */ jsx("div", {
-				className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-fade-in",
+				className: "fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-3 backdrop-blur-xs sm:p-6",
 				onClick: () => setActiveGame(null),
 				children: /* @__PURE__ */ jsxs("div", {
-					className: "w-full max-w-md overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-xl transition-all",
+					className: "flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl",
 					onClick: (e) => e.stopPropagation(),
 					children: [
 						/* @__PURE__ */ jsxs("div", {
-							className: "flex items-center justify-between border-b border-line-soft pb-3",
-							children: [/* @__PURE__ */ jsxs("span", {
-								className: "text-xs font-bold text-ink-3",
-								children: [
-									activeGame.date,
-									" ",
-									getWeekday(activeGame.date),
-									" · ",
-									activeGame.time,
-									" (北京时间)"
-								]
+							className: "flex items-center justify-between border-b border-line bg-bg-sunk/30 px-5 py-3.5",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "space-y-0.5",
+								children: [/* @__PURE__ */ jsxs("span", {
+									className: "text-xs font-bold text-ink-4",
+									children: [
+										activeGame.date,
+										" ",
+										getWeekday(activeGame.date),
+										" · ",
+										activeGame.arena
+									]
+								}), /* @__PURE__ */ jsxs("h3", {
+									className: "text-base font-black text-ink sm:text-lg",
+									children: [
+										"休斯敦火箭 ",
+										activeGame.isHome ? "VS" : "@",
+										" ",
+										activeGame.opponent.name,
+										activeGame.result && /* @__PURE__ */ jsxs("span", {
+											className: "ml-3 font-mono text-[#CE1141]",
+											children: [
+												activeGame.result.rocketsScore,
+												" - ",
+												activeGame.result.opponentScore
+											]
+										})
+									]
+								})]
 							}), /* @__PURE__ */ jsx("button", {
 								type: "button",
 								onClick: () => setActiveGame(null),
-								className: "grid size-7 place-items-center rounded-full text-ink-4 hover:bg-bg-sunk hover:text-ink transition-colors",
-								children: "✕"
-							})]
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "my-5 flex items-center justify-around",
-							children: [
-								/* @__PURE__ */ jsxs("div", {
-									className: "text-center",
-									children: [/* @__PURE__ */ jsx("div", {
-										className: "text-base font-black text-ink",
-										children: "休斯敦火箭"
-									}), /* @__PURE__ */ jsx("div", {
-										className: "mt-1 inline-flex rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-ink-3",
-										children: activeGame.isHome ? "休斯敦主场" : "客场作战"
-									})]
-								}),
-								/* @__PURE__ */ jsx("div", {
-									className: "font-mono text-sm font-bold text-[#CE1141]",
-									children: "VS"
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									className: "text-center",
-									children: [/* @__PURE__ */ jsx("div", {
-										className: "text-base font-black text-ink",
-										children: activeGame.opponent.name
-									}), /* @__PURE__ */ jsx("div", {
-										className: "mt-1 inline-flex rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-ink-3",
-										children: activeGame.isHome ? "客队挑战" : "对手主场"
-									})]
-								})
-							]
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "space-y-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 p-3.5 text-xs text-ink-2",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center justify-between",
-								children: [/* @__PURE__ */ jsx("span", {
-									className: "text-ink-4",
-									children: "比赛场馆"
-								}), /* @__PURE__ */ jsx("span", {
-									className: "font-semibold text-ink",
-									children: activeGame.arena
-								})]
-							}), /* @__PURE__ */ jsxs("div", {
-								className: "flex items-center justify-between",
-								children: [/* @__PURE__ */ jsx("span", {
-									className: "text-ink-4",
-									children: "转播平台"
-								}), /* @__PURE__ */ jsx("span", {
-									className: "font-semibold text-ink",
-									children: activeGame.broadcast
-								})]
+								className: "grid size-8 place-items-center rounded-full text-ink-4 transition-colors hover:bg-bg-sunk hover:text-ink",
+								children: /* @__PURE__ */ jsx(IconClose, { size: 18 })
 							})]
 						}),
 						/* @__PURE__ */ jsx("div", {
-							className: "mt-4 flex justify-end",
+							className: "flex-1 overflow-y-auto p-5 space-y-5",
+							children: activeBoxScore ? /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h4", {
+								className: "mb-2 text-xs font-bold text-ink-3",
+								children: "四节比分明细"
+							}), /* @__PURE__ */ jsx("div", {
+								className: "overflow-hidden rounded-xl border border-line",
+								children: /* @__PURE__ */ jsxs("table", {
+									className: "w-full text-center text-xs",
+									children: [/* @__PURE__ */ jsx("thead", {
+										className: "bg-bg-sunk/50 font-semibold text-ink-3",
+										children: /* @__PURE__ */ jsxs("tr", { children: [
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2 pl-3 text-left",
+												children: "球队"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2",
+												children: "第一节"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2",
+												children: "第二节"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2",
+												children: "第三节"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2",
+												children: "第四节"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2 pr-3 font-bold text-ink",
+												children: "总分"
+											})
+										] })
+									}), /* @__PURE__ */ jsxs("tbody", {
+										className: "divide-y divide-line-soft font-mono",
+										children: [/* @__PURE__ */ jsxs("tr", {
+											className: "font-bold text-[#CE1141]",
+											children: [
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 pl-3 text-left",
+													children: "休斯敦火箭"
+												}),
+												activeBoxScore.quarters.rockets.map((q, i) => /* @__PURE__ */ jsx("td", {
+													className: "py-2",
+													children: q
+												}, i)),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 pr-3 font-black text-base",
+													children: activeGame.result?.rocketsScore
+												})
+											]
+										}), /* @__PURE__ */ jsxs("tr", {
+											className: "text-ink-2",
+											children: [
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 pl-3 text-left",
+													children: activeGame.opponent.name
+												}),
+												activeBoxScore.quarters.opponent.map((q, i) => /* @__PURE__ */ jsx("td", {
+													className: "py-2",
+													children: q
+												}, i)),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 pr-3 font-black text-base text-ink",
+													children: activeGame.result?.opponentScore
+												})
+											]
+										})]
+									})]
+								})
+							})] }), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
+								className: "mb-2 flex items-center justify-between",
+								children: [/* @__PURE__ */ jsxs("h4", {
+									className: "text-xs font-bold text-ink flex items-center gap-1.5",
+									children: [/* @__PURE__ */ jsx("span", { className: "size-2 rounded-full bg-[#CE1141]" }), "休斯敦火箭 · 球员详细技术统计"]
+								}), /* @__PURE__ */ jsx("span", {
+									className: "text-[11px] text-ink-4",
+									children: "MIN: 出场时间 · +/-: 正负值"
+								})]
+							}), /* @__PURE__ */ jsx("div", {
+								className: "overflow-x-auto rounded-xl border border-line",
+								children: /* @__PURE__ */ jsxs("table", {
+									className: "w-full text-left text-xs",
+									children: [/* @__PURE__ */ jsx("thead", {
+										className: "border-b border-line bg-bg-sunk/50 text-[11px] font-bold text-ink-3",
+										children: /* @__PURE__ */ jsxs("tr", { children: [
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 pl-3",
+												children: "球员"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-center",
+												children: "位置"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-right",
+												children: "时间"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-right font-black text-[#CE1141]",
+												children: "得分"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-right font-bold text-ink",
+												children: "篮板"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-right font-bold text-ink",
+												children: "助攻"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-right",
+												children: "抢断"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-right",
+												children: "盖帽"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-right",
+												children: "投篮"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-right",
+												children: "命中率"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 px-2 text-right",
+												children: "三分"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2.5 pl-2 pr-3 text-right",
+												children: "+/-"
+											})
+										] })
+									}), /* @__PURE__ */ jsx("tbody", {
+										className: "divide-y divide-line-soft font-mono",
+										children: activeBoxScore.rocketsPlayers.map((p) => /* @__PURE__ */ jsxs("tr", {
+											className: "hover:bg-bg-sunk/30",
+											children: [
+												/* @__PURE__ */ jsxs("td", {
+													className: "py-2 pl-3 font-sans font-bold text-ink flex items-center gap-1",
+													children: [p.name, /* @__PURE__ */ jsxs("span", {
+														className: "text-[10px] text-ink-4",
+														children: ["#", p.number]
+													})]
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-center text-ink-4",
+													children: p.position
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-right text-ink-3",
+													children: p.minutes
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-right font-black text-[#CE1141]",
+													children: p.points
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-right font-bold text-ink",
+													children: p.rebounds
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-right font-bold text-ink",
+													children: p.assists
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-right text-ink-3",
+													children: p.steals
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-right text-ink-3",
+													children: p.blocks
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-right text-ink-4",
+													children: p.fg
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-right text-ink-3",
+													children: p.fgPct
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: "py-2 px-2 text-right text-ink-4",
+													children: p.threePt
+												}),
+												/* @__PURE__ */ jsx("td", {
+													className: `py-2 pl-2 pr-3 text-right font-bold ${p.plusMinus.startsWith("+") ? "text-emerald-600" : "text-red-500"}`,
+													children: p.plusMinus
+												})
+											]
+										}, p.name))
+									})]
+								})
+							})] })] }) : /* @__PURE__ */ jsxs("div", {
+								className: "space-y-4 py-4",
+								children: [/* @__PURE__ */ jsxs("div", {
+									className: "rounded-xl bg-bg-sunk/50 p-4 text-xs text-ink-2 space-y-2",
+									children: [
+										/* @__PURE__ */ jsx("div", {
+											className: "font-bold text-ink",
+											children: "比赛前瞻看点"
+										}),
+										/* @__PURE__ */ jsx("p", {
+											className: "leading-relaxed",
+											children: activeGame.previewNotes
+										}),
+										activeGame.keyMatchup && /* @__PURE__ */ jsxs("p", {
+											className: "font-semibold text-accent",
+											children: ["🎯 焦点对位：", activeGame.keyMatchup]
+										})
+									]
+								}), /* @__PURE__ */ jsx("div", {
+									className: "text-center text-xs text-ink-4",
+									children: "比赛尚未开打，赛后将即时同步两队四节比分与球员 BoxScore 统计数据。"
+								})]
+							})
+						}),
+						/* @__PURE__ */ jsx("div", {
+							className: "flex items-center justify-end border-t border-line bg-bg-sunk/30 px-5 py-3",
 							children: /* @__PURE__ */ jsx("button", {
 								type: "button",
-								onClick: () => handleCopyReminder(activeGame),
-								className: "rounded-full bg-[#CE1141] px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:opacity-90 transition-opacity",
+								onClick: () => handleCopyNotice(activeGame),
+								className: "rounded-full bg-[#CE1141] px-4 py-1.5 text-xs font-bold text-white shadow-xs transition-colors hover:bg-[#b00e36]",
 								children: copiedId === activeGame.id ? "已复制提醒到剪贴板 ✓" : "复制比赛日程提醒"
 							})
 						})
@@ -5288,8 +6835,8 @@ function headers$25() {
 }
 function meta$37() {
 	return pageMeta({
-		title: "火箭赛程日历 · 比赛日程与转播看板",
-		description: `${SITE.name} 独家赛程日历：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分与核心球员统计。`,
+		title: "火箭赛程战绩 · 比赛日程、战果与球员技术统计",
+		description: `${SITE.name} 独家赛程战绩：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分、球员技术统计与西部联盟排行榜。`,
 		path: "/schedule"
 	});
 }
@@ -5300,10 +6847,10 @@ var schedule_default = UNSAFE_withComponentProps(function SchedulePage() {
 			className: "mb-6",
 			children: [/* @__PURE__ */ jsx("h1", {
 				className: "text-[24px] font-extrabold tracking-tight text-ink lg:text-3xl",
-				children: "赛程日历"
+				children: "赛程战绩"
 			}), /* @__PURE__ */ jsx("p", {
 				className: "mt-1 text-sm text-ink-3",
-				children: "休斯敦火箭 2026-27 赛季官方赛程与转播看板"
+				children: "休斯敦火箭 2026-27 赛季官方赛程战果、全队技术统计与西部排名"
 			})]
 		}), /* @__PURE__ */ jsx(ScheduleCalendar, {})]
 	});
@@ -5827,7 +7374,7 @@ var item_exports = /* @__PURE__ */ __exportAll({
 	loader: () => loader$32,
 	meta: () => meta$35
 });
-var PosterSheet = lazy(() => import("./assets/PosterSheet-CEGjVn0S.js"));
+var PosterSheet = lazy(() => import("./assets/PosterSheet-BoNz-GzH.js"));
 async function loader$32({ params, request }) {
 	return { item: await loadOr404(`/api/site/items/${encodeURIComponent(params.id)}`, { signal: request.signal }) };
 }
@@ -10738,114 +12285,73 @@ var sponsor_default = UNSAFE_withComponentProps(function SponsorPage() {
 					})
 				}), /* @__PURE__ */ jsxs("div", {
 					className: "space-y-5 lg:col-span-6",
-					children: [
-						/* @__PURE__ */ jsxs("div", {
-							className: "card border border-line bg-surface p-5 shadow-sm",
-							children: [
-								/* @__PURE__ */ jsxs("h3", {
-									className: "flex items-center gap-2 text-[15px] font-bold text-ink",
-									children: [/* @__PURE__ */ jsx(IconBolt, {
-										size: 18,
-										className: "text-[#CE1141]"
-									}), "为什么需要你的赞助？"]
-								}),
-								/* @__PURE__ */ jsx("p", {
-									className: "mt-2.5 text-[13.5px] leading-relaxed text-ink-2",
-									children: "ClutchWire 致力于为火箭球迷提供秒级推特追踪、外媒战术专栏、赛程前瞻与热点归组。为了维持网站的极速响应与全天候滚动，需要持续投入实际的基础设施成本："
-								}),
-								/* @__PURE__ */ jsxs("ul", {
-									className: "mt-3.5 space-y-2.5 text-[13px] text-ink-3",
-									children: [
-										/* @__PURE__ */ jsxs("li", {
-											className: "flex items-start gap-2",
-											children: [/* @__PURE__ */ jsx(IconCheck, {
-												size: 16,
-												className: "mt-0.5 shrink-0 text-emerald-600"
-											}), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
-												className: "text-ink",
-												children: "高性能 VPS 云服务器"
-											}), "：全天候 24 小时运行信源采集引擎、数据库与渲染节点。"] })]
-										}),
-										/* @__PURE__ */ jsxs("li", {
-											className: "flex items-start gap-2",
-											children: [/* @__PURE__ */ jsx(IconCheck, {
-												size: 16,
-												className: "mt-0.5 shrink-0 text-emerald-600"
-											}), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
-												className: "text-ink",
-												children: "Cloudflare 全球边缘防护"
-											}), "：提供全球 CDN 加速与高并发 DDoS 流量清洗，确保千人万人同时看球也不卡。"] })]
-										}),
-										/* @__PURE__ */ jsxs("li", {
-											className: "flex items-start gap-2",
-											children: [/* @__PURE__ */ jsx(IconCheck, {
-												size: 16,
-												className: "mt-0.5 shrink-0 text-emerald-600"
-											}), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
-												className: "text-ink",
-												children: "独立域名长期续费"
-											}), "：保障 clutchwire.org 品牌的长期稳定解析。"] })]
-										})
-									]
-								})
-							]
-						}),
-						/* @__PURE__ */ jsxs("div", {
-							className: "card border border-line bg-surface p-5 shadow-sm",
-							children: [/* @__PURE__ */ jsxs("h3", {
+					children: [/* @__PURE__ */ jsxs("div", {
+						className: "card border border-line bg-surface p-5 shadow-sm",
+						children: [
+							/* @__PURE__ */ jsxs("h3", {
 								className: "flex items-center gap-2 text-[15px] font-bold text-ink",
-								children: [/* @__PURE__ */ jsx(IconHeart, {
+								children: [/* @__PURE__ */ jsx(IconBolt, {
 									size: 18,
 									className: "text-[#CE1141]"
-								}), "站长的真诚承诺"]
-							}), /* @__PURE__ */ jsxs("ul", {
-								className: "mt-3 space-y-2 text-[13px] leading-relaxed text-ink-2",
+								}), "为什么需要你的赞助？"]
+							}),
+							/* @__PURE__ */ jsx("p", {
+								className: "mt-2.5 text-[13.5px] leading-relaxed text-ink-2",
+								children: "ClutchWire 致力于为火箭球迷提供秒级推特追踪、外媒战术专栏、赛程前瞻与热点归组。为了维持网站的极速响应与全天候滚动，需要持续投入实际的基础设施成本："
+							}),
+							/* @__PURE__ */ jsxs("ul", {
+								className: "mt-3.5 space-y-2.5 text-[13px] text-ink-3",
 								children: [
-									/* @__PURE__ */ jsxs("li", { children: [
-										"✨ ",
-										/* @__PURE__ */ jsx("strong", {
+									/* @__PURE__ */ jsxs("li", {
+										className: "flex items-start gap-2",
+										children: [/* @__PURE__ */ jsx(IconCheck, {
+											size: 16,
+											className: "mt-0.5 shrink-0 text-emerald-600"
+										}), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
 											className: "text-ink",
-											children: "坚持永久无恶性广告"
-										}),
-										"：绝不投放影响阅读体验的弹窗、信息流软文或牛皮癣广告。"
-									] }),
-									/* @__PURE__ */ jsxs("li", { children: [
-										"🔒 ",
-										/* @__PURE__ */ jsx("strong", {
+											children: "高性能 VPS 云服务器"
+										}), "：全天候 24 小时运行信源采集引擎、数据库与渲染节点。"] })]
+									}),
+									/* @__PURE__ */ jsxs("li", {
+										className: "flex items-start gap-2",
+										children: [/* @__PURE__ */ jsx(IconCheck, {
+											size: 16,
+											className: "mt-0.5 shrink-0 text-emerald-600"
+										}), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
 											className: "text-ink",
-											children: "专款专用"
-										}),
-										"：收到的所有赞赏资金，将 100% 优先用于支付服务器带宽和域名维护费用。"
-									] }),
-									/* @__PURE__ */ jsxs("li", { children: [
-										"🚀 ",
-										/* @__PURE__ */ jsx("strong", {
+											children: "Cloudflare 全球边缘防护"
+										}), "：提供全球 CDN 加速与高并发 DDoS 流量清洗，确保千人万人同时看球也不卡。"] })]
+									}),
+									/* @__PURE__ */ jsxs("li", {
+										className: "flex items-start gap-2",
+										children: [/* @__PURE__ */ jsx(IconCheck, {
+											size: 16,
+											className: "mt-0.5 shrink-0 text-emerald-600"
+										}), /* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
 											className: "text-ink",
-											children: "持续迭代更新"
-										}),
-										"：新赛季将持续跟进火箭每场赛况、球员伤病战报与交易流言，陪伴休斯敦红军每一天！"
-									] })
+											children: "独立域名长期续费"
+										}), "：保障 clutchwire.org 品牌的长期稳定解析。"] })]
+									})
 								]
-							})]
-						}),
-						/* @__PURE__ */ jsx("div", {
-							className: "card border border-line bg-surface p-5 shadow-sm",
-							children: /* @__PURE__ */ jsxs("div", {
-								className: "flex items-center justify-between",
-								children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h4", {
-									className: "text-[14px] font-bold text-ink",
-									children: "有想看的新信源或功能建议？"
-								}), /* @__PURE__ */ jsx("p", {
-									className: "mt-1 text-[12.5px] text-ink-4",
-									children: "欢迎随时提交，站长会第一时间回复跟进"
-								})] }), /* @__PURE__ */ jsxs(Link, {
-									to: "/feedback",
-									className: "inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[#CE1141] hover:text-[#CE1141]",
-									children: [/* @__PURE__ */ jsx(IconMessage, { size: 14 }), "意见反馈"]
-								})]
 							})
+						]
+					}), /* @__PURE__ */ jsx("div", {
+						className: "card border border-line bg-surface p-5 shadow-sm",
+						children: /* @__PURE__ */ jsxs("div", {
+							className: "flex items-center justify-between",
+							children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h4", {
+								className: "text-[14px] font-bold text-ink",
+								children: "有想看的新信源或功能建议？"
+							}), /* @__PURE__ */ jsx("p", {
+								className: "mt-1 text-[12.5px] text-ink-4",
+								children: "欢迎随时提交，站长会第一时间回复跟进"
+							})] }), /* @__PURE__ */ jsxs(Link, {
+								to: "/feedback",
+								className: "inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[#CE1141] hover:text-[#CE1141]",
+								children: [/* @__PURE__ */ jsx(IconMessage, { size: 14 }), "意见反馈"]
+							})]
 						})
-					]
+					})]
 				})]
 			})
 		]
@@ -11404,25 +12910,42 @@ var TIPS = [
 	"有截图更好，记得先遮盖敏感信息"
 ];
 function FeedbackAside() {
-	return /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx(AsideCard, {
-		title: "写清楚这几点，处理更快",
-		children: /* @__PURE__ */ jsx("ol", {
-			className: "space-y-2.5",
-			children: TIPS.map((t, i) => /* @__PURE__ */ jsxs("li", {
-				className: "flex gap-2.5 text-[13px] leading-[1.6] text-ink-3",
-				children: [/* @__PURE__ */ jsx("span", {
-					className: "mono mt-px text-[11px] font-bold text-accent",
-					children: String(i + 1).padStart(2, "0")
-				}), t]
-			}, t))
+	return /* @__PURE__ */ jsxs(Fragment, { children: [
+		/* @__PURE__ */ jsx(AsideCard, {
+			title: "写清楚这几点，处理更快",
+			children: /* @__PURE__ */ jsx("ol", {
+				className: "space-y-2.5",
+				children: TIPS.map((t, i) => /* @__PURE__ */ jsxs("li", {
+					className: "flex gap-2.5 text-[13px] leading-[1.6] text-ink-3",
+					children: [/* @__PURE__ */ jsx("span", {
+						className: "mono mt-px text-[11px] font-bold text-accent",
+						children: String(i + 1).padStart(2, "0")
+					}), t]
+				}, t))
+			})
+		}),
+		/* @__PURE__ */ jsxs(AsideCard, {
+			title: "站长直接联络邮箱",
+			children: [/* @__PURE__ */ jsx("p", {
+				className: "text-[13px] leading-[1.75] text-ink-3",
+				children: "任何关于火箭队信源推荐、功能改进或合作事宜，均可直接发送邮件至站长私人邮箱："
+			}), /* @__PURE__ */ jsx("div", {
+				className: "mt-2.5",
+				children: /* @__PURE__ */ jsx("a", {
+					href: "mailto:cappelasucks@gmail.com?subject=ClutchWire网站建议与反馈",
+					className: "inline-flex items-center gap-1.5 font-mono text-[13px] font-bold text-accent hover:underline",
+					children: "✉️ cappelasucks@gmail.com"
+				})
+			})]
+		}),
+		/* @__PURE__ */ jsx(AsideCard, {
+			title: "来源方",
+			children: /* @__PURE__ */ jsx("p", {
+				className: "text-[13px] leading-[1.75] text-ink-3",
+				children: "如果你是来源方，希望更正、下架或调整展示方式，写明对应的文章链接和你的诉求即可。"
+			})
 		})
-	}), /* @__PURE__ */ jsx(AsideCard, {
-		title: "来源方",
-		children: /* @__PURE__ */ jsx("p", {
-			className: "text-[13px] leading-[1.75] text-ink-3",
-			children: "如果你是来源方，希望更正、下架或调整展示方式，写明对应的文章链接和你的诉求即可。"
-		})
-	})] });
+	] });
 }
 var MAX_IMAGE = 5242880;
 var MAX_TEXT = 2e3;
@@ -21411,15 +22934,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-x7zv96xy.js",
+			"module": "/assets/root-C8V8Zohv.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/Sidebar-D-HdtoSy.js",
-				"/assets/Chrome-WfzNcYzY.js",
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/Sidebar-C2Yr8B1r.js",
+				"/assets/Chrome-BmT2qpYg.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-rFFPOjlj.css"],
+			"css": ["/assets/root-pcn_BRRk.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -21459,11 +22982,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-BZAvKb-1.js",
+			"module": "/assets/all-DnWI2M62.js",
 			"imports": [
-				"/assets/all-Bq2OfSAU.js",
+				"/assets/all-BsFv3SEV.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -21485,8 +23008,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-CDBDX0r1.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/schedule-ChQSIpiC.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21506,11 +23029,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CPvUAWAs.js",
+			"module": "/assets/search-busy-NLa-w-xU.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/all-Bq2OfSAU.js",
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/all-BsFv3SEV.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -21532,11 +23055,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CPvUAWAs.js",
+			"module": "/assets/search-busy-NLa-w-xU.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/all-Bq2OfSAU.js",
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/all-BsFv3SEV.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -21558,11 +23081,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-3hfuZX5n.js",
+			"module": "/assets/item-C6KjIoee.js",
 			"imports": [
-				"/assets/item-DPYh-xSX.js",
+				"/assets/item-CW2eRSDQ.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js"
+				"/assets/shared-CFmNAWZa.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21583,11 +23106,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-3hfuZX5n.js",
+			"module": "/assets/item-original-C6KjIoee.js",
 			"imports": [
-				"/assets/item-DPYh-xSX.js",
+				"/assets/item-CW2eRSDQ.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js"
+				"/assets/shared-CFmNAWZa.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21608,8 +23131,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-DVP-5K0h.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/hot-WbtR2X2_.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21629,8 +23152,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-DmC0Ptvs.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/story-DllQSS6T.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21650,11 +23173,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DP7ZVuNY.js",
+			"module": "/assets/report-latest-DXa7a1xt.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/ReportPaper-Dp0BNPe6.js"
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/ReportPaper-BZQBvdtX.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21675,11 +23198,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-PlhflEGd.js",
+			"module": "/assets/daily-archive-B12XqEIA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/ReportPaper-Dp0BNPe6.js"
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/ReportPaper-BZQBvdtX.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21700,11 +23223,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-CZNNM_Gr.js",
+			"module": "/assets/report-detail-DUcimNqm.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/ReportPaper-Dp0BNPe6.js"
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/ReportPaper-BZQBvdtX.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21725,11 +23248,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DP7ZVuNY.js",
+			"module": "/assets/report-latest-DXa7a1xt.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/ReportPaper-Dp0BNPe6.js"
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/ReportPaper-BZQBvdtX.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21750,11 +23273,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-CZNNM_Gr.js",
+			"module": "/assets/report-detail-DUcimNqm.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/ReportPaper-Dp0BNPe6.js"
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/ReportPaper-BZQBvdtX.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21775,11 +23298,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DP7ZVuNY.js",
+			"module": "/assets/report-latest-DXa7a1xt.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/ReportPaper-Dp0BNPe6.js"
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/ReportPaper-BZQBvdtX.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21800,11 +23323,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-CZNNM_Gr.js",
+			"module": "/assets/report-detail-DUcimNqm.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/ReportPaper-Dp0BNPe6.js"
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/ReportPaper-BZQBvdtX.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21888,8 +23411,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-4ovubHXH.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/about-DA7CFrew.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21909,8 +23432,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sponsor-C6ef0M7g.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/sponsor-Bb0UlmaS.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21930,11 +23453,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-ChPvyZkJ.js",
+			"module": "/assets/terms-DepPZvv1.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/CopyPage-iF7Qm4s7.js"
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/CopyPage-BpRNjwjo.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21955,11 +23478,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-CFlGDVAc.js",
+			"module": "/assets/privacy-Bw6OeEj6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/CopyPage-iF7Qm4s7.js"
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/CopyPage-BpRNjwjo.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21980,8 +23503,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-DQgvjQmU.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/changelog-DwiH53vC.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22001,8 +23524,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-BlrWExcd.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/feedback-LjDo93Yx.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22022,11 +23545,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-CJ5wr_Gt.js",
+			"module": "/assets/more-Cv32thMW.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
-				"/assets/Sidebar-D-HdtoSy.js",
+				"/assets/shared-CFmNAWZa.js",
+				"/assets/Sidebar-C2Yr8B1r.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -22048,8 +23571,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-C0FaJGdI.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/starred-D_5yHCfh.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22069,10 +23592,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-CK9uCXna.js",
+			"module": "/assets/agent-CayGVyuI.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/features-DbRQZ5Mo.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
@@ -22095,8 +23618,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-XF2QBnEe.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/codex-reset-1M4LKxq3.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22116,8 +23639,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-XF2QBnEe.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/codex-reset-1M4LKxq3.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22137,10 +23660,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-C2gnvDpt.js",
+			"module": "/assets/leaderboard-boards-DOq3BkXt.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -22162,10 +23685,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-BPLcZmbZ.js",
+			"module": "/assets/leaderboard-BAbp1ULA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22188,10 +23711,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-BPLcZmbZ.js",
+			"module": "/assets/leaderboard-BAbp1ULA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22214,10 +23737,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-CElWxAuZ.js",
+			"module": "/assets/leaderboard-sources-au2-4dML.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22240,10 +23763,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-DLyfN34Z.js",
+			"module": "/assets/leaderboard-source-BAbz8Tww.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22266,8 +23789,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-DLTrIlE6.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/leaderboard-rules-CwMR_UuR.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22287,10 +23810,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-3AfurhEv.js",
+			"module": "/assets/leaderboard-model-B7r_ujeh.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
@@ -22314,8 +23837,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-Cy6izKP6.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-cQzGIa91.js"],
+			"module": "/assets/admin-login-CWIU5SGC.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22335,12 +23858,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-BJjPGL2v.js",
+			"module": "/assets/layout-D8UPXW0y.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-WfzNcYzY.js",
+				"/assets/Chrome-BmT2qpYg.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -22384,10 +23907,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-Dme2vmlJ.js",
+			"module": "/assets/content-BmssTPca.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22411,10 +23934,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-F_2ryCBf.js",
+			"module": "/assets/content-item-BxEKsJDy.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
@@ -22441,10 +23964,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-j4PfIdlp.js",
+			"module": "/assets/sources-Dit2NtAU.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22468,10 +23991,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-BtQ7mqHP.js",
+			"module": "/assets/source-new-xjKu9FBF.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22497,10 +24020,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-BJBz1sOZ.js",
+			"module": "/assets/source-BwM1sBtL.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22526,10 +24049,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-CqklNd14.js",
+			"module": "/assets/monitor-CyNTT5U2.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22554,10 +24077,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-ZWYCP8W7.js",
+			"module": "/assets/feedback-BHzSbLb1.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22583,10 +24106,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-58vye36C.js",
+			"module": "/assets/runs-DYXq9PS2.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22611,10 +24134,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-DeXOE3QW.js",
+			"module": "/assets/models-D4JQMepZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22639,10 +24162,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-Bbbobn7k.js",
+			"module": "/assets/selectbench-Eg34Ry4E.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22667,10 +24190,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-D-MpmGGU.js",
+			"module": "/assets/selectbench-run-CBMAeNYD.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/taxonomy-CCGfN8IS.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22694,10 +24217,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-BcSX_j3x.js",
+			"module": "/assets/settings-C14zuDYa.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22722,10 +24245,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-C9A5adqs.js",
+			"module": "/assets/audit-CcU4oFaE.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-cQzGIa91.js",
+				"/assets/shared-CFmNAWZa.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -22736,8 +24259,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-5b163835.js",
-	"version": "5b163835",
+	"url": "/assets/manifest-88a3175a.js",
+	"version": "88a3175a",
 	"sri": void 0
 };
 //#endregion
