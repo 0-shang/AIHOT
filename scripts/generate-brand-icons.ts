@@ -1,4 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+import sharp from "sharp";
+import { writeFileSync } from "node:fs";
+import path from "node:path";
+
+const BRAND_DIR = path.resolve("industry/brand");
+
+// Professional Houston Rockets themed Brand Logo & Icon
+// Bold athletic silhouette, high contrast for browser tabs (16-32px) and mobile home screens (180-512px)
+const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <!-- Background Gradient: Deep Space Charcoal & Obsidian -->
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -106,4 +114,75 @@
   <!-- Houston Stars / Sparkles -->
   <path d="M396 115 Q396 132 413 132 Q396 132 396 149 Q396 132 379 132 Q396 132 396 115 Z" fill="#FFFFFF" opacity="0.95" />
   <path d="M116 175 Q116 186 127 186 Q116 186 116 197 Q116 186 105 186 Q116 186 116 175 Z" fill="#FFFFFF" opacity="0.8" />
-</svg>
+</svg>`;
+
+async function main() {
+  console.log("Writing logo.svg...");
+  writeFileSync(path.join(BRAND_DIR, "logo.svg"), svgContent.trim() + "\n", "utf8");
+
+  const svgBuffer = Buffer.from(svgContent);
+
+  // Generate 512x512 icon.png
+  console.log("Generating icon.png (512x512)...");
+  await sharp(svgBuffer)
+    .resize(512, 512)
+    .png({ compressionLevel: 9 })
+    .toFile(path.join(BRAND_DIR, "icon.png"));
+
+  // Generate 192x192 icon-192.png
+  console.log("Generating icon-192.png (192x192)...");
+  await sharp(svgBuffer)
+    .resize(192, 192)
+    .png({ compressionLevel: 9 })
+    .toFile(path.join(BRAND_DIR, "icon-192.png"));
+
+  // Generate 180x180 apple-icon.png
+  console.log("Generating apple-icon.png (180x180)...");
+  await sharp(svgBuffer)
+    .resize(180, 180)
+    .png({ compressionLevel: 9 })
+    .toFile(path.join(BRAND_DIR, "apple-icon.png"));
+
+  // Generate favicon.ico (ICO containing 48x48, 32x32, 16x16 PNG)
+  console.log("Generating favicon.ico...");
+  const png48 = await sharp(svgBuffer).resize(48, 48).png().toBuffer();
+  const png32 = await sharp(svgBuffer).resize(32, 32).png().toBuffer();
+  const png16 = await sharp(svgBuffer).resize(16, 16).png().toBuffer();
+
+  const images = [
+    { width: 48, height: 48, buffer: png48 },
+    { width: 32, height: 32, buffer: png32 },
+    { width: 16, height: 16, buffer: png16 },
+  ];
+
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(images.length, 4);
+
+  let offset = 6 + images.length * 16;
+  const entries: Buffer[] = [];
+  for (const img of images) {
+    const entry = Buffer.alloc(16);
+    entry.writeUInt8(img.width === 256 ? 0 : img.width, 0);
+    entry.writeUInt8(img.height === 256 ? 0 : img.height, 1);
+    entry.writeUInt8(0, 2);
+    entry.writeUInt8(0, 3);
+    entry.writeUInt16LE(1, 4);
+    entry.writeUInt16LE(32, 6);
+    entry.writeUInt32LE(img.buffer.length, 8);
+    entry.writeUInt32LE(offset, 12);
+    entries.push(entry);
+    offset += img.buffer.length;
+  }
+
+  const icoBuffer = Buffer.concat([header, ...entries, ...images.map((img) => img.buffer)]);
+  writeFileSync(path.join(BRAND_DIR, "favicon.ico"), icoBuffer);
+
+  console.log("Brand icons successfully generated in:", BRAND_DIR);
+}
+
+main().catch((err) => {
+  console.error("Error generating brand icons:", err);
+  process.exit(1);
+});

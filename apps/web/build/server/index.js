@@ -958,12 +958,29 @@ var links = () => [
 	},
 	{
 		rel: "icon",
+		type: "image/svg+xml",
+		href: "/logo.svg"
+	},
+	{
+		rel: "icon",
 		type: "image/png",
+		sizes: "512x512",
 		href: "/icon.png"
 	},
 	{
+		rel: "icon",
+		type: "image/png",
+		sizes: "192x192",
+		href: "/icon-192.png"
+	},
+	{
 		rel: "apple-touch-icon",
+		sizes: "180x180",
 		href: "/apple-icon.png"
+	},
+	{
+		rel: "apple-touch-startup-image",
+		href: "/icon.png"
 	},
 	{
 		rel: "manifest",
@@ -997,12 +1014,32 @@ function Layout({ children }) {
 			/* @__PURE__ */ jsx("meta", {
 				name: "theme-color",
 				media: "(prefers-color-scheme: light)",
-				content: "#faf9f6"
+				content: "#f8fafc"
 			}),
 			/* @__PURE__ */ jsx("meta", {
 				name: "theme-color",
 				media: "(prefers-color-scheme: dark)",
-				content: "#13191c"
+				content: "#0c1015"
+			}),
+			/* @__PURE__ */ jsx("meta", {
+				name: "mobile-web-app-capable",
+				content: "yes"
+			}),
+			/* @__PURE__ */ jsx("meta", {
+				name: "apple-mobile-web-app-capable",
+				content: "yes"
+			}),
+			/* @__PURE__ */ jsx("meta", {
+				name: "apple-mobile-web-app-status-bar-style",
+				content: "black-translucent"
+			}),
+			/* @__PURE__ */ jsx("meta", {
+				name: "apple-mobile-web-app-title",
+				content: SITE.name
+			}),
+			/* @__PURE__ */ jsx("meta", {
+				name: "application-name",
+				content: SITE.name
 			}),
 			/* @__PURE__ */ jsx("script", { dangerouslySetInnerHTML: { __html: THEME_BOOT_SCRIPT } }),
 			/* @__PURE__ */ jsx(Meta, {}),
@@ -22216,7 +22253,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-D_vBxX1S.js",
+			"module": "/assets/root-BpgFdue1.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
@@ -23541,8 +23578,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-e1276987.js",
-	"version": "e1276987",
+	"url": "/assets/manifest-3e1fb608.js",
+	"version": "3e1fb608",
 	"sri": void 0
 };
 //#endregion
