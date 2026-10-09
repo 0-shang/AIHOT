@@ -6135,7 +6135,7 @@ function headers$25() {
 function meta$37() {
 	return pageMeta({
 		title: "火箭赛程战绩 · 比赛日程、战果与球员技术统计",
-		description: `${SITE.name} 独家赛程战绩：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分、球员技术统计与西部联盟排行榜。`,
+		description: `${SITE.name} 独家赛程战绩：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分与球员技术统计。`,
 		path: "/schedule"
 	});
 }
@@ -6149,7 +6149,7 @@ var schedule_default = UNSAFE_withComponentProps(function SchedulePage() {
 				children: "赛程战绩"
 			}), /* @__PURE__ */ jsx("p", {
 				className: "mt-1 text-sm text-ink-3",
-				children: "休斯敦火箭 2026-27 赛季官方赛程战果、全队技术统计与西部排名"
+				children: "休斯敦火箭 2026-27 赛季官方赛程战果与全队球员技术统计"
 			})]
 		}), /* @__PURE__ */ jsx(ScheduleCalendar, {})]
 	});
@@ -22290,7 +22290,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-CeG80SaE.js",
+			"module": "/assets/schedule-BXLA4cEd.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23541,8 +23541,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-60f2b289.js",
-	"version": "60f2b289",
+	"url": "/assets/manifest-e1276987.js",
+	"version": "e1276987",
 	"sri": void 0
 };
 //#endregion

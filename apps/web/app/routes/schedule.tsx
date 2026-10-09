@@ -9,7 +9,7 @@ export function headers() {
 export function meta() {
   return pageMeta({
     title: "火箭赛程战绩 · 比赛日程、战果与球员技术统计",
-    description: `${SITE.name} 独家赛程战绩：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分、球员技术统计与西部联盟排行榜。`,
+    description: `${SITE.name} 独家赛程战绩：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分与球员技术统计。`,
     path: "/schedule",
   });
 }
@@ -23,7 +23,7 @@ export default function SchedulePage() {
           赛程战绩
         </h1>
         <p className="mt-1 text-sm text-ink-3">
-          休斯敦火箭 2026-27 赛季官方赛程战果、全队技术统计与西部排名
+          休斯敦火箭 2026-27 赛季官方赛程战果与全队球员技术统计
         </p>
       </div>
 
