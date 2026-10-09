@@ -280,16 +280,16 @@
       "name": "Yardbarker (休斯敦火箭动态快讯)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.yardbarker.com/rss/sport/2/team/68",
+        "feedUrl": "https://www.yardbarker.com/rss/team/68",
         "_aihot": {
-          "initialBackfillLimit": 10
+          "initialBackfillLimit": 12
         }
       },
       "tier": "T2",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 25,
       "tags": [
         "全网快讯",
         "比赛速递"
@@ -302,20 +302,89 @@
       "name": "RealGM (休斯敦火箭战术与签约深度跟踪)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://basketball.realgm.com/rss/wiretap/team/10.xml",
+        "feedUrl": "https://basketball.realgm.com/rss/wiretap/0/0.xml",
         "_aihot": {
-          "initialBackfillLimit": 10
+          "initialBackfillLimit": 12
         }
       },
       "tier": "T1_5",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 25,
       "tags": [
         "深度专栏",
         "战术复盘",
         "球队动态"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-fadeawayworld",
+      "name": "Fadeaway World (休斯敦火箭深度球评与战术剖析)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://fadeawayworld.net/feed",
+        "_aihot": {
+          "initialBackfillLimit": 12
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "深度专栏",
+        "战术分析",
+        "球员前瞻"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-theleadsports",
+      "name": "The Lead Sports (NBA硬核深度战术长文)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://theleadsm.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 12
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "深度专栏",
+        "战术拆解",
+        "高阶战术"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-espn-nba",
+      "name": "ESPN NBA (休斯敦火箭战报与权威快讯)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.espn.com/espn/rss/nba/news",
+        "_aihot": {
+          "initialBackfillLimit": 15
+        }
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "球队动态",
+        "官方发布",
+        "比赛速递"
       ],
       "site_fulltext": true,
       "syndicate_fulltext": false
@@ -903,6 +972,90 @@
         "球队动态",
         "官方电视",
         "赛场原声"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-lockedon-rockets",
+      "name": "Locked On Rockets (@LockedOnRockets 火箭每日深度播客)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:LockedOnRockets -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "深度专栏",
+        "播客专栏",
+        "赛后复盘"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-salman-ali",
+      "name": "Salman Ali (@SalmanAliNBA 火箭深度战术分析专家)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:SalmanAliNBA -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "深度专栏",
+        "战术拆解",
+        "随队专栏"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-rockets-wire",
+      "name": "The Rockets Wire (@TheRocketsWire USA Today火箭推特号)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:TheRocketsWire -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "球队动态",
+        "交易情报",
+        "前沿资讯"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-spacecity-scoop",
+      "name": "Space City Scoop (@SpaceCity_Scoop FanSided火箭推特号)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:SpaceCity_Scoop -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "深度专栏",
+        "战术分析",
+        "球员前瞻"
       ],
       "site_fulltext": true,
       "syndicate_fulltext": false

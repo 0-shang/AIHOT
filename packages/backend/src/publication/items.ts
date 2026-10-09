@@ -107,7 +107,8 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
         'rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets',
         'rss-si-rockets', 'rss-theringer-nba', 'rss-realgm-rockets', 'rss-houstonchronicle-rockets',
         'rss-rocketswire', 'rss-hoopshype-rockets', 'rss-clutchpoints-rockets',
-        'rss-nbaanalysis', 'rss-sircharlesincharge'
+        'rss-nbaanalysis', 'rss-sircharlesincharge', 'rss-fadeawayworld', 'rss-theleadsports',
+        'x-lockedon-rockets', 'x-salman-ali', 'x-spacecity-scoop'
       )
     )`;
   }
@@ -115,10 +116,10 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     // 球队动态栏目：官方发布、一手资讯、采访原声、战报与伤病
     return sql`AND (
       p.category = 'news'
-      OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn')
+      OR p.source_id IN ('rss-espn-nba', 'rss-yardbarker-rockets', 'x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire')
       OR p.tags && ARRAY['球队动态', '官方动态']::text[]
     )
-      AND (p.channel != 'x' OR p.first_party OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn') OR p.tags && ARRAY['球队动态', '官方动态', '赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
+      AND (p.channel != 'x' OR p.first_party OR p.source_id IN ('x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire') OR p.tags && ARRAY['球队动态', '官方动态', '赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
       AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
   }
   // v1 and RSS publish opinion as tip.
