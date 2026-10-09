@@ -69,6 +69,7 @@ function robotsTxt(): string {
 }
 
 function manifest() {
+  const v = "v=20261010";
   return {
     name: `${SITE.name} — ${SITE.tagline}`,
     short_name: SITE.name,
@@ -81,10 +82,10 @@ function manifest() {
     background_color: "#0a0d14",
     theme_color: "#CE1141",
     icons: [
-      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
-      { src: "/icon.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/icon.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: `/icon-192.png?${v}`, sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: `/icon-192.png?${v}`, sizes: "192x192", type: "image/png", purpose: "maskable" },
+      { src: `/icon.png?${v}`, sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: `/icon.png?${v}`, sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }
@@ -138,7 +139,7 @@ export function registerStatic(app: FastifyInstance) {
   });
 
   app.get("/manifest.webmanifest", (req, reply) =>
-    sendTextWithEtag(req, reply, JSON.stringify(manifest()), { etagPrefix: "manifest", cacheControl: "public, max-age=86400", contentType: "application/manifest+json" }));
+    sendTextWithEtag(req, reply, JSON.stringify(manifest()), { etagPrefix: "manifest", cacheControl: "public, max-age=600, stale-while-revalidate=86400", contentType: "application/manifest+json" }));
 
   app.get("/openapi-v1.json", async (req, reply) => {
     applyPublicHeaders(reply);

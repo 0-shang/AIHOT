@@ -950,41 +950,42 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	meta: () => meta$40,
 	shouldRevalidate: () => shouldRevalidate$1
 });
+var ICON_V = "v=20261010";
 var links = () => [
 	{
 		rel: "icon",
-		href: "/favicon.ico",
+		href: `/favicon.ico?${ICON_V}`,
 		sizes: "any"
 	},
 	{
 		rel: "icon",
 		type: "image/svg+xml",
-		href: "/logo.svg"
+		href: `/logo.svg?${ICON_V}`
 	},
 	{
 		rel: "icon",
 		type: "image/png",
 		sizes: "512x512",
-		href: "/icon.png"
+		href: `/icon.png?${ICON_V}`
 	},
 	{
 		rel: "icon",
 		type: "image/png",
 		sizes: "192x192",
-		href: "/icon-192.png"
+		href: `/icon-192.png?${ICON_V}`
 	},
 	{
 		rel: "apple-touch-icon",
 		sizes: "180x180",
-		href: "/apple-icon.png"
+		href: `/apple-icon.png?${ICON_V}`
 	},
 	{
 		rel: "apple-touch-startup-image",
-		href: "/icon.png"
+		href: `/icon.png?${ICON_V}`
 	},
 	{
 		rel: "manifest",
-		href: "/manifest.webmanifest"
+		href: `/manifest.webmanifest?${ICON_V}`
 	},
 	{
 		rel: "alternate",
@@ -22253,7 +22254,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-BpgFdue1.js",
+			"module": "/assets/root-DXpZWK1f.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
@@ -23578,8 +23579,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-3e1fb608.js",
-	"version": "3e1fb608",
+	"url": "/assets/manifest-d708887b.js",
+	"version": "d708887b",
 	"sri": void 0
 };
 //#endregion

@@ -16,14 +16,16 @@ import { THEME_BOOT_SCRIPT } from "./lib/local-state";
 import { apiGet } from "./lib/api.server";
 import { useHydratedFlag } from "./lib/hydration";
 
+const ICON_V = "v=20261010";
+
 export const links: Route.LinksFunction = () => [
-  { rel: "icon", href: "/favicon.ico", sizes: "any" },
-  { rel: "icon", type: "image/svg+xml", href: "/logo.svg" },
-  { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon.png" },
-  { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
-  { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-icon.png" },
-  { rel: "apple-touch-startup-image", href: "/icon.png" },
-  { rel: "manifest", href: "/manifest.webmanifest" },
+  { rel: "icon", href: `/favicon.ico?${ICON_V}`, sizes: "any" },
+  { rel: "icon", type: "image/svg+xml", href: `/logo.svg?${ICON_V}` },
+  { rel: "icon", type: "image/png", sizes: "512x512", href: `/icon.png?${ICON_V}` },
+  { rel: "icon", type: "image/png", sizes: "192x192", href: `/icon-192.png?${ICON_V}` },
+  { rel: "apple-touch-icon", sizes: "180x180", href: `/apple-icon.png?${ICON_V}` },
+  { rel: "apple-touch-startup-image", href: `/icon.png?${ICON_V}` },
+  { rel: "manifest", href: `/manifest.webmanifest?${ICON_V}` },
   { rel: "alternate", type: "application/rss+xml", title: `${SITE.name} — 最新动态`, href: "/feed.xml" },
 ];
 
