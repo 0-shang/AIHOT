@@ -58,19 +58,6 @@ function FeedbackAside() {
           ))}
         </ol>
       </AsideCard>
-      <AsideCard title="站长直接联络邮箱">
-        <p className="text-[13px] leading-[1.75] text-ink-3">
-          任何关于火箭队信源推荐、功能改进或合作事宜，均可直接发送邮件至站长私人邮箱：
-        </p>
-        <div className="mt-2.5">
-          <a
-            href="mailto:cappelasucks@gmail.com?subject=ClutchWire网站建议与反馈"
-            className="inline-flex items-center gap-1.5 font-mono text-[13px] font-bold text-accent hover:underline"
-          >
-            ✉️ cappelasucks@gmail.com
-          </a>
-        </div>
-      </AsideCard>
       <AsideCard title="来源方">
         <p className="text-[13px] leading-[1.75] text-ink-3">如果你是来源方，希望更正、下架或调整展示方式，写明对应的文章链接和你的诉求即可。</p>
       </AsideCard>

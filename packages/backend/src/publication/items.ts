@@ -106,7 +106,8 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
       OR p.source_id IN (
         'rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets',
         'rss-si-rockets', 'rss-theringer-nba', 'rss-realgm-rockets', 'rss-houstonchronicle-rockets',
-        'rss-rocketswire', 'rss-hoopshype-rockets', 'rss-clutchpoints-rockets'
+        'rss-rocketswire', 'rss-hoopshype-rockets', 'rss-clutchpoints-rockets',
+        'rss-nbaanalysis', 'rss-sircharlesincharge'
       )
     )`;
   }
@@ -202,9 +203,6 @@ export function tagCondition(tag: string | null | undefined) {
 }
 
 const REPORTER_SOURCE_MAP: Record<string, string[]> = {
-  "jonathan feigen": ["x-jonathan-feigen"],
-  "feigen": ["x-jonathan-feigen"],
-  "danielle lerner": ["x-danielle-lerner"],
   "kelly iko": ["x-kelly-iko"],
   "ben dubose": ["x-ben-dubose"],
   "jackson gatlin": ["x-jackson-gatlin"],

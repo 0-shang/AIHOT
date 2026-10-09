@@ -29,9 +29,33 @@
       "name": "The Dream Shake (SB Nation 休斯敦火箭)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://www.thedreamshake.com/rss/index.xml",
+        "feedUrl": "https://www.thedreamshake.com/rss/current.xml",
         "_aihot": {
-          "initialBackfillLimit": 12
+          "initialBackfillLimit": 15
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "深度专栏",
+        "比赛战报",
+        "战术分析",
+        "球员前瞻"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-nbaanalysis",
+      "name": "NBA Analysis Network (休斯敦火箭战术与球员深度剖析)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://nbaanalysis.net/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 15
         }
       },
       "tier": "T2",
@@ -40,9 +64,33 @@
       "participation_mode": "editorial",
       "interval_minutes": 25,
       "tags": [
-        "比赛战报",
-        "战术分析",
-        "球员前瞻"
+        "深度专栏",
+        "战术剖析",
+        "球员前瞻",
+        "高阶战术"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-sircharlesincharge",
+      "name": "Sir Charles In Charge (FanSided NBA战术与复盘专栏)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://sircharlesincharge.com/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 12
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "深度专栏",
+        "战术复盘",
+        "深度分析"
       ],
       "site_fulltext": true,
       "syndicate_fulltext": false
@@ -388,27 +436,6 @@
       "syndicate_fulltext": false
     },
     {
-      "id": "x-jonathan-feigen",
-      "name": "Jonathan Feigen (休斯顿纪事报火箭首席名记)",
-      "kind": "x_search",
-      "config": {
-        "query": "from:Jonathan_Feigen -filter:replies",
-        "searchType": "Latest"
-      },
-      "tier": "T1",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 15,
-      "tags": [
-        "随队首席",
-        "首发阵容",
-        "伤病动态"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
-    {
       "id": "x-kelly-iko",
       "name": "Kelly Iko (The Athletic / Yahoo 火箭随队记者)",
       "kind": "x_search",
@@ -425,27 +452,6 @@
         "转会流言",
         "更衣室深度",
         "选秀动态"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "x-danielle-lerner",
-      "name": "Danielle Lerner (休斯顿纪事报火箭资深跟队)",
-      "kind": "x_search",
-      "config": {
-        "query": "from:danielle_lerner -filter:replies",
-        "searchType": "Latest"
-      },
-      "tier": "T1",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 15,
-      "tags": [
-        "随队专栏",
-        "训练追踪",
-        "赛后采访"
       ],
       "site_fulltext": true,
       "syndicate_fulltext": false

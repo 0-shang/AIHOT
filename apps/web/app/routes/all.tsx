@@ -13,9 +13,7 @@ import { RingMark } from "../components/Logo";
 
 const BEAT_REPORTERS = [
   { key: "all", label: "全部" },
-  { key: "Jonathan Feigen", label: "Jonathan Feigen" },
   { key: "Kelly Iko", label: "Kelly Iko" },
-  { key: "Danielle Lerner", label: "Danielle Lerner" },
   { key: "Ben DuBose", label: "Ben DuBose" },
   { key: "Jackson Gatlin", label: "Jackson Gatlin" },
   { key: "Adam Spolane", label: "Adam Spolane" },
