@@ -124,25 +124,18 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     )`;
   }
   if (category === "news") {
-    // 球队动态栏目：官方发布、一手快讯、随队名记推帖、采访原声、战报与伤病动态
+    // 球队动态栏目：聚焦火箭队官方发布、媒体专业新闻报道、战报与伤病动态；严禁个人社交推帖/队记推文混入（彻底杜绝同城橄榄球等非火箭推文）
     return sql`AND (
       p.category = 'news'
-      OR p.tags && ARRAY['球队动态', '官方动态', '随队动态', '一手情报', '伤病动态', '阵容动态', '赛后采访', '球员采访', '将帅原声', '训练营', '战报']::text[]
+      OR p.tags && ARRAY['球队动态', '官方动态', '伤病动态', '阵容动态', '战报']::text[]
       OR p.source_id IN (
         'rss-espn-nba', 'rss-yardbarker-rockets', 'rss-houstonchronicle-rockets', 'rss-thedreamshake', 'rss-rocketswire',
-        'x-rockets', 'x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire',
-        'x-kellyiko', 'x-jonathan-feigen', 'x-bengolliver', 'x-bendubose', 'x-jgatlin', 'x-adamspolane',
-        'x-clutchfans', 'x-lachardbinkley', 'x-varun-shankar', 'x-bradeaux', 'x-biased-houston'
-      )
-      OR (
-        (p.channel = 'x' OR p.source_id LIKE 'x-%')
-        AND (
-          p.tags && ARRAY['队记推文', '一手情报', '随队动态', '战报']::text[]
-          OR p.title ~* '(火箭|休斯敦|休斯顿|rockets|sengun|申京|green|格林|udoka|乌度卡|durant|杜兰特|smith|史密斯|vanvleet|范弗里特|sheppard|谢泼德|eason|伊森|amen|汤普森|whitmore|惠特莫尔|伤病|缺席|出战|首发|阵容|签约|交易|合同|训练|战胜|惜败|不敌|主帅|发布会)'
-        )
+        'rss-clutchfans-news', 'rss-bleacherreport-rockets', 'rss-si-rockets', 'rss-realgm-rockets', 'rss-hoopshype-rockets'
       )
     )
-      AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
+    AND p.channel != 'x'
+    AND p.source_id NOT LIKE 'x-%'
+    AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
   }
   // v1 and RSS publish opinion as tip.
   if (v1 && (category as string) === "tip") return sql`AND p.category IN ('tip', 'opinion')`;

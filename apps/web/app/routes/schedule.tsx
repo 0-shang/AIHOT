@@ -16,13 +16,13 @@ export function meta() {
 
 export default function SchedulePage() {
   return (
-    <div className="pb-8">
+    <div className="pb-10 pt-3 sm:pt-5">
       {/* 顶部标题与说明 */}
-      <div className="mb-6">
-        <h1 className="text-[24px] font-extrabold tracking-tight text-ink lg:text-3xl">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-[22px] font-black tracking-tight text-ink sm:text-[26px] lg:text-3xl">
           赛程战绩
         </h1>
-        <p className="mt-1 text-sm text-ink-3">
+        <p className="mt-1 text-xs text-ink-3 sm:text-sm">
           休斯敦火箭 2026-27 赛季官方赛程战果与全队球员技术统计
         </p>
       </div>

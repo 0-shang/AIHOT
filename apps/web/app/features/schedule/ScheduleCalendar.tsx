@@ -153,7 +153,7 @@ export function ScheduleCalendar() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <div className="w-full space-y-6 sm:space-y-7">
       {/* 实时同步提示条 */}
       {syncNotice && (
         <div className="mb-4 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between">

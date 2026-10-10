@@ -11,7 +11,7 @@ export function RocketsStandingsSection({ standings }: Props) {
   const [showHistoryStandings, setShowHistoryStandings] = useState(false);
 
   return (
-    <section className="bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 mb-6 text-xs transition-colors shadow-xs">
+    <section className="bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 text-xs transition-colors shadow-xs">
       {/* 季前赛官方阶段状态横幅（精简空间，减少大片空旷文本占用） */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">

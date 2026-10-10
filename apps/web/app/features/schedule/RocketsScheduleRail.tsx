@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import type { GameItem } from "./rocketsApi";
 
 interface Props {
@@ -9,7 +9,50 @@ interface Props {
 
 export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const hasInitializedMonth = useRef(false);
+
+  // 获取当前系统日期（YYYY-MM-DD）
+  const todayStr = useMemo(() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, []);
+
+  // 智能寻找距离今天最近的焦点场次（今天、明天或下一场待开赛场次）
+  const focusGameInfo = useMemo(() => {
+    if (!games || games.length === 0) return null;
+    // 1. 今天是否有比赛
+    const todayGame = games.find((g) => g.date === todayStr);
+    if (todayGame) return { game: todayGame, label: "今日对决", isHot: true };
+
+    // 2. 明天或最近未完赛的下一场比赛
+    const upcoming = games.find((g) => g.date >= todayStr && g.status !== "final") || games.find((g) => g.date >= todayStr);
+    if (upcoming) {
+      const isTomorrow = upcoming.date > todayStr &&
+        (new Date(upcoming.date).getTime() - new Date(todayStr).getTime()) <= 86400000 * 1.5;
+      return {
+        game: upcoming,
+        label: isTomorrow ? "明日焦点" : "下一场",
+        isHot: isTomorrow,
+      };
+    }
+
+    // 3. 兜底最新赛况
+    return { game: games[games.length - 1], label: "最新战况", isHot: false };
+  }, [games, todayStr]);
+
+  // 默认月份优先定位至当前焦点比赛的月份，而非生硬倾倒全部 83 场
   const [selectedMonth, setSelectedMonth] = useState<string>("ALL");
+
+  useEffect(() => {
+    if (!hasInitializedMonth.current && focusGameInfo?.game) {
+      const focusMonth = focusGameInfo.game.date.slice(0, 7);
+      setSelectedMonth(focusMonth);
+      hasInitializedMonth.current = true;
+    }
+  }, [focusGameInfo]);
 
   // 月份列表
   const months = useMemo(() => {
@@ -26,6 +69,19 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
     return games.filter((g) => g.date.startsWith(selectedMonth));
   }, [games, selectedMonth]);
 
+  // 自动将焦点场次滚动至视口中央
+  useEffect(() => {
+    if (focusGameInfo?.game && scrollRef.current) {
+      const cardEl = document.getElementById(`schedule-game-${focusGameInfo.game.id}`);
+      if (cardEl) {
+        const timer = setTimeout(() => {
+          cardEl.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        }, 120);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [focusGameInfo, selectedMonth]);
+
   const handleScroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const offset = direction === "left" ? -460 : 460;
@@ -40,51 +96,22 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
   };
 
   return (
-    <section className="mb-6">
-      {/* 头部精炼标题与月份筛选 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 px-0.5">
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-4 bg-[#CE1141] rounded-full inline-block"></span>
-          <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
-            2026-27 全季赛程与战报
-          </h2>
-          <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">
-            ({games.length} 场)
-          </span>
-        </div>
-
-        {/* 快速月份切换与滑动控制 */}
-        <div className="flex items-center gap-2 self-start sm:self-auto overflow-x-auto max-w-full pb-1 sm:pb-0">
-          <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs">
-            <button
-              type="button"
-              onClick={() => setSelectedMonth("ALL")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
-                selectedMonth === "ALL"
-                  ? "bg-[#CE1141] text-white font-bold"
-                  : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              全部
-            </button>
-            {months.map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setSelectedMonth(m)}
-                className={`px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${
-                  selectedMonth === m
-                    ? "bg-[#CE1141] text-white font-bold"
-                    : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
-                }`}
-              >
-                {getMonthLabel(m)}
-              </button>
-            ))}
+    <section>
+      {/* 头部标题与月份单行滑动轨道 */}
+      <div className="flex flex-col gap-2.5 mb-3 px-0.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-4 bg-[#CE1141] rounded-full inline-block"></span>
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
+              2026-27 全季赛程与战报
+            </h2>
+            <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">
+              ({games.length} 场)
+            </span>
           </div>
 
-          {/* 左右滑动指示按钮 */}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          {/* 桌面端左右翻页按钮 */}
+          <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
             <button
               type="button"
               onClick={() => handleScroll("left")}
@@ -103,12 +130,44 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
             </button>
           </div>
         </div>
+
+        {/* 现代移动优先月份胶囊栏：单行横滑、不换行不拥挤 */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none max-w-full -mx-1 px-1 sm:mx-0 sm:px-0">
+          <button
+            type="button"
+            onClick={() => setSelectedMonth("ALL")}
+            className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+              selectedMonth === "ALL"
+                ? "bg-[#CE1141] text-white shadow-xs font-bold"
+                : "bg-surface border border-line-soft text-ink-3 hover:text-ink hover:border-line-strong"
+            }`}
+          >
+            全部
+          </button>
+          {months.map((m) => {
+            const isActive = selectedMonth === m;
+            return (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setSelectedMonth(m)}
+                className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                  isActive
+                    ? "bg-[#CE1141] text-white shadow-xs font-bold"
+                    : "bg-surface border border-line-soft text-ink-3 hover:text-ink hover:border-line-strong"
+                }`}
+              >
+                {getMonthLabel(m)}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* 赛程卡片轨道：采用 NBA 官方规范队标 + 现代上下对阵记分牌，彻底摒弃虎扑方块缩写 */}
+      {/* 赛程卡片轨道：采用 NBA 官方规范队标 + 现代上下对阵记分牌 */}
       <div
         ref={scrollRef}
-        className="flex items-stretch gap-3 overflow-x-auto pb-2 scroll-smooth select-none focus:outline-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex items-stretch gap-3 overflow-x-auto pb-2 scroll-smooth select-none focus:outline-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1 sm:mx-0 sm:px-0"
       >
         {filteredGames.map((g) => {
           const isFinal = g.status === "final";
@@ -127,25 +186,35 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
           const isAwayRockets = awayTeam.abbr === "HOU";
           const isHomeRockets = homeTeam.abbr === "HOU";
 
+          const isFocusGame = focusGameInfo?.game.id === g.id;
+
           return (
             <div
               key={g.id}
+              id={`schedule-game-${g.id}`}
               onClick={() => isFinal && onSelectGame(g.id)}
               className={`flex-shrink-0 w-60 sm:w-64 rounded-xl p-3.5 border transition-all text-xs flex flex-col justify-between ${
-                isFinal
-                  ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md"
-                  : "cursor-default bg-slate-50/60 dark:bg-[#111317]"
+                isFocusGame
+                  ? "ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/20 dark:bg-[#1c1114] shadow-sm"
+                  : isFinal
+                    ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md border-slate-200 dark:border-white/10"
+                    : "cursor-default bg-slate-50/60 dark:bg-[#111317] border-slate-200 dark:border-white/10"
               } ${
-                isSelected
-                  ? "border-[#CE1141] ring-1 ring-[#CE1141] bg-red-50/20 dark:bg-[#1c1316]"
-                  : "border-slate-200 dark:border-white/10"
+                isSelected ? "border-[#CE1141] ring-2 ring-[#CE1141]" : ""
               }`}
             >
-              {/* 卡片顶部：比赛时间、赛段与状态 */}
+              {/* 卡片顶部：比赛时间、焦点标记与状态 */}
               <div className="flex items-center justify-between text-[11px] pb-2 mb-2 border-b border-slate-100 dark:border-white/5">
-                <span className="font-mono text-slate-600 dark:text-zinc-400 font-medium">
-                  {g.date.slice(5)} {g.time}
-                </span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-mono text-slate-600 dark:text-zinc-400 font-medium">
+                    {g.date.slice(5)} {g.time}
+                  </span>
+                  {isFocusGame && (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#CE1141] text-white animate-pulse shrink-0">
+                      {focusGameInfo.label}
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] text-slate-400 dark:text-zinc-500">
                     {g.stage === "preseason" ? "季前赛" : "常规赛"}

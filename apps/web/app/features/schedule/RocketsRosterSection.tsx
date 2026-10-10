@@ -132,24 +132,14 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
   };
 
   return (
-    <section className="mb-12">
+    <section>
       {/* 头部控制栏：标题、位置筛选、搜索 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 px-0.5">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-4 bg-[#CE1141] rounded-full inline-block"></span>
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
-              2026-27 赛季火箭官方球员名册与技术统计
-            </h2>
-            <span className="text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-400">
-              ESPN 大名单 ({players.length}人)
-            </span>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
-            {has2026Stats
-              ? "显示 2026-27 赛季常规赛最新数据 · 点击各表头可多维度排序 · 点击球员查看档案"
-              : "当前呈现 2025-26 赛季数据 · 2026-27 常规赛打响后自动切换最新数据 · 支持点击表头排序"}
-          </p>
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-4 bg-[#CE1141] rounded-full inline-block"></span>
+          <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
+            2026-27 赛季火箭官方球员名册与技术统计
+          </h2>
         </div>
 
         {/* 筛选与搜索控件 */}
@@ -443,43 +433,43 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
                   <span className="text-slate-400 dark:text-zinc-500 text-sm">›</span>
                 </div>
 
-                {/* 核心数据单体流线长条 (长条设计，非分立方块) */}
-                <div className="flex items-center justify-between bg-slate-50 dark:bg-white/[0.04] px-2 py-1.5 rounded-lg border border-slate-200/60 dark:border-white/5 font-mono text-xs">
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-sans">分</span>
-                    <span className={`font-bold text-sm ${isHighScorer ? "text-[#CE1141]" : "text-slate-900 dark:text-white"}`}>
+                {/* 核心数据流线长条：网格化均分，严密适配各种手机屏幕宽度，三分命中率及全部数值永不溢出 */}
+                <div className="grid grid-cols-6 gap-0.5 rounded-lg bg-slate-50 dark:bg-white/[0.04] p-1.5 border border-slate-200/60 dark:border-white/5 text-center font-mono">
+                  <div className="flex flex-col items-center justify-center min-w-0">
+                    <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">得分</span>
+                    <span className={`text-xs font-bold leading-tight ${isHighScorer ? "text-[#CE1141]" : "text-slate-900 dark:text-white"}`}>
                       {s.pts ? s.pts.toFixed(1) : "--"}
                     </span>
                   </div>
-                  <span className="text-slate-200 dark:text-zinc-700">|</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-sans">板</span>
-                    <span className="font-semibold text-slate-800 dark:text-zinc-200">{s.reb ? s.reb.toFixed(1) : "--"}</span>
+                  <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
+                    <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">篮板</span>
+                    <span className="text-xs font-semibold leading-tight text-slate-800 dark:text-zinc-200">
+                      {s.reb ? s.reb.toFixed(1) : "--"}
+                    </span>
                   </div>
-                  <span className="text-slate-200 dark:text-zinc-700">|</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-sans">助</span>
-                    <span className="font-semibold text-slate-800 dark:text-zinc-200">{s.ast ? s.ast.toFixed(1) : "--"}</span>
+                  <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
+                    <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">助攻</span>
+                    <span className="text-xs font-semibold leading-tight text-slate-800 dark:text-zinc-200">
+                      {s.ast ? s.ast.toFixed(1) : "--"}
+                    </span>
                   </div>
-                  <span className="text-slate-200 dark:text-zinc-700">|</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-sans">断</span>
-                    <span className="text-slate-700 dark:text-zinc-300">{s.stl ? s.stl.toFixed(1) : "--"}</span>
+                  <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
+                    <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">抢断</span>
+                    <span className="text-xs font-medium leading-tight text-slate-700 dark:text-zinc-300">
+                      {s.stl ? s.stl.toFixed(1) : "--"}
+                    </span>
                   </div>
-                  <span className="text-slate-200 dark:text-zinc-700">|</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-sans">帽</span>
-                    <span className="text-slate-700 dark:text-zinc-300">{s.blk ? s.blk.toFixed(1) : "--"}</span>
+                  <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
+                    <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">投篮</span>
+                    <span className="text-xs font-medium leading-tight text-slate-700 dark:text-zinc-300">
+                      {s.fgPct ? `${s.fgPct.toFixed(0)}%` : "--"}
+                    </span>
                   </div>
-                  <span className="text-slate-200 dark:text-zinc-700">|</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-sans">投%</span>
-                    <span className="text-slate-700 dark:text-zinc-300 text-[11px]">{s.fgPct ? `${s.fgPct.toFixed(0)}%` : "--"}</span>
-                  </div>
-                  <span className="text-slate-200 dark:text-zinc-700">|</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-400 dark:text-zinc-500 text-[10px] font-sans">3P%</span>
-                    <span className="text-slate-700 dark:text-zinc-300 text-[11px]">{s.threePtPct ? `${s.threePtPct.toFixed(0)}%` : "--"}</span>
+                  <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
+                    <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">三分</span>
+                    <span className="text-xs font-medium leading-tight text-slate-700 dark:text-zinc-300">
+                      {s.threePtPct ? `${s.threePtPct.toFixed(0)}%` : "--"}
+                    </span>
                   </div>
                 </div>
               </div>

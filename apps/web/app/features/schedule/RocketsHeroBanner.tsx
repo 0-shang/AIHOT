@@ -22,7 +22,7 @@ export function RocketsHeroBanner({
   const rankDisplay = isRegularSeasonStarted ? `西部第 ${standings?.rocketsRank}` : "#";
 
   return (
-    <div className="bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 mb-5 shadow-xs transition-colors">
+    <div className="bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 shadow-xs transition-colors">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* 左侧：火箭官方高精队标与主标题 */}
         <div className="flex items-center gap-3.5">
