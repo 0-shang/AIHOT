@@ -158,15 +158,21 @@ export class EspnClient {
           };
         }
 
+        const rawArena = comp.venue?.fullName || "";
+        const arena = rawArena.toLowerCase().includes("venetian") || rawArena.includes("Macau") || ev.id === "401898395" || ev.id === "401898400"
+          ? "澳门威尼斯人综艺馆"
+          : rawArena || (isHome ? "丰田中心" : "客场球馆");
+        const isPre = ev.seasonType === 1 || ev.season?.type === 1 || dateStr < "2026-10-22";
+
         games.push({
           id: ev.id,
           date: dateStr,
           time: timeStr,
           opponent,
           isHome,
-          arena: comp.venue?.fullName || (isHome ? "丰田中心" : "客场球馆"),
+          arena,
           broadcast: comp.broadcasts?.[0]?.names?.[0] || "腾讯体育 / 咪咕",
-          stage: ev.seasonType === 1 ? "preseason" : "regular",
+          stage: isPre ? "preseason" : "regular",
           status: isCompleted ? "final" : "upcoming",
           result,
         });
@@ -255,15 +261,21 @@ export class EspnClient {
       const rScore = Number(rocketsComp?.score || 0);
       const oScore = Number(oppComp?.score || 0);
 
+      const rawArena = comp?.venue?.fullName || "";
+      const arena = rawArena.toLowerCase().includes("venetian") || rawArena.includes("Macau") || gameId === "401898395" || gameId === "401898400"
+        ? "澳门威尼斯人综艺馆"
+        : rawArena || "丰田中心";
+      const isPre = data.header?.season?.type === 1 || dateStr < "2026-10-22";
+
       const gameItem: GameItem = {
         id: gameId,
         date: dateStr,
         time: timeStr,
         opponent: oppInfo,
         isHome: rocketsComp?.homeAway === "home",
-        arena: comp?.venue?.fullName || "丰田中心",
+        arena,
         broadcast: "腾讯体育 / 咪咕",
-        stage: "regular",
+        stage: isPre ? "preseason" : "regular",
         status: "final",
         result: {
           outcome: rScore >= oScore ? "W" : "L",

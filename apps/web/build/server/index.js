@@ -3725,23 +3725,23 @@ function RocketsStandingsSection({ standings }) {
 						className: "bg-slate-50 dark:bg-white/[0.02] text-slate-600 dark:text-zinc-400 border-b border-slate-200 dark:border-white/5 text-[11px] font-semibold select-none",
 						children: [
 							/* @__PURE__ */ jsx("th", {
-								className: "py-2.5 px-1.5 text-center w-8 sm:w-10",
+								className: "py-2.5 px-1 text-center w-[7%] sm:w-8",
 								children: "#"
 							}),
 							/* @__PURE__ */ jsx("th", {
-								className: "py-2.5 px-2 w-[34%] sm:w-[24%] md:w-[20%]",
+								className: "py-2.5 px-1.5 w-[57%] sm:w-[28%] md:w-[22%]",
 								children: "球队"
 							}),
 							/* @__PURE__ */ jsx("th", {
-								className: "py-2.5 px-1 text-center w-[12%] sm:w-[9%] md:w-[7%] text-slate-900 dark:text-white font-bold",
+								className: "py-2.5 px-0.5 text-center w-[12%] sm:w-[8%] md:w-[6%] text-slate-900 dark:text-white font-bold",
 								children: "胜"
 							}),
 							/* @__PURE__ */ jsx("th", {
-								className: "py-2.5 px-1 text-center w-[12%] sm:w-[9%] md:w-[7%]",
+								className: "py-2.5 px-0.5 text-center w-[12%] sm:w-[8%] md:w-[6%]",
 								children: "负"
 							}),
 							/* @__PURE__ */ jsx("th", {
-								className: "py-2.5 px-1 text-center w-[14%] sm:w-[10%] md:w-[8%]",
+								className: "py-2.5 px-0.5 text-center w-[12%] sm:w-[10%] md:w-[8%]",
 								children: "胜差"
 							}),
 							/* @__PURE__ */ jsx("th", {
@@ -3790,13 +3790,13 @@ function RocketsStandingsSection({ standings }) {
 								className: isRockets ? "bg-red-50/60 dark:bg-[#CE1141]/10 font-bold border-l-2 border-l-[#CE1141]" : isPlayoffDirect ? "hover:bg-slate-50 dark:hover:bg-white/[0.02] border-l-2 border-l-emerald-500/40" : isPlayIn ? "hover:bg-slate-50 dark:hover:bg-white/[0.02] border-l-2 border-l-amber-500/40" : "text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-white/[0.02] border-l-2 border-l-transparent",
 								children: [
 									/* @__PURE__ */ jsx("td", {
-										className: "py-2 px-1 text-center text-slate-500 dark:text-zinc-400 text-[11px] font-bold",
+										className: "py-2 px-0.5 text-center text-slate-500 dark:text-zinc-400 text-[11px] font-bold",
 										children: team.rank
 									}),
 									/* @__PURE__ */ jsx("td", {
-										className: "py-2 px-2 font-sans truncate",
+										className: "py-2 px-1.5 font-sans min-w-0",
 										children: /* @__PURE__ */ jsxs("div", {
-											className: "flex items-center gap-2 truncate",
+											className: "flex items-center gap-1.5 min-w-0",
 											children: [/* @__PURE__ */ jsx("img", {
 												src: teamLogoUrl,
 												alt: displayName,
@@ -3806,7 +3806,7 @@ function RocketsStandingsSection({ standings }) {
 													e.target.style.display = "none";
 												}
 											}), /* @__PURE__ */ jsx("span", {
-												className: `text-xs truncate ${isRockets ? "text-[#CE1141] font-bold" : "text-slate-800 dark:text-zinc-200"}`,
+												className: `text-xs whitespace-nowrap overflow-hidden text-ellipsis ${isRockets ? "text-[#CE1141] font-bold" : "text-slate-800 dark:text-zinc-200"}`,
 												children: displayName
 											})]
 										})
@@ -3878,8 +3878,10 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 			setSortAsc(false);
 		}
 	};
-	const has2026Stats = useMemo(() => {
-		return players.some((p) => p.seasons?.["2026-27"] && p.seasons["2026-27"].gp > 0);
+	const is2026SeasonActive = useMemo(() => {
+		const hasRealStats = players.some((p) => p.seasons?.["2026-27"] && p.seasons["2026-27"].gp > 0);
+		const isRegularSeasonStarted = (/* @__PURE__ */ new Date()).toISOString() >= "2026-10-22";
+		return hasRealStats || isRegularSeasonStarted;
 	}, [players]);
 	const filteredPlayers = useMemo(() => {
 		return players.filter((p) => {
@@ -3892,8 +3894,8 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 			}
 			return true;
 		}).sort((a, b) => {
-			const sA = has2026Stats && a.seasons?.["2026-27"]?.gp ? a.seasons["2026-27"] : a.seasons?.["2025-26"] || a.stats;
-			const sB = has2026Stats && b.seasons?.["2026-27"]?.gp ? b.seasons["2026-27"] : b.seasons?.["2025-26"] || b.stats;
+			const sA = is2026SeasonActive && a.seasons?.["2026-27"]?.gp ? a.seasons["2026-27"] : a.seasons?.["2025-26"] || a.stats;
+			const sB = is2026SeasonActive && b.seasons?.["2026-27"]?.gp ? b.seasons["2026-27"] : b.seasons?.["2025-26"] || b.stats;
 			let valA = 0;
 			let valB = 0;
 			switch (sortField) {
@@ -3957,7 +3959,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 		searchQuery,
 		sortField,
 		sortAsc,
-		has2026Stats
+		is2026SeasonActive
 	]);
 	const renderSortArrow = (field) => {
 		if (sortField !== field) return /* @__PURE__ */ jsx("span", {
@@ -4103,7 +4105,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 						className: "py-8 text-center text-slate-400 dark:text-zinc-500 font-sans",
 						children: "未找到匹配球员"
 					}) }) : filteredPlayers.map((p) => {
-						const s = has2026Stats && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats;
+						const s = is2026SeasonActive && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats;
 						const isTopStar = p.nameEn.includes("Durant") || p.nameEn.includes("Sengun");
 						return /* @__PURE__ */ jsxs("tr", {
 							onClick: () => onSelectPlayer(p),
@@ -4209,7 +4211,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 				className: "py-8 text-center text-slate-400 dark:text-zinc-500 text-xs",
 				children: "未找到匹配球员"
 			}) : filteredPlayers.map((p) => {
-				const s = has2026Stats && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats;
+				const s = is2026SeasonActive && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats;
 				const isHighScorer = s.pts >= 18;
 				return /* @__PURE__ */ jsxs("div", {
 					onClick: () => onSelectPlayer(p),
@@ -4407,7 +4409,7 @@ function RocketsGameDetail({ breakdown, isLoading, onClose }) {
 										}),
 										/* @__PURE__ */ jsx("span", {
 											className: "text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5 truncate max-w-[150px]",
-											children: game.arena
+											children: game.id === "401898395" || game.id === "401898400" || game.arena?.toLowerCase().includes("venetian") ? "澳门威尼斯人综艺馆" : game.arena
 										})
 									]
 								}),
@@ -4845,15 +4847,20 @@ function RocketsPlayerModal({ player, onClose }) {
 		if (!player) return [];
 		return Object.keys(player.playoffSeasons || {}).sort().reverse();
 	}, [player]);
-	const has2026RegularData = useMemo(() => {
-		return !!player?.seasons?.["2026-27"] && player.seasons["2026-27"].gp > 0;
+	const is2026NewSeason = useMemo(() => {
+		const hasData = !!player?.seasons?.["2026-27"] && player.seasons["2026-27"].gp > 0;
+		const isSeasonDateStarted = (/* @__PURE__ */ new Date()).toISOString() >= "2026-10-22";
+		return hasData || isSeasonDateStarted;
 	}, [player]);
 	const defaultSeason = useMemo(() => {
-		if (has2026RegularData) return "2026-27";
+		if (is2026NewSeason && player?.seasons?.["2026-27"]) return "2026-27";
 		if (player?.seasons?.["2025-26"]) return "2025-26";
 		return player?.currentSeason || "2026-27";
-	}, [has2026RegularData, player]);
+	}, [is2026NewSeason, player]);
 	const [selectedSeason, setSelectedSeason] = useState(defaultSeason);
+	useEffect(() => {
+		setSelectedSeason(defaultSeason);
+	}, [defaultSeason, player?.id]);
 	const [competitionType, setCompetitionType] = useState("regular");
 	const [historyTableTab, setHistoryTableTab] = useState("regular");
 	if (!player) return null;
@@ -5533,7 +5540,7 @@ function ScheduleCalendar() {
 			activePlayer && /* @__PURE__ */ jsx(RocketsPlayerModal, {
 				player: activePlayer,
 				onClose: handleClosePlayer
-			})
+			}, activePlayer.id)
 		]
 	});
 }
@@ -21631,7 +21638,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-C3_z7tHn.js",
+			"module": "/assets/root-DExZzlTo.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
@@ -21639,7 +21646,7 @@ var server_manifest_default = {
 				"/assets/Chrome-BmT2qpYg.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-zdhQ1Yjm.css"],
+			"css": ["/assets/root-BeVhWObo.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -21705,7 +21712,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-BVLNs9pI.js",
+			"module": "/assets/schedule-CIA5tYVu.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22956,8 +22963,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-43e97b71.js",
-	"version": "43e97b71",
+	"url": "/assets/manifest-0188f90d.js",
+	"version": "0188f90d",
 	"sri": void 0
 };
 //#endregion

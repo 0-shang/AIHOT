@@ -207,6 +207,7 @@ export function ScheduleCalendar() {
       {/* 球员档案与多赛季常规赛/季后赛数据弹窗 (Player Profile Modal) */}
       {activePlayer && (
         <RocketsPlayerModal
+          key={activePlayer.id}
           player={activePlayer}
           onClose={handleClosePlayer}
         />

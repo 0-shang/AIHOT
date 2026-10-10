@@ -36,11 +36,13 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
     }
   };
 
-  // 检查是否已有 2026-27 常规赛数据
-  const has2026Stats = useMemo(() => {
-    return players.some(
+  // 检查是否进入 2026-27 新赛季（常规赛打响或抓取到最新实战数据）
+  const is2026SeasonActive = useMemo(() => {
+    const hasRealStats = players.some(
       (p) => p.seasons?.["2026-27"] && p.seasons["2026-27"].gp > 0
     );
+    const isRegularSeasonStarted = new Date().toISOString() >= "2026-10-22";
+    return hasRealStats || isRegularSeasonStarted;
   }, [players]);
 
   const filteredPlayers = useMemo(() => {
@@ -61,8 +63,8 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
         return true;
       })
       .sort((a, b) => {
-        const sA = (has2026Stats && a.seasons?.["2026-27"]?.gp ? a.seasons["2026-27"] : a.seasons?.["2025-26"] || a.stats);
-        const sB = (has2026Stats && b.seasons?.["2026-27"]?.gp ? b.seasons["2026-27"] : b.seasons?.["2025-26"] || b.stats);
+        const sA = (is2026SeasonActive && a.seasons?.["2026-27"]?.gp ? a.seasons["2026-27"] : a.seasons?.["2025-26"] || a.stats);
+        const sB = (is2026SeasonActive && b.seasons?.["2026-27"]?.gp ? b.seasons["2026-27"] : b.seasons?.["2025-26"] || b.stats);
 
         let valA = 0;
         let valB = 0;
@@ -124,7 +126,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
 
         return sortAsc ? valA - valB : valB - valA;
       });
-  }, [players, filterPos, searchQuery, sortField, sortAsc, has2026Stats]);
+  }, [players, filterPos, searchQuery, sortField, sortAsc, is2026SeasonActive]);
 
   const renderSortArrow = (field: SortField) => {
     if (sortField !== field) return <span className="text-slate-400 dark:text-zinc-600 ml-0.5 text-[10px]">↕</span>;
@@ -269,7 +271,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
               </tr>
             ) : (
               filteredPlayers.map((p) => {
-                const s = (has2026Stats && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats);
+                const s = (is2026SeasonActive && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats);
                 const isTopStar = p.nameEn.includes("Durant") || p.nameEn.includes("Sengun");
 
                 return (
@@ -392,7 +394,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
           </div>
         ) : (
           filteredPlayers.map((p) => {
-            const s = (has2026Stats && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats);
+            const s = (is2026SeasonActive && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats);
             const isHighScorer = s.pts >= 18;
 
             return (

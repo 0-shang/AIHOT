@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { PlayerStatsData, SeasonAverages } from "./rocketsApi";
 
 interface Props {
@@ -19,19 +19,26 @@ export function RocketsPlayerModal({ player, onClose }: Props) {
     return Object.keys(player.playoffSeasons || {}).sort().reverse();
   }, [player]);
 
-  // 判断 2026-27 是否已有常规赛实战数据
-  const has2026RegularData = useMemo(() => {
-    return !!player?.seasons?.["2026-27"] && player.seasons["2026-27"].gp > 0;
+  // 判断 2026-27 是否已有常规赛实战数据或常规赛已开打
+  const is2026NewSeason = useMemo(() => {
+    const hasData = !!player?.seasons?.["2026-27"] && player.seasons["2026-27"].gp > 0;
+    const isSeasonDateStarted = new Date().toISOString() >= "2026-10-22";
+    return hasData || isSeasonDateStarted;
   }, [player]);
 
-  // 默认选中：2026-27 有数据则选 2026-27；否则选最新具备统计记录的赛季 (2025-26)
+  // 默认选中：2026-27 赛季开打或有实战数据，打开详情页默认呈现 2026-27；否则展示上一赛季 2025-26
   const defaultSeason = useMemo(() => {
-    if (has2026RegularData) return "2026-27";
+    if (is2026NewSeason && player?.seasons?.["2026-27"]) return "2026-27";
     if (player?.seasons?.["2025-26"]) return "2025-26";
     return player?.currentSeason || "2026-27";
-  }, [has2026RegularData, player]);
+  }, [is2026NewSeason, player]);
 
   const [selectedSeason, setSelectedSeason] = useState<string>(defaultSeason);
+
+  // 切换球员或进入新赛季后自动重置为新赛季
+  useEffect(() => {
+    setSelectedSeason(defaultSeason);
+  }, [defaultSeason, player?.id]);
   // 常规赛 vs 季后赛 切换模式
   const [competitionType, setCompetitionType] = useState<"regular" | "playoff">("regular");
   // 底下生涯对照表类型

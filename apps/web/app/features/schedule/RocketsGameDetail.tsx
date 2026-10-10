@@ -78,7 +78,11 @@ export function RocketsGameDetail({ breakdown, isLoading, onClose }: Props) {
                 {isRocketsWin ? "火箭胜" : "告负"}
               </span>
               <span className="text-xs text-slate-600 dark:text-zinc-400 font-mono font-medium">{game.date} · {game.time}</span>
-              <span className="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5 truncate max-w-[150px]">{game.arena}</span>
+              <span className="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5 truncate max-w-[150px]">
+                {game.id === "401898395" || game.id === "401898400" || game.arena?.toLowerCase().includes("venetian")
+                  ? "澳门威尼斯人综艺馆"
+                  : game.arena}
+              </span>
             </div>
 
             {/* 对手球队 */}

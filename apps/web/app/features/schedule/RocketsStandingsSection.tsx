@@ -59,11 +59,11 @@ export function RocketsStandingsSection({ standings }: Props) {
             <table className="w-full text-left text-xs table-fixed">
               <thead>
                 <tr className="bg-slate-50 dark:bg-white/[0.02] text-slate-600 dark:text-zinc-400 border-b border-slate-200 dark:border-white/5 text-[11px] font-semibold select-none">
-                  <th className="py-2.5 px-1.5 text-center w-8 sm:w-10">#</th>
-                  <th className="py-2.5 px-2 w-[34%] sm:w-[24%] md:w-[20%]">球队</th>
-                  <th className="py-2.5 px-1 text-center w-[12%] sm:w-[9%] md:w-[7%] text-slate-900 dark:text-white font-bold">胜</th>
-                  <th className="py-2.5 px-1 text-center w-[12%] sm:w-[9%] md:w-[7%]">负</th>
-                  <th className="py-2.5 px-1 text-center w-[14%] sm:w-[10%] md:w-[8%]">胜差</th>
+                  <th className="py-2.5 px-1 text-center w-[7%] sm:w-8">#</th>
+                  <th className="py-2.5 px-1.5 w-[57%] sm:w-[28%] md:w-[22%]">球队</th>
+                  <th className="py-2.5 px-0.5 text-center w-[12%] sm:w-[8%] md:w-[6%] text-slate-900 dark:text-white font-bold">胜</th>
+                  <th className="py-2.5 px-0.5 text-center w-[12%] sm:w-[8%] md:w-[6%]">负</th>
+                  <th className="py-2.5 px-0.5 text-center w-[12%] sm:w-[10%] md:w-[8%]">胜差</th>
                   <th className="py-2.5 px-1.5 text-center hidden sm:table-cell w-[11%] md:w-[8%]">胜率</th>
                   <th className="py-2.5 px-1 text-center hidden md:table-cell w-[7%]">连胜/负</th>
                   <th className="py-2.5 px-1.5 text-center hidden md:table-cell w-[9%]">近10场</th>
@@ -106,13 +106,13 @@ export function RocketsStandingsSection({ standings }: Props) {
                       }
                     >
                       {/* 排名序号 */}
-                      <td className="py-2 px-1 text-center text-slate-500 dark:text-zinc-400 text-[11px] font-bold">
+                      <td className="py-2 px-0.5 text-center text-slate-500 dark:text-zinc-400 text-[11px] font-bold">
                         {team.rank}
                       </td>
 
-                      {/* 队名与官方队标（紧凑协调，无巨幅留白） */}
-                      <td className="py-2 px-2 font-sans truncate">
-                        <div className="flex items-center gap-2 truncate">
+                      {/* 队名与官方队标（超宽显示空间，绝不折叠截断） */}
+                      <td className="py-2 px-1.5 font-sans min-w-0">
+                        <div className="flex items-center gap-1.5 min-w-0">
                           <img
                             src={teamLogoUrl}
                             alt={displayName}
@@ -122,7 +122,7 @@ export function RocketsStandingsSection({ standings }: Props) {
                               (e.target as HTMLElement).style.display = "none";
                             }}
                           />
-                          <span className={`text-xs truncate ${isRockets ? "text-[#CE1141] font-bold" : "text-slate-800 dark:text-zinc-200"}`}>
+                          <span className={`text-xs whitespace-nowrap overflow-hidden text-ellipsis ${isRockets ? "text-[#CE1141] font-bold" : "text-slate-800 dark:text-zinc-200"}`}>
                             {displayName}
                           </span>
                         </div>

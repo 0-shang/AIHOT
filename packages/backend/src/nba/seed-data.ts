@@ -13,9 +13,9 @@ export const SEED_GAMES: GameItem[] = [
       "logoText": "DAL"
     },
     "isHome": false,
-    "arena": "Venetian Arena",
+    "arena": "澳门威尼斯人综艺馆",
     "broadcast": "腾讯体育 / 咪咕",
-    "stage": "regular",
+    "stage": "preseason",
     "status": "final",
     "result": {
       "outcome": "W",
@@ -35,9 +35,9 @@ export const SEED_GAMES: GameItem[] = [
       "logoText": "DAL"
     },
     "isHome": true,
-    "arena": "Venetian Arena",
+    "arena": "澳门威尼斯人综艺馆",
     "broadcast": "腾讯体育 / 咪咕",
-    "stage": "regular",
+    "stage": "preseason",
     "status": "upcoming"
   },
   {
@@ -52,9 +52,9 @@ export const SEED_GAMES: GameItem[] = [
       "logoText": "OKC"
     },
     "isHome": true,
-    "arena": "Toyota Center (Houston)",
+    "arena": "丰田中心",
     "broadcast": "腾讯体育 / 咪咕",
-    "stage": "regular",
+    "stage": "preseason",
     "status": "upcoming"
   },
   {
