@@ -277,52 +277,6 @@
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-fadeawayworld",
-      "name": "Fadeaway World (休斯敦火箭深度球评与战术剖析)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://fadeawayworld.net/feed",
-        "_aihot": {
-          "initialBackfillLimit": 12
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 25,
-      "tags": [
-        "深度专栏",
-        "战术分析",
-        "球员前瞻"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-theleadsports",
-      "name": "The Lead Sports (NBA硬核深度战术长文)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://theleadsm.com/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 12
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 30,
-      "tags": [
-        "深度专栏",
-        "战术拆解",
-        "高阶战术"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
-    {
       "id": "rss-espn-nba",
       "name": "ESPN NBA (休斯敦火箭战报与权威快讯)",
       "kind": "rss",

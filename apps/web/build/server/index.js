@@ -208,7 +208,7 @@ function addDays(date, days) {
 	const t = Date.parse(`${date}T00:00:00Z`) + days * 864e5;
 	return new Date(t).toISOString().slice(0, 10);
 }
-var WEEKDAYS$2 = [
+var WEEKDAYS$1 = [
 	"星期日",
 	"星期一",
 	"星期二",
@@ -218,7 +218,7 @@ var WEEKDAYS$2 = [
 	"星期六"
 ];
 function beijingWeekday(date) {
-	return WEEKDAYS$2[(/* @__PURE__ */ new Date(`${date}T00:00:00Z`)).getUTCDay()];
+	return WEEKDAYS$1[(/* @__PURE__ */ new Date(`${date}T00:00:00Z`)).getUTCDay()];
 }
 //#endregion
 //#region app/lib/local-state.ts
@@ -3165,7 +3165,7 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 						className: "flex items-baseline justify-between pb-3 pt-3",
 						children: [/* @__PURE__ */ jsx("h1", {
 							className: "text-[22px] font-black text-ink",
-							children: title ?? "火箭队资讯"
+							children: title ?? "ClutchWire"
 						}), !f.q && /* @__PURE__ */ jsxs("span", {
 							className: "text-[12.5px] text-ink-4",
 							children: [
@@ -3302,2860 +3302,2231 @@ function SearchBusy() {
 	});
 }
 //#endregion
-//#region app/features/schedule/rocketsSchedule.ts
-var ROCKETS_GAMES = [
-	{
-		"id": "401898395",
-		"date": "2026-10-09",
-		"time": "20:00",
-		"opponent": {
-			"name": "独行侠",
-			"city": "达拉斯",
-			"abbr": "DAL",
-			"color": "#00538C",
-			"logoText": "DAL"
-		},
-		"isHome": false,
-		"arena": "中国澳门·威尼斯人金光综艺馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "preseason",
-		"status": "final",
-		"keyMatchup": "杜兰特 & 申京 vs 东契奇 & 欧文",
-		"previewNotes": "NBA 澳门赛首战，威尼斯人金光综艺馆全场爆满，杜兰特火箭正式首秀战宿敌独行侠！",
-		"result": {
-			"outcome": "W",
-			"rocketsScore": 135,
-			"opponentScore": 117,
-			"topPerformer": {
-				"name": "阿尔佩伦·申京",
-				"stats": "16分 10篮板 10助攻 (三双)"
-			},
-			"highlights": "伊森狂砍20分7板3断，申京轻取三双，范弗里特5记三分，火箭末节一波流135-117大胜独行侠！"
-		}
-	},
-	{
-		"id": "401898400",
-		"date": "2026-10-11",
-		"time": "18:00",
-		"opponent": {
-			"name": "独行侠",
-			"city": "达拉斯",
-			"abbr": "DAL",
-			"color": "#00538C",
-			"logoText": "DAL"
-		},
-		"isHome": true,
-		"arena": "中国澳门·威尼斯人金光综艺馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "preseason",
-		"status": "upcoming",
-		"keyMatchup": "阿门·汤普森 & 谢泼德 vs 独行侠后场",
-		"previewNotes": "澳门赛第二战焦点二番对决，乌度卡检验轮换深度与外线防守夹击策略。"
-	},
-	{
-		"id": "401908622",
-		"date": "2026-10-16",
-		"time": "08:30",
-		"opponent": {
-			"name": "雷霆",
-			"city": "俄克拉荷马",
-			"abbr": "OKC",
-			"color": "#007AC1",
-			"logoText": "OKC"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "preseason",
-		"status": "upcoming",
-		"keyMatchup": "阿门·汤普森 vs 谢伊·吉尔杰斯-亚历山大",
-		"previewNotes": "年轻一代顶级强强对话！阿门外线领防SGA，杜兰特半场攻坚拆解雷霆防线。"
-	},
-	{
-		"id": "401909840",
-		"date": "2026-10-22",
-		"time": "08:30",
-		"opponent": {
-			"name": "独行侠",
-			"city": "达拉斯",
-			"abbr": "DAL",
-			"color": "#00538C",
-			"logoText": "DAL"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 阿门·汤普森 vs 东契奇 / 欧文",
-		"previewNotes": "得州内战焦点对决，休斯敦锋线群与达拉斯后场双核高强度对冲。"
-	},
-	{
-		"id": "401909096",
-		"date": "2026-10-24",
-		"time": "09:30",
-		"opponent": {
-			"name": "马刺",
-			"city": "圣安东尼奥",
-			"abbr": "SAS",
-			"color": "#6c757d",
-			"logoText": "SAS"
-		},
-		"isHome": false,
-		"arena": "奥斯汀·穆迪中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿尔佩伦·申京 vs 维克托·文班亚马",
-		"previewNotes": "得州新星中锋巅峰对决！申京策应低位技术与文班亚马超级防守大网的正面对抗。"
-	},
-	{
-		"id": "401909856",
-		"date": "2026-10-25",
-		"time": "08:00",
-		"opponent": {
-			"name": "老鹰",
-			"city": "亚特兰大",
-			"abbr": "ATL",
-			"color": "#C8102E",
-			"logoText": "ATL"
-		},
-		"isHome": false,
-		"arena": "亚特兰大·州立农业球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 特雷·杨",
-		"previewNotes": "客场挑战亚特兰大老鹰，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401909874",
-		"date": "2026-10-27",
-		"time": "08:30",
-		"opponent": {
-			"name": "老鹰",
-			"city": "亚特兰大",
-			"abbr": "ATL",
-			"color": "#C8102E",
-			"logoText": "ATL"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 特雷·杨",
-		"previewNotes": "主场迎战亚特兰大老鹰，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401909887",
-		"date": "2026-10-29",
-		"time": "08:00",
-		"opponent": {
-			"name": "雄鹿",
-			"city": "密尔沃基",
-			"abbr": "MIL",
-			"color": "#00471B",
-			"logoText": "MIL"
-		},
-		"isHome": false,
-		"arena": "密尔沃基·第一服务广场",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 字母哥阿德托昆博 & 利拉德",
-		"previewNotes": "休斯敦内线筑起禁区长城对抗希腊怪兽，外线遏制利拉德超远三分。"
-	},
-	{
-		"id": "401909283",
-		"date": "2026-10-31",
-		"time": "08:00",
-		"opponent": {
-			"name": "独行侠",
-			"city": "达拉斯",
-			"abbr": "DAL",
-			"color": "#00538C",
-			"logoText": "DAL"
-		},
-		"isHome": false,
-		"arena": "达拉斯·美航中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "cup",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 阿门·汤普森 vs 东契奇 / 欧文",
-		"previewNotes": "得州内战焦点对决，休斯敦锋线群与达拉斯后场双核高强度对冲。"
-	},
-	{
-		"id": "401909902",
-		"date": "2026-11-01",
-		"time": "08:30",
-		"opponent": {
-			"name": "雷霆",
-			"city": "俄克拉荷马",
-			"abbr": "OKC",
-			"color": "#007AC1",
-			"logoText": "OKC"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿门·汤普森 vs 谢伊·吉尔杰斯-亚历山大",
-		"previewNotes": "年轻一代顶级强强对话！阿门外线领防SGA，杜兰特半场攻坚拆解雷霆防线。"
-	},
-	{
-		"id": "401909916",
-		"date": "2026-11-03",
-		"time": "09:30",
-		"opponent": {
-			"name": "凯尔特人",
-			"city": "波士顿",
-			"abbr": "BOS",
-			"color": "#007A33",
-			"logoText": "BOS"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 伊森 vs 杰森·塔图姆 & 杰伦·布朗",
-		"previewNotes": "总冠军级别锋线大对抗，乌度卡战术针对老东家凯尔特人。"
-	},
-	{
-		"id": "401909930",
-		"date": "2026-11-05",
-		"time": "09:30",
-		"opponent": {
-			"name": "森林狼",
-			"city": "明尼苏达",
-			"abbr": "MIN",
-			"color": "#236192",
-			"logoText": "MIN"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿门·汤普森 vs 安东尼·爱德华兹",
-		"previewNotes": "攻防两端身体天赋的大碰撞！阿门全场死缠爱德华兹，杜兰特无差别跳投终结。"
-	},
-	{
-		"id": "401909943",
-		"date": "2026-11-08",
-		"time": "10:00",
-		"opponent": {
-			"name": "太阳",
-			"city": "菲尼克斯",
-			"abbr": "PHX",
-			"color": "#E56020",
-			"logoText": "PHX"
-		},
-		"isHome": false,
-		"arena": "菲尼克斯·足迹中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "凯文·杜兰特 vs 德文·布克 & 布拉德利·比尔",
-		"previewNotes": "杜兰特大交易后迎战老东家太阳！火箭新体系攻防成色全方位检验。"
-	},
-	{
-		"id": "401909957",
-		"date": "2026-11-10",
-		"time": "09:30",
-		"opponent": {
-			"name": "掘金",
-			"city": "丹佛",
-			"abbr": "DEN",
-			"color": "#0E2240",
-			"logoText": "DEN"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿尔佩伦·申京 vs 尼古拉·约基奇",
-		"previewNotes": "顶级欧洲高位策应中锋大师课！申京再度向MVP约基奇发起正面对话。"
-	},
-	{
-		"id": "401909974",
-		"date": "2026-11-12",
-		"time": "10:30",
-		"opponent": {
-			"name": "勇士",
-			"city": "金州",
-			"abbr": "GSW",
-			"color": "#1D428A",
-			"logoText": "GSW"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 里德·谢泼德 vs 斯蒂芬·库里",
-		"previewNotes": "火勇大战经典再续！杜兰特正面对阵旧主与库里，外线投射大对飙。"
-	},
-	{
-		"id": "401909301",
-		"date": "2026-11-14",
-		"time": "09:30",
-		"opponent": {
-			"name": "爵士",
-			"city": "犹他",
-			"abbr": "UTA",
-			"color": "#002B5C",
-			"logoText": "UTA"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "cup",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 马尔卡宁",
-		"previewNotes": "NBA 杯小组赛关键排位战！净胜分关键局，火箭全力出击冲击淘汰赛。"
-	},
-	{
-		"id": "401909991",
-		"date": "2026-11-16",
-		"time": "08:00",
-		"opponent": {
-			"name": "奇才",
-			"city": "华盛顿",
-			"abbr": "WAS",
-			"color": "#002B5C",
-			"logoText": "WAS"
-		},
-		"isHome": false,
-		"arena": "华盛顿·第一资本球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 萨尔 / 普尔",
-		"previewNotes": "客场挑战华盛顿奇才，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401909998",
-		"date": "2026-11-17",
-		"time": "08:30",
-		"opponent": {
-			"name": "热火",
-			"city": "迈阿密",
-			"abbr": "MIA",
-			"color": "#98002E",
-			"logoText": "MIA"
-		},
-		"isHome": false,
-		"arena": "迈阿密·卡塞亚中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 巴特勒 / 阿德巴约",
-		"previewNotes": "客场挑战迈阿密热火，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910008",
-		"date": "2026-11-19",
-		"time": "08:00",
-		"opponent": {
-			"name": "步行者",
-			"city": "印第安纳",
-			"abbr": "IND",
-			"color": "#002D62",
-			"logoText": "IND"
-		},
-		"isHome": false,
-		"arena": "印第安纳·甘布里奇球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 哈利伯顿 / 西亚卡姆",
-		"previewNotes": "客场挑战印第安纳步行者，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401909312",
-		"date": "2026-11-21",
-		"time": "11:00",
-		"opponent": {
-			"name": "掘金",
-			"city": "丹佛",
-			"abbr": "DEN",
-			"color": "#0E2240",
-			"logoText": "DEN"
-		},
-		"isHome": false,
-		"arena": "丹佛·波尔球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "cup",
-		"status": "upcoming",
-		"keyMatchup": "阿尔佩伦·申京 vs 尼古拉·约基奇",
-		"previewNotes": "顶级欧洲高位策应中锋大师课！申京再度向MVP约基奇发起正面对话。"
-	},
-	{
-		"id": "401910043",
-		"date": "2026-11-24",
-		"time": "09:30",
-		"opponent": {
-			"name": "快船",
-			"city": "洛杉矶",
-			"abbr": "LAC",
-			"color": "#C8102E",
-			"logoText": "LAC"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 哈登 / 莱昂纳德",
-		"previewNotes": "主场迎战洛杉矶快船，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401909323",
-		"date": "2026-11-26",
-		"time": "09:30",
-		"opponent": {
-			"name": "太阳",
-			"city": "菲尼克斯",
-			"abbr": "PHX",
-			"color": "#E56020",
-			"logoText": "PHX"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "cup",
-		"status": "upcoming",
-		"keyMatchup": "凯文·杜兰特 vs 德文·布克 & 布拉德利·比尔",
-		"previewNotes": "杜兰特大交易后迎战老东家太阳！火箭新体系攻防成色全方位检验。"
-	},
-	{
-		"id": "401910050",
-		"date": "2026-11-29",
-		"time": "09:30",
-		"opponent": {
-			"name": "76人",
-			"city": "费城",
-			"abbr": "PHI",
-			"color": "#006BB6",
-			"logoText": "PHI"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "申京 & 亚当斯 vs 乔尔·恩比德",
-		"previewNotes": "内线肉搏战！火箭双中锋轮番消耗恩比德，防守端切断外线马克西传接。"
-	},
-	{
-		"id": "401910064",
-		"date": "2026-12-01",
-		"time": "08:30",
-		"opponent": {
-			"name": "湖人",
-			"city": "洛杉矶",
-			"abbr": "LAL",
-			"color": "#552583",
-			"logoText": "LAL"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 勒布朗·詹姆斯 & 安东尼·戴维斯",
-		"previewNotes": "群星闪耀的豪门对抗，休斯敦锋线防守群全场围剿湖人双核。"
-	},
-	{
-		"id": "401910072",
-		"date": "2026-12-02",
-		"time": "09:30",
-		"opponent": {
-			"name": "猛龙",
-			"city": "多伦多",
-			"abbr": "TOR",
-			"color": "#CE1141",
-			"logoText": "TOR"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 巴恩斯 / 奎克利",
-		"previewNotes": "主场迎战多伦多猛龙，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910101",
-		"date": "2026-12-14",
-		"time": "07:00",
-		"opponent": {
-			"name": "公牛",
-			"city": "芝加哥",
-			"abbr": "CHI",
-			"color": "#CE1141",
-			"logoText": "CHI"
-		},
-		"isHome": false,
-		"arena": "芝加哥·联合中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 拉文 / 武切维奇",
-		"previewNotes": "客场挑战芝加哥公牛，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910111",
-		"date": "2026-12-15",
-		"time": "09:30",
-		"opponent": {
-			"name": "尼克斯",
-			"city": "纽约",
-			"abbr": "NYK",
-			"color": "#F58426",
-			"logoText": "NYK"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 布伦森 / 唐斯",
-		"previewNotes": "主场迎战纽约尼克斯，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910128",
-		"date": "2026-12-17",
-		"time": "09:30",
-		"opponent": {
-			"name": "雄鹿",
-			"city": "密尔沃基",
-			"abbr": "MIL",
-			"color": "#00471B",
-			"logoText": "MIL"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 字母哥阿德托昆博 & 利拉德",
-		"previewNotes": "休斯敦内线筑起禁区长城对抗希腊怪兽，外线遏制利拉德超远三分。"
-	},
-	{
-		"id": "401910140",
-		"date": "2026-12-19",
-		"time": "09:00",
-		"opponent": {
-			"name": "灰熊",
-			"city": "孟菲斯",
-			"abbr": "MEM",
-			"color": "#5D76A9",
-			"logoText": "MEM"
-		},
-		"isHome": false,
-		"arena": "孟菲斯·联邦快递球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 莫兰特 / 贝恩",
-		"previewNotes": "客场挑战孟菲斯灰熊，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910150",
-		"date": "2026-12-21",
-		"time": "04:30",
-		"opponent": {
-			"name": "猛龙",
-			"city": "多伦多",
-			"abbr": "TOR",
-			"color": "#CE1141",
-			"logoText": "TOR"
-		},
-		"isHome": false,
-		"arena": "多伦多·丰业银行体育馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 巴恩斯 / 奎克利",
-		"previewNotes": "客场挑战多伦多猛龙，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910179",
-		"date": "2026-12-24",
-		"time": "08:30",
-		"opponent": {
-			"name": "76人",
-			"city": "费城",
-			"abbr": "PHI",
-			"color": "#006BB6",
-			"logoText": "PHI"
-		},
-		"isHome": false,
-		"arena": "费城·富国银行中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "申京 & 亚当斯 vs 乔尔·恩比德",
-		"previewNotes": "内线肉搏战！火箭双中锋轮番消耗恩比德，防守端切断外线马克西传接。"
-	},
-	{
-		"id": "401910195",
-		"date": "2026-12-28",
-		"time": "04:30",
-		"opponent": {
-			"name": "雷霆",
-			"city": "俄克拉荷马",
-			"abbr": "OKC",
-			"color": "#007AC1",
-			"logoText": "OKC"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿门·汤普森 vs 谢伊·吉尔杰斯-亚历山大",
-		"previewNotes": "年轻一代顶级强强对话！阿门外线领防SGA，杜兰特半场攻坚拆解雷霆防线。"
-	},
-	{
-		"id": "401910219",
-		"date": "2026-12-30",
-		"time": "11:30",
-		"opponent": {
-			"name": "湖人",
-			"city": "洛杉矶",
-			"abbr": "LAL",
-			"color": "#552583",
-			"logoText": "LAL"
-		},
-		"isHome": false,
-		"arena": "洛杉矶·加密网球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 勒布朗·詹姆斯 & 安东尼·戴维斯",
-		"previewNotes": "群星闪耀的豪门对抗，休斯敦锋线防守群全场围剿湖人双核。"
-	},
-	{
-		"id": "401910225",
-		"date": "2026-12-31",
-		"time": "11:00",
-		"opponent": {
-			"name": "勇士",
-			"city": "金州",
-			"abbr": "GSW",
-			"color": "#1D428A",
-			"logoText": "GSW"
-		},
-		"isHome": false,
-		"arena": "旧金山·大通中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 里德·谢泼德 vs 斯蒂芬·库里",
-		"previewNotes": "火勇大战经典再续！杜兰特正面对阵旧主与库里，外线投射大对飙。"
-	},
-	{
-		"id": "401910239",
-		"date": "2027-01-02",
-		"time": "09:30",
-		"opponent": {
-			"name": "独行侠",
-			"city": "达拉斯",
-			"abbr": "DAL",
-			"color": "#00538C",
-			"logoText": "DAL"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 阿门·汤普森 vs 东契奇 / 欧文",
-		"previewNotes": "得州内战焦点对决，休斯敦锋线群与达拉斯后场双核高强度对冲。"
-	},
-	{
-		"id": "401910256",
-		"date": "2027-01-04",
-		"time": "08:00",
-		"opponent": {
-			"name": "骑士",
-			"city": "克利夫兰",
-			"abbr": "CLE",
-			"color": "#860038",
-			"logoText": "CLE"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 米切尔 / 加兰 / 莫布利",
-		"previewNotes": "主场迎战克利夫兰骑士，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910271",
-		"date": "2027-01-06",
-		"time": "09:00",
-		"opponent": {
-			"name": "森林狼",
-			"city": "明尼苏达",
-			"abbr": "MIN",
-			"color": "#236192",
-			"logoText": "MIN"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿门·汤普森 vs 安东尼·爱德华兹",
-		"previewNotes": "攻防两端身体天赋的大碰撞！阿门全场死缠爱德华兹，杜兰特无差别跳投终结。"
-	},
-	{
-		"id": "401910287",
-		"date": "2027-01-08",
-		"time": "09:30",
-		"opponent": {
-			"name": "灰熊",
-			"city": "孟菲斯",
-			"abbr": "MEM",
-			"color": "#5D76A9",
-			"logoText": "MEM"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 莫兰特 / 贝恩",
-		"previewNotes": "主场迎战孟菲斯灰熊，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910300",
-		"date": "2027-01-10",
-		"time": "07:00",
-		"opponent": {
-			"name": "篮网",
-			"city": "布鲁克林",
-			"abbr": "BKN",
-			"color": "#000000",
-			"logoText": "BKN"
-		},
-		"isHome": false,
-		"arena": "布鲁克林·巴克莱中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 托马斯 / 克拉克斯顿",
-		"previewNotes": "客场挑战布鲁克林篮网，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910315",
-		"date": "2027-01-12",
-		"time": "08:30",
-		"opponent": {
-			"name": "凯尔特人",
-			"city": "波士顿",
-			"abbr": "BOS",
-			"color": "#007A33",
-			"logoText": "BOS"
-		},
-		"isHome": false,
-		"arena": "波士顿·TD花园球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 伊森 vs 杰森·塔图姆 & 杰伦·布朗",
-		"previewNotes": "总冠军级别锋线大对抗，乌度卡战术针对老东家凯尔特人。"
-	},
-	{
-		"id": "401910331",
-		"date": "2027-01-14",
-		"time": "10:30",
-		"opponent": {
-			"name": "雷霆",
-			"city": "俄克拉荷马",
-			"abbr": "OKC",
-			"color": "#007AC1",
-			"logoText": "OKC"
-		},
-		"isHome": false,
-		"arena": "俄克拉荷马·佩康中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿门·汤普森 vs 谢伊·吉尔杰斯-亚历山大",
-		"previewNotes": "年轻一代顶级强强对话！阿门外线领防SGA，杜兰特半场攻坚拆解雷霆防线。"
-	},
-	{
-		"id": "401910348",
-		"date": "2027-01-16",
-		"time": "09:30",
-		"opponent": {
-			"name": "奇才",
-			"city": "华盛顿",
-			"abbr": "WAS",
-			"color": "#002B5C",
-			"logoText": "WAS"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 萨尔 / 普尔",
-		"previewNotes": "主场迎战华盛顿奇才，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910355",
-		"date": "2027-01-17",
-		"time": "09:30",
-		"opponent": {
-			"name": "活塞",
-			"city": "底特律",
-			"abbr": "DET",
-			"color": "#1D42BA",
-			"logoText": "DET"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 康宁汉姆",
-		"previewNotes": "主场迎战底特律活塞，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401909476",
-		"date": "2027-01-19",
-		"time": "08:30",
-		"opponent": {
-			"name": "灰熊",
-			"city": "孟菲斯",
-			"abbr": "MEM",
-			"color": "#5D76A9",
-			"logoText": "MEM"
-		},
-		"isHome": false,
-		"arena": "孟菲斯·联邦快递球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 莫兰特 / 贝恩",
-		"previewNotes": "客场挑战孟菲斯灰熊，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910379",
-		"date": "2027-01-21",
-		"time": "09:00",
-		"opponent": {
-			"name": "森林狼",
-			"city": "明尼苏达",
-			"abbr": "MIN",
-			"color": "#236192",
-			"logoText": "MIN"
-		},
-		"isHome": false,
-		"arena": "明尼阿波利斯·标靶中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿门·汤普森 vs 安东尼·爱德华兹",
-		"previewNotes": "攻防两端身体天赋的大碰撞！阿门全场死缠爱德华兹，杜兰特无差别跳投终结。"
-	},
-	{
-		"id": "401910390",
-		"date": "2027-01-23",
-		"time": "08:00",
-		"opponent": {
-			"name": "黄蜂",
-			"city": "夏洛特",
-			"abbr": "CHA",
-			"color": "#1D1160",
-			"logoText": "CHA"
-		},
-		"isHome": false,
-		"arena": "夏洛特·光谱中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 三球鲍尔 / 米勒",
-		"previewNotes": "客场挑战夏洛特黄蜂，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910410",
-		"date": "2027-01-25",
-		"time": "07:00",
-		"opponent": {
-			"name": "魔术",
-			"city": "奥兰多",
-			"abbr": "ORL",
-			"color": "#0077C0",
-			"logoText": "ORL"
-		},
-		"isHome": false,
-		"arena": "奥兰多·起亚中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 班凯罗 / 瓦格纳",
-		"previewNotes": "客场挑战奥兰多魔术，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910424",
-		"date": "2027-01-27",
-		"time": "09:00",
-		"opponent": {
-			"name": "马刺",
-			"city": "圣安东尼奥",
-			"abbr": "SAS",
-			"color": "#6c757d",
-			"logoText": "SAS"
-		},
-		"isHome": false,
-		"arena": "圣安东尼奥·弗罗斯特银行中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿尔佩伦·申京 vs 维克托·文班亚马",
-		"previewNotes": "得州新星中锋巅峰对决！申京策应低位技术与文班亚马超级防守大网的正面对抗。"
-	},
-	{
-		"id": "401910434",
-		"date": "2027-01-28",
-		"time": "09:30",
-		"opponent": {
-			"name": "鹈鹕",
-			"city": "新奥尔良",
-			"abbr": "NOP",
-			"color": "#85714D",
-			"logoText": "NOP"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 锡安 / 英格拉姆",
-		"previewNotes": "主场迎战新奥尔良鹈鹕，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910449",
-		"date": "2027-01-30",
-		"time": "09:30",
-		"opponent": {
-			"name": "魔术",
-			"city": "奥兰多",
-			"abbr": "ORL",
-			"color": "#0077C0",
-			"logoText": "ORL"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 班凯罗 / 瓦格纳",
-		"previewNotes": "主场迎战奥兰多魔术，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910466",
-		"date": "2027-02-01",
-		"time": "09:30",
-		"opponent": {
-			"name": "独行侠",
-			"city": "达拉斯",
-			"abbr": "DAL",
-			"color": "#00538C",
-			"logoText": "DAL"
-		},
-		"isHome": false,
-		"arena": "达拉斯·美航中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 阿门·汤普森 vs 东契奇 / 欧文",
-		"previewNotes": "得州内战焦点对决，休斯敦锋线群与达拉斯后场双核高强度对冲。"
-	},
-	{
-		"id": "401910486",
-		"date": "2027-02-04",
-		"time": "10:30",
-		"opponent": {
-			"name": "爵士",
-			"city": "犹他",
-			"abbr": "UTA",
-			"color": "#002B5C",
-			"logoText": "UTA"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 马尔卡宁",
-		"previewNotes": "主场迎战犹他爵士，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910502",
-		"date": "2027-02-06",
-		"time": "10:00",
-		"opponent": {
-			"name": "太阳",
-			"city": "菲尼克斯",
-			"abbr": "PHX",
-			"color": "#E56020",
-			"logoText": "PHX"
-		},
-		"isHome": false,
-		"arena": "菲尼克斯·足迹中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "凯文·杜兰特 vs 德文·布克 & 布拉德利·比尔",
-		"previewNotes": "杜兰特大交易后迎战老东家太阳！火箭新体系攻防成色全方位检验。"
-	},
-	{
-		"id": "401910520",
-		"date": "2027-02-08",
-		"time": "11:30",
-		"opponent": {
-			"name": "国王",
-			"city": "萨克拉门托",
-			"abbr": "SAC",
-			"color": "#5A2D81",
-			"logoText": "SAC"
-		},
-		"isHome": false,
-		"arena": "萨克拉门托·第一黄金球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 福克斯 / 萨博尼斯",
-		"previewNotes": "客场挑战萨克拉门托国王，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910536",
-		"date": "2027-02-10",
-		"time": "11:00",
-		"opponent": {
-			"name": "爵士",
-			"city": "犹他",
-			"abbr": "UTA",
-			"color": "#002B5C",
-			"logoText": "UTA"
-		},
-		"isHome": false,
-		"arena": "犹他·德尔塔中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 马尔卡宁",
-		"previewNotes": "客场挑战犹他爵士，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910549",
-		"date": "2027-02-12",
-		"time": "09:30",
-		"opponent": {
-			"name": "国王",
-			"city": "萨克拉门托",
-			"abbr": "SAC",
-			"color": "#5A2D81",
-			"logoText": "SAC"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 福克斯 / 萨博尼斯",
-		"previewNotes": "主场迎战萨克拉门托国王，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910558",
-		"date": "2027-02-13",
-		"time": "09:00",
-		"opponent": {
-			"name": "鹈鹕",
-			"city": "新奥尔良",
-			"abbr": "NOP",
-			"color": "#85714D",
-			"logoText": "NOP"
-		},
-		"isHome": false,
-		"arena": "新奥尔良·冰沙国王中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 锡安 / 英格拉姆",
-		"previewNotes": "客场挑战新奥尔良鹈鹕，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910571",
-		"date": "2027-02-15",
-		"time": "03:00",
-		"opponent": {
-			"name": "掘金",
-			"city": "丹佛",
-			"abbr": "DEN",
-			"color": "#0E2240",
-			"logoText": "DEN"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿尔佩伦·申京 vs 尼古拉·约基奇",
-		"previewNotes": "顶级欧洲高位策应中锋大师课！申京再度向MVP约基奇发起正面对话。"
-	},
-	{
-		"id": "401910582",
-		"date": "2027-02-17",
-		"time": "12:00",
-		"opponent": {
-			"name": "快船",
-			"city": "洛杉矶",
-			"abbr": "LAC",
-			"color": "#C8102E",
-			"logoText": "LAC"
-		},
-		"isHome": false,
-		"arena": "洛杉矶·直觉巨蛋",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 哈登 / 莱昂纳德",
-		"previewNotes": "客场挑战洛杉矶快船，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910598",
-		"date": "2027-02-19",
-		"time": "11:00",
-		"opponent": {
-			"name": "湖人",
-			"city": "洛杉矶",
-			"abbr": "LAL",
-			"color": "#552583",
-			"logoText": "LAL"
-		},
-		"isHome": false,
-		"arena": "洛杉矶·加密网球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 勒布朗·詹姆斯 & 安东尼·戴维斯",
-		"previewNotes": "群星闪耀的豪门对抗，休斯敦锋线防守群全场围剿湖人双核。"
-	},
-	{
-		"id": "401910614",
-		"date": "2027-02-27",
-		"time": "09:30",
-		"opponent": {
-			"name": "黄蜂",
-			"city": "夏洛特",
-			"abbr": "CHA",
-			"color": "#1D1160",
-			"logoText": "CHA"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 三球鲍尔 / 米勒",
-		"previewNotes": "主场迎战夏洛特黄蜂，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910630",
-		"date": "2027-03-01",
-		"time": "10:30",
-		"opponent": {
-			"name": "热火",
-			"city": "迈阿密",
-			"abbr": "MIA",
-			"color": "#98002E",
-			"logoText": "MIA"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 巴特勒 / 阿德巴约",
-		"previewNotes": "主场迎战迈阿密热火，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910635",
-		"date": "2027-03-02",
-		"time": "09:30",
-		"opponent": {
-			"name": "勇士",
-			"city": "金州",
-			"abbr": "GSW",
-			"color": "#1D428A",
-			"logoText": "GSW"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 里德·谢泼德 vs 斯蒂芬·库里",
-		"previewNotes": "火勇大战经典再续！杜兰特正面对阵旧主与库里，外线投射大对飙。"
-	},
-	{
-		"id": "401910651",
-		"date": "2027-03-04",
-		"time": "09:30",
-		"opponent": {
-			"name": "鹈鹕",
-			"city": "新奥尔良",
-			"abbr": "NOP",
-			"color": "#85714D",
-			"logoText": "NOP"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 锡安 / 英格拉姆",
-		"previewNotes": "主场迎战新奥尔良鹈鹕，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910667",
-		"date": "2027-03-06",
-		"time": "10:30",
-		"opponent": {
-			"name": "马刺",
-			"city": "圣安东尼奥",
-			"abbr": "SAS",
-			"color": "#6c757d",
-			"logoText": "SAS"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿尔佩伦·申京 vs 维克托·文班亚马",
-		"previewNotes": "得州新星中锋巅峰对决！申京策应低位技术与文班亚马超级防守大网的正面对抗。"
-	},
-	{
-		"id": "401910679",
-		"date": "2027-03-08",
-		"time": "11:00",
-		"opponent": {
-			"name": "勇士",
-			"city": "金州",
-			"abbr": "GSW",
-			"color": "#1D428A",
-			"logoText": "GSW"
-		},
-		"isHome": false,
-		"arena": "旧金山·大通中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 里德·谢泼德 vs 斯蒂芬·库里",
-		"previewNotes": "火勇大战经典再续！杜兰特正面对阵旧主与库里，外线投射大对飙。"
-	},
-	{
-		"id": "401910688",
-		"date": "2027-03-09",
-		"time": "11:30",
-		"opponent": {
-			"name": "快船",
-			"city": "洛杉矶",
-			"abbr": "LAC",
-			"color": "#C8102E",
-			"logoText": "LAC"
-		},
-		"isHome": false,
-		"arena": "洛杉矶·直觉巨蛋",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 哈登 / 莱昂纳德",
-		"previewNotes": "客场挑战洛杉矶快船，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910699",
-		"date": "2027-03-11",
-		"time": "10:00",
-		"opponent": {
-			"name": "爵士",
-			"city": "犹他",
-			"abbr": "UTA",
-			"color": "#002B5C",
-			"logoText": "UTA"
-		},
-		"isHome": false,
-		"arena": "犹他·德尔塔中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 马尔卡宁",
-		"previewNotes": "客场挑战犹他爵士，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910721",
-		"date": "2027-03-14",
-		"time": "06:30",
-		"opponent": {
-			"name": "步行者",
-			"city": "印第安纳",
-			"abbr": "IND",
-			"color": "#002D62",
-			"logoText": "IND"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 哈利伯顿 / 西亚卡姆",
-		"previewNotes": "主场迎战印第安纳步行者，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910745",
-		"date": "2027-03-17",
-		"time": "08:30",
-		"opponent": {
-			"name": "马刺",
-			"city": "圣安东尼奥",
-			"abbr": "SAS",
-			"color": "#6c757d",
-			"logoText": "SAS"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿尔佩伦·申京 vs 维克托·文班亚马",
-		"previewNotes": "得州新星中锋巅峰对决！申京策应低位技术与文班亚马超级防守大网的正面对抗。"
-	},
-	{
-		"id": "401910752",
-		"date": "2027-03-18",
-		"time": "08:30",
-		"opponent": {
-			"name": "篮网",
-			"city": "布鲁克林",
-			"abbr": "BKN",
-			"color": "#000000",
-			"logoText": "BKN"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 托马斯 / 克拉克斯顿",
-		"previewNotes": "主场迎战布鲁克林篮网，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910767",
-		"date": "2027-03-20",
-		"time": "08:00",
-		"opponent": {
-			"name": "鹈鹕",
-			"city": "新奥尔良",
-			"abbr": "NOP",
-			"color": "#85714D",
-			"logoText": "NOP"
-		},
-		"isHome": false,
-		"arena": "新奥尔良·冰沙国王中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 锡安 / 英格拉姆",
-		"previewNotes": "客场挑战新奥尔良鹈鹕，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910786",
-		"date": "2027-03-23",
-		"time": "07:00",
-		"opponent": {
-			"name": "骑士",
-			"city": "克利夫兰",
-			"abbr": "CLE",
-			"color": "#860038",
-			"logoText": "CLE"
-		},
-		"isHome": false,
-		"arena": "克利夫兰·火箭按揭球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 米切尔 / 加兰 / 莫布利",
-		"previewNotes": "客场挑战克利夫兰骑士，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910804",
-		"date": "2027-03-25",
-		"time": "07:30",
-		"opponent": {
-			"name": "尼克斯",
-			"city": "纽约",
-			"abbr": "NYK",
-			"color": "#F58426",
-			"logoText": "NYK"
-		},
-		"isHome": false,
-		"arena": "纽约·麦迪逊广场花园",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 布伦森 / 唐斯",
-		"previewNotes": "客场挑战纽约尼克斯，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910812",
-		"date": "2027-03-26",
-		"time": "07:00",
-		"opponent": {
-			"name": "活塞",
-			"city": "底特律",
-			"abbr": "DET",
-			"color": "#1D42BA",
-			"logoText": "DET"
-		},
-		"isHome": false,
-		"arena": "底特律·小凯撒球馆",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 康宁汉姆",
-		"previewNotes": "客场挑战底特律活塞，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910833",
-		"date": "2027-03-29",
-		"time": "03:00",
-		"opponent": {
-			"name": "湖人",
-			"city": "洛杉矶",
-			"abbr": "LAL",
-			"color": "#552583",
-			"logoText": "LAL"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 勒布朗·詹姆斯 & 安东尼·戴维斯",
-		"previewNotes": "群星闪耀的豪门对抗，休斯敦锋线防守群全场围剿湖人双核。"
-	},
-	{
-		"id": "401910853",
-		"date": "2027-03-31",
-		"time": "11:00",
-		"opponent": {
-			"name": "开拓者",
-			"city": "波特兰",
-			"abbr": "POR",
-			"color": "#E03A3E",
-			"logoText": "POR"
-		},
-		"isHome": false,
-		"arena": "波特兰·摩达中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 亨德森 / 西蒙斯",
-		"previewNotes": "客场挑战波特兰开拓者，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910863",
-		"date": "2027-04-01",
-		"time": "10:00",
-		"opponent": {
-			"name": "开拓者",
-			"city": "波特兰",
-			"abbr": "POR",
-			"color": "#E03A3E",
-			"logoText": "POR"
-		},
-		"isHome": false,
-		"arena": "波特兰·摩达中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 亨德森 / 西蒙斯",
-		"previewNotes": "客场挑战波特兰开拓者，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910876",
-		"date": "2027-04-03",
-		"time": "08:30",
-		"opponent": {
-			"name": "灰熊",
-			"city": "孟菲斯",
-			"abbr": "MEM",
-			"color": "#5D76A9",
-			"logoText": "MEM"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 莫兰特 / 贝恩",
-		"previewNotes": "主场迎战孟菲斯灰熊，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910888",
-		"date": "2027-04-05",
-		"time": "04:00",
-		"opponent": {
-			"name": "公牛",
-			"city": "芝加哥",
-			"abbr": "CHI",
-			"color": "#CE1141",
-			"logoText": "CHI"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 拉文 / 武切维奇",
-		"previewNotes": "主场迎战芝加哥公牛，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910915",
-		"date": "2027-04-08",
-		"time": "08:30",
-		"opponent": {
-			"name": "国王",
-			"city": "萨克拉门托",
-			"abbr": "SAC",
-			"color": "#5A2D81",
-			"logoText": "SAC"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 福克斯 / 萨博尼斯",
-		"previewNotes": "主场迎战萨克拉门托国王，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910931",
-		"date": "2027-04-10",
-		"time": "08:30",
-		"opponent": {
-			"name": "开拓者",
-			"city": "波特兰",
-			"abbr": "POR",
-			"color": "#E03A3E",
-			"logoText": "POR"
-		},
-		"isHome": true,
-		"arena": "休斯敦·丰田中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "杜兰特 & 申京 vs 亨德森 / 西蒙斯",
-		"previewNotes": "主场迎战波特兰开拓者，乌度卡强化防守反击与篮板控制。"
-	},
-	{
-		"id": "401910946",
-		"date": "2027-04-12",
-		"time": "08:30",
-		"opponent": {
-			"name": "森林狼",
-			"city": "明尼苏达",
-			"abbr": "MIN",
-			"color": "#236192",
-			"logoText": "MIN"
-		},
-		"isHome": false,
-		"arena": "明尼阿波利斯·标靶中心",
-		"broadcast": "腾讯体育 / 咪咕视频",
-		"stage": "regular",
-		"status": "upcoming",
-		"keyMatchup": "阿门·汤普森 vs 安东尼·爱德华兹",
-		"previewNotes": "攻防两端身体天赋的大碰撞！阿门全场死缠爱德华兹，杜兰特无差别跳投终结。"
-	}
-];
-//#endregion
-//#region app/features/schedule/nbaData.ts
-var PLAYER_NAME_CN = {
-	"Alperen Sengun": "阿尔佩伦·申京",
-	"Kevin Durant": "凯文·杜兰特",
-	"Fred VanVleet": "弗雷德·范弗里特",
-	"Tari Eason": "塔里·伊森",
-	"Jabari Smith Jr.": "小贾巴里·史密斯",
-	"Reed Sheppard": "里德·谢泼德",
-	"Amen Thompson": "阿门·汤普森",
-	"Steven Adams": "史蒂文·亚当斯",
-	"Oscar Tshiebwe": "奥斯卡·希布韦",
-	"Bogdan Bogdanovic": "博格丹·博格达诺维奇",
-	"Bruce Thornton": "布鲁斯·桑顿",
-	"Julian Phillips": "朱利安·菲利普斯",
-	"Isaiah Crawford": "以赛亚·克劳福德",
-	"Quadir Copeland": "夸迪尔·科普兰",
-	"Sean Pedulla": "肖恩·佩杜拉",
-	"Cooper Flagg": "库珀·弗拉格",
-	"Naji Marshall": "纳吉·马绍尔",
-	"Max Christie": "马克斯·克里斯蒂",
-	"Zaccharie Risacher": "扎卡里·里萨谢",
-	"Daniel Gafford": "丹尼尔·加福德",
-	"Dwight Powell": "德怀特·鲍威尔",
-	"Tobi Lawal": "托比·拉瓦尔",
-	"Tarik Biberovic": "塔里克·比贝罗维奇",
-	"Sergio de Larrea": "塞尔吉奥·德拉雷亚",
-	"Moussa Cisse": "穆萨·西塞",
-	"Seth Lundy": "赛斯·伦迪",
-	"John Poulakidas": "约翰·普拉基达斯",
-	"Jett Howard": "杰特·霍华德",
-	"Morez Johnson Jr.": "莫雷兹·约翰逊"
-};
-/** 真实抓取数据备份（从 ESPN 官方 summary 接口 2026-10-09 澳门赛真实数据提取） */
-var BOXSCORE_MAP = { "401898395": {
-	gameId: "401898395",
-	quarters: {
-		rockets: [
-			27,
-			38,
-			34,
-			36
-		],
-		opponent: [
-			19,
-			26,
-			35,
-			37
-		]
-	},
-	rocketsPlayers: [
-		{
-			name: "凯文·杜兰特",
-			rawName: "Kevin Durant",
-			number: "7",
-			position: "F",
-			minutes: "23",
-			points: 15,
-			rebounds: 2,
-			assists: 1,
-			steals: 1,
-			blocks: 0,
-			turnovers: 0,
-			fg: "7-12",
-			fgPct: "58.3%",
-			threePt: "1-1",
-			ft: "0-1",
-			plusMinus: "+11"
-		},
-		{
-			name: "小贾巴里·史密斯",
-			rawName: "Jabari Smith Jr.",
-			number: "10",
-			position: "F",
-			minutes: "22",
-			points: 12,
-			rebounds: 1,
-			assists: 0,
-			steals: 0,
-			blocks: 2,
-			turnovers: 2,
-			fg: "4-8",
-			fgPct: "50.0%",
-			threePt: "2-3",
-			ft: "2-4",
-			plusMinus: "+12"
-		},
-		{
-			name: "阿尔佩伦·申京",
-			rawName: "Alperen Sengun",
-			number: "28",
-			position: "C",
-			minutes: "22",
-			points: 16,
-			rebounds: 10,
-			assists: 10,
-			steals: 0,
-			blocks: 4,
-			turnovers: 6,
-			fg: "6-9",
-			fgPct: "66.7%",
-			threePt: "0-2",
-			ft: "4-5",
-			plusMinus: "+22"
-		},
-		{
-			name: "弗雷德·范弗里特",
-			rawName: "Fred VanVleet",
-			number: "5",
-			position: "G",
-			minutes: "24",
-			points: 17,
-			rebounds: 7,
-			assists: 1,
-			steals: 0,
-			blocks: 0,
-			turnovers: 2,
-			fg: "5-12",
-			fgPct: "41.7%",
-			threePt: "5-12",
-			ft: "2-3",
-			plusMinus: "+15"
-		},
-		{
-			name: "阿门·汤普森",
-			rawName: "Amen Thompson",
-			number: "1",
-			position: "G",
-			minutes: "24",
-			points: 8,
-			rebounds: 2,
-			assists: 6,
-			steals: 1,
-			blocks: 3,
-			turnovers: 4,
-			fg: "4-8",
-			fgPct: "50.0%",
-			threePt: "0-0",
-			ft: "0-0",
-			plusMinus: "+7"
-		},
-		{
-			name: "塔里·伊森",
-			rawName: "Tari Eason",
-			number: "17",
-			position: "F",
-			minutes: "24",
-			points: 20,
-			rebounds: 2,
-			assists: 0,
-			steals: 0,
-			blocks: 3,
-			turnovers: 6,
-			fg: "6-10",
-			fgPct: "60.0%",
-			threePt: "2-2",
-			ft: "6-7",
-			plusMinus: "+17"
-		},
-		{
-			name: "里德·谢泼德",
-			rawName: "Reed Sheppard",
-			number: "15",
-			position: "G",
-			minutes: "19",
-			points: 16,
-			rebounds: 1,
-			assists: 1,
-			steals: 0,
-			blocks: 0,
-			turnovers: 1,
-			fg: "6-10",
-			fgPct: "60.0%",
-			threePt: "4-7",
-			ft: "0-0",
-			plusMinus: "+12"
-		},
-		{
-			name: "布鲁斯·桑顿",
-			rawName: "Bruce Thornton",
-			number: "2",
-			position: "G",
-			minutes: "9",
-			points: 13,
-			rebounds: 2,
-			assists: 2,
-			steals: 1,
-			blocks: 0,
-			turnovers: 0,
-			fg: "4-6",
-			fgPct: "66.7%",
-			threePt: "3-3",
-			ft: "2-2",
-			plusMinus: "-8"
-		},
-		{
-			name: "以赛亚·克劳福德",
-			rawName: "Isaiah Crawford",
-			number: "27",
-			position: "F",
-			minutes: "12",
-			points: 4,
-			rebounds: 0,
-			assists: 1,
-			steals: 1,
-			blocks: 1,
-			turnovers: 0,
-			fg: "1-3",
-			fgPct: "33.3%",
-			threePt: "1-2",
-			ft: "1-2",
-			plusMinus: "+7"
-		},
-		{
-			name: "奥斯卡·希布韦",
-			rawName: "Oscar Tshiebwe",
-			number: "9",
-			position: "C",
-			minutes: "12",
-			points: 5,
-			rebounds: 1,
-			assists: 2,
-			steals: 0,
-			blocks: 1,
-			turnovers: 2,
-			fg: "2-2",
-			fgPct: "100.0%",
-			threePt: "0-0",
-			ft: "1-2",
-			plusMinus: "-1"
-		},
-		{
-			name: "博格丹·博格达诺维奇",
-			rawName: "Bogdan Bogdanovic",
-			number: "31",
-			position: "G",
-			minutes: "16",
-			points: 4,
-			rebounds: 4,
-			assists: 1,
-			steals: 0,
-			blocks: 0,
-			turnovers: 2,
-			fg: "1-4",
-			fgPct: "25.0%",
-			threePt: "0-3",
-			ft: "2-2",
-			plusMinus: "+16"
-		},
-		{
-			name: "夸迪尔·科普兰",
-			rawName: "Quadir Copeland",
-			number: "25",
-			position: "G",
-			minutes: "9",
-			points: 3,
-			rebounds: 1,
-			assists: 2,
-			steals: 0,
-			blocks: 1,
-			turnovers: 0,
-			fg: "0-0",
-			fgPct: "0.0%",
-			threePt: "0-0",
-			ft: "3-4",
-			plusMinus: "-8"
-		},
-		{
-			name: "史蒂文·亚当斯",
-			rawName: "Steven Adams",
-			number: "12",
-			position: "C",
-			minutes: "14",
-			points: 2,
-			rebounds: 1,
-			assists: 1,
-			steals: 0,
-			blocks: 1,
-			turnovers: 2,
-			fg: "1-1",
-			fgPct: "100.0%",
-			threePt: "0-0",
-			ft: "0-0",
-			plusMinus: "-3"
-		},
-		{
-			name: "朱利安·菲利普斯",
-			rawName: "Julian Phillips",
-			number: "3",
-			position: "F",
-			minutes: "7",
-			points: 0,
-			rebounds: 0,
-			assists: 0,
-			steals: 0,
-			blocks: 0,
-			turnovers: 0,
-			fg: "0-0",
-			fgPct: "0.0%",
-			threePt: "0-0",
-			ft: "0-0",
-			plusMinus: "-5"
-		},
-		{
-			name: "肖恩·佩杜拉",
-			rawName: "Sean Pedulla",
-			number: "0",
-			position: "G",
-			minutes: "4",
-			points: 0,
-			rebounds: 2,
-			assists: 0,
-			steals: 0,
-			blocks: 0,
-			turnovers: 0,
-			fg: "0-1",
-			fgPct: "0.0%",
-			threePt: "0-1",
-			ft: "0-0",
-			plusMinus: "-4"
-		}
-	],
-	opponentPlayers: [
-		{
-			name: "库珀·弗拉格",
-			rawName: "Cooper Flagg",
-			number: "32",
-			position: "F",
-			minutes: "19",
-			points: 19,
-			rebounds: 3,
-			assists: 2,
-			steals: 1,
-			blocks: 2,
-			turnovers: 4,
-			fg: "7-14",
-			fgPct: "50.0%",
-			threePt: "1-5",
-			ft: "4-4",
-			plusMinus: "-15"
-		},
-		{
-			name: "纳吉·马绍尔",
-			rawName: "Naji Marshall",
-			number: "3",
-			position: "F",
-			minutes: "24",
-			points: 16,
-			rebounds: 3,
-			assists: 2,
-			steals: 0,
-			blocks: 1,
-			turnovers: 1,
-			fg: "7-14",
-			fgPct: "50.0%",
-			threePt: "1-5",
-			ft: "1-2",
-			plusMinus: "-13"
-		},
-		{
-			name: "马克斯·克里斯蒂",
-			rawName: "Max Christie",
-			number: "0",
-			position: "G",
-			minutes: "24",
-			points: 14,
-			rebounds: 2,
-			assists: 0,
-			steals: 0,
-			blocks: 1,
-			turnovers: 1,
-			fg: "5-12",
-			fgPct: "41.7%",
-			threePt: "4-11",
-			ft: "0-0",
-			plusMinus: "-12"
-		},
-		{
-			name: "托比·拉瓦尔",
-			rawName: "Tobi Lawal",
-			number: "33",
-			position: "F",
-			minutes: "15",
-			points: 13,
-			rebounds: 0,
-			assists: 2,
-			steals: 0,
-			blocks: 1,
-			turnovers: 0,
-			fg: "5-6",
-			fgPct: "83.3%",
-			threePt: "0-1",
-			ft: "3-3",
-			plusMinus: "+2"
-		},
-		{
-			name: "塞尔吉奥·德拉雷亚",
-			rawName: "Sergio de Larrea",
-			number: "55",
-			position: "F",
-			minutes: "24",
-			points: 11,
-			rebounds: 6,
-			assists: 4,
-			steals: 0,
-			blocks: 0,
-			turnovers: 2,
-			fg: "4-6",
-			fgPct: "66.7%",
-			threePt: "3-3",
-			ft: "0-0",
-			plusMinus: "-3"
-		},
-		{
-			name: "扎卡里·里萨谢",
-			rawName: "Zaccharie Risacher",
-			number: "10",
-			position: "F",
-			minutes: "24",
-			points: 9,
-			rebounds: 1,
-			assists: 1,
-			steals: 0,
-			blocks: 3,
-			turnovers: 5,
-			fg: "4-9",
-			fgPct: "44.4%",
-			threePt: "1-3",
-			ft: "0-0",
-			plusMinus: "-13"
-		},
-		{
-			name: "塔里克·比贝罗维奇",
-			rawName: "Tarik Biberovic",
-			number: "13",
-			position: "F",
-			minutes: "19",
-			points: 9,
-			rebounds: 2,
-			assists: 0,
-			steals: 0,
-			blocks: 2,
-			turnovers: 1,
-			fg: "3-9",
-			fgPct: "33.3%",
-			threePt: "3-8",
-			ft: "0-0",
-			plusMinus: "-3"
-		},
-		{
-			name: "杰特·霍华德",
-			rawName: "Jett Howard",
-			number: "9",
-			position: "G",
-			minutes: "16",
-			points: 8,
-			rebounds: 3,
-			assists: 1,
-			steals: 0,
-			blocks: 0,
-			turnovers: 1,
-			fg: "3-6",
-			fgPct: "50.0%",
-			threePt: "1-3",
-			ft: "1-2",
-			plusMinus: "-2"
-		},
-		{
-			name: "丹尼尔·加福德",
-			rawName: "Daniel Gafford",
-			number: "21",
-			position: "F",
-			minutes: "8",
-			points: 7,
-			rebounds: 0,
-			assists: 1,
-			steals: 0,
-			blocks: 0,
-			turnovers: 3,
-			fg: "3-4",
-			fgPct: "75.0%",
-			threePt: "1-1",
-			ft: "0-0",
-			plusMinus: "-3"
-		},
-		{
-			name: "莫雷兹·约翰逊",
-			rawName: "Morez Johnson Jr.",
-			number: "14",
-			position: "F",
-			minutes: "12",
-			points: 4,
-			rebounds: 1,
-			assists: 0,
-			steals: 0,
-			blocks: 1,
-			turnovers: 1,
-			fg: "1-3",
-			fgPct: "33.3%",
-			threePt: "1-3",
-			ft: "1-2",
-			plusMinus: "-7"
-		},
-		{
-			name: "赛斯·伦迪",
-			rawName: "Seth Lundy",
-			number: "31",
-			position: "G",
-			minutes: "14",
-			points: 3,
-			rebounds: 0,
-			assists: 1,
-			steals: 0,
-			blocks: 0,
-			turnovers: 1,
-			fg: "1-4",
-			fgPct: "25.0%",
-			threePt: "1-4",
-			ft: "0-2",
-			plusMinus: "-8"
-		},
-		{
-			name: "约翰·普拉基达斯",
-			rawName: "John Poulakidas",
-			number: "1",
-			position: "G",
-			minutes: "14",
-			points: 3,
-			rebounds: 2,
-			assists: 1,
-			steals: 0,
-			blocks: 0,
-			turnovers: 0,
-			fg: "1-3",
-			fgPct: "33.3%",
-			threePt: "1-3",
-			ft: "0-0",
-			plusMinus: "-5"
-		},
-		{
-			name: "德怀特·鲍威尔",
-			rawName: "Dwight Powell",
-			number: "7",
-			position: "F",
-			minutes: "13",
-			points: 1,
-			rebounds: 8,
-			assists: 1,
-			steals: 1,
-			blocks: 1,
-			turnovers: 0,
-			fg: "0-1",
-			fgPct: "0.0%",
-			threePt: "0-1",
-			ft: "1-2",
-			plusMinus: "0"
-		},
-		{
-			name: "穆萨·西塞",
-			rawName: "Moussa Cisse",
-			number: "30",
-			position: "C",
-			minutes: "14",
-			points: 0,
-			rebounds: 3,
-			assists: 2,
-			steals: 0,
-			blocks: 2,
-			turnovers: 4,
-			fg: "0-3",
-			fgPct: "0.0%",
-			threePt: "0-0",
-			ft: "0-0",
-			plusMinus: "-8"
-		}
-	]
-} };
-/** 客户端向数据站发起真实抓取，优先请求本地服务端抓取接口，网络失败时平滑降级 */
-async function fetchLiveBoxscore(gameId) {
+//#region app/features/schedule/rocketsApi.ts
+/** 从后端 API 拉取火箭全季赛程 */
+async function fetchRocketsSchedule() {
 	try {
-		const res = await fetch(`/api/site/boxscore?gameId=${encodeURIComponent(gameId)}`);
-		if (res.ok) {
-			const data = await res.json();
-			if (data && data.rocketsPlayers && data.rocketsPlayers.length > 0) return data;
-		}
+		const res = await fetch("/api/site/rockets/schedule");
+		if (res.ok) return await res.json();
 	} catch {}
+	return [];
+}
+/** 从后端 API 拉取单场比赛比分与全场技术统计 (Boxscore) */
+async function fetchGameBreakdown(gameId) {
 	try {
-		const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${encodeURIComponent(gameId)}`, { signal: AbortSignal.timeout(6e3) });
-		if (res.ok) {
-			const data = await res.json();
-			const competitors = (data.header?.competitions?.[0])?.competitors || [];
-			const rocketsComp = competitors.find((c) => c.team?.id === "10" || c.team?.displayName?.includes("Rockets"));
-			const oppComp = competitors.find((c) => c !== rocketsComp);
-			const quarters = {
-				rockets: (rocketsComp?.linescores || []).map((l) => Number(l.displayValue)),
-				opponent: (oppComp?.linescores || []).map((l) => Number(l.displayValue))
-			};
-			const parsePlayers = (teamKeyword) => {
-				const teamSection = (data.boxscore?.players || []).find((p) => p.team?.displayName?.toLowerCase().includes(teamKeyword.toLowerCase()));
-				if (!teamSection) return [];
-				const statItem = teamSection.statistics?.[0];
-				if (!statItem) return [];
-				return (statItem.athletes || []).map((ath) => {
-					const s = ath.stats || [];
-					const rawName = ath.athlete?.displayName || "";
-					const displayName = PLAYER_NAME_CN[rawName] || rawName;
-					const fgParts = (s[2] || "0-0").split("-");
-					const fgPct = fgParts[1] && Number(fgParts[1]) > 0 ? (Math.round(Number(fgParts[0]) / Number(fgParts[1]) * 1e3) / 10).toFixed(1) + "%" : "0.0%";
-					return {
-						name: displayName,
-						rawName,
-						number: ath.athlete?.jersey || "",
-						position: ath.athlete?.position?.abbreviation || "F",
-						minutes: s[0] || "0",
-						points: Number(s[1]) || 0,
-						rebounds: Number(s[5]) || 0,
-						assists: Number(s[6]) || 0,
-						turnovers: Number(s[7]) || 0,
-						steals: Number(s[8]) || 0,
-						blocks: Number(s[9]) || 0,
-						fg: s[2] || "0-0",
-						fgPct,
-						threePt: s[3] || "0-0",
-						ft: s[4] || "0-0",
-						plusMinus: s[13] || "0"
-					};
-				}).filter((p) => p.minutes !== "DNP" && p.minutes !== "0");
-			};
-			const rocketsPlayers = parsePlayers("Rockets");
-			const opponentPlayers = parsePlayers(oppComp?.team?.name || "Opponent");
-			if (rocketsPlayers.length > 0) return {
-				gameId,
-				quarters,
-				rocketsPlayers,
-				opponentPlayers
-			};
-		}
+		const res = await fetch(`/api/site/rockets/games/${encodeURIComponent(gameId)}`);
+		if (res.ok) return await res.json();
 	} catch {}
-	return BOXSCORE_MAP[gameId] ?? null;
+	return null;
+}
+/** 从后端 API 拉取全队球员及其多赛季数据 */
+async function fetchRocketsPlayers() {
+	try {
+		const res = await fetch("/api/site/rockets/players");
+		if (res.ok) return await res.json();
+	} catch {}
+	return [];
+}
+/** 从后端 API 拉取西部联盟排名 */
+async function fetchRocketsStandings() {
+	try {
+		const res = await fetch("/api/site/rockets/standings");
+		if (res.ok) return await res.json();
+	} catch {}
+	return null;
+}
+/** 触发后端实时抓取与同步 */
+async function triggerRocketsSync() {
+	try {
+		const res = await fetch("/api/site/rockets/sync", { method: "POST" });
+		if (res.ok) return await res.json();
+	} catch {}
+	return { success: false };
 }
 //#endregion
-//#region app/features/schedule/ScheduleCalendar.tsx
-var MONTHS = [
-	{
-		year: 2026,
-		month: 10,
-		label: "10月",
-		subtitle: "季前赛 & 揭幕战"
-	},
-	{
-		year: 2026,
-		month: 11,
-		label: "11月",
-		subtitle: "常规赛 & NBA杯"
-	},
-	{
-		year: 2026,
-		month: 12,
-		label: "12月",
-		subtitle: "常规赛征程"
-	},
-	{
-		year: 2027,
-		month: 1,
-		label: "1月",
-		subtitle: "得州内战焦点月"
-	},
-	{
-		year: 2027,
-		month: 2,
-		label: "2月",
-		subtitle: "全明星周末"
-	},
-	{
-		year: 2027,
-		month: 3,
-		label: "3月",
-		subtitle: "季后赛卡位战"
-	},
-	{
-		year: 2027,
-		month: 4,
-		label: "4月",
-		subtitle: "常规赛收官"
-	}
-];
-var WEEKDAYS$1 = [
-	"周日",
-	"周一",
-	"周二",
-	"周三",
-	"周四",
-	"周五",
-	"周六"
-];
-function getWeekday(dateStr) {
-	return WEEKDAYS$1[new Date(dateStr).getDay()] || "";
-}
-function ScheduleCalendar() {
-	const [selectedMonthIdx, setSelectedMonthIdx] = useState(0);
-	const [filterType, setFilterType] = useState("all");
-	const [activeBoxScore, setActiveBoxScore] = useState(null);
-	const [activeGame, setActiveGame] = useState(null);
-	const [activeTeamTab, setActiveTeamTab] = useState("rockets");
-	const currentMonth = MONTHS[selectedMonthIdx];
-	const monthPrefix = `${currentMonth.year}-${String(currentMonth.month).padStart(2, "0")}`;
-	const monthGames = useMemo(() => {
-		return ROCKETS_GAMES.filter((g) => g.date.startsWith(monthPrefix));
-	}, [monthPrefix]);
-	const filteredGames = useMemo(() => {
-		return monthGames.filter((g) => {
-			if (filterType === "final") return g.status === "final";
-			if (filterType === "upcoming") return g.status === "upcoming";
-			if (filterType === "home") return g.isHome;
-			if (filterType === "away") return !g.isHome;
-			if (filterType === "cup") return g.stage === "cup";
-			return true;
-		});
-	}, [monthGames, filterType]);
-	const featuredGame = useMemo(() => {
-		return ROCKETS_GAMES.find((g) => g.status === "final") || ROCKETS_GAMES[0];
-	}, []);
-	const [isLoadingLive, setIsLoadingLive] = useState(false);
-	const handleOpenDetail = (game) => {
-		if (game.status !== "final") return;
-		setActiveGame(game);
-		setActiveTeamTab("rockets");
-		const initialBox = BOXSCORE_MAP[game.id] ?? null;
-		setActiveBoxScore(initialBox);
-		setIsLoadingLive(true);
-		fetchLiveBoxscore(game.id).then((liveData) => {
-			if (liveData) setActiveBoxScore(liveData);
-		}).finally(() => {
-			setIsLoadingLive(false);
-		});
-	};
-	return /* @__PURE__ */ jsxs("div", {
-		className: "space-y-6",
-		children: [
-			/* @__PURE__ */ jsxs("div", {
-				className: "flex flex-wrap items-center justify-between gap-3 border-b border-line-soft pb-4",
-				children: [/* @__PURE__ */ jsxs("div", {
-					className: "flex items-center gap-2 text-sm font-black text-ink",
-					children: [/* @__PURE__ */ jsx(IconCalendar, {
-						size: 18,
-						className: "text-[#CE1141]"
-					}), /* @__PURE__ */ jsx("span", { children: "休斯敦火箭 2026-27 赛季赛程战报流" })]
-				}), /* @__PURE__ */ jsx("div", {
-					className: "flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none sm:pb-0",
+//#region app/features/schedule/RocketsHeroBanner.tsx
+function RocketsHeroBanner({ standings, totalGames, totalPlayers }) {
+	const rankDisplay = Boolean(standings && !standings.isOffseason && standings.season === "2026-27" && typeof standings.rocketsRank === "number" && standings.rocketsRank > 0) ? `西部第 ${standings?.rocketsRank}` : "#";
+	return /* @__PURE__ */ jsx("div", {
+		className: "bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 mb-5 shadow-xs transition-colors",
+		children: /* @__PURE__ */ jsxs("div", {
+			className: "flex flex-col md:flex-row md:items-center justify-between gap-4",
+			children: [/* @__PURE__ */ jsxs("div", {
+				className: "flex items-center gap-3.5",
+				children: [/* @__PURE__ */ jsx("img", {
+					src: "https://a.espncdn.com/i/teamlogos/nba/500/hou.png",
+					alt: "休斯敦火箭",
+					className: "w-12 h-12 object-contain flex-shrink-0 drop-shadow-xs",
+					loading: "eager"
+				}), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h1", {
+					className: "text-base sm:text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight",
+					children: "休斯敦火箭 · 赛事战报与技术统计中心"
+				}), /* @__PURE__ */ jsx("p", {
+					className: "text-xs text-slate-500 dark:text-zinc-400 mt-1",
+					children: "全季 83 场官方赛程 · 单场球员技术统计 (Boxscore) · 现役大名单与生涯历史对照"
+				})] })]
+			}), /* @__PURE__ */ jsx("div", {
+				className: "flex items-center gap-2.5 self-start md:self-auto flex-wrap sm:flex-nowrap",
+				children: /* @__PURE__ */ jsxs("div", {
+					className: "flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 text-xs text-slate-600 dark:text-zinc-300",
 					children: [
-						{
-							key: "all",
-							label: "全部"
-						},
-						{
-							key: "final",
-							label: "已完赛"
-						},
-						{
-							key: "upcoming",
-							label: "未开赛"
-						},
-						{
-							key: "home",
-							label: "主场"
-						},
-						{
-							key: "away",
-							label: "客场"
-						},
-						{
-							key: "cup",
-							label: "NBA杯"
-						}
-					].map((f) => /* @__PURE__ */ jsx("button", {
-						type: "button",
-						onClick: () => setFilterType(f.key),
-						className: `rounded-lg px-3 py-1.5 font-semibold transition-all ${filterType === f.key ? "bg-[#CE1141] text-white shadow-xs font-bold" : "border border-line-soft bg-surface text-ink-3 hover:border-line hover:text-ink"}`,
-						children: f.label
-					}, f.key))
-				})]
-			}),
-			featuredGame && /* @__PURE__ */ jsxs("div", {
-				className: "relative overflow-hidden rounded-2xl border-2 border-[#CE1141]/20 bg-surface p-5 shadow-sm transition-all hover:border-[#CE1141]/40",
-				children: [/* @__PURE__ */ jsx("div", {
-					className: "absolute right-0 top-0 rounded-bl-xl bg-[#CE1141] px-3 py-1 text-[11px] font-black uppercase tracking-wider text-white",
-					children: featuredGame.status === "final" ? "最新战报" : "下轮预告"
-				}), /* @__PURE__ */ jsxs("div", {
-					className: "flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between",
-					children: [/* @__PURE__ */ jsxs("div", {
-						className: "space-y-2",
+						/* @__PURE__ */ jsx("span", { children: "官方大名单:" }),
+						/* @__PURE__ */ jsxs("strong", {
+							className: "text-slate-900 dark:text-white font-mono",
+							children: [totalPlayers, " 人"]
+						}),
+						/* @__PURE__ */ jsx("span", {
+							className: "text-slate-300 dark:text-zinc-700",
+							children: "|"
+						}),
+						/* @__PURE__ */ jsx("span", { children: "赛程场次:" }),
+						/* @__PURE__ */ jsxs("strong", {
+							className: "text-slate-900 dark:text-white font-mono",
+							children: [totalGames, " 场"]
+						}),
+						/* @__PURE__ */ jsx("span", {
+							className: "text-slate-300 dark:text-zinc-700",
+							children: "|"
+						}),
+						/* @__PURE__ */ jsx("span", { children: "球队排名:" }),
+						/* @__PURE__ */ jsx("strong", {
+							className: "text-[#CE1141] font-mono font-bold",
+							children: rankDisplay
+						})
+					]
+				})
+			})]
+		})
+	});
+}
+//#endregion
+//#region app/features/schedule/RocketsScheduleRail.tsx
+function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
+	const scrollRef = useRef(null);
+	const [selectedMonth, setSelectedMonth] = useState("ALL");
+	const months = useMemo(() => {
+		const set = /* @__PURE__ */ new Set();
+		games.forEach((g) => {
+			const m = g.date.slice(0, 7);
+			if (m) set.add(m);
+		});
+		return Array.from(set).sort();
+	}, [games]);
+	const filteredGames = useMemo(() => {
+		if (selectedMonth === "ALL") return games;
+		return games.filter((g) => g.date.startsWith(selectedMonth));
+	}, [games, selectedMonth]);
+	const handleScroll = (direction) => {
+		if (scrollRef.current) {
+			const offset = direction === "left" ? -460 : 460;
+			scrollRef.current.scrollBy({
+				left: offset,
+				behavior: "smooth"
+			});
+		}
+	};
+	const getMonthLabel = (mStr) => {
+		const parts = mStr.split("-");
+		return `${Number(parts[1])}月`;
+	};
+	return /* @__PURE__ */ jsxs("section", {
+		className: "mb-6",
+		children: [/* @__PURE__ */ jsxs("div", {
+			className: "flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3 px-0.5",
+			children: [/* @__PURE__ */ jsxs("div", {
+				className: "flex items-center gap-2",
+				children: [
+					/* @__PURE__ */ jsx("span", { className: "w-1.5 h-4 bg-[#CE1141] rounded-full inline-block" }),
+					/* @__PURE__ */ jsx("h2", {
+						className: "text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight",
+						children: "2026-27 全季赛程与战报"
+					}),
+					/* @__PURE__ */ jsxs("span", {
+						className: "text-xs text-slate-500 dark:text-zinc-400 font-mono",
 						children: [
-							/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center gap-2 text-xs text-ink-3",
+							"(",
+							games.length,
+							" 场)"
+						]
+					})
+				]
+			}), /* @__PURE__ */ jsxs("div", {
+				className: "flex items-center gap-2 self-start sm:self-auto overflow-x-auto max-w-full pb-1 sm:pb-0",
+				children: [/* @__PURE__ */ jsxs("div", {
+					className: "flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs",
+					children: [/* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => setSelectedMonth("ALL"),
+						className: `px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${selectedMonth === "ALL" ? "bg-[#CE1141] text-white font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+						children: "全部"
+					}), months.map((m) => /* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => setSelectedMonth(m),
+						className: `px-2 py-1 rounded-md text-[11px] font-medium transition-colors ${selectedMonth === m ? "bg-[#CE1141] text-white font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+						children: getMonthLabel(m)
+					}, m))]
+				}), /* @__PURE__ */ jsxs("div", {
+					className: "flex items-center gap-1 flex-shrink-0",
+					children: [/* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => handleScroll("left"),
+						className: "w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors",
+						title: "向左滚动",
+						children: "‹"
+					}), /* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => handleScroll("right"),
+						className: "w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors",
+						title: "向右滚动",
+						children: "›"
+					})]
+				})]
+			})]
+		}), /* @__PURE__ */ jsx("div", {
+			ref: scrollRef,
+			className: "flex items-stretch gap-3 overflow-x-auto pb-2 scroll-smooth select-none focus:outline-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+			children: filteredGames.map((g) => {
+				const isFinal = g.status === "final";
+				const isWin = g.result?.outcome === "W";
+				const isSelected = selectedGameId === g.id;
+				const awayTeam = g.isHome ? {
+					name: g.opponent.name,
+					abbr: g.opponent.abbr,
+					score: g.result?.opponentScore
+				} : {
+					name: "休斯敦火箭",
+					abbr: "HOU",
+					score: g.result?.rocketsScore
+				};
+				const homeTeam = g.isHome ? {
+					name: "休斯敦火箭",
+					abbr: "HOU",
+					score: g.result?.rocketsScore
+				} : {
+					name: g.opponent.name,
+					abbr: g.opponent.abbr,
+					score: g.result?.opponentScore
+				};
+				const isAwayRockets = awayTeam.abbr === "HOU";
+				const isHomeRockets = homeTeam.abbr === "HOU";
+				return /* @__PURE__ */ jsxs("div", {
+					onClick: () => isFinal && onSelectGame(g.id),
+					className: `flex-shrink-0 w-60 sm:w-64 rounded-xl p-3.5 border transition-all text-xs flex flex-col justify-between ${isFinal ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md" : "cursor-default bg-slate-50/60 dark:bg-[#111317]"} ${isSelected ? "border-[#CE1141] ring-1 ring-[#CE1141] bg-red-50/20 dark:bg-[#1c1316]" : "border-slate-200 dark:border-white/10"}`,
+					children: [
+						/* @__PURE__ */ jsxs("div", {
+							className: "flex items-center justify-between text-[11px] pb-2 mb-2 border-b border-slate-100 dark:border-white/5",
+							children: [/* @__PURE__ */ jsxs("span", {
+								className: "font-mono text-slate-600 dark:text-zinc-400 font-medium",
 								children: [
-									/* @__PURE__ */ jsx("span", {
-										className: "font-bold text-accent",
-										children: featuredGame.arena.includes("澳门") ? "NBA 澳门季前赛" : featuredGame.stage === "cup" ? "NBA 杯赛" : "常规赛"
-									}),
-									/* @__PURE__ */ jsx("span", { children: "·" }),
-									/* @__PURE__ */ jsxs("span", {
-										className: "font-mono",
-										children: [
-											featuredGame.date,
-											" ",
-											getWeekday(featuredGame.date),
-											" · 北京时间 ",
-											featuredGame.time
-										]
-									})
+									g.date.slice(5),
+									" ",
+									g.time
 								]
-							}),
-							featuredGame.status === "final" && featuredGame.result ? /* @__PURE__ */ jsxs("div", {
-								className: "flex flex-wrap items-center gap-4",
+							}), /* @__PURE__ */ jsxs("div", {
+								className: "flex items-center gap-1.5",
+								children: [/* @__PURE__ */ jsx("span", {
+									className: "text-[10px] text-slate-400 dark:text-zinc-500",
+									children: g.stage === "preseason" ? "季前赛" : "常规赛"
+								}), isFinal ? /* @__PURE__ */ jsx("span", {
+									className: `text-[10px] px-1.5 py-0.2 rounded font-bold uppercase ${isWin ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400"}`,
+									children: isWin ? "胜" : "负"
+								}) : /* @__PURE__ */ jsx("span", {
+									className: "text-[10px] text-slate-500 dark:text-zinc-500 bg-slate-100 dark:bg-white/5 px-1.5 py-0.2 rounded font-medium",
+									children: "待开赛"
+								})]
+							})]
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							className: "space-y-2.5 py-1 font-sans",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "flex items-center justify-between",
 								children: [/* @__PURE__ */ jsxs("div", {
-									className: "flex items-center gap-3",
+									className: "flex items-center gap-2.5 min-w-0",
 									children: [
-										/* @__PURE__ */ jsx("span", {
-											className: "text-2xl font-black text-ink",
-											children: "休斯敦火箭"
+										/* @__PURE__ */ jsx("img", {
+											src: `https://a.espncdn.com/i/teamlogos/nba/500/${awayTeam.abbr.toLowerCase()}.png`,
+											alt: awayTeam.name,
+											className: "w-5 h-5 object-contain flex-shrink-0",
+											loading: "lazy"
 										}),
 										/* @__PURE__ */ jsx("span", {
-											className: "font-mono text-3xl font-black text-[#CE1141]",
-											children: featuredGame.result.rocketsScore
+											className: `text-xs truncate ${isAwayRockets ? "font-bold text-[#CE1141] dark:text-[#ff4d6d]" : "font-medium text-slate-800 dark:text-zinc-200"}`,
+											children: awayTeam.name
 										}),
-										/* @__PURE__ */ jsx("span", {
-											className: "text-lg font-bold text-ink-4",
-											children: "-"
-										}),
-										/* @__PURE__ */ jsx("span", {
-											className: "font-mono text-2xl font-black text-ink-2",
-											children: featuredGame.result.opponentScore
-										}),
-										/* @__PURE__ */ jsx("span", {
-											className: "text-2xl font-black text-ink-2",
-											children: featuredGame.opponent.name
+										isAwayRockets && /* @__PURE__ */ jsx("span", {
+											className: "text-[9px] px-1 rounded bg-[#CE1141]/10 text-[#CE1141] font-bold",
+											children: "客"
 										})
 									]
 								}), /* @__PURE__ */ jsx("span", {
-									className: "rounded-full bg-emerald-500/15 px-3 py-1 font-mono text-xs font-black text-emerald-600 dark:text-emerald-400",
-									children: featuredGame.result.outcome === "W" ? "胜 WIN" : "负 LOSS"
+									className: `font-mono text-sm ${isFinal && awayTeam.score !== void 0 ? awayTeam.score > (homeTeam.score ?? 0) ? "font-black text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500" : "text-slate-400 dark:text-zinc-600"}`,
+									children: isFinal ? awayTeam.score : "--"
 								})]
-							}) : /* @__PURE__ */ jsxs("h2", {
-								className: "text-xl font-black tracking-tight text-ink sm:text-2xl",
-								children: [
-									"休斯敦火箭 ",
-									featuredGame.isHome ? "VS" : "@",
-									" ",
-									featuredGame.opponent.name
-								]
+							}), /* @__PURE__ */ jsxs("div", {
+								className: "flex items-center justify-between",
+								children: [/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-2.5 min-w-0",
+									children: [
+										/* @__PURE__ */ jsx("img", {
+											src: `https://a.espncdn.com/i/teamlogos/nba/500/${homeTeam.abbr.toLowerCase()}.png`,
+											alt: homeTeam.name,
+											className: "w-5 h-5 object-contain flex-shrink-0",
+											loading: "lazy"
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: `text-xs truncate ${isHomeRockets ? "font-bold text-[#CE1141] dark:text-[#ff4d6d]" : "font-medium text-slate-800 dark:text-zinc-200"}`,
+											children: homeTeam.name
+										}),
+										isHomeRockets && /* @__PURE__ */ jsx("span", {
+											className: "text-[9px] px-1 rounded bg-[#CE1141]/10 text-[#CE1141] font-bold",
+											children: "主"
+										})
+									]
+								}), /* @__PURE__ */ jsx("span", {
+									className: `font-mono text-sm ${isFinal && homeTeam.score !== void 0 ? homeTeam.score > (awayTeam.score ?? 0) ? "font-black text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500" : "text-slate-400 dark:text-zinc-600"}`,
+									children: isFinal ? homeTeam.score : "--"
+								})]
+							})]
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							className: "pt-2 mt-2 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px]",
+							children: [/* @__PURE__ */ jsx("span", {
+								className: "text-slate-400 dark:text-zinc-500 truncate max-w-[130px]",
+								children: g.arena.split("·")[0] || g.arena
+							}), isFinal ? /* @__PURE__ */ jsx("span", {
+								className: "text-[#CE1141] font-semibold hover:underline",
+								children: "查看统计 ›"
+							}) : /* @__PURE__ */ jsx("span", {
+								className: "text-slate-400 dark:text-zinc-600 text-[10px]",
+								children: g.isHome ? "主场迎战" : "客场出战"
+							})]
+						})
+					]
+				}, g.id);
+			})
+		})]
+	});
+}
+//#endregion
+//#region app/features/schedule/RocketsStandingsSection.tsx
+function RocketsStandingsSection({ standings }) {
+	const [showHistoryStandings, setShowHistoryStandings] = useState(false);
+	return /* @__PURE__ */ jsxs("section", {
+		className: "bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 mb-6 text-xs transition-colors shadow-xs",
+		children: [/* @__PURE__ */ jsxs("div", {
+			className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3",
+			children: [/* @__PURE__ */ jsxs("div", {
+				className: "flex items-center gap-2.5",
+				children: [/* @__PURE__ */ jsx("div", {
+					className: "w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 flex items-center justify-center font-bold text-[11px] flex-shrink-0",
+					children: "NBA"
+				}), /* @__PURE__ */ jsxs("div", {
+					className: "flex flex-wrap items-center gap-2",
+					children: [
+						/* @__PURE__ */ jsx("span", {
+							className: "font-bold text-slate-900 dark:text-white text-xs sm:text-sm",
+							children: "西部排名参考"
+						}),
+						/* @__PURE__ */ jsx("span", {
+							className: "px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold border border-amber-500/20",
+							children: "季前赛热身阶段 · 不计入排位"
+						}),
+						/* @__PURE__ */ jsx("span", {
+							className: "text-slate-400 dark:text-zinc-500 text-xs hidden md:inline",
+							children: "· 10月23日常规赛揭幕后实时刷新官方战绩积分榜"
+						})
+					]
+				})]
+			}), /* @__PURE__ */ jsx("div", {
+				className: "flex items-center gap-2 self-start sm:self-auto flex-shrink-0",
+				children: /* @__PURE__ */ jsxs("button", {
+					type: "button",
+					onClick: () => setShowHistoryStandings(!showHistoryStandings),
+					className: "px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10 transition-colors font-medium text-xs flex items-center gap-1.5",
+					children: [/* @__PURE__ */ jsx("span", { children: showHistoryStandings ? "收起球队排名" : "查看球队排名" }), /* @__PURE__ */ jsx("span", {
+						className: "text-[10px]",
+						children: showHistoryStandings ? "▲" : "▼"
+					})]
+				})
+			})]
+		}), showHistoryStandings && standings && standings.entries && /* @__PURE__ */ jsxs("div", {
+			className: "mt-3.5 pt-3 border-t border-slate-100 dark:border-white/5",
+			children: [/* @__PURE__ */ jsxs("div", {
+				className: "flex items-center justify-end gap-3 mb-2 px-0.5 text-[10px] text-slate-400 dark:text-zinc-500 font-medium",
+				children: [/* @__PURE__ */ jsxs("span", {
+					className: "flex items-center gap-1",
+					children: [/* @__PURE__ */ jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-emerald-500" }), "1-6 季后赛直通"]
+				}), /* @__PURE__ */ jsxs("span", {
+					className: "flex items-center gap-1",
+					children: [/* @__PURE__ */ jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-amber-500" }), "7-10 附加赛"]
+				})]
+			}), /* @__PURE__ */ jsx("div", {
+				className: "border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xs",
+				children: /* @__PURE__ */ jsxs("table", {
+					className: "w-full text-left text-xs table-fixed",
+					children: [/* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", {
+						className: "bg-slate-50 dark:bg-white/[0.02] text-slate-600 dark:text-zinc-400 border-b border-slate-200 dark:border-white/5 text-[11px] font-semibold select-none",
+						children: [
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1.5 text-center w-8 sm:w-10",
+								children: "#"
 							}),
-							featuredGame.result?.topPerformer && /* @__PURE__ */ jsxs("p", {
-								className: "text-xs font-semibold text-emerald-600 dark:text-emerald-400",
-								children: [
-									"★ 全场最佳：",
-									featuredGame.result.topPerformer.name,
-									" · ",
-									featuredGame.result.topPerformer.stats
-								]
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-2 w-[34%] sm:w-[24%] md:w-[20%]",
+								children: "球队"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1 text-center w-[12%] sm:w-[9%] md:w-[7%] text-slate-900 dark:text-white font-bold",
+								children: "胜"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1 text-center w-[12%] sm:w-[9%] md:w-[7%]",
+								children: "负"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1 text-center w-[14%] sm:w-[10%] md:w-[8%]",
+								children: "胜差"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1.5 text-center hidden sm:table-cell w-[11%] md:w-[8%]",
+								children: "胜率"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1 text-center hidden md:table-cell w-[7%]",
+								children: "连胜/负"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1.5 text-center hidden md:table-cell w-[9%]",
+								children: "近10场"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1.5 text-center hidden lg:table-cell w-[9%]",
+								children: "主场"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1.5 text-center hidden lg:table-cell w-[9%]",
+								children: "客场"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1 text-center hidden xl:table-cell w-[7%]",
+								children: "场均得"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1 text-center hidden xl:table-cell w-[7%]",
+								children: "场均失"
+							}),
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-1 text-center hidden xl:table-cell w-[7%]",
+								children: "净胜分"
 							})
 						]
-					}), featuredGame.status === "final" && /* @__PURE__ */ jsx("div", {
-						className: "flex shrink-0 items-center gap-3",
-						children: /* @__PURE__ */ jsx("button", {
-							type: "button",
-							onClick: () => handleOpenDetail(featuredGame),
-							className: "rounded-xl bg-[#CE1141] px-4 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-[#b00e36]",
-							children: "查看双方球员技术统计 Boxscore →"
+					}) }), /* @__PURE__ */ jsx("tbody", {
+						className: "divide-y divide-slate-100 dark:divide-white/5 font-mono",
+						children: standings.entries.map((team) => {
+							const isRockets = team.isRockets;
+							const isPlayoffDirect = team.rank <= 6;
+							const isPlayIn = team.rank >= 7 && team.rank <= 10;
+							const isUtah = team.name?.toLowerCase().includes("jazz") || team.name === "Utah Jazz" || team.abbr?.toUpperCase() === "UTAH" || team.abbr?.toUpperCase() === "UTA";
+							const displayName = isUtah ? "犹他爵士" : team.name;
+							const teamLogoUrl = isUtah ? "https://a.espncdn.com/i/teamlogos/nba/500/utah.png" : team.abbr?.toLowerCase() === "nop" ? "https://a.espncdn.com/i/teamlogos/nba/500/no.png" : `https://a.espncdn.com/i/teamlogos/nba/500/${team.abbr.toLowerCase()}.png`;
+							return /* @__PURE__ */ jsxs("tr", {
+								className: isRockets ? "bg-red-50/60 dark:bg-[#CE1141]/10 font-bold border-l-2 border-l-[#CE1141]" : isPlayoffDirect ? "hover:bg-slate-50 dark:hover:bg-white/[0.02] border-l-2 border-l-emerald-500/40" : isPlayIn ? "hover:bg-slate-50 dark:hover:bg-white/[0.02] border-l-2 border-l-amber-500/40" : "text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-white/[0.02] border-l-2 border-l-transparent",
+								children: [
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1 text-center text-slate-500 dark:text-zinc-400 text-[11px] font-bold",
+										children: team.rank
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-2 font-sans truncate",
+										children: /* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-2 truncate",
+											children: [/* @__PURE__ */ jsx("img", {
+												src: teamLogoUrl,
+												alt: displayName,
+												className: "w-4 h-4 sm:w-4.5 sm:h-4.5 object-contain flex-shrink-0",
+												loading: "lazy",
+												onError: (e) => {
+													e.target.style.display = "none";
+												}
+											}), /* @__PURE__ */ jsx("span", {
+												className: `text-xs truncate ${isRockets ? "text-[#CE1141] font-bold" : "text-slate-800 dark:text-zinc-200"}`,
+												children: displayName
+											})]
+										})
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1 text-center text-slate-900 dark:text-zinc-100 font-bold",
+										children: team.wins
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1 text-center text-slate-500 dark:text-zinc-400",
+										children: team.losses
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1 text-center text-slate-600 dark:text-zinc-300",
+										children: team.gamesBehind
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300 hidden sm:table-cell",
+										children: team.winPct
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1 text-center text-slate-600 dark:text-zinc-400 hidden md:table-cell text-[11px]",
+										children: team.streak || "-"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300 hidden md:table-cell",
+										children: team.lastTen
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-500 dark:text-zinc-400 hidden lg:table-cell",
+										children: team.homeRecord
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-500 dark:text-zinc-400 hidden lg:table-cell",
+										children: team.awayRecord
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1 text-center text-slate-600 dark:text-zinc-400 hidden xl:table-cell",
+										children: team.pointsFor ? team.pointsFor.toFixed(1) : "-"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1 text-center text-slate-600 dark:text-zinc-400 hidden xl:table-cell",
+										children: team.pointsAgainst ? team.pointsAgainst.toFixed(1) : "-"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1 text-center font-semibold text-slate-700 dark:text-zinc-300 hidden xl:table-cell",
+										children: team.diff || "-"
+									})
+								]
+							}, team.abbr || team.id);
 						})
+					})]
+				})
+			})]
+		})]
+	});
+}
+//#endregion
+//#region app/features/schedule/RocketsRosterSection.tsx
+function RocketsRosterSection({ players, onSelectPlayer }) {
+	const [filterPos, setFilterPos] = useState("ALL");
+	const [searchQuery, setSearchQuery] = useState("");
+	const [sortField, setSortField] = useState("pts");
+	const [sortAsc, setSortAsc] = useState(false);
+	const handleHeaderSort = (field) => {
+		if (sortField === field) setSortAsc(!sortAsc);
+		else {
+			setSortField(field);
+			setSortAsc(false);
+		}
+	};
+	const has2026Stats = useMemo(() => {
+		return players.some((p) => p.seasons?.["2026-27"] && p.seasons["2026-27"].gp > 0);
+	}, [players]);
+	const filteredPlayers = useMemo(() => {
+		return players.filter((p) => {
+			if (filterPos === "G" && !p.position.includes("G")) return false;
+			if (filterPos === "F" && !p.position.includes("F")) return false;
+			if (filterPos === "C" && !p.position.includes("C")) return false;
+			if (searchQuery.trim()) {
+				const q = searchQuery.toLowerCase();
+				if (!(p.nameCn.toLowerCase().includes(q) || p.nameEn.toLowerCase().includes(q) || p.number.includes(q))) return false;
+			}
+			return true;
+		}).sort((a, b) => {
+			const sA = has2026Stats && a.seasons?.["2026-27"]?.gp ? a.seasons["2026-27"] : a.seasons?.["2025-26"] || a.stats;
+			const sB = has2026Stats && b.seasons?.["2026-27"]?.gp ? b.seasons["2026-27"] : b.seasons?.["2025-26"] || b.stats;
+			let valA = 0;
+			let valB = 0;
+			switch (sortField) {
+				case "number":
+					valA = Number(a.number) || 99;
+					valB = Number(b.number) || 99;
+					break;
+				case "pts":
+					valA = sA.pts || 0;
+					valB = sB.pts || 0;
+					break;
+				case "reb":
+					valA = sA.reb || 0;
+					valB = sB.reb || 0;
+					break;
+				case "ast":
+					valA = sA.ast || 0;
+					valB = sB.ast || 0;
+					break;
+				case "stl":
+					valA = sA.stl || 0;
+					valB = sB.stl || 0;
+					break;
+				case "blk":
+					valA = sA.blk || 0;
+					valB = sB.blk || 0;
+					break;
+				case "tov":
+					valA = sA.tov || 0;
+					valB = sB.tov || 0;
+					break;
+				case "mpg":
+					valA = sA.mpg || 0;
+					valB = sB.mpg || 0;
+					break;
+				case "fgPct":
+					valA = sA.fgPct || 0;
+					valB = sB.fgPct || 0;
+					break;
+				case "threePtPct":
+					valA = sA.threePtPct || 0;
+					valB = sB.threePtPct || 0;
+					break;
+				case "ftPct":
+					valA = sA.ftPct || 0;
+					valB = sB.ftPct || 0;
+					break;
+				case "gp":
+					valA = sA.gp || 0;
+					valB = sB.gp || 0;
+					break;
+				case "age":
+					valA = a.age || 0;
+					valB = b.age || 0;
+			}
+			return sortAsc ? valA - valB : valB - valA;
+		});
+	}, [
+		players,
+		filterPos,
+		searchQuery,
+		sortField,
+		sortAsc,
+		has2026Stats
+	]);
+	const renderSortArrow = (field) => {
+		if (sortField !== field) return /* @__PURE__ */ jsx("span", {
+			className: "text-slate-400 dark:text-zinc-600 ml-0.5 text-[10px]",
+			children: "↕"
+		});
+		return /* @__PURE__ */ jsx("span", {
+			className: "text-[#CE1141] font-bold ml-0.5 text-[10px]",
+			children: sortAsc ? "▲" : "▼"
+		});
+	};
+	return /* @__PURE__ */ jsxs("section", {
+		className: "mb-12",
+		children: [
+			/* @__PURE__ */ jsxs("div", {
+				className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 px-0.5",
+				children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
+					className: "flex items-center gap-2",
+					children: [
+						/* @__PURE__ */ jsx("span", { className: "w-1.5 h-4 bg-[#CE1141] rounded-full inline-block" }),
+						/* @__PURE__ */ jsx("h2", {
+							className: "text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight",
+							children: "2026-27 赛季火箭官方球员名册与技术统计"
+						}),
+						/* @__PURE__ */ jsxs("span", {
+							className: "text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-400",
+							children: [
+								"ESPN 大名单 (",
+								players.length,
+								"人)"
+							]
+						})
+					]
+				}), /* @__PURE__ */ jsx("p", {
+					className: "text-xs text-slate-500 dark:text-zinc-400 mt-0.5",
+					children: has2026Stats ? "显示 2026-27 赛季常规赛最新数据 · 点击各表头可多维度排序 · 点击球员查看档案" : "当前呈现 2025-26 赛季数据 · 2026-27 常规赛打响后自动切换最新数据 · 支持点击表头排序"
+				})] }), /* @__PURE__ */ jsxs("div", {
+					className: "flex items-center gap-2 self-start sm:self-auto flex-wrap sm:flex-nowrap",
+					children: [/* @__PURE__ */ jsx("div", {
+						className: "flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs",
+						children: [
+							{
+								id: "ALL",
+								label: "全部"
+							},
+							{
+								id: "G",
+								label: "后卫"
+							},
+							{
+								id: "F",
+								label: "前锋"
+							},
+							{
+								id: "C",
+								label: "中锋"
+							}
+						].map((tab) => /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setFilterPos(tab.id),
+							className: `px-2.5 py-1 rounded-md font-medium transition-colors ${filterPos === tab.id ? "bg-[#CE1141] text-white font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+							children: tab.label
+						}, tab.id))
+					}), /* @__PURE__ */ jsxs("div", {
+						className: "relative",
+						children: [/* @__PURE__ */ jsx("input", {
+							type: "text",
+							value: searchQuery,
+							onChange: (e) => setSearchQuery(e.target.value),
+							placeholder: "搜索球员或号码...",
+							className: "bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg pl-7 pr-2.5 py-1 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-[#CE1141] w-36 sm:w-44"
+						}), /* @__PURE__ */ jsx("span", {
+							className: "absolute left-2 top-1.5 text-slate-400 dark:text-zinc-500 text-xs",
+							children: "🔍"
+						})]
 					})]
 				})]
 			}),
 			/* @__PURE__ */ jsx("div", {
-				className: "flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none",
-				children: MONTHS.map((m, idx) => /* @__PURE__ */ jsxs("button", {
-					type: "button",
-					onClick: () => setSelectedMonthIdx(idx),
-					className: `inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${selectedMonthIdx === idx ? "bg-ink text-bg font-bold shadow-xs" : "border border-line-soft bg-surface text-ink-3 hover:border-line hover:text-ink"}`,
-					children: [/* @__PURE__ */ jsx("span", { children: m.label }), /* @__PURE__ */ jsx("span", {
-						className: "text-[11px] opacity-75",
-						children: m.subtitle
-					})]
-				}, m.label))
-			}),
-			/* @__PURE__ */ jsx("div", {
-				className: "grid gap-3.5 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3",
-				children: filteredGames.length === 0 ? /* @__PURE__ */ jsx("div", {
-					className: "col-span-full rounded-2xl border border-line-soft bg-surface py-16 text-center text-xs text-ink-4",
-					children: "当前筛选下暂无比赛安排"
-				}) : filteredGames.map((game) => {
-					const isFinal = game.status === "final" && game.result;
-					const isWin = isFinal && game.result?.outcome === "W";
-					return /* @__PURE__ */ jsxs("div", {
-						onClick: () => isFinal && handleOpenDetail(game),
-						className: `group relative flex flex-col justify-between rounded-2xl border border-line bg-surface p-4 shadow-2xs transition-all ${isFinal ? "cursor-pointer hover:-translate-y-0.5 hover:border-[#CE1141]/50 hover:shadow-sm" : "cursor-default"}`,
+				className: "hidden md:block bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-xs transition-colors",
+				children: /* @__PURE__ */ jsxs("table", {
+					className: "w-full text-left text-xs table-fixed",
+					children: [/* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", {
+						className: "bg-slate-50 dark:bg-white/[0.02] text-slate-600 dark:text-zinc-400 border-b border-slate-200 dark:border-white/10 text-[11px] font-semibold select-none",
 						children: [
-							/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center justify-between border-b border-line-soft pb-2.5 text-xs",
-								children: [/* @__PURE__ */ jsxs("div", {
-									className: "flex items-center gap-2",
-									children: [/* @__PURE__ */ jsxs("span", {
-										className: "font-mono font-bold text-ink",
-										children: [
-											game.date.slice(5),
-											" ",
-											getWeekday(game.date)
-										]
-									}), /* @__PURE__ */ jsx("span", {
-										className: "font-mono text-ink-3",
-										children: game.time
-									})]
-								}), isFinal ? /* @__PURE__ */ jsx("span", {
-									className: `rounded-full px-2 py-0.5 font-mono text-[11px] font-black ${isWin ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-red-500/15 text-red-600 dark:text-red-400"}`,
-									children: isWin ? "胜 W" : "负 L"
-								}) : /* @__PURE__ */ jsx("span", {
-									className: "rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-semibold text-ink-3",
-									children: game.stage === "cup" ? "NBA杯" : game.isHome ? "主场" : "客场"
-								})]
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-2.5 w-[16%]",
+								children: "球员 / 号码"
 							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "my-3 space-y-2",
-								children: [/* @__PURE__ */ jsxs("div", {
-									className: "flex items-center justify-between",
-									children: [/* @__PURE__ */ jsxs("div", {
-										className: "space-y-1",
-										children: [/* @__PURE__ */ jsxs("div", {
-											className: "flex items-center gap-2",
-											children: [/* @__PURE__ */ jsx("span", { className: "size-2 rounded-full bg-[#CE1141]" }), /* @__PURE__ */ jsx("span", {
-												className: "text-sm font-extrabold text-ink sm:text-base",
-												children: "休斯敦火箭"
-											})]
-										}), /* @__PURE__ */ jsxs("div", {
-											className: "flex items-center gap-2",
-											children: [/* @__PURE__ */ jsx("span", { className: "size-2 rounded-full bg-slate-400" }), /* @__PURE__ */ jsx("span", {
-												className: "text-sm font-extrabold text-ink-2 sm:text-base",
-												children: game.opponent.name
-											})]
-										})]
-									}), isFinal ? /* @__PURE__ */ jsxs("div", {
-										className: "text-right",
-										children: [/* @__PURE__ */ jsx("div", {
-											className: "font-mono text-lg font-black text-[#CE1141]",
-											children: game.result.rocketsScore
-										}), /* @__PURE__ */ jsx("div", {
-											className: "font-mono text-lg font-black text-ink-2",
-											children: game.result.opponentScore
-										})]
-									}) : /* @__PURE__ */ jsx("div", {
-										className: "text-right",
-										children: /* @__PURE__ */ jsx("span", {
-											className: "font-mono text-xs font-bold text-ink-4",
-											children: "VS"
-										})
-									})]
-								}), isFinal && game.result?.topPerformer && /* @__PURE__ */ jsxs("div", {
-									className: "rounded-xl bg-bg-sunk/60 p-2 text-[11.5px] leading-relaxed text-emerald-700 dark:text-emerald-300",
-									children: [
-										"★ 最佳：",
-										game.result.topPerformer.name,
-										" · ",
-										game.result.topPerformer.stats
-									]
-								})]
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("age"),
+								className: "py-2.5 px-1 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[5%]",
+								children: ["年龄 ", renderSortArrow("age")]
 							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center justify-between border-t border-line-soft pt-2 text-[11.5px] text-ink-4",
-								children: [/* @__PURE__ */ jsx("span", {
-									className: "truncate max-w-[200px]",
-									children: game.arena
-								}), isFinal ? /* @__PURE__ */ jsx("span", {
-									className: "font-semibold text-accent group-hover:underline",
-									children: "技术统计 →"
-								}) : /* @__PURE__ */ jsx("span", {
-									className: "text-ink-4",
-									children: game.broadcast
-								})]
+							/* @__PURE__ */ jsx("th", {
+								className: "py-2.5 px-2 w-[11%]",
+								children: "大学 / 选秀"
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("pts"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-[#CE1141] font-bold text-slate-900 dark:text-white bg-slate-100/60 dark:bg-white/[0.02] w-[7%]",
+								children: ["得分 ", renderSortArrow("pts")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("reb"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[6%]",
+								children: ["篮板 ", renderSortArrow("reb")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("ast"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[6%]",
+								children: ["助攻 ", renderSortArrow("ast")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("stl"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[6%]",
+								children: ["抢断 ", renderSortArrow("stl")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("blk"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[6%]",
+								children: ["盖帽 ", renderSortArrow("blk")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("tov"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[5%]",
+								children: ["失误 ", renderSortArrow("tov")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("fgPct"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[7%]",
+								children: ["投篮% ", renderSortArrow("fgPct")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("threePtPct"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[7%]",
+								children: ["三分% ", renderSortArrow("threePtPct")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("ftPct"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[7%]",
+								children: ["罚球% ", renderSortArrow("ftPct")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("mpg"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[6%]",
+								children: ["时间 ", renderSortArrow("mpg")]
+							}),
+							/* @__PURE__ */ jsxs("th", {
+								onClick: () => handleHeaderSort("gp"),
+								className: "py-2.5 px-1.5 text-center cursor-pointer hover:text-slate-900 dark:hover:text-white w-[5%]",
+								children: ["场次 ", renderSortArrow("gp")]
 							})
 						]
-					}, game.id);
+					}) }), /* @__PURE__ */ jsx("tbody", {
+						className: "divide-y divide-slate-100 dark:divide-white/5 font-mono",
+						children: filteredPlayers.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", {
+							colSpan: 14,
+							className: "py-8 text-center text-slate-400 dark:text-zinc-500 font-sans",
+							children: "未找到匹配球员"
+						}) }) : filteredPlayers.map((p) => {
+							const s = has2026Stats && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats;
+							const isTopStar = p.nameEn.includes("Durant") || p.nameEn.includes("Sengun");
+							return /* @__PURE__ */ jsxs("tr", {
+								onClick: () => onSelectPlayer(p),
+								className: `cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.04] group ${isTopStar ? "bg-red-50/15 dark:bg-[#CE1141]/5" : ""}`,
+								children: [
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-2.5 font-sans truncate",
+										children: /* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-2 min-w-0",
+											children: [/* @__PURE__ */ jsxs("div", {
+												className: "relative flex-shrink-0",
+												children: [/* @__PURE__ */ jsx("img", {
+													src: p.headshotUrl,
+													alt: p.nameCn,
+													className: "w-7 h-7 rounded-full bg-slate-100 dark:bg-zinc-800 object-cover object-top border border-slate-200 dark:border-white/10",
+													loading: "lazy"
+												}), /* @__PURE__ */ jsxs("span", {
+													className: "absolute -bottom-1 -right-1 px-1 py-0.2 rounded bg-slate-800 text-white font-mono text-[8px] font-bold",
+													children: ["#", p.number]
+												})]
+											}), /* @__PURE__ */ jsxs("div", {
+												className: "min-w-0",
+												children: [/* @__PURE__ */ jsxs("div", {
+													className: "flex items-center gap-1",
+													children: [/* @__PURE__ */ jsx("span", {
+														className: "font-bold text-slate-900 dark:text-zinc-100 text-xs truncate group-hover:text-[#CE1141] transition-colors",
+														children: p.nameCn
+													}), /* @__PURE__ */ jsx("span", {
+														className: "text-[10px] text-slate-400 dark:text-zinc-500 font-medium",
+														children: p.position
+													})]
+												}), /* @__PURE__ */ jsx("span", {
+													className: "text-[10px] text-slate-400 dark:text-zinc-500 font-mono truncate block",
+													children: p.height
+												})]
+											})]
+										})
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1 text-center text-slate-600 dark:text-zinc-400 text-xs",
+										children: p.age
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-2 font-sans text-slate-600 dark:text-zinc-400 text-[11px] truncate",
+										children: p.college
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center font-bold text-sm bg-slate-50/60 dark:bg-white/[0.01]",
+										children: /* @__PURE__ */ jsx("span", {
+											className: s.pts >= 20 ? "text-[#CE1141] font-black" : s.pts >= 15 ? "text-slate-900 dark:text-zinc-100" : "text-slate-700 dark:text-zinc-300",
+											children: s.pts ? s.pts.toFixed(1) : "--"
+										})
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-800 dark:text-zinc-200",
+										children: s.reb ? s.reb.toFixed(1) : "--"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-800 dark:text-zinc-200",
+										children: s.ast ? s.ast.toFixed(1) : "--"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
+										children: s.stl ? s.stl.toFixed(1) : "--"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
+										children: s.blk ? s.blk.toFixed(1) : "--"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-500 dark:text-zinc-400",
+										children: s.tov ? s.tov.toFixed(1) : "--"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
+										children: s.fgPct ? `${s.fgPct.toFixed(1)}%` : "--"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
+										children: s.threePtPct ? `${s.threePtPct.toFixed(1)}%` : "--"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
+										children: s.ftPct ? `${s.ftPct.toFixed(1)}%` : "--"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-600 dark:text-zinc-400 text-[11px]",
+										children: s.mpg ? `${s.mpg.toFixed(1)}'` : "--"
+									}),
+									/* @__PURE__ */ jsx("td", {
+										className: "py-2 px-1.5 text-center text-slate-600 dark:text-zinc-400 text-xs",
+										children: s.gp ?? "--"
+									})
+								]
+							}, p.id);
+						})
+					})]
 				})
 			}),
-			activeGame && activeBoxScore && /* @__PURE__ */ jsx("div", {
-				className: "fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-3 backdrop-blur-xs sm:p-6",
-				onClick: () => setActiveGame(null),
-				children: /* @__PURE__ */ jsxs("div", {
-					className: "flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl",
-					onClick: (e) => e.stopPropagation(),
+			/* @__PURE__ */ jsx("div", {
+				className: "block md:hidden space-y-2",
+				children: filteredPlayers.length === 0 ? /* @__PURE__ */ jsx("div", {
+					className: "py-8 text-center text-slate-400 dark:text-zinc-500 text-xs",
+					children: "未找到匹配球员"
+				}) : filteredPlayers.map((p) => {
+					const s = has2026Stats && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats;
+					const isHighScorer = s.pts >= 18;
+					return /* @__PURE__ */ jsxs("div", {
+						onClick: () => onSelectPlayer(p),
+						className: "bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs shadow-xs active:scale-[0.99] transition-transform",
+						children: [/* @__PURE__ */ jsxs("div", {
+							className: "flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100 dark:border-white/5",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "flex items-center gap-2 min-w-0",
+								children: [/* @__PURE__ */ jsxs("div", {
+									className: "relative flex-shrink-0",
+									children: [/* @__PURE__ */ jsx("img", {
+										src: p.headshotUrl,
+										alt: p.nameCn,
+										className: "w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 object-cover object-top border border-slate-200 dark:border-white/10",
+										loading: "lazy"
+									}), /* @__PURE__ */ jsxs("span", {
+										className: "absolute -bottom-1 -right-1 px-1 py-0.2 rounded bg-slate-800 text-white font-mono text-[8px] font-bold",
+										children: ["#", p.number]
+									})]
+								}), /* @__PURE__ */ jsx("div", {
+									className: "min-w-0",
+									children: /* @__PURE__ */ jsxs("div", {
+										className: "flex items-center gap-1.5",
+										children: [
+											/* @__PURE__ */ jsx("span", {
+												className: "font-bold text-slate-900 dark:text-white text-xs truncate",
+												children: p.nameCn
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] px-1 py-0.2 rounded bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-zinc-400 font-sans",
+												children: p.position
+											}),
+											/* @__PURE__ */ jsxs("span", {
+												className: "text-[11px] text-slate-400 dark:text-zinc-500 font-sans",
+												children: [
+													p.age,
+													"岁 · ",
+													p.college
+												]
+											})
+										]
+									})
+								})]
+							}), /* @__PURE__ */ jsx("span", {
+								className: "text-slate-400 dark:text-zinc-500 text-sm",
+								children: "›"
+							})]
+						}), /* @__PURE__ */ jsxs("div", {
+							className: "flex items-center justify-between bg-slate-50 dark:bg-white/[0.04] px-2 py-1.5 rounded-lg border border-slate-200/60 dark:border-white/5 font-mono text-xs",
+							children: [
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-1",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+										children: "分"
+									}), /* @__PURE__ */ jsx("span", {
+										className: `font-bold text-sm ${isHighScorer ? "text-[#CE1141]" : "text-slate-900 dark:text-white"}`,
+										children: s.pts ? s.pts.toFixed(1) : "--"
+									})]
+								}),
+								/* @__PURE__ */ jsx("span", {
+									className: "text-slate-200 dark:text-zinc-700",
+									children: "|"
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-1",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+										children: "板"
+									}), /* @__PURE__ */ jsx("span", {
+										className: "font-semibold text-slate-800 dark:text-zinc-200",
+										children: s.reb ? s.reb.toFixed(1) : "--"
+									})]
+								}),
+								/* @__PURE__ */ jsx("span", {
+									className: "text-slate-200 dark:text-zinc-700",
+									children: "|"
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-1",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+										children: "助"
+									}), /* @__PURE__ */ jsx("span", {
+										className: "font-semibold text-slate-800 dark:text-zinc-200",
+										children: s.ast ? s.ast.toFixed(1) : "--"
+									})]
+								}),
+								/* @__PURE__ */ jsx("span", {
+									className: "text-slate-200 dark:text-zinc-700",
+									children: "|"
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-1",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+										children: "断"
+									}), /* @__PURE__ */ jsx("span", {
+										className: "text-slate-700 dark:text-zinc-300",
+										children: s.stl ? s.stl.toFixed(1) : "--"
+									})]
+								}),
+								/* @__PURE__ */ jsx("span", {
+									className: "text-slate-200 dark:text-zinc-700",
+									children: "|"
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-1",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+										children: "帽"
+									}), /* @__PURE__ */ jsx("span", {
+										className: "text-slate-700 dark:text-zinc-300",
+										children: s.blk ? s.blk.toFixed(1) : "--"
+									})]
+								}),
+								/* @__PURE__ */ jsx("span", {
+									className: "text-slate-200 dark:text-zinc-700",
+									children: "|"
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-1",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+										children: "投%"
+									}), /* @__PURE__ */ jsx("span", {
+										className: "text-slate-700 dark:text-zinc-300 text-[11px]",
+										children: s.fgPct ? `${s.fgPct.toFixed(0)}%` : "--"
+									})]
+								}),
+								/* @__PURE__ */ jsx("span", {
+									className: "text-slate-200 dark:text-zinc-700",
+									children: "|"
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-1",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+										children: "3P%"
+									}), /* @__PURE__ */ jsx("span", {
+										className: "text-slate-700 dark:text-zinc-300 text-[11px]",
+										children: s.threePtPct ? `${s.threePtPct.toFixed(0)}%` : "--"
+									})]
+								})
+							]
+						})]
+					}, p.id);
+				})
+			})
+		]
+	});
+}
+//#endregion
+//#region app/features/schedule/RocketsGameDetail.tsx
+function RocketsGameDetail({ breakdown, isLoading, onClose }) {
+	const [activeTeamTab, setActiveTeamTab] = useState("rockets");
+	if (isLoading) return /* @__PURE__ */ jsx("div", {
+		className: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm p-4",
+		children: /* @__PURE__ */ jsxs("div", {
+			className: "bg-white dark:bg-[#14161b] border border-slate-200 dark:border-white/10 rounded-2xl p-6 text-center max-w-sm w-full shadow-2xl",
+			children: [/* @__PURE__ */ jsx("div", { className: "w-8 h-8 border-2 border-[#CE1141] border-t-transparent rounded-full animate-spin mx-auto mb-3" }), /* @__PURE__ */ jsx("p", {
+				className: "text-slate-900 dark:text-white text-xs font-semibold",
+				children: "正在载入官方技术统计..."
+			})]
+		})
+	});
+	if (!breakdown) return null;
+	const { game, quarters, rocketsPlayers, opponentPlayers } = breakdown;
+	const isRocketsWin = game.result?.outcome === "W";
+	const rScore = game.result?.rocketsScore ?? 0;
+	const oScore = game.result?.opponentScore ?? 0;
+	const currentPlayers = activeTeamTab === "rockets" ? rocketsPlayers : opponentPlayers;
+	return /* @__PURE__ */ jsx("div", {
+		className: "fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-2 sm:p-4 md:p-6 overflow-y-auto",
+		onClick: onClose,
+		children: /* @__PURE__ */ jsxs("div", {
+			className: "relative bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden transition-colors my-auto",
+			onClick: (e) => e.stopPropagation(),
+			children: [
+				/* @__PURE__ */ jsxs("div", {
+					className: "relative bg-slate-50 dark:bg-[#15181e] p-4 sm:p-5 border-b border-slate-200 dark:border-white/10",
+					children: [
+						/* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: onClose,
+							className: "absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/15 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors text-sm",
+							title: "关闭",
+							children: "✕"
+						}),
+						/* @__PURE__ */ jsxs("div", {
+							className: "flex items-center justify-between max-w-2xl mx-auto",
+							children: [
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex flex-col items-center flex-1 text-center",
+									children: [
+										/* @__PURE__ */ jsx("img", {
+											src: "https://a.espncdn.com/i/teamlogos/nba/500/hou.png",
+											alt: "休斯敦火箭",
+											className: "w-12 h-12 sm:w-14 sm:h-14 object-contain mb-1 drop-shadow-xs",
+											loading: "eager"
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "font-bold text-slate-900 dark:text-white text-sm sm:text-base",
+											children: "休斯敦火箭"
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-[11px] text-slate-500 dark:text-zinc-400",
+											children: game.isHome ? "主场" : "客场"
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: `text-2xl sm:text-4xl font-black font-mono mt-0.5 ${rScore > oScore ? "text-[#CE1141]" : "text-slate-700 dark:text-zinc-300"}`,
+											children: rScore
+										})
+									]
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex flex-col items-center px-4 sm:px-6",
+									children: [
+										/* @__PURE__ */ jsx("span", {
+											className: `px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider mb-1 ${isRocketsWin ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30" : "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30"}`,
+											children: isRocketsWin ? "火箭胜" : "告负"
+										}),
+										/* @__PURE__ */ jsxs("span", {
+											className: "text-xs text-slate-600 dark:text-zinc-400 font-mono font-medium",
+											children: [
+												game.date,
+												" · ",
+												game.time
+											]
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5 truncate max-w-[150px]",
+											children: game.arena
+										})
+									]
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex flex-col items-center flex-1 text-center",
+									children: [
+										/* @__PURE__ */ jsx("img", {
+											src: `https://a.espncdn.com/i/teamlogos/nba/500/${game.opponent.abbr.toLowerCase()}.png`,
+											alt: game.opponent.name,
+											className: "w-12 h-12 sm:w-14 sm:h-14 object-contain mb-1 drop-shadow-xs",
+											loading: "eager",
+											onError: (e) => {
+												e.target.style.display = "none";
+											}
+										}),
+										/* @__PURE__ */ jsxs("span", {
+											className: "font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate max-w-[130px]",
+											children: [
+												game.opponent.city,
+												" ",
+												game.opponent.name
+											]
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-[11px] text-slate-500 dark:text-zinc-400",
+											children: game.isHome ? "客场" : "主场"
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: `text-2xl sm:text-4xl font-black font-mono mt-0.5 ${oScore > rScore ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-zinc-400"}`,
+											children: oScore
+										})
+									]
+								})
+							]
+						}),
+						quarters && quarters.rockets && quarters.rockets.length > 0 && /* @__PURE__ */ jsxs("div", {
+							className: "mt-3.5 pt-3 border-t border-slate-200/80 dark:border-white/5 max-w-md mx-auto",
+							children: [
+								/* @__PURE__ */ jsxs("div", {
+									className: "grid grid-cols-6 text-center text-[11px] text-slate-500 dark:text-zinc-400 font-mono",
+									children: [
+										/* @__PURE__ */ jsx("span", {
+											className: "text-left font-sans text-slate-400 dark:text-zinc-500",
+											children: "节次"
+										}),
+										/* @__PURE__ */ jsx("span", { children: "1节" }),
+										/* @__PURE__ */ jsx("span", { children: "2节" }),
+										/* @__PURE__ */ jsx("span", { children: "3节" }),
+										/* @__PURE__ */ jsx("span", { children: "4节" }),
+										/* @__PURE__ */ jsx("span", {
+											className: "font-bold text-slate-800 dark:text-zinc-200",
+											children: "总计"
+										})
+									]
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "grid grid-cols-6 text-center text-xs text-slate-900 dark:text-white font-mono mt-1 py-1 px-2 rounded bg-slate-100/70 dark:bg-white/[0.03]",
+									children: [
+										/* @__PURE__ */ jsx("span", {
+											className: "text-left font-sans text-[#CE1141] font-bold",
+											children: "火箭"
+										}),
+										/* @__PURE__ */ jsx("span", { children: quarters.rockets[0] ?? "-" }),
+										/* @__PURE__ */ jsx("span", { children: quarters.rockets[1] ?? "-" }),
+										/* @__PURE__ */ jsx("span", { children: quarters.rockets[2] ?? "-" }),
+										/* @__PURE__ */ jsx("span", { children: quarters.rockets[3] ?? "-" }),
+										/* @__PURE__ */ jsx("span", {
+											className: "font-bold text-[#CE1141]",
+											children: rScore
+										})
+									]
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "grid grid-cols-6 text-center text-xs text-slate-700 dark:text-zinc-300 font-mono mt-0.5 py-1 px-2 rounded bg-slate-100/70 dark:bg-white/[0.03]",
+									children: [
+										/* @__PURE__ */ jsx("span", {
+											className: "text-left font-sans text-slate-700 dark:text-zinc-300 font-medium",
+											children: game.opponent.abbr
+										}),
+										/* @__PURE__ */ jsx("span", { children: quarters.opponent[0] ?? "-" }),
+										/* @__PURE__ */ jsx("span", { children: quarters.opponent[1] ?? "-" }),
+										/* @__PURE__ */ jsx("span", { children: quarters.opponent[2] ?? "-" }),
+										/* @__PURE__ */ jsx("span", { children: quarters.opponent[3] ?? "-" }),
+										/* @__PURE__ */ jsx("span", {
+											className: "font-bold text-slate-900 dark:text-white",
+											children: oScore
+										})
+									]
+								})
+							]
+						})
+					]
+				}),
+				/* @__PURE__ */ jsxs("div", {
+					className: "flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 sm:px-6 py-2.5 border-b border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-[#14161b]",
+					children: [/* @__PURE__ */ jsxs("div", {
+						className: "flex items-center gap-1.5",
+						children: [/* @__PURE__ */ jsxs("button", {
+							type: "button",
+							onClick: () => setActiveTeamTab("rockets"),
+							className: `px-3 py-1 rounded-lg text-xs font-semibold transition-all ${activeTeamTab === "rockets" ? "bg-[#CE1141] text-white shadow-xs font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5"}`,
+							children: [
+								"休斯敦火箭 (",
+								rocketsPlayers.length,
+								"人)"
+							]
+						}), /* @__PURE__ */ jsxs("button", {
+							type: "button",
+							onClick: () => setActiveTeamTab("opponent"),
+							className: `px-3 py-1 rounded-lg text-xs font-semibold transition-all ${activeTeamTab === "opponent" ? "bg-slate-900 dark:bg-zinc-200 text-white dark:text-zinc-900 shadow-xs font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5"}`,
+							children: [
+								game.opponent.name,
+								" (",
+								opponentPlayers.length,
+								"人)"
+							]
+						})]
+					}), game.result?.topPerformer && /* @__PURE__ */ jsxs("div", {
+						className: "hidden sm:flex items-center gap-1.5 text-xs text-slate-600 dark:text-zinc-400",
+						children: [
+							/* @__PURE__ */ jsx("span", {
+								className: "font-semibold text-slate-900 dark:text-zinc-200",
+								children: "全场焦点:"
+							}),
+							/* @__PURE__ */ jsx("span", {
+								className: "font-bold text-[#CE1141]",
+								children: game.result.topPerformer.name
+							}),
+							/* @__PURE__ */ jsxs("span", {
+								className: "font-mono text-slate-500 dark:text-zinc-400",
+								children: [
+									"(",
+									game.result.topPerformer.stats,
+									")"
+								]
+							})
+						]
+					})]
+				}),
+				/* @__PURE__ */ jsx("div", {
+					className: "flex-1 overflow-y-auto p-3 sm:p-5",
+					children: currentPlayers.length === 0 ? /* @__PURE__ */ jsx("div", {
+						className: "text-center py-10 text-slate-400 dark:text-zinc-500 text-xs",
+						children: "暂未录入该球队详细出场名单统计"
+					}) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("div", {
+						className: "hidden md:block border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden",
+						children: /* @__PURE__ */ jsxs("table", {
+							className: "w-full text-left text-xs table-fixed",
+							children: [/* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", {
+								className: "bg-slate-50 dark:bg-white/[0.02] text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/10 text-[11px] font-semibold",
+								children: [
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-3 w-[20%]",
+										children: "球员"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[6%]",
+										children: "位置"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[6%]",
+										children: "时间"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[8%] font-bold text-slate-900 dark:text-white bg-slate-100/50 dark:bg-white/[0.02]",
+										children: "得分"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[7%]",
+										children: "篮板"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[7%]",
+										children: "助攻"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[10%]",
+										children: "投篮 (FG)"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[9%]",
+										children: "三分 (3P)"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[9%]",
+										children: "罚球 (FT)"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[6%]",
+										children: "抢断"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[6%]",
+										children: "盖帽"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[6%]",
+										children: "失误"
+									}),
+									/* @__PURE__ */ jsx("th", {
+										className: "py-2.5 px-2 text-center w-[6%]",
+										children: "+/-"
+									})
+								]
+							}) }), /* @__PURE__ */ jsx("tbody", {
+								className: "divide-y divide-slate-100 dark:divide-white/5 font-mono",
+								children: currentPlayers.map((p, idx) => {
+									const isHighScorer = p.points >= 15;
+									return /* @__PURE__ */ jsxs("tr", {
+										className: "hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors",
+										children: [
+											/* @__PURE__ */ jsxs("td", {
+												className: "py-2 px-3 font-sans truncate",
+												children: [/* @__PURE__ */ jsxs("span", {
+													className: "text-slate-400 dark:text-zinc-500 font-mono text-[11px] mr-1.5",
+													children: ["#", p.number || "--"]
+												}), /* @__PURE__ */ jsx("span", {
+													className: "font-bold text-slate-900 dark:text-zinc-100",
+													children: p.name
+												})]
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-500 dark:text-zinc-400 font-sans",
+												children: p.position
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-600 dark:text-zinc-300 font-sans",
+												children: p.minutes
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: `py-2 px-2 text-center font-bold text-sm bg-slate-50/50 dark:bg-white/[0.01] ${isHighScorer ? "text-[#CE1141] font-black" : "text-slate-900 dark:text-white"}`,
+												children: p.points
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-800 dark:text-zinc-200",
+												children: p.rebounds
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-800 dark:text-zinc-200",
+												children: p.assists
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-600 dark:text-zinc-400 text-[11px]",
+												children: p.fg
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-600 dark:text-zinc-400 text-[11px]",
+												children: p.threePt
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-600 dark:text-zinc-400 text-[11px]",
+												children: p.ft
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-700 dark:text-zinc-300",
+												children: p.steals
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-700 dark:text-zinc-300",
+												children: p.blocks
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center text-slate-500 dark:text-zinc-400",
+												children: p.turnovers
+											}),
+											/* @__PURE__ */ jsx("td", {
+												className: "py-2 px-2 text-center font-bold",
+												children: /* @__PURE__ */ jsx("span", {
+													className: p.plusMinus.startsWith("+") ? "text-emerald-700 dark:text-emerald-400" : p.plusMinus.startsWith("-") ? "text-rose-700 dark:text-rose-400" : "text-slate-500 dark:text-zinc-400",
+													children: p.plusMinus
+												})
+											})
+										]
+									}, p.rawName || idx);
+								})
+							})]
+						})
+					}), /* @__PURE__ */ jsx("div", {
+						className: "block md:hidden space-y-2",
+						children: currentPlayers.map((p, idx) => {
+							const isHighScorer = p.points >= 15;
+							return /* @__PURE__ */ jsxs("div", {
+								className: "bg-slate-50/70 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs",
+								children: [/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-200/60 dark:border-white/5",
+									children: [/* @__PURE__ */ jsxs("div", {
+										className: "flex items-center gap-1.5 min-w-0",
+										children: [
+											/* @__PURE__ */ jsxs("span", {
+												className: "text-slate-400 dark:text-zinc-500 font-mono text-[11px]",
+												children: ["#", p.number || "--"]
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "font-bold text-slate-900 dark:text-white text-xs truncate",
+												children: p.name
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-500 dark:text-zinc-400 px-1 py-0.2 rounded bg-slate-200/60 dark:bg-white/5 font-sans",
+												children: p.position
+											}),
+											/* @__PURE__ */ jsxs("span", {
+												className: "text-[11px] text-slate-500 dark:text-zinc-400 font-sans",
+												children: [p.minutes, "分"]
+											})
+										]
+									}), /* @__PURE__ */ jsx("span", {
+										className: `text-xs font-mono font-bold px-1.5 py-0.2 rounded ${p.plusMinus.startsWith("+") ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400" : p.plusMinus.startsWith("-") ? "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400" : "text-slate-500 dark:text-zinc-400"}`,
+										children: p.plusMinus
+									})]
+								}), /* @__PURE__ */ jsxs("div", {
+									className: "flex items-center justify-between bg-white dark:bg-white/[0.04] px-2.5 py-1.5 rounded-lg border border-slate-200/60 dark:border-white/5 font-mono text-xs",
+									children: [
+										/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-1",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+												children: "得分"
+											}), /* @__PURE__ */ jsx("span", {
+												className: `font-bold text-sm ${isHighScorer ? "text-[#CE1141]" : "text-slate-900 dark:text-white"}`,
+												children: p.points
+											})]
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-slate-200 dark:text-zinc-700",
+											children: "|"
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-1",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+												children: "板"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "font-semibold text-slate-800 dark:text-zinc-200",
+												children: p.rebounds
+											})]
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-slate-200 dark:text-zinc-700",
+											children: "|"
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-1",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+												children: "助"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "font-semibold text-slate-800 dark:text-zinc-200",
+												children: p.assists
+											})]
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-slate-200 dark:text-zinc-700",
+											children: "|"
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-1",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+												children: "投"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "text-slate-700 dark:text-zinc-300 text-[11px]",
+												children: p.fg
+											})]
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-slate-200 dark:text-zinc-700",
+											children: "|"
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-1",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+												children: "3P"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "text-slate-700 dark:text-zinc-300 text-[11px]",
+												children: p.threePt
+											})]
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-slate-200 dark:text-zinc-700",
+											children: "|"
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-1",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+												children: "断"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "text-slate-700 dark:text-zinc-300",
+												children: p.steals
+											})]
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "text-slate-200 dark:text-zinc-700",
+											children: "|"
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											className: "flex items-center gap-1",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 text-[10px] font-sans",
+												children: "帽"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "text-slate-700 dark:text-zinc-300",
+												children: p.blocks
+											})]
+										})
+									]
+								})]
+							}, p.rawName || idx);
+						})
+					})] })
+				}),
+				/* @__PURE__ */ jsxs("div", {
+					className: "px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#121418] flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400",
+					children: [/* @__PURE__ */ jsx("span", { children: "NBA / ESPN 官方实况技术统计" }), /* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: onClose,
+						className: "px-4 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white font-medium transition-colors",
+						children: "关闭"
+					})]
+				})
+			]
+		})
+	});
+}
+//#endregion
+//#region app/features/schedule/RocketsPlayerModal.tsx
+function RocketsPlayerModal({ player, onClose }) {
+	const regSeasonsList = useMemo(() => {
+		if (!player) return [];
+		const keys = Object.keys(player.seasons || {});
+		return Array.from(/* @__PURE__ */ new Set([...keys, "2026-27"])).sort().reverse();
+	}, [player]);
+	const playoffSeasonsList = useMemo(() => {
+		if (!player) return [];
+		return Object.keys(player.playoffSeasons || {}).sort().reverse();
+	}, [player]);
+	const has2026RegularData = useMemo(() => {
+		return !!player?.seasons?.["2026-27"] && player.seasons["2026-27"].gp > 0;
+	}, [player]);
+	const defaultSeason = useMemo(() => {
+		if (has2026RegularData) return "2026-27";
+		if (player?.seasons?.["2025-26"]) return "2025-26";
+		return player?.currentSeason || "2026-27";
+	}, [has2026RegularData, player]);
+	const [selectedSeason, setSelectedSeason] = useState(defaultSeason);
+	const [competitionType, setCompetitionType] = useState("regular");
+	const [historyTableTab, setHistoryTableTab] = useState("regular");
+	if (!player) return null;
+	const regSeasonData = player.seasons?.[selectedSeason];
+	const playoffSeasonData = player.playoffSeasons?.[selectedSeason];
+	const activeStat = competitionType === "regular" ? regSeasonData : playoffSeasonData;
+	const hasPlayoffThisSeason = !!playoffSeasonData && playoffSeasonData.gp > 0;
+	const isSelectedSeasonUpcoming = selectedSeason === "2026-27" && (!regSeasonData || regSeasonData.gp === 0);
+	return /* @__PURE__ */ jsx("div", {
+		className: "fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-2 sm:p-4 md:p-6 overflow-y-auto",
+		onClick: onClose,
+		children: /* @__PURE__ */ jsxs("div", {
+			className: "relative bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden transition-colors my-auto",
+			onClick: (e) => e.stopPropagation(),
+			children: [
+				/* @__PURE__ */ jsxs("div", {
+					className: "relative bg-slate-50 dark:bg-[#15181e] p-4 sm:p-6 border-b border-slate-200 dark:border-white/10",
+					children: [/* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: onClose,
+						className: "absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/15 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors text-sm",
+						title: "关闭",
+						children: "✕"
+					}), /* @__PURE__ */ jsxs("div", {
+						className: "flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5",
+						children: [/* @__PURE__ */ jsxs("div", {
+							className: "relative flex-shrink-0",
+							children: [/* @__PURE__ */ jsx("div", {
+								className: "w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 p-1 flex items-center justify-center overflow-hidden shadow-sm",
+								children: /* @__PURE__ */ jsx("img", {
+									src: player.headshotUrl,
+									alt: player.nameCn,
+									className: "w-full h-full object-cover object-top",
+									loading: "lazy"
+								})
+							}), /* @__PURE__ */ jsxs("span", {
+								className: "absolute -bottom-1 -right-1 px-2 py-0.2 rounded-full bg-[#CE1141] text-white font-mono font-bold text-xs shadow-sm",
+								children: ["#", player.number]
+							})]
+						}), /* @__PURE__ */ jsxs("div", {
+							className: "flex-1 text-center sm:text-left min-w-0",
+							children: [
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1",
+									children: [
+										/* @__PURE__ */ jsx("h2", {
+											className: "text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight",
+											children: player.nameCn
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "px-2 py-0.5 rounded bg-slate-200/80 dark:bg-white/10 text-slate-700 dark:text-zinc-300 text-xs font-semibold",
+											children: player.position
+										}),
+										/* @__PURE__ */ jsx("span", {
+											className: "px-2 py-0.5 rounded bg-[#CE1141]/10 text-[#CE1141] text-xs font-bold border border-[#CE1141]/20",
+											children: "休斯敦火箭"
+										})
+									]
+								}),
+								/* @__PURE__ */ jsx("p", {
+									className: "text-xs text-slate-500 dark:text-zinc-400 mb-3 font-mono",
+									children: player.nameEn
+								}),
+								/* @__PURE__ */ jsxs("div", {
+									className: "grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs",
+									children: [
+										/* @__PURE__ */ jsxs("div", {
+											className: "bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/5 p-2 rounded-xl",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 block text-[11px]",
+												children: "身高 / 体重"
+											}), /* @__PURE__ */ jsxs("span", {
+												className: "text-slate-800 dark:text-zinc-200 font-medium",
+												children: [
+													player.height,
+													" / ",
+													player.weight
+												]
+											})]
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											className: "bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/5 p-2 rounded-xl",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 block text-[11px]",
+												children: "年龄 / 球龄"
+											}), /* @__PURE__ */ jsxs("span", {
+												className: "text-slate-800 dark:text-zinc-200 font-medium",
+												children: [
+													player.age,
+													"岁 (",
+													player.experience,
+													")"
+												]
+											})]
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											className: "bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/5 p-2 rounded-xl",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 block text-[11px]",
+												children: "选秀顺位"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "text-slate-800 dark:text-zinc-200 font-medium text-[11px] truncate block",
+												title: player.draftInfo,
+												children: player.draftInfo
+											})]
+										}),
+										/* @__PURE__ */ jsxs("div", {
+											className: "bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/5 p-2 rounded-xl",
+											children: [/* @__PURE__ */ jsx("span", {
+												className: "text-slate-400 dark:text-zinc-500 block text-[11px]",
+												children: "毕业大学"
+											}), /* @__PURE__ */ jsx("span", {
+												className: "text-slate-800 dark:text-zinc-200 font-medium truncate block",
+												children: player.college
+											})]
+										})
+									]
+								})
+							]
+						})]
+					})]
+				}),
+				/* @__PURE__ */ jsx("div", {
+					className: "px-4 sm:px-6 py-2.5 border-b border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-[#14161b]",
+					children: /* @__PURE__ */ jsxs("div", {
+						className: "flex items-center justify-between gap-2.5",
+						children: [/* @__PURE__ */ jsxs("div", {
+							className: "flex items-center gap-2",
+							children: [/* @__PURE__ */ jsx("span", {
+								className: "text-xs font-semibold text-slate-500 dark:text-zinc-400 flex items-center gap-1 flex-shrink-0",
+								children: "切换赛季:"
+							}), /* @__PURE__ */ jsxs("div", {
+								className: "relative inline-flex items-center",
+								children: [/* @__PURE__ */ jsx("select", {
+									value: selectedSeason,
+									onChange: (e) => setSelectedSeason(e.target.value),
+									className: "appearance-none text-xs font-bold pl-2.5 pr-7 py-1 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#CE1141] hover:border-slate-300 dark:hover:border-white/20 transition-all shadow-2xs",
+									children: regSeasonsList.map((seasonKey) => {
+										return /* @__PURE__ */ jsxs("option", {
+											value: seasonKey,
+											children: [seasonKey, seasonKey === "2026-27" ? " (最新赛季)" : seasonKey === "2025-26" ? " (上赛季)" : ""]
+										}, seasonKey);
+									})
+								}), /* @__PURE__ */ jsx("span", {
+									className: "pointer-events-none absolute right-2 text-[10px] text-slate-400 dark:text-zinc-500",
+									children: "▼"
+								})]
+							})]
+						}), /* @__PURE__ */ jsxs("span", {
+							className: "text-[11px] text-slate-400 dark:text-zinc-500 font-mono",
+							children: [
+								"生涯历年数据 (",
+								regSeasonsList.length,
+								" 赛季)"
+							]
+						})]
+					})
+				}),
+				/* @__PURE__ */ jsxs("div", {
+					className: "p-4 sm:p-6 overflow-y-auto space-y-5 flex-1",
 					children: [
 						/* @__PURE__ */ jsxs("div", {
-							className: "flex items-center justify-between border-b border-line bg-bg-sunk/30 px-5 py-3.5",
+							className: "flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1 border-b border-slate-200 dark:border-white/10",
 							children: [/* @__PURE__ */ jsxs("div", {
-								className: "space-y-0.5",
+								className: "flex items-center gap-2",
+								children: [/* @__PURE__ */ jsxs("h3", {
+									className: "text-sm font-bold text-slate-900 dark:text-white",
+									children: [selectedSeason, " 赛季场均表现"]
+								}), competitionType === "playoff" && hasPlayoffThisSeason && /* @__PURE__ */ jsx("span", {
+									className: "px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#CE1141]/10 text-[#CE1141] border border-[#CE1141]/20",
+									children: "季后赛数据"
+								})]
+							}), /* @__PURE__ */ jsxs("div", {
+								className: "flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs self-start sm:self-auto",
+								children: [/* @__PURE__ */ jsx("button", {
+									type: "button",
+									onClick: () => setCompetitionType("regular"),
+									className: `px-3 py-1 rounded-md font-semibold transition-all ${competitionType === "regular" ? "bg-white dark:bg-[#CE1141] text-slate-900 dark:text-white shadow-xs font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+									children: "常规赛"
+								}), /* @__PURE__ */ jsx("button", {
+									type: "button",
+									onClick: () => setCompetitionType("playoff"),
+									className: `px-3 py-1 rounded-md font-semibold transition-all ${competitionType === "playoff" ? "bg-white dark:bg-[#CE1141] text-slate-900 dark:text-white shadow-xs font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+									children: "季后赛"
+								})]
+							})]
+						}),
+						isSelectedSeasonUpcoming ? /* @__PURE__ */ jsxs("div", {
+							className: "bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-xl p-8 text-center",
+							children: [
+								/* @__PURE__ */ jsx("p", {
+									className: "text-slate-900 dark:text-white font-bold text-sm",
+									children: "2026-27 赛季 (最新赛季) 常规赛将于 10月23日 揭幕开打"
+								}),
+								/* @__PURE__ */ jsx("p", {
+									className: "text-xs text-slate-500 dark:text-zinc-400 mt-1.5 leading-relaxed max-w-md mx-auto",
+									children: "暂未产生新赛季官方常规赛场均数据。系统每天定时抓取 4 次官方实况，常规赛首战结束后将在此第一时间呈现最新技术统计。"
+								}),
+								/* @__PURE__ */ jsx("button", {
+									type: "button",
+									onClick: () => setSelectedSeason("2025-26"),
+									className: "mt-4 px-4 py-1.5 rounded-lg bg-[#CE1141] text-white text-xs font-medium hover:bg-[#b00f37] transition-colors",
+									children: "查看 2025-26 赛季完整表现"
+								})
+							]
+						}) : competitionType === "playoff" && !hasPlayoffThisSeason ? /* @__PURE__ */ jsxs("div", {
+							className: "bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-xl p-8 text-center",
+							children: [
+								/* @__PURE__ */ jsxs("p", {
+									className: "text-slate-800 dark:text-zinc-200 font-semibold text-sm",
+									children: [
+										"该球员在 ",
+										selectedSeason,
+										" 赛季未出战季后赛"
+									]
+								}),
+								/* @__PURE__ */ jsx("p", {
+									className: "text-xs text-slate-500 dark:text-zinc-400 mt-1",
+									children: "无季后赛出场记录（球队未晋级或因伤病缺席）"
+								}),
+								/* @__PURE__ */ jsxs("button", {
+									type: "button",
+									onClick: () => setCompetitionType("regular"),
+									className: "mt-3.5 px-3.5 py-1.5 rounded-lg bg-[#CE1141] text-white text-xs font-medium hover:bg-[#b00f37] transition-colors",
+									children: [
+										"查看 ",
+										selectedSeason,
+										" 常规赛表现"
+									]
+								})
+							]
+						}) : activeStat ? /* @__PURE__ */ jsxs("div", { children: [
+							/* @__PURE__ */ jsxs("div", {
+								className: "grid grid-cols-2 sm:grid-cols-4 gap-2.5",
 								children: [
-									/* @__PURE__ */ jsxs("span", {
-										className: "text-xs font-bold text-ink-4",
-										children: [
-											activeGame.date,
-											" ",
-											getWeekday(activeGame.date),
-											" · ",
-											activeGame.arena
-										]
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-[10px] tracking-wider uppercase font-semibold text-slate-500 dark:text-zinc-400 block mb-1",
+											children: "场均得分 (PPG)"
+										}), /* @__PURE__ */ jsx("span", {
+											className: "text-2xl sm:text-3xl font-black text-[#CE1141] font-mono",
+											children: activeStat.pts.toFixed(1)
+										})]
 									}),
-									/* @__PURE__ */ jsxs("h3", {
-										className: "text-base font-black text-ink sm:text-lg",
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-[10px] tracking-wider uppercase font-semibold text-slate-500 dark:text-zinc-400 block mb-1",
+											children: "场均篮板 (RPG)"
+										}), /* @__PURE__ */ jsx("span", {
+											className: "text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono",
+											children: activeStat.reb.toFixed(1)
+										})]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-[10px] tracking-wider uppercase font-semibold text-slate-500 dark:text-zinc-400 block mb-1",
+											children: "场均助攻 (APG)"
+										}), /* @__PURE__ */ jsx("span", {
+											className: "text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono",
+											children: activeStat.ast.toFixed(1)
+										})]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-[10px] tracking-wider uppercase font-semibold text-slate-500 dark:text-zinc-400 block mb-1",
+											children: "出场时间 (MPG)"
+										}), /* @__PURE__ */ jsx("span", {
+											className: "text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono",
+											children: activeStat.mpg.toFixed(1)
+										})]
+									})
+								]
+							}),
+							/* @__PURE__ */ jsxs("div", {
+								className: "grid grid-cols-3 gap-2.5 mt-2.5",
+								children: [
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5 text-center",
 										children: [
-											"休斯敦火箭 ",
-											activeGame.isHome ? "VS" : "@",
-											" ",
-											activeGame.opponent.name,
-											activeGame.result && /* @__PURE__ */ jsxs("span", {
-												className: "ml-3 font-mono text-[#CE1141]",
-												children: [
-													activeGame.result.rocketsScore,
-													" - ",
-													activeGame.result.opponentScore
-												]
+											/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
+												children: "投篮命中率 (FG%)"
+											}),
+											/* @__PURE__ */ jsxs("span", {
+												className: "text-base font-bold text-slate-900 dark:text-white font-mono block mt-0.5",
+												children: [activeStat.fgPct.toFixed(1), "%"]
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-400 dark:text-zinc-500 font-mono",
+												children: activeStat.fg
 											})
 										]
 									}),
 									/* @__PURE__ */ jsxs("div", {
-										className: "flex items-center gap-2 text-[11px] text-ink-4",
-										children: [/* @__PURE__ */ jsxs("span", {
-											className: "flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400",
-											children: [/* @__PURE__ */ jsx("span", { className: "size-1.5 rounded-full bg-emerald-500 animate-pulse" }), "官方比赛战报数据实时同步"]
-										}), isLoadingLive && /* @__PURE__ */ jsx("span", {
-											className: "text-accent animate-pulse",
-											children: "· 正在刷新中…"
+										className: "p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5 text-center",
+										children: [
+											/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
+												children: "三分命中率 (3P%)"
+											}),
+											/* @__PURE__ */ jsxs("span", {
+												className: "text-base font-bold text-slate-900 dark:text-white font-mono block mt-0.5",
+												children: [activeStat.threePtPct.toFixed(1), "%"]
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-400 dark:text-zinc-500 font-mono",
+												children: activeStat.threePt
+											})
+										]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5 text-center",
+										children: [
+											/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
+												children: "罚球命中率 (FT%)"
+											}),
+											/* @__PURE__ */ jsxs("span", {
+												className: "text-base font-bold text-slate-900 dark:text-white font-mono block mt-0.5",
+												children: [activeStat.ftPct.toFixed(1), "%"]
+											}),
+											/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-400 dark:text-zinc-500 font-mono",
+												children: activeStat.ft
+											})
+										]
+									})
+								]
+							}),
+							/* @__PURE__ */ jsxs("div", {
+								className: "grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono mt-3",
+								children: [
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 flex items-center justify-between",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-slate-500 dark:text-zinc-400 font-sans",
+											children: "抢断 (STL)"
+										}), /* @__PURE__ */ jsx("span", {
+											className: "text-slate-900 dark:text-white font-bold",
+											children: activeStat.stl.toFixed(1)
+										})]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 flex items-center justify-between",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-slate-500 dark:text-zinc-400 font-sans",
+											children: "盖帽 (BLK)"
+										}), /* @__PURE__ */ jsx("span", {
+											className: "text-slate-900 dark:text-white font-bold",
+											children: activeStat.blk.toFixed(1)
+										})]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 flex items-center justify-between",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-slate-500 dark:text-zinc-400 font-sans",
+											children: "失误 (TO)"
+										}), /* @__PURE__ */ jsx("span", {
+											className: "text-slate-700 dark:text-zinc-300 font-bold",
+											children: activeStat.tov.toFixed(1)
+										})]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "p-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 flex items-center justify-between",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-slate-500 dark:text-zinc-400 font-sans",
+											children: "出场 / 首发"
+										}), /* @__PURE__ */ jsxs("span", {
+											className: "text-slate-900 dark:text-white font-bold",
+											children: [
+												activeStat.gp,
+												"场 (",
+												activeStat.gs,
+												"先发)"
+											]
 										})]
 									})
 								]
-							}), /* @__PURE__ */ jsx("button", {
-								type: "button",
-								onClick: () => setActiveGame(null),
-								className: "grid size-8 place-items-center rounded-full text-ink-4 transition-colors hover:bg-bg-sunk hover:text-ink",
-								children: /* @__PURE__ */ jsx(IconClose, { size: 18 })
-							})]
-						}),
+							})
+						] }) : null,
 						/* @__PURE__ */ jsxs("div", {
-							className: "flex-1 overflow-y-auto p-5 space-y-5",
-							children: [/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("h4", {
-								className: "mb-2 text-xs font-bold text-ink-3",
-								children: "四节比分明细"
-							}), /* @__PURE__ */ jsx("div", {
-								className: "overflow-hidden rounded-xl border border-line",
-								children: /* @__PURE__ */ jsxs("table", {
-									className: "w-full text-center text-xs",
-									children: [/* @__PURE__ */ jsx("thead", {
-										className: "bg-bg-sunk/50 font-semibold text-ink-3",
-										children: /* @__PURE__ */ jsxs("tr", { children: [
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2 pl-3 text-left",
-												children: "球队"
-											}),
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2",
-												children: "第一节"
-											}),
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2",
-												children: "第二节"
-											}),
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2",
-												children: "第三节"
-											}),
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2",
-												children: "第四节"
-											}),
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2 pr-3 font-bold text-ink",
-												children: "总分"
-											})
-										] })
-									}), /* @__PURE__ */ jsxs("tbody", {
-										className: "divide-y divide-line-soft font-mono",
-										children: [/* @__PURE__ */ jsxs("tr", {
-											className: "font-bold text-[#CE1141]",
-											children: [
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 pl-3 text-left",
-													children: "休斯敦火箭"
-												}),
-												activeBoxScore.quarters.rockets.map((q, i) => /* @__PURE__ */ jsx("td", {
-													className: "py-2",
-													children: q
-												}, i)),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 pr-3 font-black text-base",
-													children: activeGame.result?.rocketsScore
-												})
-											]
-										}), /* @__PURE__ */ jsxs("tr", {
-											className: "text-ink-2",
-											children: [
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 pl-3 text-left",
-													children: activeGame.opponent.name
-												}),
-												activeBoxScore.quarters.opponent.map((q, i) => /* @__PURE__ */ jsx("td", {
-													className: "py-2",
-													children: q
-												}, i)),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 pr-3 font-black text-base text-ink",
-													children: activeGame.result?.opponentScore
-												})
-											]
-										})]
-									})]
-								})
-							})] }), /* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsxs("div", {
-								className: "mb-3 flex flex-wrap items-center justify-between gap-2",
-								children: [/* @__PURE__ */ jsxs("div", {
-									className: "inline-flex rounded-xl bg-bg-sunk p-1",
+							className: "pt-2",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "flex items-center justify-between mb-2",
+								children: [/* @__PURE__ */ jsx("h4", {
+									className: "text-xs font-bold text-slate-700 dark:text-zinc-300",
+									children: "生涯历年赛季数据对照表"
+								}), /* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-1 text-[11px]",
 									children: [/* @__PURE__ */ jsxs("button", {
 										type: "button",
-										onClick: () => setActiveTeamTab("rockets"),
-										className: `inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${activeTeamTab === "rockets" ? "bg-surface text-[#CE1141] shadow-xs" : "text-ink-3 hover:text-ink"}`,
-										children: [/* @__PURE__ */ jsx("span", { className: "size-2 rounded-full bg-[#CE1141]" }), "休斯敦火箭 技术统计"]
+										onClick: () => setHistoryTableTab("regular"),
+										className: `px-2 py-0.5 rounded font-medium transition-colors ${historyTableTab === "regular" ? "bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white font-bold" : "text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-300"}`,
+										children: [
+											"常规赛 (",
+											regSeasonsList.length,
+											")"
+										]
 									}), /* @__PURE__ */ jsxs("button", {
 										type: "button",
-										onClick: () => setActiveTeamTab("opponent"),
-										className: `inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${activeTeamTab === "opponent" ? "bg-surface text-ink shadow-xs" : "text-ink-3 hover:text-ink"}`,
+										onClick: () => setHistoryTableTab("playoff"),
+										className: `px-2 py-0.5 rounded font-medium transition-colors ${historyTableTab === "playoff" ? "bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white font-bold" : "text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-300"}`,
 										children: [
-											/* @__PURE__ */ jsx("span", { className: "size-2 rounded-full bg-slate-400" }),
-											activeGame.opponent.name,
-											" 技术统计"
+											"季后赛 (",
+											playoffSeasonsList.length,
+											")"
 										]
 									})]
-								}), /* @__PURE__ */ jsx("span", {
-									className: "text-[11px] text-ink-4",
-									children: "MIN: 出场时间 · +/-: 正负值"
 								})]
 							}), /* @__PURE__ */ jsx("div", {
-								className: "overflow-x-auto rounded-xl border border-line",
+								className: "border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden",
 								children: /* @__PURE__ */ jsxs("table", {
-									className: "w-full text-left text-xs",
-									children: [/* @__PURE__ */ jsx("thead", {
-										className: "border-b border-line bg-bg-sunk/50 text-[11px] font-bold text-ink-3",
-										children: /* @__PURE__ */ jsxs("tr", { children: [
+									className: "w-full text-left text-xs table-fixed",
+									children: [/* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", {
+										className: "bg-slate-50 dark:bg-white/[0.03] text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/10 text-[11px] font-semibold",
+										children: [
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 pl-3",
-												children: "球员"
+												className: "py-2 px-2.5 w-[22%] sm:w-[18%]",
+												children: "赛季"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-center",
-												children: "位置"
+												className: "py-2 px-1 text-center w-[8%] sm:w-[8%]",
+												children: "场次"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-right",
+												className: "py-2 px-1 text-center w-[8%] sm:w-[8%]",
+												children: "首发"
+											}),
+											/* @__PURE__ */ jsx("th", {
+												className: "py-2 px-1 text-center w-[10%] sm:w-[10%]",
 												children: "时间"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-right font-black text-[#CE1141]",
+												className: "py-2 px-1 text-center w-[12%] sm:w-[12%] font-bold text-slate-900 dark:text-white",
 												children: "得分"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-right font-bold text-ink",
+												className: "py-2 px-1 text-center w-[10%] sm:w-[11%]",
 												children: "篮板"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-right font-bold text-ink",
+												className: "py-2 px-1 text-center w-[10%] sm:w-[11%]",
 												children: "助攻"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-right",
-												children: "抢断"
-											}),
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-right",
-												children: "盖帽"
-											}),
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-right",
-												children: "投篮"
-											}),
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-right",
+												className: "py-2 px-1 text-center w-[10%] sm:w-[11%]",
 												children: "命中率"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 px-2 text-right",
-												children: "三分"
-											}),
-											/* @__PURE__ */ jsx("th", {
-												className: "py-2.5 pl-2 pr-3 text-right",
-												children: "+/-"
+												className: "py-2 px-1 text-center w-[10%] sm:w-[11%] hidden sm:table-cell",
+												children: "三分%"
 											})
-										] })
-									}), /* @__PURE__ */ jsx("tbody", {
-										className: "divide-y divide-line-soft font-mono",
-										children: (activeTeamTab === "rockets" ? activeBoxScore.rocketsPlayers : activeBoxScore.opponentPlayers).map((p) => /* @__PURE__ */ jsxs("tr", {
-											className: "hover:bg-bg-sunk/30",
-											children: [
-												/* @__PURE__ */ jsxs("td", {
-													className: "py-2 pl-3 font-sans font-bold text-ink flex items-center gap-1",
-													children: [p.name, /* @__PURE__ */ jsxs("span", {
-														className: "text-[10px] text-ink-4",
-														children: ["#", p.number]
-													})]
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-center text-ink-4",
-													children: p.position
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-right text-ink-3",
-													children: p.minutes
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-right font-black text-[#CE1141]",
-													children: p.points
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-right font-bold text-ink",
-													children: p.rebounds
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-right font-bold text-ink",
-													children: p.assists
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-right text-ink-3",
-													children: p.steals
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-right text-ink-3",
-													children: p.blocks
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-right text-ink-4",
-													children: p.fg
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-right text-ink-3",
-													children: p.fgPct
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: "py-2 px-2 text-right text-ink-4",
-													children: p.threePt
-												}),
-												/* @__PURE__ */ jsx("td", {
-													className: `py-2 pl-2 pr-3 text-right font-bold ${p.plusMinus.startsWith("+") ? "text-emerald-600" : p.plusMinus.startsWith("-") ? "text-red-500" : "text-ink-3"}`,
-													children: p.plusMinus
-												})
-											]
-										}, p.name))
+										]
+									}) }), /* @__PURE__ */ jsx("tbody", {
+										className: "divide-y divide-slate-100 dark:divide-white/5 font-mono",
+										children: (historyTableTab === "regular" ? regSeasonsList : playoffSeasonsList).length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", {
+											colSpan: 9,
+											className: "py-6 text-center text-slate-400 dark:text-zinc-500 font-sans",
+											children: "暂无该类比赛历史记录"
+										}) }) : (historyTableTab === "regular" ? regSeasonsList : playoffSeasonsList).map((sKey) => {
+											const s = historyTableTab === "regular" ? player.seasons?.[sKey] : player.playoffSeasons?.[sKey];
+											const isCurrent = sKey === selectedSeason;
+											const is2026 = sKey === "2026-27";
+											const noData = !s || s.gp === 0;
+											return /* @__PURE__ */ jsxs("tr", {
+												onClick: () => {
+													setSelectedSeason(sKey);
+													setCompetitionType(historyTableTab);
+												},
+												className: `cursor-pointer transition-colors ${isCurrent ? "bg-red-50/70 dark:bg-[#CE1141]/15 text-slate-900 dark:text-white font-bold" : "text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-white/[0.04]"}`,
+												children: [
+													/* @__PURE__ */ jsxs("td", {
+														className: "py-2 px-2.5 font-sans truncate",
+														children: [
+															sKey,
+															" ",
+															is2026 ? "(最新)" : ""
+														]
+													}),
+													/* @__PURE__ */ jsx("td", {
+														className: "py-2 px-1 text-center",
+														children: noData ? "待开赛" : s.gp
+													}),
+													/* @__PURE__ */ jsx("td", {
+														className: "py-2 px-1 text-center",
+														children: noData ? "--" : s.gs
+													}),
+													/* @__PURE__ */ jsx("td", {
+														className: "py-2 px-1 text-center",
+														children: noData ? "--" : s.mpg.toFixed(1)
+													}),
+													/* @__PURE__ */ jsx("td", {
+														className: "py-2 px-1 text-center font-bold text-[#CE1141]",
+														children: noData ? "--" : s.pts.toFixed(1)
+													}),
+													/* @__PURE__ */ jsx("td", {
+														className: "py-2 px-1 text-center",
+														children: noData ? "--" : s.reb.toFixed(1)
+													}),
+													/* @__PURE__ */ jsx("td", {
+														className: "py-2 px-1 text-center",
+														children: noData ? "--" : s.ast.toFixed(1)
+													}),
+													/* @__PURE__ */ jsx("td", {
+														className: "py-2 px-1 text-center",
+														children: noData ? "--" : `${s.fgPct.toFixed(1)}%`
+													}),
+													/* @__PURE__ */ jsx("td", {
+														className: "py-2 px-1 text-center hidden sm:table-cell",
+														children: noData ? "--" : `${s.threePtPct.toFixed(1)}%`
+													})
+												]
+											}, sKey);
+										})
 									})]
 								})
-							})] })]
-						}),
-						/* @__PURE__ */ jsx("div", {
-							className: "flex items-center justify-end border-t border-line bg-bg-sunk/30 px-5 py-3",
-							children: /* @__PURE__ */ jsx("button", {
-								type: "button",
-								onClick: () => setActiveGame(null),
-								className: "rounded-full border border-line-strong bg-surface px-4 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-bg-sunk",
-								children: "关闭"
-							})
+							})]
 						})
 					]
+				}),
+				/* @__PURE__ */ jsxs("div", {
+					className: "px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#121418] flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400",
+					children: [/* @__PURE__ */ jsx("span", { children: "NBA / ESPN 官方球员数据库" }), /* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: onClose,
+						className: "px-4 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white font-medium transition-colors",
+						children: "关闭"
+					})]
 				})
+			]
+		})
+	});
+}
+//#endregion
+//#region app/features/schedule/ScheduleCalendar.tsx
+function ScheduleCalendar() {
+	const [searchParams, setSearchParams] = useSearchParams();
+	const [schedule, setSchedule] = useState([]);
+	const [standings, setStandings] = useState(null);
+	const [players, setPlayers] = useState([]);
+	const [isLoadingInitial, setIsLoadingInitial] = useState(true);
+	const [isSyncing, setIsSyncing] = useState(false);
+	const [syncNotice, setSyncNotice] = useState(null);
+	const [activeGameId, setActiveGameId] = useState(null);
+	const [gameBreakdown, setGameBreakdown] = useState(null);
+	const [isLoadingGame, setIsLoadingGame] = useState(false);
+	const [activePlayer, setActivePlayer] = useState(null);
+	async function loadAllData() {
+		try {
+			const [sList, stData, pList] = await Promise.all([
+				fetchRocketsSchedule(),
+				fetchRocketsStandings(),
+				fetchRocketsPlayers()
+			]);
+			setSchedule(sList);
+			setStandings(stData);
+			setPlayers(pList);
+		} catch {} finally {
+			setIsLoadingInitial(false);
+		}
+	}
+	useEffect(() => {
+		loadAllData();
+	}, []);
+	useEffect(() => {
+		const gameParam = searchParams.get("game");
+		if (gameParam && gameParam !== activeGameId) handleOpenGame(gameParam);
+		const playerParam = searchParams.get("player");
+		if (playerParam && players.length > 0) {
+			const matchP = players.find((p) => p.id === playerParam);
+			if (matchP) setActivePlayer(matchP);
+		}
+	}, [searchParams, players]);
+	async function handleOpenGame(gameId) {
+		setActiveGameId(gameId);
+		setIsLoadingGame(true);
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			next.set("game", gameId);
+			return next;
+		});
+		try {
+			const breakdown = await fetchGameBreakdown(gameId);
+			setGameBreakdown(breakdown);
+		} catch {} finally {
+			setIsLoadingGame(false);
+		}
+	}
+	function handleCloseGame() {
+		setActiveGameId(null);
+		setGameBreakdown(null);
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			next.delete("game");
+			return next;
+		});
+	}
+	function handleOpenPlayer(player) {
+		setActivePlayer(player);
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			next.set("player", player.id);
+			return next;
+		});
+	}
+	function handleClosePlayer() {
+		setActivePlayer(null);
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			next.delete("player");
+			return next;
+		});
+	}
+	async function handleSyncRefresh() {
+		if (isSyncing) return;
+		setIsSyncing(true);
+		setSyncNotice(null);
+		try {
+			const res = await triggerRocketsSync();
+			await loadAllData();
+			if (res.success) setSyncNotice("已成功同步最新赛程与球员官方名单！");
+			else setSyncNotice("数据已更新至最新。");
+		} catch {
+			setSyncNotice("同步完成。");
+		} finally {
+			setIsSyncing(false);
+			setTimeout(() => setSyncNotice(null), 3500);
+		}
+	}
+	if (isLoadingInitial) return /* @__PURE__ */ jsxs("div", {
+		className: "min-h-[50vh] flex flex-col items-center justify-center py-20 text-center text-xs",
+		children: [/* @__PURE__ */ jsx("div", { className: "w-8 h-8 border-2 border-slate-300 dark:border-white/10 border-t-[#CE1141] rounded-full animate-spin mb-3" }), /* @__PURE__ */ jsx("p", {
+			className: "text-slate-700 dark:text-zinc-300 font-medium",
+			children: "正在载入火箭队数据中心..."
+		})]
+	});
+	return /* @__PURE__ */ jsxs("div", {
+		className: "max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6",
+		children: [
+			syncNotice && /* @__PURE__ */ jsxs("div", {
+				className: "mb-4 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between",
+				children: [/* @__PURE__ */ jsxs("span", { children: ["✓ ", syncNotice] }), /* @__PURE__ */ jsx("button", {
+					type: "button",
+					onClick: () => setSyncNotice(null),
+					className: "text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-white",
+					children: "✕"
+				})]
+			}),
+			/* @__PURE__ */ jsx(RocketsHeroBanner, {
+				standings,
+				totalGames: schedule.length,
+				totalPlayers: players.length
+			}),
+			/* @__PURE__ */ jsx(RocketsScheduleRail, {
+				games: schedule,
+				onSelectGame: handleOpenGame,
+				selectedGameId: activeGameId
+			}),
+			/* @__PURE__ */ jsx(RocketsStandingsSection, {
+				standings,
+				onRefresh: handleSyncRefresh,
+				isSyncing
+			}),
+			/* @__PURE__ */ jsx(RocketsRosterSection, {
+				players,
+				onSelectPlayer: handleOpenPlayer
+			}),
+			(activeGameId || isLoadingGame) && /* @__PURE__ */ jsx(RocketsGameDetail, {
+				breakdown: gameBreakdown,
+				isLoading: isLoadingGame,
+				onClose: handleCloseGame
+			}),
+			activePlayer && /* @__PURE__ */ jsx(RocketsPlayerModal, {
+				player: activePlayer,
+				onClose: handleClosePlayer
 			})
 		]
 	});
@@ -22254,7 +21625,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-DXpZWK1f.js",
+			"module": "/assets/root-CSkD4qRk.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
@@ -22262,7 +21633,7 @@ var server_manifest_default = {
 				"/assets/Chrome-BmT2qpYg.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-2Egzg7lh.css"],
+			"css": ["/assets/root-2sdDzEXD.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22302,9 +21673,9 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-DHj_5uDJ.js",
+			"module": "/assets/all-Vp1R3LB_.js",
 			"imports": [
-				"/assets/all-DXCu3zEo.js",
+				"/assets/all-Sr_hbAwn.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
 				"/assets/taxonomy-CCGfN8IS.js"
@@ -22328,7 +21699,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-BXLA4cEd.js",
+			"module": "/assets/schedule-U0yBIrIv.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22349,11 +21720,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-C_m9cJNx.js",
+			"module": "/assets/search-busy-CjFnRcLN.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
-				"/assets/all-DXCu3zEo.js",
+				"/assets/all-Sr_hbAwn.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -22375,11 +21746,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-C_m9cJNx.js",
+			"module": "/assets/search-busy-CjFnRcLN.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
-				"/assets/all-DXCu3zEo.js",
+				"/assets/all-Sr_hbAwn.js",
 				"/assets/taxonomy-CCGfN8IS.js"
 			],
 			"css": [],
@@ -23579,8 +22950,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-d708887b.js",
-	"version": "d708887b",
+	"url": "/assets/manifest-b6bad966.js",
+	"version": "b6bad966",
 	"sri": void 0
 };
 //#endregion

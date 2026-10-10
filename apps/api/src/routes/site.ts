@@ -21,6 +21,7 @@ import { registerFeedback } from "./feedback.ts";
 import { loadHot, loadStoryDetail, resolveStory } from "@aihot/backend/publication/stories";
 import { listReports, loadReport, reportNavigation, loadReportNavigation, loadReportMonth, type ReportKind } from "@aihot/backend/publication/reports";
 import { loadSiteCodexResetPage, loadSiteCodexResetDay } from "@aihot/backend/publication/monitor";
+import { loadRocketsSchedule, loadRocketsGameBreakdown, loadRocketsPlayers, loadRocketsPlayerDetail, loadRocketsStandings, triggerRocketsSync } from "@aihot/backend/publication/rockets";
 import { codexResetVersion } from "@aihot/backend/monitor/read";
 import { cached } from "@aihot/backend/lib/cache";
 import { looseQuery, sendJsonWithEtag, sendProblem } from "../http/respond.ts";
@@ -255,6 +256,42 @@ export function registerSite(app: FastifyInstance) {
     const data = await fetchEspnBoxscoreData(gameId);
     reply.header("Cache-Control", "public, max-age=180, s-maxage=300");
     return data;
+  }));
+
+  // Rockets NBA Data Center Endpoints
+  app.get("/api/site/rockets/schedule", siteHandler(async (req, reply) => {
+    const data = await loadRocketsSchedule();
+    return sendJsonWithEtag(req, reply, data, { etagPrefix: "rockets-sched", cacheControl: "public, max-age=60, s-maxage=120" });
+  }));
+
+  app.get("/api/site/rockets/games/:id", siteHandler(async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const data = await loadRocketsGameBreakdown(id);
+    if (!data) return sendProblem(req, reply, { status: 404, code: "not_found", detail: "game breakdown not found" });
+    return sendJsonWithEtag(req, reply, data, { etagPrefix: "rockets-game", cacheControl: "public, max-age=60, s-maxage=120" });
+  }));
+
+  app.get("/api/site/rockets/players", siteHandler(async (req, reply) => {
+    const data = await loadRocketsPlayers();
+    return sendJsonWithEtag(req, reply, data, { etagPrefix: "rockets-players", cacheControl: "public, max-age=120, s-maxage=300" });
+  }));
+
+  app.get("/api/site/rockets/players/:id", siteHandler(async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const data = await loadRocketsPlayerDetail(id);
+    if (!data) return sendProblem(req, reply, { status: 404, code: "not_found", detail: "player not found" });
+    return sendJsonWithEtag(req, reply, data, { etagPrefix: "rockets-player", cacheControl: "public, max-age=120, s-maxage=300" });
+  }));
+
+  app.get("/api/site/rockets/standings", siteHandler(async (req, reply) => {
+    const data = await loadRocketsStandings();
+    return sendJsonWithEtag(req, reply, data, { etagPrefix: "rockets-standings", cacheControl: "public, max-age=120, s-maxage=300" });
+  }));
+
+  app.post("/api/site/rockets/sync", siteHandler(async (req, reply) => {
+    const res = await triggerRocketsSync();
+    reply.header("Cache-Control", "no-store");
+    return res;
   }));
 
   // Markdown export: attachment, 404 when there is nothing to export (same predicate as the button).
