@@ -224,9 +224,9 @@ function coveredTo(m: SourceRow): bigint {
   return byTime > own ? byTime : own;
 }
 
-/** Minutes between reads of a shard: editorial accounts every 5 minutes (configurable), hot-signal accounts 30 min. */
+/** Minutes between reads of a shard: editorial accounts every 15 minutes (configurable), hot-signal accounts 30 min. */
 const X_SHARD_MINUTES: Record<string, number> = {
-  editorial: Number(process.env.X_FETCH_INTERVAL_MINUTES || 5),
+  editorial: Number(process.env.X_FETCH_INTERVAL_MINUTES || 15),
   hot_signal: 30,
 };
 const shardMinutes = (mode: string) => X_SHARD_MINUTES[mode] ?? 15;
