@@ -101,27 +101,77 @@ export const DRAFT_DICT: Record<string, string> = {
   "Bruce Thornton": "2025年 NBA落选秀",
 };
 
+export function toBeijingDateTime(dateIsoStr: string): { date: string; time: string } {
+  const d = new Date(dateIsoStr);
+  if (isNaN(d.getTime())) return { date: "2026-10-01", time: "08:00" };
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(d);
+  const m: Record<string, string> = {};
+  for (const p of parts) m[p.type] = p.value;
+  let hour = m.hour || "00";
+  if (hour === "24") hour = "00";
+  return {
+    date: `${m.year}-${m.month}-${m.day}`,
+    time: `${hour}:${m.minute}`,
+  };
+}
+
+export function formatGameProgress(status: any): string {
+  if (!status) return "进行中";
+  const type = status.type || {};
+  const short = (type.shortDetail || type.detail || "").toLowerCase();
+  if (type.name === "STATUS_HALFTIME" || short.includes("half") || short.includes("halftime")) return "中场休息";
+  if (short.includes("end of 1st") || short.includes("end 1st")) return "第1节结束";
+  if (short.includes("end of 2nd") || short.includes("end 2nd")) return "半场结束";
+  if (short.includes("end of 3rd") || short.includes("end 3rd")) return "第3节结束";
+  if (short.includes("end of 4th") || short.includes("end 4th")) return "第4节结束";
+
+  const period = Number(status.period || 1);
+  const periodName = period <= 4 ? `第${period}节` : period === 5 ? "加时1" : `加时${period - 4}`;
+  const clock = status.displayClock || "";
+  return clock ? `${periodName} ${clock}` : `${periodName} 进行中`;
+}
+
 export class EspnClient {
   private timeoutMs = 8000;
 
   /** 获取火箭队完整赛程与战果 */
   async fetchRocketsSchedule(): Promise<GameItem[]> {
     try {
-      const [preRes, regRes] = await Promise.all([
+      const [preRes, regRes, scoreRes] = await Promise.all([
         fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${ROCKETS_TEAM_ID}/schedule?seasontype=1`, { signal: AbortSignal.timeout(this.timeoutMs) }).catch(() => null),
         fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${ROCKETS_TEAM_ID}/schedule?seasontype=2`, { signal: AbortSignal.timeout(this.timeoutMs) }).catch(() => null),
+        fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard`, { signal: AbortSignal.timeout(this.timeoutMs) }).catch(() => null),
       ]);
 
       const preData = (preRes && preRes.ok ? await preRes.json() : { events: [] }) as any;
       const regData = (regRes && regRes.ok ? await regRes.json() : { events: [] }) as any;
+      const scoreData = (scoreRes && scoreRes.ok ? await scoreRes.json() : { events: [] }) as any;
+
+      // 实时比分优先字典 (来自 scoreboard)
+      const liveEventMap = new Map<string, any>();
+      for (const ev of scoreData.events || []) {
+        if (ev && ev.id) liveEventMap.set(ev.id, ev);
+      }
 
       const events = [...(preData.events || []), ...(regData.events || [])];
       const games: GameItem[] = [];
       const seenIds = new Set<string>();
 
-      for (const ev of events) {
-        if (!ev || !ev.id || seenIds.has(ev.id)) continue;
-        seenIds.add(ev.id);
+      for (const rawEv of events) {
+        if (!rawEv || !rawEv.id || seenIds.has(rawEv.id)) continue;
+        seenIds.add(rawEv.id);
+
+        // 如果 scoreboard 中有当场比赛的最新实时进展，使用 scoreboard 的最新状态
+        const ev = liveEventMap.get(rawEv.id) || rawEv;
         const comp = ev.competitions?.[0];
         if (!comp) continue;
 
@@ -140,22 +190,35 @@ export class EspnClient {
         };
 
         const isHome = rocketsComp.homeAway === "home";
-        const dateObj = new Date(ev.date);
-        const dateStr = dateObj.toISOString().split("T")[0]!;
-        const timeStr = `${String(dateObj.getHours()).padStart(2, "0")}:${String(dateObj.getMinutes()).padStart(2, "0")}`;
+        // 统一转换为北京时间 (Asia/Shanghai)
+        const { date: dateStr, time: timeStr } = toBeijingDateTime(ev.date);
 
-        const isCompleted = comp.status?.type?.completed === true;
-        let result: GameItem["result"] | undefined;
+        const state = comp.status?.type?.state; // "pre" | "in" | "post"
+        const isCompleted = comp.status?.type?.completed === true || state === "post";
+        const isLive = state === "in";
 
+        let status: GameItem["status"] = "upcoming";
         if (isCompleted) {
+          status = "final";
+        } else if (isLive) {
+          status = "live";
+        }
+
+        let result: GameItem["result"] | undefined;
+        let progress: string | undefined;
+
+        if (isCompleted || isLive) {
           const rocketsScore = Number(rocketsComp.score?.value ?? rocketsComp.score ?? 0);
           const oppScore = Number(oppComp.score?.value ?? oppComp.score ?? 0);
-          const outcome = rocketsScore > oppScore ? "W" : "L";
+          const outcome = rocketsScore >= oppScore ? "W" : "L";
           result = {
             outcome,
             rocketsScore,
             opponentScore: oppScore,
           };
+          if (isLive) {
+            progress = formatGameProgress(comp.status);
+          }
         }
 
         const rawArena = comp.venue?.fullName || "";
@@ -173,7 +236,8 @@ export class EspnClient {
           arena,
           broadcast: comp.broadcasts?.[0]?.names?.[0] || "腾讯体育 / 咪咕",
           stage: isPre ? "preseason" : "regular",
-          status: isCompleted ? "final" : "upcoming",
+          status,
+          progress,
           result,
         });
       }
@@ -255,9 +319,7 @@ export class EspnClient {
         logoText: oppAbbr,
       };
 
-      const dateObj = new Date(comp?.date || Date.now());
-      const dateStr = dateObj.toISOString().split("T")[0]!;
-      const timeStr = `${String(dateObj.getHours()).padStart(2, "0")}:${String(dateObj.getMinutes()).padStart(2, "0")}`;
+      const { date: dateStr, time: timeStr } = toBeijingDateTime(comp?.date || new Date().toISOString());
       const rScore = Number(rocketsComp?.score || 0);
       const oScore = Number(oppComp?.score || 0);
 
@@ -266,6 +328,12 @@ export class EspnClient {
         ? "澳门威尼斯人综艺馆"
         : rawArena || "丰田中心";
       const isPre = data.header?.season?.type === 1 || dateStr < "2026-10-22";
+
+      const state = comp?.status?.type?.state;
+      const isCompleted = comp?.status?.type?.completed === true || state === "post";
+      const isLive = state === "in";
+      const status: GameItem["status"] = isCompleted ? "final" : isLive ? "live" : "upcoming";
+      const progress = isLive ? formatGameProgress(comp?.status) : undefined;
 
       const gameItem: GameItem = {
         id: gameId,
@@ -276,7 +344,8 @@ export class EspnClient {
         arena,
         broadcast: "腾讯体育 / 咪咕",
         stage: isPre ? "preseason" : "regular",
-        status: "final",
+        status,
+        progress,
         result: {
           outcome: rScore >= oScore ? "W" : "L",
           rocketsScore: rScore,

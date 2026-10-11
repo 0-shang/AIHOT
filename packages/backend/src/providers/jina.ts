@@ -28,10 +28,23 @@ export async function jinaRead(
   opts: { purpose: string; subject: string; format?: "markdown" | "html"; cacheToleranceSeconds?: number; perRead?: boolean },
 ): Promise<JinaPage & { receiptId: number; raw: string }> {
   const key = credential("collectors", "JINA_API_KEY");
-  if (!key) throw new Error("JINA_API_KEY is not configured");
   const base = (credential("collectors", "JINA_BASE_URL") ?? "https://r.jina.ai").replace(/\/$/, "");
   // A listing whose freshness matters (xAI news) caps how old Jina's cached rendering may be.
   const tolerance: Record<string, string> = Number.isInteger(opts.cacheToleranceSeconds) && opts.cacheToleranceSeconds! >= 0 ? { "x-cache-tolerance": String(opts.cacheToleranceSeconds) } : {};
+
+  if (!key) {
+    const res = await guardedFetch(`${base}/${targetUrl}`, {
+      headers: { "x-return-format": opts.format ?? "markdown", accept: "text/plain", ...tolerance },
+      timeoutMs: 60_000,
+      maxBytes: 6 * 1024 * 1024,
+    });
+    if (res.status >= 400) {
+      throw new ProviderRejectedError(`jina HTTP ${res.status}`, res.status, res.status >= 500);
+    }
+    const raw = res.text().slice(0, 2_000_000);
+    return { ...parseJinaText(raw), receiptId: 0, raw };
+  }
+
   const now = new Date().toISOString();
   const day = opts.perRead ? now : now.slice(0, 10);
   const receipt = await paidRequest(

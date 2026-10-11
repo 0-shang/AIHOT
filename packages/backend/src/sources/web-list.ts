@@ -140,10 +140,11 @@ export function fromMarkdown(md: string, base: string, source: SourceRow): Candi
     if (!url || seen.has(url) || !allowed(url, source) || navigationLink(url, listing)) continue;
     if (source.config.linksStartLine === true && !startsLine(m.index!)) continue;
     const label = collapseWhitespace(m[1]!.replace(/[*_`#]/g, ""));
-    // A title attribute the card text already contains is the clean title, without dates and blurbs.
     const attr = collapseWhitespace(m[3] ?? "");
+    // A title attribute the card text already contains is the clean title, without dates and blurbs.
     const title = attr.length >= 6 && label.includes(attr) ? attr : label;
     if (title.length < 6) continue;
+    if (/^(comments|sign in|pods|profile|fantasy|following|my sources|my podcasts|privacy|terms|about|contact|menu|share|like)$/i.test(title.trim())) continue;
     seen.add(url);
     out.push({ url, title });
   }

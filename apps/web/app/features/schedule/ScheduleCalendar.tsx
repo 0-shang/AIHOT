@@ -58,6 +58,29 @@ export function ScheduleCalendar() {
     loadAllData();
   }, []);
 
+  // 实时比赛自动轮询同步 (当存在正在进行的比赛时每 25 秒自动拉取最新比分与进展)
+  useEffect(() => {
+    const hasLiveGame = schedule.some((g) => g.status === "live");
+    if (!hasLiveGame) return;
+
+    const timer = setInterval(async () => {
+      try {
+        const sList = await fetchRocketsSchedule();
+        if (sList && sList.length > 0) {
+          setSchedule(sList);
+        }
+        if (activeGameId) {
+          const breakdown = await fetchGameBreakdown(activeGameId);
+          if (breakdown) setGameBreakdown(breakdown);
+        }
+      } catch {
+        // ignore
+      }
+    }, 25_000);
+
+    return () => clearInterval(timer);
+  }, [schedule, activeGameId]);
+
   // 响应 URL 参数 (?game=... / ?player=...)
   useEffect(() => {
     const gameParam = searchParams.get("game");

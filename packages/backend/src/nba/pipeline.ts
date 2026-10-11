@@ -18,6 +18,7 @@ export class RocketsDataPipeline {
   private memoryStandings: StandingsData | null = null;
   private memoryGames = new Map<string, GameBreakdownData>();
   private isSyncing = false;
+  private lastLiveCheckMs = 0;
 
   private async ensureDir() {
     try {
@@ -28,63 +29,103 @@ export class RocketsDataPipeline {
     }
   }
 
-  /** 获取火箭赛程列表 */
+  /** 获取火箭赛程列表（包含正在进行的比赛动态比分与进展） */
   async getSchedule(): Promise<GameItem[]> {
-    if (this.memorySchedule && this.memorySchedule.length > 0) {
-      return this.memorySchedule;
-    }
+    let list: GameItem[] | null = this.memorySchedule;
 
-    await this.ensureDir();
-    try {
-      const content = await fs.readFile(SCHEDULE_FILE, "utf-8");
-      const list = JSON.parse(content) as GameItem[];
-      if (list && list.length > 0) {
-        this.memorySchedule = list;
-        return list;
+    if (!list || list.length === 0) {
+      await this.ensureDir();
+      try {
+        const content = await fs.readFile(SCHEDULE_FILE, "utf-8");
+        const parsed = JSON.parse(content) as GameItem[];
+        if (parsed && parsed.length > 0) {
+          list = parsed;
+          this.memorySchedule = parsed;
+        }
+      } catch {
+        // fallback to seed
       }
-    } catch {
-      // fallback to seed
     }
 
-    this.memorySchedule = SEED_GAMES;
-    await this.saveSchedule(SEED_GAMES);
-    return SEED_GAMES;
+    if (!list || list.length === 0) {
+      this.memorySchedule = SEED_GAMES;
+      await this.saveSchedule(SEED_GAMES);
+      list = SEED_GAMES;
+    }
+
+    // 智能检测正在进行或今日有赛程的场次，20秒以上则自动触发微轮询同步
+    const nowBeijing = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+    const [m, d, y] = nowBeijing.split("/");
+    const todayStr = `${y}-${m}-${d}`;
+    const hasLiveOrToday = list.some((g) => g.status === "live" || (g.date === todayStr && g.status !== "final"));
+
+    if (hasLiveOrToday && Date.now() - this.lastLiveCheckMs > 20_000) {
+      this.lastLiveCheckMs = Date.now();
+      try {
+        const liveSchedule = await this.espn.fetchRocketsSchedule();
+        if (liveSchedule && liveSchedule.length > 0) {
+          const map = new Map<string, GameItem>();
+          for (const g of list) map.set(g.id, g);
+          for (const g of liveSchedule) {
+            map.set(g.id, { ...(map.get(g.id) || {}), ...g });
+          }
+          const merged = Array.from(map.values()).sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+          );
+          this.memorySchedule = merged;
+          await this.saveSchedule(merged);
+          return merged;
+        }
+      } catch {
+        // keep existing
+      }
+    }
+
+    return list;
   }
 
   /** 获取单场比赛技术统计 (Boxscore) */
   async getGameBreakdown(gameId: string): Promise<GameBreakdownData | null> {
-    if (this.memoryGames.has(gameId)) {
+    const schedule = await this.getSchedule();
+    const matchGame = schedule.find((g) => g.id === gameId);
+    const isLive = matchGame?.status === "live";
+
+    // 正在进行的比赛不读取静态磁盘缓存，优先向 ESPN 实时抓取最新技术统计
+    if (!isLive && this.memoryGames.has(gameId)) {
       return this.memoryGames.get(gameId)!;
     }
 
-    await this.ensureDir();
-    const gameFile = path.join(GAMES_DIR, `${gameId}.json`);
-    try {
-      const content = await fs.readFile(gameFile, "utf-8");
-      const data = JSON.parse(content) as GameBreakdownData;
-      if (data) {
-        this.memoryGames.set(gameId, data);
-        return data;
+    if (!isLive) {
+      await this.ensureDir();
+      const gameFile = path.join(GAMES_DIR, `${gameId}.json`);
+      try {
+        const content = await fs.readFile(gameFile, "utf-8");
+        const data = JSON.parse(content) as GameBreakdownData;
+        if (data) {
+          this.memoryGames.set(gameId, data);
+          return data;
+        }
+      } catch {
+        // not yet cached
       }
-    } catch {
-      // not yet cached
     }
 
     // 尝试向 ESPN 实时抓取
     const summary = await this.espn.fetchGameSummary(gameId);
     if (summary) {
       this.memoryGames.set(gameId, summary);
-      try {
-        await fs.writeFile(gameFile, JSON.stringify(summary, null, 2), "utf-8");
-      } catch {
-        // ignore
+      if (!isLive && summary.game?.status === "final") {
+        try {
+          const gameFile = path.join(GAMES_DIR, `${gameId}.json`);
+          await fs.writeFile(gameFile, JSON.stringify(summary, null, 2), "utf-8");
+        } catch {
+          // ignore
+        }
       }
       return summary;
     }
 
     // 针对种子比赛提供高保真技术统计保底
-    const schedule = await this.getSchedule();
-    const matchGame = schedule.find((g) => g.id === gameId);
     if (!matchGame) return null;
 
     const fallback: GameBreakdownData = {

@@ -59,7 +59,7 @@ async function storedTitles(urls: string[]): Promise<Map<string, string>> {
 
 const DAY_MS = 86_400_000;
 /** A listing title that is no headline: a label that swallowed its summary, or a call to action. */
-const needsTitle = (title: string) => title.length > 100 || /^(read more|learn more|continue reading|more|阅读全文|阅读更多|查看详情|了解更多)$/i.test(title.trim());
+const needsTitle = (title: string) => title.length > 100 || /^(read more|learn more|continue reading|more|comments|阅读全文|阅读更多|查看详情|了解更多)$/i.test(title.trim());
 
 async function store(sourceId: string, candidates: Candidate[], backfill: string | null): Promise<{ created: number; revised: number }> {
   let created = 0;
@@ -224,9 +224,12 @@ function coveredTo(m: SourceRow): bigint {
   return byTime > own ? byTime : own;
 }
 
-/** Minutes between reads of a shard: editorial accounts every half hour, hot-signal accounts hourly. */
-const X_SHARD_MINUTES: Record<string, number> = { editorial: 30, hot_signal: 60 };
-const shardMinutes = (mode: string) => X_SHARD_MINUTES[mode] ?? 60;
+/** Minutes between reads of a shard: editorial accounts every 5 minutes (configurable), hot-signal accounts 30 min. */
+const X_SHARD_MINUTES: Record<string, number> = {
+  editorial: Number(process.env.X_FETCH_INTERVAL_MINUTES || 5),
+  hot_signal: 30,
+};
+const shardMinutes = (mode: string) => X_SHARD_MINUTES[mode] ?? 15;
 
 /**
  * One search for a shard of X accounts (planXShards). Each post goes to the source whose handle wrote
@@ -312,7 +315,7 @@ async function scheduleXShards(): Promise<number> {
   for (const shard of planXShards(rows)) {
     if (!shard.sourceIds.some((id) => due.has(id))) continue;
     await enqueue(QUEUES.fetchXShard, { key: shard.key, sourceIds: shard.sourceIds }, { singletonKey: shard.key });
-    await sql`UPDATE sources SET next_fetch_at = now() + interval '10 minutes' WHERE id IN ${sql(shard.sourceIds)}`;
+    await sql`UPDATE sources SET next_fetch_at = now() + interval '3 minutes' WHERE id IN ${sql(shard.sourceIds)}`;
     enqueued += 1;
   }
   return enqueued;

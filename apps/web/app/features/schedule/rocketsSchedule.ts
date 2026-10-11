@@ -14,6 +14,7 @@ export interface GameData {
   broadcast: string;
   stage: "preseason" | "regular" | "cup"; // 季前赛 / 常规赛 / NBA杯赛
   status: "final" | "upcoming" | "live";
+  progress?: string;
   keyMatchup?: string; // 焦点对位
   previewNotes?: string; // 核心看点
   result?: {

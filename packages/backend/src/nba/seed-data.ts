@@ -4,7 +4,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401898395",
     "date": "2026-10-09",
-    "time": "12:00",
+    "time": "20:00",
     "opponent": {
       "name": "独行侠",
       "city": "达拉斯",
@@ -26,7 +26,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401898400",
     "date": "2026-10-11",
-    "time": "10:00",
+    "time": "18:00",
     "opponent": {
       "name": "独行侠",
       "city": "达拉斯",
@@ -36,14 +36,19 @@ export const SEED_GAMES: GameItem[] = [
     },
     "isHome": true,
     "arena": "澳门威尼斯人综艺馆",
-    "broadcast": "腾讯体育 / 咪咕",
+    "broadcast": "NBA TV",
     "stage": "preseason",
-    "status": "upcoming"
+    "status": "final",
+    "result": {
+      "outcome": "L",
+      "rocketsScore": 115,
+      "opponentScore": 132
+    }
   },
   {
     "id": "401908622",
     "date": "2026-10-16",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "雷霆",
       "city": "俄克拉荷马",
@@ -52,7 +57,7 @@ export const SEED_GAMES: GameItem[] = [
       "logoText": "OKC"
     },
     "isHome": true,
-    "arena": "丰田中心",
+    "arena": "Toyota Center (Houston)",
     "broadcast": "腾讯体育 / 咪咕",
     "stage": "preseason",
     "status": "upcoming"
@@ -60,7 +65,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909840",
     "date": "2026-10-22",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "独行侠",
       "city": "达拉斯",
@@ -77,7 +82,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909096",
     "date": "2026-10-24",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "马刺",
       "city": "圣安东尼奥",
@@ -94,7 +99,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909856",
     "date": "2026-10-25",
-    "time": "00:00",
+    "time": "08:00",
     "opponent": {
       "name": "老鹰",
       "city": "亚特兰大",
@@ -111,7 +116,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909874",
     "date": "2026-10-27",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "老鹰",
       "city": "亚特兰大",
@@ -128,7 +133,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909887",
     "date": "2026-10-29",
-    "time": "00:00",
+    "time": "08:00",
     "opponent": {
       "name": "雄鹿",
       "city": "密尔沃基",
@@ -145,7 +150,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909283",
     "date": "2026-10-31",
-    "time": "00:00",
+    "time": "08:00",
     "opponent": {
       "name": "独行侠",
       "city": "达拉斯",
@@ -162,7 +167,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909902",
     "date": "2026-11-01",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "雷霆",
       "city": "俄克拉荷马",
@@ -179,7 +184,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909916",
     "date": "2026-11-03",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "凯尔特人",
       "city": "波士顿",
@@ -196,7 +201,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909930",
     "date": "2026-11-05",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "森林狼",
       "city": "明尼苏达",
@@ -213,7 +218,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909943",
     "date": "2026-11-08",
-    "time": "02:00",
+    "time": "10:00",
     "opponent": {
       "name": "太阳",
       "city": "菲尼克斯",
@@ -230,7 +235,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909957",
     "date": "2026-11-10",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "掘金",
       "city": "丹佛",
@@ -247,7 +252,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909974",
     "date": "2026-11-12",
-    "time": "02:30",
+    "time": "10:30",
     "opponent": {
       "name": "勇士",
       "city": "金州",
@@ -264,13 +269,13 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909301",
     "date": "2026-11-14",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
-      "name": "对手",
-      "city": "Utah",
-      "abbr": "UTAH",
-      "color": "#6b7280",
-      "logoText": "UTAH"
+      "name": "爵士",
+      "city": "犹他",
+      "abbr": "UTA",
+      "color": "#002B5C",
+      "logoText": "UTA"
     },
     "isHome": true,
     "arena": "Toyota Center (Houston)",
@@ -281,13 +286,13 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909991",
     "date": "2026-11-16",
-    "time": "00:00",
+    "time": "08:00",
     "opponent": {
-      "name": "对手",
-      "city": "Washington",
-      "abbr": "WSH",
-      "color": "#6b7280",
-      "logoText": "WSH"
+      "name": "奇才",
+      "city": "华盛顿",
+      "abbr": "WAS",
+      "color": "#002B5C",
+      "logoText": "WAS"
     },
     "isHome": false,
     "arena": "Capital One Arena",
@@ -298,7 +303,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909998",
     "date": "2026-11-17",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "热火",
       "city": "迈阿密",
@@ -315,7 +320,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910008",
     "date": "2026-11-19",
-    "time": "00:00",
+    "time": "08:00",
     "opponent": {
       "name": "步行者",
       "city": "印第安纳",
@@ -332,7 +337,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909312",
     "date": "2026-11-21",
-    "time": "03:00",
+    "time": "11:00",
     "opponent": {
       "name": "掘金",
       "city": "丹佛",
@@ -349,7 +354,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910043",
     "date": "2026-11-24",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "快船",
       "city": "洛杉矶",
@@ -366,7 +371,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909323",
     "date": "2026-11-26",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "太阳",
       "city": "菲尼克斯",
@@ -383,7 +388,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910050",
     "date": "2026-11-29",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "76人",
       "city": "费城",
@@ -400,7 +405,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910064",
     "date": "2026-12-01",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "湖人",
       "city": "洛杉矶",
@@ -417,7 +422,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910072",
     "date": "2026-12-02",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "猛龙",
       "city": "多伦多",
@@ -433,8 +438,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910101",
-    "date": "2026-12-13",
-    "time": "23:00",
+    "date": "2026-12-14",
+    "time": "07:00",
     "opponent": {
       "name": "公牛",
       "city": "芝加哥",
@@ -451,13 +456,13 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910111",
     "date": "2026-12-15",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
-      "name": "对手",
-      "city": "New York",
-      "abbr": "NY",
-      "color": "#6b7280",
-      "logoText": "NY"
+      "name": "尼克斯",
+      "city": "纽约",
+      "abbr": "NYK",
+      "color": "#006BB6",
+      "logoText": "NYK"
     },
     "isHome": true,
     "arena": "Toyota Center (Houston)",
@@ -468,7 +473,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910128",
     "date": "2026-12-17",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "雄鹿",
       "city": "密尔沃基",
@@ -485,7 +490,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910140",
     "date": "2026-12-19",
-    "time": "01:00",
+    "time": "09:00",
     "opponent": {
       "name": "灰熊",
       "city": "孟菲斯",
@@ -501,8 +506,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910150",
-    "date": "2026-12-20",
-    "time": "20:30",
+    "date": "2026-12-21",
+    "time": "04:30",
     "opponent": {
       "name": "猛龙",
       "city": "多伦多",
@@ -519,7 +524,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910179",
     "date": "2026-12-24",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "76人",
       "city": "费城",
@@ -535,8 +540,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910195",
-    "date": "2026-12-27",
-    "time": "20:30",
+    "date": "2026-12-28",
+    "time": "04:30",
     "opponent": {
       "name": "雷霆",
       "city": "俄克拉荷马",
@@ -553,7 +558,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910219",
     "date": "2026-12-30",
-    "time": "03:30",
+    "time": "11:30",
     "opponent": {
       "name": "湖人",
       "city": "洛杉矶",
@@ -570,7 +575,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910225",
     "date": "2026-12-31",
-    "time": "03:00",
+    "time": "11:00",
     "opponent": {
       "name": "勇士",
       "city": "金州",
@@ -587,7 +592,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910239",
     "date": "2027-01-02",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "独行侠",
       "city": "达拉斯",
@@ -604,7 +609,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910256",
     "date": "2027-01-04",
-    "time": "00:00",
+    "time": "08:00",
     "opponent": {
       "name": "骑士",
       "city": "克利夫兰",
@@ -621,7 +626,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910271",
     "date": "2027-01-06",
-    "time": "01:00",
+    "time": "09:00",
     "opponent": {
       "name": "森林狼",
       "city": "明尼苏达",
@@ -638,7 +643,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910287",
     "date": "2027-01-08",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "灰熊",
       "city": "孟菲斯",
@@ -654,8 +659,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910300",
-    "date": "2027-01-09",
-    "time": "23:00",
+    "date": "2027-01-10",
+    "time": "07:00",
     "opponent": {
       "name": "篮网",
       "city": "布鲁克林",
@@ -672,7 +677,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910315",
     "date": "2027-01-12",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "凯尔特人",
       "city": "波士顿",
@@ -689,7 +694,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910331",
     "date": "2027-01-14",
-    "time": "02:30",
+    "time": "10:30",
     "opponent": {
       "name": "雷霆",
       "city": "俄克拉荷马",
@@ -706,13 +711,13 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910348",
     "date": "2027-01-16",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
-      "name": "对手",
-      "city": "Washington",
-      "abbr": "WSH",
-      "color": "#6b7280",
-      "logoText": "WSH"
+      "name": "奇才",
+      "city": "华盛顿",
+      "abbr": "WAS",
+      "color": "#002B5C",
+      "logoText": "WAS"
     },
     "isHome": true,
     "arena": "Toyota Center (Houston)",
@@ -723,7 +728,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910355",
     "date": "2027-01-17",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "活塞",
       "city": "底特律",
@@ -740,7 +745,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401909476",
     "date": "2027-01-19",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "灰熊",
       "city": "孟菲斯",
@@ -757,7 +762,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910379",
     "date": "2027-01-21",
-    "time": "01:00",
+    "time": "09:00",
     "opponent": {
       "name": "森林狼",
       "city": "明尼苏达",
@@ -774,7 +779,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910390",
     "date": "2027-01-23",
-    "time": "00:00",
+    "time": "08:00",
     "opponent": {
       "name": "黄蜂",
       "city": "夏洛特",
@@ -790,8 +795,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910410",
-    "date": "2027-01-24",
-    "time": "23:00",
+    "date": "2027-01-25",
+    "time": "07:00",
     "opponent": {
       "name": "魔术",
       "city": "奥兰多",
@@ -808,7 +813,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910424",
     "date": "2027-01-27",
-    "time": "01:00",
+    "time": "09:00",
     "opponent": {
       "name": "马刺",
       "city": "圣安东尼奥",
@@ -825,7 +830,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910434",
     "date": "2027-01-28",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "鹈鹕",
       "city": "新奥尔良",
@@ -842,7 +847,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910449",
     "date": "2027-01-30",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "魔术",
       "city": "奥兰多",
@@ -859,7 +864,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910466",
     "date": "2027-02-01",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "独行侠",
       "city": "达拉斯",
@@ -876,13 +881,13 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910486",
     "date": "2027-02-04",
-    "time": "02:30",
+    "time": "10:30",
     "opponent": {
-      "name": "对手",
-      "city": "Utah",
-      "abbr": "UTAH",
-      "color": "#6b7280",
-      "logoText": "UTAH"
+      "name": "爵士",
+      "city": "犹他",
+      "abbr": "UTA",
+      "color": "#002B5C",
+      "logoText": "UTA"
     },
     "isHome": true,
     "arena": "Toyota Center (Houston)",
@@ -893,7 +898,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910502",
     "date": "2027-02-06",
-    "time": "02:00",
+    "time": "10:00",
     "opponent": {
       "name": "太阳",
       "city": "菲尼克斯",
@@ -910,7 +915,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910520",
     "date": "2027-02-08",
-    "time": "03:30",
+    "time": "11:30",
     "opponent": {
       "name": "国王",
       "city": "萨克拉门托",
@@ -927,13 +932,13 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910536",
     "date": "2027-02-10",
-    "time": "03:00",
+    "time": "11:00",
     "opponent": {
-      "name": "对手",
-      "city": "Utah",
-      "abbr": "UTAH",
-      "color": "#6b7280",
-      "logoText": "UTAH"
+      "name": "爵士",
+      "city": "犹他",
+      "abbr": "UTA",
+      "color": "#002B5C",
+      "logoText": "UTA"
     },
     "isHome": false,
     "arena": "Delta Center",
@@ -944,7 +949,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910549",
     "date": "2027-02-12",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "国王",
       "city": "萨克拉门托",
@@ -961,7 +966,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910558",
     "date": "2027-02-13",
-    "time": "01:00",
+    "time": "09:00",
     "opponent": {
       "name": "鹈鹕",
       "city": "新奥尔良",
@@ -977,8 +982,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910571",
-    "date": "2027-02-14",
-    "time": "19:00",
+    "date": "2027-02-15",
+    "time": "03:00",
     "opponent": {
       "name": "掘金",
       "city": "丹佛",
@@ -995,7 +1000,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910582",
     "date": "2027-02-17",
-    "time": "04:00",
+    "time": "12:00",
     "opponent": {
       "name": "快船",
       "city": "洛杉矶",
@@ -1012,7 +1017,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910598",
     "date": "2027-02-19",
-    "time": "03:00",
+    "time": "11:00",
     "opponent": {
       "name": "湖人",
       "city": "洛杉矶",
@@ -1029,7 +1034,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910614",
     "date": "2027-02-27",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "黄蜂",
       "city": "夏洛特",
@@ -1046,7 +1051,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910630",
     "date": "2027-03-01",
-    "time": "02:30",
+    "time": "10:30",
     "opponent": {
       "name": "热火",
       "city": "迈阿密",
@@ -1063,7 +1068,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910635",
     "date": "2027-03-02",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "勇士",
       "city": "金州",
@@ -1080,7 +1085,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910651",
     "date": "2027-03-04",
-    "time": "01:30",
+    "time": "09:30",
     "opponent": {
       "name": "鹈鹕",
       "city": "新奥尔良",
@@ -1097,7 +1102,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910667",
     "date": "2027-03-06",
-    "time": "02:30",
+    "time": "10:30",
     "opponent": {
       "name": "马刺",
       "city": "圣安东尼奥",
@@ -1114,7 +1119,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910679",
     "date": "2027-03-08",
-    "time": "03:00",
+    "time": "11:00",
     "opponent": {
       "name": "勇士",
       "city": "金州",
@@ -1131,7 +1136,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910688",
     "date": "2027-03-09",
-    "time": "03:30",
+    "time": "11:30",
     "opponent": {
       "name": "快船",
       "city": "洛杉矶",
@@ -1148,13 +1153,13 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910699",
     "date": "2027-03-11",
-    "time": "02:00",
+    "time": "10:00",
     "opponent": {
-      "name": "对手",
-      "city": "Utah",
-      "abbr": "UTAH",
-      "color": "#6b7280",
-      "logoText": "UTAH"
+      "name": "爵士",
+      "city": "犹他",
+      "abbr": "UTA",
+      "color": "#002B5C",
+      "logoText": "UTA"
     },
     "isHome": false,
     "arena": "Delta Center",
@@ -1164,8 +1169,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910721",
-    "date": "2027-03-13",
-    "time": "22:30",
+    "date": "2027-03-14",
+    "time": "06:30",
     "opponent": {
       "name": "步行者",
       "city": "印第安纳",
@@ -1182,7 +1187,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910745",
     "date": "2027-03-17",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "马刺",
       "city": "圣安东尼奥",
@@ -1199,7 +1204,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910752",
     "date": "2027-03-18",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "篮网",
       "city": "布鲁克林",
@@ -1216,7 +1221,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910767",
     "date": "2027-03-20",
-    "time": "00:00",
+    "time": "08:00",
     "opponent": {
       "name": "鹈鹕",
       "city": "新奥尔良",
@@ -1232,8 +1237,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910786",
-    "date": "2027-03-22",
-    "time": "23:00",
+    "date": "2027-03-23",
+    "time": "07:00",
     "opponent": {
       "name": "骑士",
       "city": "克利夫兰",
@@ -1249,14 +1254,14 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910804",
-    "date": "2027-03-24",
-    "time": "23:30",
+    "date": "2027-03-25",
+    "time": "07:30",
     "opponent": {
-      "name": "对手",
-      "city": "New York",
-      "abbr": "NY",
-      "color": "#6b7280",
-      "logoText": "NY"
+      "name": "尼克斯",
+      "city": "纽约",
+      "abbr": "NYK",
+      "color": "#006BB6",
+      "logoText": "NYK"
     },
     "isHome": false,
     "arena": "Madison Square Garden",
@@ -1266,8 +1271,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910812",
-    "date": "2027-03-25",
-    "time": "23:00",
+    "date": "2027-03-26",
+    "time": "07:00",
     "opponent": {
       "name": "活塞",
       "city": "底特律",
@@ -1283,8 +1288,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910833",
-    "date": "2027-03-28",
-    "time": "19:00",
+    "date": "2027-03-29",
+    "time": "03:00",
     "opponent": {
       "name": "湖人",
       "city": "洛杉矶",
@@ -1301,7 +1306,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910853",
     "date": "2027-03-31",
-    "time": "03:00",
+    "time": "11:00",
     "opponent": {
       "name": "开拓者",
       "city": "波特兰",
@@ -1318,7 +1323,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910863",
     "date": "2027-04-01",
-    "time": "02:00",
+    "time": "10:00",
     "opponent": {
       "name": "开拓者",
       "city": "波特兰",
@@ -1335,7 +1340,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910876",
     "date": "2027-04-03",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "灰熊",
       "city": "孟菲斯",
@@ -1351,8 +1356,8 @@ export const SEED_GAMES: GameItem[] = [
   },
   {
     "id": "401910888",
-    "date": "2027-04-04",
-    "time": "20:00",
+    "date": "2027-04-05",
+    "time": "04:00",
     "opponent": {
       "name": "公牛",
       "city": "芝加哥",
@@ -1369,7 +1374,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910915",
     "date": "2027-04-08",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "国王",
       "city": "萨克拉门托",
@@ -1386,7 +1391,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910931",
     "date": "2027-04-10",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "开拓者",
       "city": "波特兰",
@@ -1403,7 +1408,7 @@ export const SEED_GAMES: GameItem[] = [
   {
     "id": "401910946",
     "date": "2027-04-12",
-    "time": "00:30",
+    "time": "08:30",
     "opponent": {
       "name": "森林狼",
       "city": "明尼苏达",
@@ -1418,316 +1423,6 @@ export const SEED_GAMES: GameItem[] = [
     "status": "upcoming"
   }
 ];
-
-export const SEED_STANDINGS: StandingsData = {
-  "conference": "西部联盟 (Western Conference)",
-  "season": "2025-26",
-  "updatedAt": "2026-10-10T16:46:40.634Z",
-  "isOffseason": true,
-  "rocketsRank": 11,
-  "entries": [
-    {
-      "id": "25",
-      "rank": 1,
-      "name": "俄克拉荷马雷霆",
-      "city": "俄克拉荷马",
-      "abbr": "OKC",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/okc.png",
-      "wins": 0,
-      "losses": 2,
-      "winPct": ".000",
-      "gamesBehind": "1.5",
-      "streak": "L2",
-      "lastTen": "0-2",
-      "homeRecord": "0-1",
-      "awayRecord": "0-0",
-      "pointsFor": 236,
-      "pointsAgainst": 244,
-      "diff": "-8",
-      "isRockets": false
-    },
-    {
-      "id": "21",
-      "rank": 2,
-      "name": "菲尼克斯太阳",
-      "city": "菲尼克斯",
-      "abbr": "PHX",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/phx.png",
-      "wins": 0,
-      "losses": 2,
-      "winPct": ".000",
-      "gamesBehind": "1.5",
-      "streak": "L2",
-      "lastTen": "0-2",
-      "homeRecord": "0-0",
-      "awayRecord": "0-2",
-      "pointsFor": 224,
-      "pointsAgainst": 233,
-      "diff": "-9",
-      "isRockets": false
-    },
-    {
-      "id": "23",
-      "rank": 3,
-      "name": "萨克拉门托国王",
-      "city": "萨克拉门托",
-      "abbr": "SAC",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/sac.png",
-      "wins": 0,
-      "losses": 2,
-      "winPct": ".000",
-      "gamesBehind": "1.5",
-      "streak": "L2",
-      "lastTen": "0-2",
-      "homeRecord": "0-1",
-      "awayRecord": "0-1",
-      "pointsFor": 213,
-      "pointsAgainst": 241,
-      "diff": "-28",
-      "isRockets": false
-    },
-    {
-      "id": "9",
-      "rank": 4,
-      "name": "金州勇士",
-      "city": "金州",
-      "abbr": "GS",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/gs.png",
-      "wins": 1,
-      "losses": 2,
-      "winPct": ".333",
-      "gamesBehind": "1",
-      "streak": "L1",
-      "lastTen": "1-2",
-      "homeRecord": "1-0",
-      "awayRecord": "0-1",
-      "pointsFor": 343,
-      "pointsAgainst": 325,
-      "diff": "+18",
-      "isRockets": false
-    },
-    {
-      "id": "24",
-      "rank": 5,
-      "name": "圣安东尼奥马刺",
-      "city": "圣安东尼奥",
-      "abbr": "SA",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/sa.png",
-      "wins": 0,
-      "losses": 1,
-      "winPct": ".000",
-      "gamesBehind": "1",
-      "streak": "L1",
-      "lastTen": "0-1",
-      "homeRecord": "0-1",
-      "awayRecord": "0-0",
-      "pointsFor": 116,
-      "pointsAgainst": 123,
-      "diff": "-7",
-      "isRockets": false
-    },
-    {
-      "id": "6",
-      "rank": 6,
-      "name": "达拉斯独行侠",
-      "city": "达拉斯",
-      "abbr": "DAL",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/dal.png",
-      "wins": 0,
-      "losses": 1,
-      "winPct": ".000",
-      "gamesBehind": "1",
-      "streak": "L1",
-      "lastTen": "0-1",
-      "homeRecord": "0-0",
-      "awayRecord": "0-0",
-      "pointsFor": 117,
-      "pointsAgainst": 135,
-      "diff": "-18",
-      "isRockets": false
-    },
-    {
-      "id": "16",
-      "rank": 7,
-      "name": "明尼苏达森林狼",
-      "city": "明尼苏达",
-      "abbr": "MIN",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/min.png",
-      "wins": 1,
-      "losses": 1,
-      "winPct": ".500",
-      "gamesBehind": "0.5",
-      "streak": "L1",
-      "lastTen": "1-1",
-      "homeRecord": "0-0",
-      "awayRecord": "1-0",
-      "pointsFor": 228,
-      "pointsAgainst": 220,
-      "diff": "+8",
-      "isRockets": false
-    },
-    {
-      "id": "3",
-      "rank": 8,
-      "name": "新奥尔良鹈鹕",
-      "city": "新奥尔良",
-      "abbr": "NOP",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/no.png",
-      "wins": 1,
-      "losses": 1,
-      "winPct": ".500",
-      "gamesBehind": "0.5",
-      "streak": "L1",
-      "lastTen": "1-1",
-      "homeRecord": "0-0",
-      "awayRecord": "0-1",
-      "pointsFor": 234,
-      "pointsAgainst": 238,
-      "diff": "-4",
-      "isRockets": false
-    },
-    {
-      "id": "26",
-      "rank": 9,
-      "name": "犹他爵士",
-      "city": "Utah",
-      "abbr": "UTA",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/utah.png",
-      "wins": 1,
-      "losses": 1,
-      "winPct": ".500",
-      "gamesBehind": "0.5",
-      "streak": "L1",
-      "lastTen": "1-1",
-      "homeRecord": "0-1",
-      "awayRecord": "1-0",
-      "pointsFor": 215,
-      "pointsAgainst": 214,
-      "diff": "+1",
-      "isRockets": false
-    },
-    {
-      "id": "7",
-      "rank": 10,
-      "name": "丹佛掘金",
-      "city": "丹佛",
-      "abbr": "DEN",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/den.png",
-      "wins": 1,
-      "losses": 1,
-      "winPct": ".500",
-      "gamesBehind": "0.5",
-      "streak": "W1",
-      "lastTen": "1-1",
-      "homeRecord": "0-1",
-      "awayRecord": "1-0",
-      "pointsFor": 214,
-      "pointsAgainst": 215,
-      "diff": "-1",
-      "isRockets": false
-    },
-    {
-      "id": "10",
-      "rank": 11,
-      "name": "休斯敦火箭",
-      "city": "休斯敦",
-      "abbr": "HOU",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/hou.png",
-      "wins": 1,
-      "losses": 0,
-      "winPct": "1.000",
-      "gamesBehind": "-",
-      "streak": "W1",
-      "lastTen": "1-0",
-      "homeRecord": "0-0",
-      "awayRecord": "0-0",
-      "pointsFor": 135,
-      "pointsAgainst": 117,
-      "diff": "+18",
-      "isRockets": true
-    },
-    {
-      "id": "22",
-      "rank": 12,
-      "name": "波特兰开拓者",
-      "city": "波特兰",
-      "abbr": "POR",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/por.png",
-      "wins": 1,
-      "losses": 0,
-      "winPct": "1.000",
-      "gamesBehind": "-",
-      "streak": "W1",
-      "lastTen": "1-0",
-      "homeRecord": "1-0",
-      "awayRecord": "0-0",
-      "pointsFor": 123,
-      "pointsAgainst": 118,
-      "diff": "+5",
-      "isRockets": false
-    },
-    {
-      "id": "12",
-      "rank": 13,
-      "name": "洛杉矶快船",
-      "city": "洛杉矶",
-      "abbr": "LAC",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/lac.png",
-      "wins": 1,
-      "losses": 0,
-      "winPct": "1.000",
-      "gamesBehind": "-",
-      "streak": "W1",
-      "lastTen": "1-0",
-      "homeRecord": "0-0",
-      "awayRecord": "0-0",
-      "pointsFor": 104,
-      "pointsAgainst": 101,
-      "diff": "+3",
-      "isRockets": false
-    },
-    {
-      "id": "29",
-      "rank": 14,
-      "name": "孟菲斯灰熊",
-      "city": "孟菲斯",
-      "abbr": "MEM",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/mem.png",
-      "wins": 2,
-      "losses": 1,
-      "winPct": ".667",
-      "gamesBehind": "-",
-      "streak": "W1",
-      "lastTen": "2-1",
-      "homeRecord": "0-1",
-      "awayRecord": "2-0",
-      "pointsFor": 354,
-      "pointsAgainst": 345,
-      "diff": "+9",
-      "isRockets": false
-    },
-    {
-      "id": "13",
-      "rank": 15,
-      "name": "洛杉矶湖人",
-      "city": "洛杉矶",
-      "abbr": "LAL",
-      "logo": "https://a.espncdn.com/i/teamlogos/nba/500/lal.png",
-      "wins": 2,
-      "losses": 1,
-      "winPct": ".667",
-      "gamesBehind": "-",
-      "streak": "W1",
-      "lastTen": "2-1",
-      "homeRecord": "1-0",
-      "awayRecord": "1-1",
-      "pointsFor": 339,
-      "pointsAgainst": 337,
-      "diff": "+2",
-      "isRockets": false
-    }
-  ]
-};
 
 export const SEED_PLAYERS: PlayerStatsData[] = [
   {
@@ -6481,3 +6176,314 @@ export const SEED_PLAYERS: PlayerStatsData[] = [
     }
   }
 ];
+
+export const SEED_STANDINGS: StandingsData = {
+  conference: "西部联盟 (Western Conference)",
+  season: "2025-26",
+  updatedAt: "2026-10-11T12:58:58.479Z",
+  isOffseason: true,
+  rocketsRank: 8,
+  entries: [
+    {
+      id: "23",
+      rank: 1,
+      name: "萨克拉门托国王",
+      city: "萨克拉门托",
+      abbr: "SAC",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/sac.png",
+      wins: 0,
+      losses: 3,
+      winPct: ".000",
+      gamesBehind: "2",
+      streak: "L3",
+      lastTen: "0-3",
+      homeRecord: "0-1",
+      awayRecord: "0-2",
+      pointsFor: 319,
+      pointsAgainst: 352,
+      diff: "-33",
+      isRockets: false
+    },
+    {
+      id: "25",
+      rank: 2,
+      name: "俄克拉荷马雷霆",
+      city: "俄克拉荷马",
+      abbr: "OKC",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/okc.png",
+      wins: 0,
+      losses: 2,
+      winPct: ".000",
+      gamesBehind: "1.5",
+      streak: "L2",
+      lastTen: "0-2",
+      homeRecord: "0-1",
+      awayRecord: "0-0",
+      pointsFor: 236,
+      pointsAgainst: 244,
+      diff: "-8",
+      isRockets: false
+    },
+    {
+      id: "24",
+      rank: 3,
+      name: "圣安东尼奥马刺",
+      city: "圣安东尼奥",
+      abbr: "SA",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/sa.png",
+      wins: 0,
+      losses: 2,
+      winPct: ".000",
+      gamesBehind: "1.5",
+      streak: "L2",
+      lastTen: "0-2",
+      homeRecord: "0-1",
+      awayRecord: "0-1",
+      pointsFor: 214,
+      pointsAgainst: 225,
+      diff: "-11",
+      isRockets: false
+    },
+    {
+      id: "21",
+      rank: 4,
+      name: "菲尼克斯太阳",
+      city: "菲尼克斯",
+      abbr: "PHX",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/phx.png",
+      wins: 1,
+      losses: 2,
+      winPct: ".333",
+      gamesBehind: "1",
+      streak: "W1",
+      lastTen: "1-2",
+      homeRecord: "1-0",
+      awayRecord: "0-2",
+      pointsFor: 326,
+      pointsAgainst: 331,
+      diff: "-5",
+      isRockets: false
+    },
+    {
+      id: "9",
+      rank: 5,
+      name: "金州勇士",
+      city: "金州",
+      abbr: "GS",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/gs.png",
+      wins: 2,
+      losses: 2,
+      winPct: ".500",
+      gamesBehind: "0.5",
+      streak: "W1",
+      lastTen: "2-2",
+      homeRecord: "2-0",
+      awayRecord: "0-1",
+      pointsFor: 454,
+      pointsAgainst: 431,
+      diff: "+23",
+      isRockets: false
+    },
+    {
+      id: "6",
+      rank: 6,
+      name: "达拉斯独行侠",
+      city: "达拉斯",
+      abbr: "DAL",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/dal.png",
+      wins: 1,
+      losses: 1,
+      winPct: ".500",
+      gamesBehind: "0.5",
+      streak: "W1",
+      lastTen: "1-1",
+      homeRecord: "0-0",
+      awayRecord: "0-0",
+      pointsFor: 249,
+      pointsAgainst: 250,
+      diff: "-1",
+      isRockets: false
+    },
+    {
+      id: "7",
+      rank: 7,
+      name: "丹佛掘金",
+      city: "丹佛",
+      abbr: "DEN",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/den.png",
+      wins: 1,
+      losses: 1,
+      winPct: ".500",
+      gamesBehind: "0.5",
+      streak: "W1",
+      lastTen: "1-1",
+      homeRecord: "0-1",
+      awayRecord: "1-0",
+      pointsFor: 214,
+      pointsAgainst: 215,
+      diff: "-1",
+      isRockets: false
+    },
+    {
+      id: "10",
+      rank: 8,
+      name: "休斯敦火箭",
+      city: "休斯敦",
+      abbr: "HOU",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/hou.png",
+      wins: 1,
+      losses: 1,
+      winPct: ".500",
+      gamesBehind: "0.5",
+      streak: "L1",
+      lastTen: "1-1",
+      homeRecord: "0-0",
+      awayRecord: "0-0",
+      pointsFor: 250,
+      pointsAgainst: 249,
+      diff: "+1",
+      isRockets: true
+    },
+    {
+      id: "26",
+      rank: 9,
+      name: "犹他爵士",
+      city: "犹他",
+      abbr: "UTAH",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/utah.png",
+      wins: 1,
+      losses: 1,
+      winPct: ".500",
+      gamesBehind: "0.5",
+      streak: "L1",
+      lastTen: "1-1",
+      homeRecord: "0-1",
+      awayRecord: "1-0",
+      pointsFor: 215,
+      pointsAgainst: 214,
+      diff: "+1",
+      isRockets: false
+    },
+    {
+      id: "12",
+      rank: 10,
+      name: "洛杉矶快船",
+      city: "洛杉矶",
+      abbr: "LAC",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/lac.png",
+      wins: 1,
+      losses: 1,
+      winPct: ".500",
+      gamesBehind: "0.5",
+      streak: "L1",
+      lastTen: "1-1",
+      homeRecord: "0-0",
+      awayRecord: "0-1",
+      pointsFor: 210,
+      pointsAgainst: 215,
+      diff: "-5",
+      isRockets: false
+    },
+    {
+      id: "3",
+      rank: 11,
+      name: "新奥尔良鹈鹕",
+      city: "新奥尔良",
+      abbr: "NO",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/no.png",
+      wins: 1,
+      losses: 1,
+      winPct: ".500",
+      gamesBehind: "0.5",
+      streak: "L1",
+      lastTen: "1-1",
+      homeRecord: "0-0",
+      awayRecord: "0-1",
+      pointsFor: 234,
+      pointsAgainst: 238,
+      diff: "-4",
+      isRockets: false
+    },
+    {
+      id: "22",
+      rank: 12,
+      name: "波特兰开拓者",
+      city: "波特兰",
+      abbr: "POR",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/por.png",
+      wins: 1,
+      losses: 0,
+      winPct: "1.000",
+      gamesBehind: "-",
+      streak: "W1",
+      lastTen: "1-0",
+      homeRecord: "1-0",
+      awayRecord: "0-0",
+      pointsFor: 123,
+      pointsAgainst: 118,
+      diff: "+5",
+      isRockets: false
+    },
+    {
+      id: "29",
+      rank: 13,
+      name: "孟菲斯灰熊",
+      city: "孟菲斯",
+      abbr: "MEM",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/mem.png",
+      wins: 2,
+      losses: 1,
+      winPct: ".667",
+      gamesBehind: "-",
+      streak: "W1",
+      lastTen: "2-1",
+      homeRecord: "0-1",
+      awayRecord: "2-0",
+      pointsFor: 354,
+      pointsAgainst: 345,
+      diff: "+9",
+      isRockets: false
+    },
+    {
+      id: "13",
+      rank: 14,
+      name: "洛杉矶湖人",
+      city: "洛杉矶",
+      abbr: "LAL",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/lal.png",
+      wins: 2,
+      losses: 1,
+      winPct: ".667",
+      gamesBehind: "-",
+      streak: "W1",
+      lastTen: "2-1",
+      homeRecord: "1-0",
+      awayRecord: "1-1",
+      pointsFor: 339,
+      pointsAgainst: 337,
+      diff: "+2",
+      isRockets: false
+    },
+    {
+      id: "16",
+      rank: 15,
+      name: "明尼苏达森林狼",
+      city: "明尼苏达",
+      abbr: "MIN",
+      logo: "https://a.espncdn.com/i/teamlogos/nba/500/min.png",
+      wins: 2,
+      losses: 1,
+      winPct: ".667",
+      gamesBehind: "-",
+      streak: "W1",
+      lastTen: "2-1",
+      homeRecord: "0-0",
+      awayRecord: "2-0",
+      pointsFor: 353,
+      pointsAgainst: 344,
+      diff: "+9",
+      isRockets: false
+    }
+  ]
+};
+

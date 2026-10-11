@@ -16,6 +16,7 @@ export interface GameItem {
   broadcast: string;
   stage: "preseason" | "regular" | "cup";
   status: "final" | "upcoming" | "live";
+  progress?: string; // 比赛进展 (例如: "第3节 04:21", "中场休息", "进行中")
   result?: {
     outcome: "W" | "L";
     rocketsScore: number;

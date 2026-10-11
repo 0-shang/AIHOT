@@ -147,6 +147,29 @@ async function syncAll() {
   const rawEvents = [...(preData.events || []), ...(regData.events || [])];
   console.log(`Retrieved total ${rawEvents.length} raw schedule events.`);
 
+function toBeijingDateTime(dateIsoStr: string): { date: string; time: string } {
+  const d = new Date(dateIsoStr);
+  if (isNaN(d.getTime())) return { date: "2026-10-01", time: "08:00" };
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(d);
+  const m: Record<string, string> = {};
+  for (const p of parts) m[p.type] = p.value;
+  let hour = m.hour || "00";
+  if (hour === "24") hour = "00";
+  return {
+    date: `${m.year}-${m.month}-${m.day}`,
+    time: `${hour}:${m.minute}`,
+  };
+}
+
   const games: any[] = [];
   const eventIdsSeen = new Set<string>();
 
@@ -171,11 +194,9 @@ async function syncAll() {
     };
 
     const isHome = rocketsComp.homeAway === "home";
-    const dateObj = new Date(ev.date);
-    const dateStr = dateObj.toISOString().split("T")[0]!;
-    const timeStr = `${String(dateObj.getHours()).padStart(2, "0")}:${String(dateObj.getMinutes()).padStart(2, "0")}`;
+    const { date: dateStr, time: timeStr } = toBeijingDateTime(ev.date);
 
-    const isCompleted = comp.status?.type?.completed === true;
+    const isCompleted = comp.status?.type?.completed === true || comp.status?.type?.state === "post";
     let result: any = undefined;
 
     if (isCompleted) {

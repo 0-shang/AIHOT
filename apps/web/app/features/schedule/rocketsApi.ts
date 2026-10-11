@@ -14,6 +14,7 @@ export interface GameItem {
   broadcast: string;
   stage: "preseason" | "regular" | "cup";
   status: "final" | "upcoming" | "live";
+  progress?: string;
   result?: {
     outcome: "W" | "L";
     rocketsScore: number;

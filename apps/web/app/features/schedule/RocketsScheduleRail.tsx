@@ -20,9 +20,13 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
     return `${y}-${m}-${d}`;
   }, []);
 
-  // 智能寻找距离今天最近的焦点场次（今天、明天或下一场待开赛场次）
+  // 智能寻找距离今天最近的焦点场次（正在进行、今天、明天或下一场待开赛场次）
   const focusGameInfo = useMemo(() => {
     if (!games || games.length === 0) return null;
+    // 0. 优先检测正在进行中的比赛
+    const liveGame = games.find((g) => g.status === "live");
+    if (liveGame) return { game: liveGame, label: "正在进行", isHot: true };
+
     // 1. 今天是否有比赛
     const todayGame = games.find((g) => g.date === todayStr);
     if (todayGame) return { game: todayGame, label: "今日对决", isHot: true };
@@ -171,6 +175,7 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
       >
         {filteredGames.map((g) => {
           const isFinal = g.status === "final";
+          const isLive = g.status === "live";
           const isWin = g.result?.outcome === "W";
           const isSelected = selectedGameId === g.id;
 
@@ -192,13 +197,15 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
             <div
               key={g.id}
               id={`schedule-game-${g.id}`}
-              onClick={() => isFinal && onSelectGame(g.id)}
+              onClick={() => (isFinal || isLive) && onSelectGame(g.id)}
               className={`flex-shrink-0 w-60 sm:w-64 rounded-xl p-3.5 border transition-all text-xs flex flex-col justify-between ${
-                isFocusGame
-                  ? "ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/20 dark:bg-[#1c1114] shadow-sm"
-                  : isFinal
-                    ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md border-slate-200 dark:border-white/10"
-                    : "cursor-default bg-slate-50/60 dark:bg-[#111317] border-slate-200 dark:border-white/10"
+                isLive
+                  ? "cursor-pointer ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/30 dark:bg-[#1f1013] shadow-md hover:shadow-lg"
+                  : isFocusGame
+                    ? "ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/20 dark:bg-[#1c1114] shadow-sm"
+                    : isFinal
+                      ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md border-slate-200 dark:border-white/10"
+                      : "cursor-default bg-slate-50/60 dark:bg-[#111317] border-slate-200 dark:border-white/10"
               } ${
                 isSelected ? "border-[#CE1141] ring-2 ring-[#CE1141]" : ""
               }`}
@@ -228,6 +235,11 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
                       }`}
                     >
                       {isWin ? "胜" : "负"}
+                    </span>
+                  ) : isLive ? (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded font-bold bg-[#CE1141] text-white flex items-center gap-1 shadow-xs animate-pulse">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white inline-block"></span>
+                      {g.progress || "进行中"}
                     </span>
                   ) : (
                     <span className="text-[10px] text-slate-500 dark:text-zinc-500 bg-slate-100 dark:bg-white/5 px-1.5 py-0.2 rounded font-medium">
@@ -263,14 +275,16 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
                   </div>
                   <span
                     className={`font-mono text-sm ${
-                      isFinal && awayTeam.score !== undefined
-                        ? awayTeam.score > (homeTeam.score ?? 0)
-                          ? "font-black text-slate-900 dark:text-white"
-                          : "text-slate-400 dark:text-zinc-500"
+                      (isFinal || isLive) && awayTeam.score !== undefined
+                        ? isLive
+                          ? "font-black text-[#CE1141] dark:text-[#ff4d6d]"
+                          : awayTeam.score > (homeTeam.score ?? 0)
+                            ? "font-black text-slate-900 dark:text-white"
+                            : "text-slate-400 dark:text-zinc-500"
                         : "text-slate-400 dark:text-zinc-600"
                     }`}
                   >
-                    {isFinal ? awayTeam.score : "--"}
+                    {isFinal || isLive ? awayTeam.score : "--"}
                   </span>
                 </div>
 
@@ -298,14 +312,16 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
                   </div>
                   <span
                     className={`font-mono text-sm ${
-                      isFinal && homeTeam.score !== undefined
-                        ? homeTeam.score > (awayTeam.score ?? 0)
-                          ? "font-black text-slate-900 dark:text-white"
-                          : "text-slate-400 dark:text-zinc-500"
+                      (isFinal || isLive) && homeTeam.score !== undefined
+                        ? isLive
+                          ? "font-black text-[#CE1141] dark:text-[#ff4d6d]"
+                          : homeTeam.score > (awayTeam.score ?? 0)
+                            ? "font-black text-slate-900 dark:text-white"
+                            : "text-slate-400 dark:text-zinc-500"
                         : "text-slate-400 dark:text-zinc-600"
                     }`}
                   >
-                    {isFinal ? homeTeam.score : "--"}
+                    {isFinal || isLive ? homeTeam.score : "--"}
                   </span>
                 </div>
               </div>
@@ -317,7 +333,11 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
                 </span>
                 {isFinal ? (
                   <span className="text-[#CE1141] font-semibold hover:underline">
-                    查看统计 ›
+                    查看战报 ›
+                  </span>
+                ) : isLive ? (
+                  <span className="text-[#CE1141] font-bold flex items-center gap-1 hover:underline">
+                    实时技术统计 ›
                   </span>
                 ) : (
                   <span className="text-slate-400 dark:text-zinc-600 text-[10px]">

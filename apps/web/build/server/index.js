@@ -950,7 +950,7 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	meta: () => meta$40,
 	shouldRevalidate: () => shouldRevalidate$1
 });
-var ICON_V = "v=20261010";
+var ICON_V = "v=20261011_fresh";
 var links = () => [
 	{
 		rel: "icon",
@@ -3410,6 +3410,12 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 	}, []);
 	const focusGameInfo = useMemo(() => {
 		if (!games || games.length === 0) return null;
+		const liveGame = games.find((g) => g.status === "live");
+		if (liveGame) return {
+			game: liveGame,
+			label: "正在进行",
+			isHot: true
+		};
 		const todayGame = games.find((g) => g.date === todayStr);
 		if (todayGame) return {
 			game: todayGame,
@@ -3537,6 +3543,7 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 		className: "flex items-stretch gap-3 overflow-x-auto pb-2 scroll-smooth select-none focus:outline-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1 sm:mx-0 sm:px-0",
 		children: filteredGames.map((g) => {
 			const isFinal = g.status === "final";
+			const isLive = g.status === "live";
 			const isWin = g.result?.outcome === "W";
 			const isSelected = selectedGameId === g.id;
 			const awayTeam = g.isHome ? {
@@ -3562,8 +3569,8 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 			const isFocusGame = focusGameInfo?.game.id === g.id;
 			return /* @__PURE__ */ jsxs("div", {
 				id: `schedule-game-${g.id}`,
-				onClick: () => isFinal && onSelectGame(g.id),
-				className: `flex-shrink-0 w-60 sm:w-64 rounded-xl p-3.5 border transition-all text-xs flex flex-col justify-between ${isFocusGame ? "ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/20 dark:bg-[#1c1114] shadow-sm" : isFinal ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md border-slate-200 dark:border-white/10" : "cursor-default bg-slate-50/60 dark:bg-[#111317] border-slate-200 dark:border-white/10"} ${isSelected ? "border-[#CE1141] ring-2 ring-[#CE1141]" : ""}`,
+				onClick: () => (isFinal || isLive) && onSelectGame(g.id),
+				className: `flex-shrink-0 w-60 sm:w-64 rounded-xl p-3.5 border transition-all text-xs flex flex-col justify-between ${isLive ? "cursor-pointer ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/30 dark:bg-[#1f1013] shadow-md hover:shadow-lg" : isFocusGame ? "ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/20 dark:bg-[#1c1114] shadow-sm" : isFinal ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md border-slate-200 dark:border-white/10" : "cursor-default bg-slate-50/60 dark:bg-[#111317] border-slate-200 dark:border-white/10"} ${isSelected ? "border-[#CE1141] ring-2 ring-[#CE1141]" : ""}`,
 				children: [
 					/* @__PURE__ */ jsxs("div", {
 						className: "flex items-center justify-between text-[11px] pb-2 mb-2 border-b border-slate-100 dark:border-white/5",
@@ -3588,6 +3595,9 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 							}), isFinal ? /* @__PURE__ */ jsx("span", {
 								className: `text-[10px] px-1.5 py-0.2 rounded font-bold uppercase ${isWin ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400"}`,
 								children: isWin ? "胜" : "负"
+							}) : isLive ? /* @__PURE__ */ jsxs("span", {
+								className: "text-[10px] px-1.5 py-0.2 rounded font-bold bg-[#CE1141] text-white flex items-center gap-1 shadow-xs animate-pulse",
+								children: [/* @__PURE__ */ jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-white inline-block" }), g.progress || "进行中"]
 							}) : /* @__PURE__ */ jsx("span", {
 								className: "text-[10px] text-slate-500 dark:text-zinc-500 bg-slate-100 dark:bg-white/5 px-1.5 py-0.2 rounded font-medium",
 								children: "待开赛"
@@ -3617,8 +3627,8 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 									})
 								]
 							}), /* @__PURE__ */ jsx("span", {
-								className: `font-mono text-sm ${isFinal && awayTeam.score !== void 0 ? awayTeam.score > (homeTeam.score ?? 0) ? "font-black text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500" : "text-slate-400 dark:text-zinc-600"}`,
-								children: isFinal ? awayTeam.score : "--"
+								className: `font-mono text-sm ${(isFinal || isLive) && awayTeam.score !== void 0 ? isLive ? "font-black text-[#CE1141] dark:text-[#ff4d6d]" : awayTeam.score > (homeTeam.score ?? 0) ? "font-black text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500" : "text-slate-400 dark:text-zinc-600"}`,
+								children: isFinal || isLive ? awayTeam.score : "--"
 							})]
 						}), /* @__PURE__ */ jsxs("div", {
 							className: "flex items-center justify-between",
@@ -3641,8 +3651,8 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 									})
 								]
 							}), /* @__PURE__ */ jsx("span", {
-								className: `font-mono text-sm ${isFinal && homeTeam.score !== void 0 ? homeTeam.score > (awayTeam.score ?? 0) ? "font-black text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500" : "text-slate-400 dark:text-zinc-600"}`,
-								children: isFinal ? homeTeam.score : "--"
+								className: `font-mono text-sm ${(isFinal || isLive) && homeTeam.score !== void 0 ? isLive ? "font-black text-[#CE1141] dark:text-[#ff4d6d]" : homeTeam.score > (awayTeam.score ?? 0) ? "font-black text-slate-900 dark:text-white" : "text-slate-400 dark:text-zinc-500" : "text-slate-400 dark:text-zinc-600"}`,
+								children: isFinal || isLive ? homeTeam.score : "--"
 							})]
 						})]
 					}),
@@ -3653,7 +3663,10 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 							children: g.arena.split("·")[0] || g.arena
 						}), isFinal ? /* @__PURE__ */ jsx("span", {
 							className: "text-[#CE1141] font-semibold hover:underline",
-							children: "查看统计 ›"
+							children: "查看战报 ›"
+						}) : isLive ? /* @__PURE__ */ jsx("span", {
+							className: "text-[#CE1141] font-bold flex items-center gap-1 hover:underline",
+							children: "实时技术统计 ›"
 						}) : /* @__PURE__ */ jsx("span", {
 							className: "text-slate-400 dark:text-zinc-600 text-[10px]",
 							children: g.isHome ? "主场迎战" : "客场出战"
@@ -4345,6 +4358,8 @@ function RocketsGameDetail({ breakdown, isLoading, onClose }) {
 	});
 	if (!breakdown) return null;
 	const { game, quarters, rocketsPlayers, opponentPlayers } = breakdown;
+	game.status;
+	const isLive = game.status === "live";
 	const isRocketsWin = game.result?.outcome === "W";
 	const rScore = game.result?.rocketsScore ?? 0;
 	const oScore = game.result?.opponentScore ?? 0;
@@ -4387,7 +4402,7 @@ function RocketsGameDetail({ breakdown, isLoading, onClose }) {
 											children: game.isHome ? "主场" : "客场"
 										}),
 										/* @__PURE__ */ jsx("span", {
-											className: `text-2xl sm:text-4xl font-black font-mono mt-0.5 ${rScore > oScore ? "text-[#CE1141]" : "text-slate-700 dark:text-zinc-300"}`,
+											className: `text-2xl sm:text-4xl font-black font-mono mt-0.5 ${rScore > oScore || isLive ? "text-[#CE1141]" : "text-slate-700 dark:text-zinc-300"}`,
 											children: rScore
 										})
 									]
@@ -4396,15 +4411,16 @@ function RocketsGameDetail({ breakdown, isLoading, onClose }) {
 									className: "flex flex-col items-center px-4 sm:px-6",
 									children: [
 										/* @__PURE__ */ jsx("span", {
-											className: `px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider mb-1 ${isRocketsWin ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30" : "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30"}`,
-											children: isRocketsWin ? "火箭胜" : "告负"
+											className: `px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider mb-1 ${isLive ? "bg-[#CE1141] text-white shadow-xs animate-pulse" : isRocketsWin ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30" : "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30"}`,
+											children: isLive ? `🔴 进行中 · ${game.progress || "实时战况"}` : isRocketsWin ? "火箭胜" : "告负"
 										}),
 										/* @__PURE__ */ jsxs("span", {
 											className: "text-xs text-slate-600 dark:text-zinc-400 font-mono font-medium",
 											children: [
 												game.date,
 												" · ",
-												game.time
+												game.time,
+												" (北京时间)"
 											]
 										}),
 										/* @__PURE__ */ jsx("span", {
@@ -5429,6 +5445,20 @@ function ScheduleCalendar() {
 	useEffect(() => {
 		loadAllData();
 	}, []);
+	useEffect(() => {
+		if (!schedule.some((g) => g.status === "live")) return;
+		const timer = setInterval(async () => {
+			try {
+				const sList = await fetchRocketsSchedule();
+				if (sList && sList.length > 0) setSchedule(sList);
+				if (activeGameId) {
+					const breakdown = await fetchGameBreakdown(activeGameId);
+					if (breakdown) setGameBreakdown(breakdown);
+				}
+			} catch {}
+		}, 25e3);
+		return () => clearInterval(timer);
+	}, [schedule, activeGameId]);
 	useEffect(() => {
 		const gameParam = searchParams.get("game");
 		if (gameParam && gameParam !== activeGameId) handleOpenGame(gameParam);
@@ -21638,7 +21668,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-DExZzlTo.js",
+			"module": "/assets/root-CX95ulQC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
@@ -21646,7 +21676,7 @@ var server_manifest_default = {
 				"/assets/Chrome-BmT2qpYg.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-BeVhWObo.css"],
+			"css": ["/assets/root-kd0b7gv-.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -21712,7 +21742,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-CIA5tYVu.js",
+			"module": "/assets/schedule-CU3-VZ-Y.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22963,8 +22993,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-0188f90d.js",
-	"version": "0188f90d",
+	"url": "/assets/manifest-69efd4cb.js",
+	"version": "69efd4cb",
 	"sri": void 0
 };
 //#endregion

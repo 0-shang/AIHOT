@@ -929,6 +929,58 @@
       ],
       "site_fulltext": true,
       "syndicate_fulltext": false
+    },
+    {
+      "id": "web-sportspyder-rockets",
+      "name": "SportSpyder (休斯敦火箭聚合快讯)",
+      "kind": "web_list",
+      "config": {
+        "url": "https://r.jina.ai/https://sportspyder.com/nba/houston-rockets/news?page=2",
+        "denyUrlPrefixes": [
+          "https://sportspyder.com/sports/",
+          "https://sportspyder.com/my/",
+          "https://sportspyder.com/login",
+          "https://sportspyder.com/profile",
+          "https://sportspyder.com/notifications",
+          "https://sportspyder.com/settings/"
+        ],
+        "_aihot": {
+          "initialBackfillLimit": 15
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "球队动态",
+        "全网快讯",
+        "聚合资讯"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-will-guillory",
+      "name": "Will Guillory (@WillGuillory The Athletic 名记推文)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:WillGuillory -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 10,
+      "tags": [
+        "随队记者",
+        "名记突发",
+        "一手情报"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
     }
   ]
 }

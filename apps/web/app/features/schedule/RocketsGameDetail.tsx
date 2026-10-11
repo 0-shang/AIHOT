@@ -24,6 +24,8 @@ export function RocketsGameDetail({ breakdown, isLoading, onClose }: Props) {
   if (!breakdown) return null;
 
   const { game, quarters, rocketsPlayers, opponentPlayers } = breakdown;
+  const isFinal = game.status === "final";
+  const isLive = game.status === "live";
   const isRocketsWin = game.result?.outcome === "W";
   const rScore = game.result?.rocketsScore ?? 0;
   const oScore = game.result?.opponentScore ?? 0;
@@ -61,7 +63,7 @@ export function RocketsGameDetail({ breakdown, isLoading, onClose }: Props) {
               />
               <span className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">休斯敦火箭</span>
               <span className="text-[11px] text-slate-500 dark:text-zinc-400">{game.isHome ? "主场" : "客场"}</span>
-              <span className={`text-2xl sm:text-4xl font-black font-mono mt-0.5 ${rScore > oScore ? "text-[#CE1141]" : "text-slate-700 dark:text-zinc-300"}`}>
+              <span className={`text-2xl sm:text-4xl font-black font-mono mt-0.5 ${rScore > oScore || isLive ? "text-[#CE1141]" : "text-slate-700 dark:text-zinc-300"}`}>
                 {rScore}
               </span>
             </div>
@@ -70,14 +72,16 @@ export function RocketsGameDetail({ breakdown, isLoading, onClose }: Props) {
             <div className="flex flex-col items-center px-4 sm:px-6">
               <span
                 className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider mb-1 ${
-                  isRocketsWin
+                  isLive
+                    ? "bg-[#CE1141] text-white shadow-xs animate-pulse"
+                    : isRocketsWin
                     ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30"
                     : "bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30"
                 }`}
               >
-                {isRocketsWin ? "火箭胜" : "告负"}
+                {isLive ? `🔴 进行中 · ${game.progress || "实时战况"}` : isRocketsWin ? "火箭胜" : "告负"}
               </span>
-              <span className="text-xs text-slate-600 dark:text-zinc-400 font-mono font-medium">{game.date} · {game.time}</span>
+              <span className="text-xs text-slate-600 dark:text-zinc-400 font-mono font-medium">{game.date} · {game.time} (北京时间)</span>
               <span className="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5 truncate max-w-[150px]">
                 {game.id === "401898395" || game.id === "401898400" || game.arena?.toLowerCase().includes("venetian")
                   ? "澳门威尼斯人综艺馆"
