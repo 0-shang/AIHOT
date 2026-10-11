@@ -14,6 +14,7 @@ import { RingMark } from "../components/Logo";
 const BEAT_REPORTERS = [
   { key: "all", label: "全部" },
   { key: "Kelly Iko", label: "Kelly Iko" },
+  { key: "Will Guillory", label: "Will Guillory" },
   { key: "Ben DuBose", label: "Ben DuBose" },
   { key: "Jackson Gatlin", label: "Jackson Gatlin" },
   { key: "Adam Spolane", label: "Adam Spolane" },
@@ -26,7 +27,6 @@ const BEAT_REPORTERS = [
   { key: "Michael Shapiro", label: "Michael Shapiro" },
   { key: "Matt Thomas", label: "Matt Thomas" },
   { key: "ClutchFans", label: "ClutchFans" },
-  { key: "Houston Rockets", label: "火箭官方" },
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {

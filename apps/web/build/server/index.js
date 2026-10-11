@@ -1189,6 +1189,18 @@ var CATEGORIES = [
 		label: "队记推文",
 		section: "队记推文",
 		guide: "随队名记（Jonathan Feigen, Kelly Iko, Adam Spolane 等）在 X/推特发布的日常推文、观赛随感、现场花絮、实时看球动态与互动；默认所有队记推文归入此栏，若内容属于高度实质的球队新闻或采访则归入球队动态，交易爆料则归入交易流言"
+	},
+	{
+		key: "podcasts",
+		label: "播客",
+		section: "播客音频",
+		guide: "休斯敦火箭相关播客节目、音频专栏、访谈对谈（如 Locked On Rockets, The Dream Shake 播客等）"
+	},
+	{
+		key: "videos",
+		label: "视频",
+		section: "精彩视频",
+		guide: "比赛集锦、赛后采访原声视频、战术录像剪辑、球队花絮等视频内容"
 	}
 ];
 //#endregion
@@ -1443,6 +1455,24 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			to: hrefWith(base, params, {
 				category: "beat_tweets",
 				channel: null
+			})
+		},
+		{
+			key: "podcasts",
+			label: "播客",
+			to: hrefWith(base, params, {
+				category: "podcasts",
+				channel: null,
+				reporter: null
+			})
+		},
+		{
+			key: "videos",
+			label: "视频",
+			to: hrefWith(base, params, {
+				category: "videos",
+				channel: null,
+				reporter: null
 			})
 		}
 	];
@@ -2853,7 +2883,7 @@ function DayList({ items, todayCount = null, showTags = true, animate = false })
 			return shorter.length >= 8 && longer.includes(shorter);
 		};
 		for (const it of items) {
-			if (isYoutube(it)) continue;
+			if (it.category !== "videos" && isYoutube(it)) continue;
 			if (it.channel === "x" || it.category === "beat_tweets" || it.category === "videos") {
 				deduplicated.push(it);
 				continue;
@@ -2961,6 +2991,10 @@ var BEAT_REPORTERS = [
 		label: "Kelly Iko"
 	},
 	{
+		key: "Will Guillory",
+		label: "Will Guillory"
+	},
+	{
 		key: "Ben DuBose",
 		label: "Ben DuBose"
 	},
@@ -3007,10 +3041,6 @@ var BEAT_REPORTERS = [
 	{
 		key: "ClutchFans",
 		label: "ClutchFans"
-	},
-	{
-		key: "Houston Rockets",
-		label: "火箭官方"
 	}
 ];
 async function loader$33({ request }) {
@@ -21716,12 +21746,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-Vp1R3LB_.js",
+			"module": "/assets/all-3jCIv4-B.js",
 			"imports": [
-				"/assets/all-Sr_hbAwn.js",
+				"/assets/all-agBrcKoi.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-CCGfN8IS.js"
+				"/assets/taxonomy-txIQ18na.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21763,12 +21793,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CjFnRcLN.js",
+			"module": "/assets/search-busy-B6di_ERF.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
-				"/assets/all-Sr_hbAwn.js",
-				"/assets/taxonomy-CCGfN8IS.js"
+				"/assets/all-agBrcKoi.js",
+				"/assets/taxonomy-txIQ18na.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21789,12 +21819,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CjFnRcLN.js",
+			"module": "/assets/search-busy-B6di_ERF.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
-				"/assets/all-Sr_hbAwn.js",
-				"/assets/taxonomy-CCGfN8IS.js"
+				"/assets/all-agBrcKoi.js",
+				"/assets/taxonomy-txIQ18na.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22326,12 +22356,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-CayGVyuI.js",
+			"module": "/assets/agent-5s7c5vBb.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/taxonomy-CCGfN8IS.js"
+				"/assets/taxonomy-txIQ18na.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22394,11 +22424,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-DOq3BkXt.js",
+			"module": "/assets/leaderboard-boards-5oJECUoz.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-CCGfN8IS.js"
+				"/assets/taxonomy-txIQ18na.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22544,11 +22574,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-B7r_ujeh.js",
+			"module": "/assets/leaderboard-model-kqQRUS0H.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-CCGfN8IS.js",
+				"/assets/taxonomy-txIQ18na.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22668,11 +22698,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-BxEKsJDy.js",
+			"module": "/assets/content-item-Lwkls_5-.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-CCGfN8IS.js",
+				"/assets/taxonomy-txIQ18na.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22924,11 +22954,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-CBMAeNYD.js",
+			"module": "/assets/selectbench-run-ojZnfT0h.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-CCGfN8IS.js",
+				"/assets/taxonomy-txIQ18na.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -22993,8 +23023,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-69efd4cb.js",
-	"version": "69efd4cb",
+	"url": "/assets/manifest-417db3b3.js",
+	"version": "417db3b3",
 	"sri": void 0
 };
 //#endregion

@@ -27,6 +27,7 @@ interface ArticleRow {
   body_status: string;
   body_text: string | null;
   body_html: string | null;
+  excerpt: string | null;
   x_post: unknown;
   grouped_at: Date | null;
 }
@@ -150,7 +151,7 @@ export async function publishArticle(articleId: string, options: PublishOptions 
 export async function publishArticleTx(tx: Tx, articleId: string, options: PublishOptions = {}): Promise<PublishResult | null> {
   const [article] = await tx<ArticleRow[]>`
     SELECT id, source_id, url, title, language, published_at, discovered_at, timeline_at, backfill, body_status,
-           body_text, body_html, x_post, grouped_at
+           body_text, body_html, excerpt, x_post, grouped_at
     FROM articles WHERE id = ${articleId} FOR UPDATE`;
   if (!article) return null;
   // Reports take this lock exclusively while reading candidates. Hold it through commit so a
@@ -158,7 +159,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   await tx`SELECT pg_advisory_xact_lock_shared(hashtext('report_candidates'))`;
   const now = options.now ?? new Date(); // sample after both locks, which may span a report cutoff
   const [source] = await tx<SourceFacts[]>`
-    SELECT id, name, kind, tier, participation_mode, first_party, site_fulltext, syndicate_fulltext FROM sources WHERE id = ${article.source_id}`;
+    SELECT id, name, kind, tier, participation_mode, first_party, site_fulltext, syndicate_fulltext, tags FROM sources WHERE id = ${article.source_id}`;
   if (!source) return null;
   const [analysis] = await tx<AnalysisRow[]>`
     SELECT id, relevance, category, tags, subjects, title_zh, summary_zh, reason_zh, score, selected
@@ -176,12 +177,17 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   // An X post carries its Chinese in the summary and translation; without a Chinese title its own
   // text is the title, where an article would still be a half-finished card.
   const zhTitle = analysis?.title_zh?.trim() ? analysis.title_zh : null;
-  const title = pickString(f.title, zhTitle ?? (isChineseTitle || article.x_post ? collapseWhitespace(article.title) : null));
-  const summary = pickString(f.summary, analysis?.summary_zh ?? null);
-  const category = pickString(f.category, analysis?.category ?? null);
-  const tags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(analysis?.subjects ?? []).map((s) => `entity:${s}`)])];
-  const score = typeof f.score === "number" ? f.score : analysis?.score ?? null;
-  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : analysis?.relevance ?? null;
+  const fallbackCat =
+    source.id.includes("podcast") ? "podcasts" :
+    source.id.includes("video") || source.id.startsWith("yt-") ? "videos" :
+    source.id.includes("sportspyder") ? "news" : null;
+  const title = pickString(f.title, zhTitle ?? (isChineseTitle || article.x_post || fallbackCat ? collapseWhitespace(article.title) : null));
+  const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
+  const summary = pickString(f.summary, analysis?.summary_zh ?? (fallbackCat ? fallbackSummary : null));
+  const category = pickString(f.category, analysis?.category ?? fallbackCat);
+  const tags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(source.tags ?? [])])];
+  const score = typeof f.score === "number" ? f.score : (analysis?.score ?? 70);
+  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (analysis?.relevance ?? (fallbackCat ? "pass" : null));
   const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
   // Material from an isolated source reaches no public surface at all: not even a detail page.
   const visibility = source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");

@@ -43,7 +43,7 @@ export function DayList({ items, todayCount = null, showTags = true, animate = f
       return shorter.length >= 8 && longer.includes(shorter);
     };
     for (const it of items) {
-      if (isYoutube(it)) continue;
+      if ((it as any).category !== "videos" && isYoutube(it)) continue;
       if ((it as any).channel === "x" || (it as any).category === "beat_tweets" || (it as any).category === "videos") {
         deduplicated.push(it);
         continue;

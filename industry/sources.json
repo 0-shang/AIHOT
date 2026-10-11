@@ -931,11 +931,80 @@
       "syndicate_fulltext": false
     },
     {
+      "id": "rss-sportspyder-rockets",
+      "name": "SportSpyder (休斯敦火箭聚合新闻)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://sportspyder.com/rss/teams/houston-rockets/articles",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "球队动态",
+        "全网快讯",
+        "聚合资讯"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-sportspyder-podcasts",
+      "name": "SportSpyder (休斯敦火箭聚合播客)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://sportspyder.com/rss/teams/houston-rockets/podcasts",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "播客",
+        "音频",
+        "电台"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-sportspyder-videos",
+      "name": "SportSpyder (休斯敦火箭聚合视频)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://sportspyder.com/rss/teams/houston-rockets/videos",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "视频",
+        "集锦",
+        "采访原声"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
       "id": "web-sportspyder-rockets",
-      "name": "SportSpyder (休斯敦火箭聚合快讯)",
+      "name": "SportSpyder (休斯敦火箭全网动态抓取)",
       "kind": "web_list",
       "config": {
-        "url": "https://r.jina.ai/https://sportspyder.com/nba/houston-rockets/news?page=2",
+        "url": "https://r.jina.ai/https://sportspyder.com/nba/houston-rockets/news",
         "denyUrlPrefixes": [
           "https://sportspyder.com/sports/",
           "https://sportspyder.com/my/",
@@ -945,7 +1014,7 @@
           "https://sportspyder.com/settings/"
         ],
         "_aihot": {
-          "initialBackfillLimit": 15
+          "initialBackfillLimit": 20
         }
       },
       "tier": "T2",

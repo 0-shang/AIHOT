@@ -269,7 +269,7 @@ export function Timeline({ initial, filters }: { initial: TimelineResponse; filt
   const days = useMemo(() => {
     const out: Array<{ day: string; cards: TimelineCard[] }> = [];
     for (const c of state.cards) {
-      if (isYoutube(c.item)) continue;
+      if (filters.category !== "videos" && isYoutube(c.item)) continue;
       const d = beijingDate(c.anchorAt);
       const last = out[out.length - 1];
       if (last && last.day === d) last.cards.push(c);

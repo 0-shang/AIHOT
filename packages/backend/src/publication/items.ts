@@ -111,7 +111,7 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
         'x-lockedon-rockets', 'x-spacecity-scoop'
       )
     )
-    AND p.source_id NOT IN ('rss-fadeawayworld', 'rss-theleadsports', 'web-sportspyder-rockets')
+    AND p.source_id NOT IN ('rss-fadeawayworld', 'rss-theleadsports', 'web-sportspyder-rockets', 'rss-sportspyder-rockets', 'rss-sportspyder-podcasts', 'rss-sportspyder-videos')
     AND (
       p.source_id IN (
         'rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets',
@@ -127,11 +127,29 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     // 球队动态栏目：官方发布（含火箭官方推特）、SportSpyder全网聚合快讯、一手资讯、采访原声、战报与伤病
     return sql`AND (
       p.category = 'news'
-      OR p.source_id IN ('rss-espn-nba', 'rss-yardbarker-rockets', 'web-sportspyder-rockets', 'x-houston-rockets', 'x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire')
+      OR p.source_id IN ('rss-espn-nba', 'rss-yardbarker-rockets', 'rss-sportspyder-rockets', 'web-sportspyder-rockets', 'x-houston-rockets', 'x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire')
       OR p.tags && ARRAY['球队动态', '官方动态']::text[]
     )
       AND (p.channel != 'x' OR p.first_party OR p.source_id IN ('x-houston-rockets', 'x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire') OR p.tags && ARRAY['球队动态', '官方动态', '赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
       AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
+  }
+  if (category === "podcasts") {
+    // 播客栏目：SportSpyder 聚合播客、Locked On Rockets、Dream Shake 播客等
+    return sql`AND (
+      p.category = 'podcasts'
+      OR p.source_id IN ('rss-sportspyder-podcasts', 'web-sportspyder-podcasts', 'rss-lockedonrockets', 'rss-thedreamshake-pod')
+      OR p.tags && ARRAY['播客', '电台', '音频', 'Podcasts', 'Podcast']::text[]
+      OR p.title ~* '(播客|podcast|locked on|lockedon|episode|ep\\.|chatter)'
+    )`;
+  }
+  if (category === "videos") {
+    // 视频栏目：SportSpyder 聚合视频、官方 YouTube 专栏与集锦
+    return sql`AND (
+      p.category = 'videos'
+      OR p.source_id IN ('rss-sportspyder-videos', 'web-sportspyder-videos')
+      OR p.source_id LIKE 'yt-%'
+      OR p.tags && ARRAY['视频', '精彩视频', '集锦', 'Videos', 'Video']::text[]
+    )`;
   }
   // v1 and RSS publish opinion as tip.
   if (v1 && (category as string) === "tip") return sql`AND p.category IN ('tip', 'opinion')`;
@@ -216,6 +234,7 @@ export function tagCondition(tag: string | null | undefined) {
 
 const REPORTER_SOURCE_MAP: Record<string, string[]> = {
   "kelly iko": ["x-kelly-iko"],
+  "will guillory": ["x-will-guillory"],
   "ben dubose": ["x-ben-dubose"],
   "jackson gatlin": ["x-jackson-gatlin"],
   "adam spolane": ["x-adam-spolane"],
