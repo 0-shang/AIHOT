@@ -43,6 +43,15 @@ export interface StoryRef {
   title: string;
 }
 
+export interface PodcastView {
+  audioUrl?: string | null;
+  duration?: number | null;
+  durationLabel?: string | null;
+  imageUrl?: string | null;
+  podcastTitle?: string | null;
+  author?: string | null;
+}
+
 export interface ItemSummary {
   id: string;
   revision: number;
@@ -62,9 +71,10 @@ export interface ItemSummary {
   channel: "news" | "x";
   story: StoryRef | null;
   x: XPostView | null;
+  podcast?: PodcastView | null;
 }
 
-export interface FeedItemSummary extends Pick<ItemSummary, "id" | "title" | "summary" | "reason" | "publishedAt" | "timelineAt" | "category" | "tags" | "score" | "selected" | "channel" | "links"> {
+export interface FeedItemSummary extends Pick<ItemSummary, "id" | "title" | "summary" | "reason" | "publishedAt" | "timelineAt" | "category" | "tags" | "score" | "selected" | "channel" | "links" | "podcast"> {
   url?: string;
   source: Pick<SourceRef, "name">;
   x: (Pick<XPostView, "authorName" | "handle" | "avatarUrl" | "avatarSrcSet" | "media"> & {

@@ -23,6 +23,7 @@ import { listReports, loadReport, reportNavigation, loadReportNavigation, loadRe
 import { loadSiteCodexResetPage, loadSiteCodexResetDay } from "@aihot/backend/publication/monitor";
 import { loadRocketsSchedule, loadRocketsGameBreakdown, loadRocketsPlayers, loadRocketsPlayerDetail, loadRocketsStandings, triggerRocketsSync } from "@aihot/backend/publication/rockets";
 import { codexResetVersion } from "@aihot/backend/monitor/read";
+import { resolveSportSpyderEpisode } from "@aihot/backend/content/extract";
 import { cached } from "@aihot/backend/lib/cache";
 import { looseQuery, sendJsonWithEtag, sendProblem } from "../http/respond.ts";
 
@@ -174,6 +175,14 @@ export function registerSite(app: FastifyInstance) {
     const ids = (looseQuery(req).ids ?? "").split(",").filter(Boolean);
     reply.header("Cache-Control", "no-store");
     return reply.send(await itemAvailability(ids));
+  }));
+
+  app.get("/api/site/podcasts/episodes/:episodeId", siteHandler(async (req, reply) => {
+    const { episodeId } = req.params as { episodeId: string };
+    if (!/^\d+$/.test(episodeId)) return sendProblem(req, reply, { status: 404, code: "not_found", detail: "invalid episode id" });
+    const ep = await resolveSportSpyderEpisode(`https://sportspyder.com/nba/houston-rockets/episodes/${episodeId}`);
+    if (!ep) return sendProblem(req, reply, { status: 404, code: "not_found", detail: "episode not found" });
+    return sendJsonWithEtag(req, reply, ep, { etagPrefix: "podcast-ep", cacheControl: "public, max-age=3600, s-maxage=3600" });
   }));
 
   app.get("/api/site/topics", siteHandler(async (req, reply) => {

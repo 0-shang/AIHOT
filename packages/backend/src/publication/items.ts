@@ -1,7 +1,7 @@
 // Public read layer, item level. Every exit (site API, v1, RSS, MCP, sitemap) reads
 // items through these functions; visibility, release gate and body licences are applied here.
 import type { CategoryKey, ChannelKey } from "@aihot/contracts/taxonomy";
-import type { FeedItemSummary, ItemSummary, MediaView, SourceKind, XPostView } from "@aihot/contracts/site";
+import type { FeedItemSummary, ItemSummary, MediaView, PodcastView, SourceKind, XPostView } from "@aihot/contracts/site";
 import { sql, type Db } from "../db.ts";
 import { proxiedImage, proxiedImageSet, proxiedVideo } from "../media/imgproxy.ts";
 import { displayTags } from "./rules.ts";
@@ -48,6 +48,8 @@ export interface ItemRow {
   zh_text: string | null;
   /** Chinese translation of the post an X post quotes. */
   quoted_zh: string | null;
+  media?: Array<{ kind: string; url: string; poster?: string; alt?: string; width?: number; height?: number }> | null;
+  raw?: Record<string, any> | null;
 }
 
 /** Columns every item listing selects. Internal judgement details never leave this layer. */
@@ -56,7 +58,7 @@ export const ITEM_COLUMNS = sql`
   p.selected, p.eligible, p.channel, p.url, p.published_at, p.discovered_at, p.timeline_at, p.sort_at, p.first_party, p.visibility,
   p.body_mode, p.syndicate, p.indexable, p.visible_after, p.backfill, p.fact_id, p.story_id,
   s.id AS source_id, s.name AS source_name, s.kind AS source_kind, s.participation_mode AS source_mode, s.icon_url AS source_icon,
-  a.x_post, a.author, a.language,
+  a.x_post, a.author, a.language, a.media, a.raw,
   st.public_id::text AS story_public_id, st.title AS story_title,
   CASE WHEN p.channel = 'x' THEN tr.body_text END AS zh_text, qt.text_zh AS quoted_zh`;
 
@@ -99,10 +101,10 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     return sql`AND (p.channel = 'x' OR p.source_id LIKE 'x-%') AND p.source_id != 'x-houston-rockets'`;
   }
   if (category === "analysis") {
-    // 深度专栏：战术打法剖析、深度复盘、高阶数据、薪资结构、球员前瞻及行业深度分析
-    // 严格剔除 Fadeaway World 与 The Lead Sports 等泛联盟噪声源，并强化休斯敦火箭强相关校验
+    // 专栏：专取的长文深度报道、战术剖析、复盘，以及从 SportSpyder 抓取并解析出的源头长文
     return sql`AND (
       p.category = 'analysis'
+      OR (p.source_id IN ('rss-sportspyder-rockets', 'web-sportspyder-rockets') AND length(coalesce(a.body_text, '')) >= 400)
       OR p.tags && ARRAY['深度专栏', '战术分析', '随队专栏', '球员前瞻', '战术拆解', '高阶战术', '战术复盘', '复盘', '深度分析', '战术剖析', '深度']::text[]
       OR p.source_id IN (
         'rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets',
@@ -111,23 +113,24 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
         'x-lockedon-rockets', 'x-spacecity-scoop'
       )
     )
-    AND p.source_id NOT IN ('rss-fadeawayworld', 'rss-theleadsports', 'web-sportspyder-rockets', 'rss-sportspyder-rockets', 'rss-sportspyder-podcasts', 'rss-sportspyder-videos')
+    AND p.source_id NOT IN ('rss-fadeawayworld', 'rss-theleadsports', 'rss-sportspyder-podcasts', 'rss-sportspyder-videos')
     AND (
       p.source_id IN (
         'rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets',
         'rss-si-rockets', 'rss-realgm-rockets', 'rss-houstonchronicle-rockets',
         'rss-rocketswire', 'rss-hoopshype-rockets', 'rss-clutchpoints-rockets',
-        'x-lockedon-rockets', 'x-spacecity-scoop'
+        'x-lockedon-rockets', 'x-spacecity-scoop', 'rss-sportspyder-rockets', 'web-sportspyder-rockets'
       )
       OR p.tags && ARRAY['休斯敦火箭', '休斯顿火箭', '火箭队', '火箭']::text[]
       OR p.title ~* '(火箭|休斯敦|休斯顿|rockets|sengun|申京|green|格林|udoka|乌度卡|durant|杜兰特|smith|史密斯|vanvleet|范弗里特|sheppard|谢泼德|eason|伊森|amen|汤普森|whitmore|惠特莫尔|stone|斯通|丰田中心)'
     )`;
   }
   if (category === "news") {
-    // 球队动态栏目：官方发布（含火箭官方推特）、SportSpyder全网聚合快讯、一手资讯、采访原声、战报与伤病
+    // 动态栏目：官方动态（含火箭官方推特）、快讯短报、一手资讯、采访原声、战报与伤病（长文已归入专栏）
     return sql`AND (
       p.category = 'news'
-      OR p.source_id IN ('rss-espn-nba', 'rss-yardbarker-rockets', 'rss-sportspyder-rockets', 'web-sportspyder-rockets', 'x-houston-rockets', 'x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire')
+      OR (p.source_id IN ('rss-sportspyder-rockets', 'web-sportspyder-rockets') AND (a.body_text IS NULL OR length(a.body_text) < 400))
+      OR p.source_id IN ('rss-espn-nba', 'rss-yardbarker-rockets', 'x-houston-rockets', 'x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire')
       OR p.tags && ARRAY['球队动态', '官方动态']::text[]
     )
       AND (p.channel != 'x' OR p.first_party OR p.source_id IN ('x-houston-rockets', 'x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire') OR p.tags && ARRAY['球队动态', '官方动态', '赛后采访', '球员采访', '将帅原声', '采访', '球队采访', '原声', '声音']::text[])
@@ -313,6 +316,21 @@ export function xView(row: Pick<ItemRow, "x_post" | "zh_text"> & Partial<Pick<It
 
 export function toItemSummary(row: ItemRow): ItemSummary {
   const x = row.channel === "x" ? xView(row, true) : null;
+  const rawPodcast = (row.raw as any)?.podcast;
+  const isPodcast = row.category === "podcasts" || row.source_id.includes("podcast") || /episodes\/\d+/.test(row.url);
+  const imageMedia = Array.isArray(row.media) ? row.media.find((m: any) => m.kind === "image") : null;
+  const audioMedia = Array.isArray(row.media) ? row.media.find((m: any) => m.kind === "audio") : null;
+  let podcast: PodcastView | null = null;
+  if (isPodcast || rawPodcast || audioMedia) {
+    podcast = {
+      audioUrl: rawPodcast?.audioUrl ?? (audioMedia as any)?.url ?? null,
+      duration: rawPodcast?.duration ?? null,
+      durationLabel: rawPodcast?.durationLabel ?? (rawPodcast?.duration ? `${Math.round(rawPodcast.duration / 60)} min` : null),
+      imageUrl: rawPodcast?.imageUrl ?? imageMedia?.url ?? null,
+      podcastTitle: rawPodcast?.podcastTitle ?? (row.source_id.includes("podcast") ? row.source_name : null),
+      author: rawPodcast?.author ?? row.author ?? null,
+    };
+  }
   return {
     id: row.id,
     revision: row.revision,
@@ -339,6 +357,7 @@ export function toItemSummary(row: ItemRow): ItemSummary {
     channel: row.channel,
     story: row.story_public_id ? { publicId: row.story_public_id, title: row.story_title ?? "" } : null,
     x,
+    podcast,
   };
 }
 
@@ -351,6 +370,7 @@ export function toFeedItemSummary(row: ItemRow): FeedItemSummary {
     category: item.category, tags: item.tags, score: item.score, selected: item.selected, channel: item.channel,
     links: item.links,
     url: row.url,
+    podcast: item.podcast,
     x: item.x ? {
       authorName: item.x.authorName, handle: item.x.handle, avatarUrl: item.x.avatarUrl,
       ...(item.x.avatarSrcSet ? { avatarSrcSet: item.x.avatarSrcSet } : {}), media: item.x.media,

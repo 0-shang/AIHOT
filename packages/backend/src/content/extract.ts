@@ -151,10 +151,97 @@ export async function resolveGoogleNewsUrl(url: string): Promise<string | null> 
   }
 }
 
+/** Resolves SportSpyder aggregator article URLs to the real publisher's original source URL. */
+export async function resolveSportSpyderUrl(url: string): Promise<string | null> {
+  try {
+    const u = new URL(url);
+    if (!/(?:^|\.)sportspyder\.com$/i.test(u.hostname)) return null;
+    if (!/\/articles\/\d+/i.test(u.pathname)) return null;
+    const page = await jinaRead(url, { purpose: "body_fallback", subject: "sportspyder_resolve" });
+    const text = page.markdown;
+    const match = text.match(/\[Open (?:Article|Video|Podcast)\]\((https?:\/\/[^\s\)]+)\)/i)
+      ?? text.match(/#####\s+\[.*?\]\((https?:\/\/[^\s\)]+)\)/i);
+    if (match?.[1]) {
+      return match[1];
+    }
+    const extMatches = [...text.matchAll(/\[(?:Image \d+:[^\]]*|[^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g)];
+    for (const m of extMatches) {
+      const link = m[1];
+      if (!link) continue;
+      try {
+        const linkHost = new URL(link).hostname;
+        if (!/(sportspyder\.com|cloudfront\.net|twitter\.com|facebook\.com|linkedin\.com)/i.test(linkHost)) {
+          return link;
+        }
+      } catch {}
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/** Resolves SportSpyder podcast episode into direct audio stream, cover, duration, and rich description. */
+export async function resolveSportSpyderEpisode(url: string): Promise<{
+  audioUrl: string | null;
+  duration: number | null;
+  durationLabel: string | null;
+  imageUrl: string | null;
+  podcastTitle: string | null;
+  author: string | null;
+  descriptionHtml: string;
+  descriptionText: string;
+} | null> {
+  const match = url.match(/\/episodes\/(\d+)/i);
+  if (!match?.[1]) return null;
+  const episodeId = match[1];
+  try {
+    const page = await jinaRead(`https://sportspyder.com/api/v1/podcast_episodes/${episodeId}`, {
+      purpose: "body_fallback",
+      subject: "sportspyder_podcast",
+    });
+    const text = page.markdown;
+    const jsonStart = text.indexOf('{"meta":');
+    if (jsonStart === -1) return null;
+    const jsonStr = text.slice(jsonStart);
+    const data = JSON.parse(jsonStr);
+    const ep = data.podcast_episodes?.[0];
+    if (!ep) return null;
+    const durationSec = typeof ep.duration === "number" ? ep.duration : parseInt(ep.duration, 10) || null;
+    let durationLabel: string | null = null;
+    if (durationSec) {
+      const mins = Math.round(durationSec / 60);
+      if (mins >= 60) {
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        durationLabel = m > 0 ? `${h}h ${m}m` : `${h}h`;
+      } else {
+        durationLabel = `${mins} min`;
+      }
+    }
+    const descriptionHtml = ep.description || ep.summary || "";
+    const descriptionText = stripTags(descriptionHtml);
+    return {
+      audioUrl: ep.enclosure_url || null,
+      duration: durationSec,
+      durationLabel,
+      imageUrl: ep.image_url || ep.podcast?.image_url || null,
+      podcastTitle: ep.podcast?.title || null,
+      author: ep.author || null,
+      descriptionHtml,
+      descriptionText,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function extractFromUrl(url: string, opts: { allowJina: boolean; subject: string }): Promise<ExtractedBody | null> {
   let targetUrl = url;
   if (/news\.google\.com/i.test(url)) {
     targetUrl = (await resolveGoogleNewsUrl(url)) ?? url;
+  } else if (/sportspyder\.com\/(?:[^\s/]+\/)?articles\/\d+/i.test(url)) {
+    targetUrl = (await resolveSportSpyderUrl(url)) ?? url;
   }
   try {
     const res = await guardedFetch(targetUrl, { timeoutMs: 20_000, maxBytes: 6 * 1024 * 1024 });
@@ -196,14 +283,52 @@ export async function extractArticleBody(articleId: string, allowJina = process.
     SELECT id, url, body_status, revision, x_post FROM articles WHERE id = ${articleId}`;
   if (!a || a.body_status === "ok") return "skipped";
   if (a.x_post?.tweetId) return extractXArticle(a.id, a.x_post.tweetId);
+
+  if (/sportspyder\.com\/(?:[^\s/]+\/)?episodes\/\d+/i.test(a.url)) {
+    const ep = await resolveSportSpyderEpisode(a.url);
+    if (ep) {
+      const mediaList: any[] = [];
+      if (ep.imageUrl) {
+        mediaList.push({ kind: "image", url: ep.imageUrl, width: 300, height: 300, alt: ep.podcastTitle ?? a.url });
+      }
+      const rawPodcast = {
+        podcast: {
+          audioUrl: ep.audioUrl,
+          duration: ep.duration,
+          durationLabel: ep.durationLabel,
+          imageUrl: ep.imageUrl,
+          podcastTitle: ep.podcastTitle,
+          author: ep.author,
+        },
+      };
+      await sql.begin(async (tx) => {
+        const [row] = await tx<{ title: string; excerpt: string | null }[]>`SELECT title, excerpt FROM articles WHERE id = ${articleId} FOR UPDATE`;
+        if (!row) return;
+        const hash = contentHash({ title: row.title, bodyText: ep.descriptionText, excerpt: row.excerpt });
+        const [r] = await tx<{ revision: number }[]>`
+          UPDATE articles SET body_html = ${ep.descriptionHtml}, body_text = ${ep.descriptionText}, body_status = 'ok',
+            media = CASE WHEN jsonb_array_length(media) = 0 THEN ${tx.json(mediaList as never)}::jsonb ELSE media END,
+            raw = coalesce(raw, '{}'::jsonb) || ${tx.json(rawPodcast as never)}::jsonb,
+            revision = revision + 1, content_hash = ${hash}, processing_state = 'new', updated_at = now()
+          WHERE id = ${articleId} RETURNING revision`;
+        await tx`INSERT INTO article_revisions (article_id, revision, content_hash, title, body_text)
+                 VALUES (${articleId}, ${r!.revision}, ${hash}, ${row.title}, ${ep.descriptionText})`;
+      });
+      return "ok";
+    }
+  }
   let resolvedUrl: string | null = null;
   if (/news\.google\.com/i.test(a.url)) {
     resolvedUrl = await resolveGoogleNewsUrl(a.url);
+  } else if (/sportspyder\.com\/(?:[^\s/]+\/)?articles\/\d+/i.test(a.url)) {
+    resolvedUrl = await resolveSportSpyderUrl(a.url);
   }
   const fetchUrl = resolvedUrl ?? a.url;
   const got = await extractFromUrl(fetchUrl, { allowJina, subject: `article:${a.id}` });
   if (!got) {
-    await sql`UPDATE articles SET body_status = 'unconfirmed', updated_at = now() WHERE id = ${articleId} AND body_status <> 'ok'`;
+    await sql`UPDATE articles SET body_status = 'unconfirmed',
+      url = COALESCE(${resolvedUrl}, url),
+      updated_at = now() WHERE id = ${articleId} AND body_status <> 'ok'`;
     return "unconfirmed";
   }
   // The body is new content: a new revision, so an analysis of the body-less input counts as stale.

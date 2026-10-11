@@ -1168,39 +1168,39 @@ var home_default = UNSAFE_withComponentProps(function Home() {
 var CATEGORIES = [
 	{
 		key: "news",
-		label: "球队动态",
+		label: "动态",
 		section: "动态与采访",
 		guide: "官方公告、伤病名单、出战状态、日常训练花絮、发展联盟召回；比赛战报、赛后技术统计与胜负盘点；主教练乌度卡、核心球员及管理层斯通的赛后采访、媒体日言论、更衣室原声采访与新闻发布会；随队记者发布的与火箭队高度正相关的实质新闻（一手采访、重要伤情、队内实质动向，记者日常推文碎碎念严禁归入）"
 	},
 	{
-		key: "analysis",
-		label: "深度专栏",
-		section: "战术与专栏",
-		guide: "战术打法剖析、挡拆攻防复盘、高阶数据模型、薪资空间结构、选秀前景及行业深度分析"
-	},
-	{
-		key: "trades",
-		label: "交易流言",
-		section: "交易与流言",
-		guide: "正式交易、自由球员签约、转会传闻与谈判动向、名记引援爆料、选秀大会与裁员下放；随队记者发布的涉及火箭队实质引援与交易动向的推文"
-	},
-	{
 		key: "beat_tweets",
-		label: "队记推文",
+		label: "队记",
 		section: "队记推文",
 		guide: "随队名记（Jonathan Feigen, Kelly Iko, Adam Spolane 等）在 X/推特发布的日常推文、观赛随感、现场花絮、实时看球动态与互动；默认所有队记推文归入此栏，若内容属于高度实质的球队新闻或采访则归入球队动态，交易爆料则归入交易流言"
+	},
+	{
+		key: "analysis",
+		label: "专栏",
+		section: "战术与专栏",
+		guide: "战术打法剖析、挡拆攻防复盘、高阶数据模型、薪资空间结构、选秀前景、长文分析、深度专栏及从外部抓取的深度长文"
 	},
 	{
 		key: "podcasts",
 		label: "播客",
 		section: "播客音频",
-		guide: "休斯敦火箭相关播客节目、音频专栏、访谈对谈（如 Locked On Rockets, The Dream Shake 播客等）"
+		guide: "休斯敦火箭相关播客节目、音频专栏、访谈对谈（如 Locked On Rockets, Rockets LaunchPod, The Dream Shake 播客等）"
 	},
 	{
 		key: "videos",
 		label: "视频",
 		section: "精彩视频",
 		guide: "比赛集锦、赛后采访原声视频、战术录像剪辑、球队花絮等视频内容"
+	},
+	{
+		key: "trades",
+		label: "流言",
+		section: "交易与流言",
+		guide: "正式交易、自由球员签约、转会传闻与谈判动向、名记引援爆料、选秀大会与裁员下放；随队记者发布的涉及火箭队实质引援与交易动向的推文"
 	}
 ];
 //#endregion
@@ -1424,7 +1424,7 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 		},
 		{
 			key: "news",
-			label: "球队动态",
+			label: "动态",
 			to: hrefWith(base, params, {
 				category: "news",
 				channel: null,
@@ -1432,29 +1432,20 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			})
 		},
 		{
+			key: "beat_tweets",
+			label: "队记",
+			to: hrefWith(base, params, {
+				category: "beat_tweets",
+				channel: null
+			})
+		},
+		{
 			key: "analysis",
-			label: "深度专栏",
+			label: "专栏",
 			to: hrefWith(base, params, {
 				category: "analysis",
 				channel: null,
 				reporter: null
-			})
-		},
-		{
-			key: "trades",
-			label: "交易流言",
-			to: hrefWith(base, params, {
-				category: "trades",
-				channel: null,
-				reporter: null
-			})
-		},
-		{
-			key: "beat_tweets",
-			label: "队记推文",
-			to: hrefWith(base, params, {
-				category: "beat_tweets",
-				channel: null
 			})
 		},
 		{
@@ -1471,6 +1462,15 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			label: "视频",
 			to: hrefWith(base, params, {
 				category: "videos",
+				channel: null,
+				reporter: null
+			})
+		},
+		{
+			key: "trades",
+			label: "流言",
+			to: hrefWith(base, params, {
+				category: "trades",
 				channel: null,
 				reporter: null
 			})
@@ -2527,6 +2527,413 @@ function QuotedLine({ quoted }) {
 	});
 }
 //#endregion
+//#region app/features/podcast/PodcastPlayer.tsx
+function formatTime(seconds) {
+	if (!seconds || isNaN(seconds) || seconds < 0) return "00:00";
+	const h = Math.floor(seconds / 3600);
+	const m = Math.floor(seconds % 3600 / 60);
+	const s = Math.floor(seconds % 60);
+	if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+	return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
+function extractEpisodeId(url) {
+	if (!url) return null;
+	const m = url.match(/\/episodes\/(\d+)/i);
+	return m ? m[1] : null;
+}
+var currentActiveAudio = null;
+var currentStopCallback = null;
+function registerPlayingAudio(audio, stop) {
+	if (currentActiveAudio && currentActiveAudio !== audio) {
+		currentActiveAudio.pause();
+		currentStopCallback?.();
+	}
+	currentActiveAudio = audio;
+	currentStopCallback = stop;
+}
+/**
+* Inline Card Player for the feed stream (List View - Image 1 style).
+*/
+var PodcastCardPlayer = memo(function PodcastCardPlayer({ item, onOpen }) {
+	const p = item.podcast;
+	const epId = useMemo(() => extractEpisodeId(item.url || item.links?.original), [item.url, item.links?.original]);
+	const [audioUrl, setAudioUrl] = useState(p?.audioUrl ?? null);
+	const [durationLabel, setDurationLabel] = useState(p?.durationLabel ?? null);
+	const [isPlaying, setIsPlaying] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [currentTime, setCurrentTime] = useState(0);
+	const [duration, setDuration] = useState(typeof p?.duration === "number" ? p.duration : 0);
+	const audioRef = useRef(null);
+	const podcastTitle = p?.podcastTitle || "休斯敦火箭播客";
+	const author = p?.author || item.source?.name || "";
+	const imageUrl = p?.imageUrl || item.x?.media?.[0]?.url || "https://d1ng7msft0qysq.cloudfront.net/2403235_podcast.webp";
+	const handlePlayToggle = async (e) => {
+		e.stopPropagation();
+		e.preventDefault();
+		let targetAudioUrl = audioUrl;
+		if (!targetAudioUrl && epId) {
+			setIsLoading(true);
+			try {
+				const res = await fetch(`/api/site/podcasts/episodes/${epId}`);
+				if (res.ok) {
+					const data = await res.json();
+					if (data.audioUrl) {
+						targetAudioUrl = data.audioUrl;
+						setAudioUrl(data.audioUrl);
+						if (data.durationLabel) setDurationLabel(data.durationLabel);
+						if (data.duration) setDuration(data.duration);
+					}
+				}
+			} catch (err) {
+				console.error("Failed to load episode stream:", err);
+			} finally {
+				setIsLoading(false);
+			}
+		}
+		if (!targetAudioUrl) {
+			window.open(item.links?.original || item.url, "_blank");
+			return;
+		}
+		if (!audioRef.current) {
+			const audio = new Audio(targetAudioUrl);
+			audioRef.current = audio;
+			audio.addEventListener("timeupdate", () => {
+				setCurrentTime(audio.currentTime);
+			});
+			audio.addEventListener("loadedmetadata", () => {
+				if (audio.duration && !isNaN(audio.duration)) setDuration(audio.duration);
+			});
+			audio.addEventListener("ended", () => {
+				setIsPlaying(false);
+				setCurrentTime(0);
+			});
+			audio.addEventListener("pause", () => {
+				setIsPlaying(false);
+			});
+			audio.addEventListener("play", () => {
+				setIsPlaying(true);
+			});
+		}
+		const audio = audioRef.current;
+		if (isPlaying) {
+			audio.pause();
+			setIsPlaying(false);
+		} else {
+			registerPlayingAudio(audio, () => setIsPlaying(false));
+			try {
+				await audio.play();
+				setIsPlaying(true);
+			} catch (err) {
+				console.error("Audio playback error:", err);
+			}
+		}
+	};
+	const handleSeek = (e) => {
+		const val = parseFloat(e.target.value);
+		setCurrentTime(val);
+		if (audioRef.current) audioRef.current.currentTime = val;
+	};
+	duration > 0 && currentTime / duration * 100;
+	return /* @__PURE__ */ jsxs("div", {
+		className: "flex gap-3.5 sm:gap-4 items-start",
+		children: [/* @__PURE__ */ jsxs(Link, {
+			to: `/items/${item.id}`,
+			onClick: onOpen,
+			className: "relative shrink-0 overflow-hidden rounded-xl bg-slate-800 border border-line-soft shadow-sm group/thumb size-[78px] sm:size-[88px]",
+			children: [/* @__PURE__ */ jsx("img", {
+				src: imageUrl,
+				alt: item.title,
+				className: "size-full object-cover transition-transform duration-300 group-hover/thumb:scale-105",
+				loading: "lazy",
+				onError: (e) => {
+					e.target.src = "https://d1ng7msft0qysq.cloudfront.net/2403235_podcast.webp";
+				}
+			}), /* @__PURE__ */ jsx("div", {
+				className: "absolute inset-0 grid place-items-center bg-black/30 opacity-0 group-hover/thumb:opacity-100 transition-opacity",
+				children: /* @__PURE__ */ jsx("span", {
+					className: "grid size-8 place-items-center rounded-full bg-white/90 text-black shadow-md",
+					children: /* @__PURE__ */ jsx("svg", {
+						width: "14",
+						height: "14",
+						viewBox: "0 0 24 24",
+						fill: "currentColor",
+						className: "ml-0.5",
+						children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
+					})
+				})
+			})]
+		}), /* @__PURE__ */ jsxs("div", {
+			className: "min-w-0 flex-1 flex flex-col justify-between",
+			children: [/* @__PURE__ */ jsxs("div", { children: [
+				/* @__PURE__ */ jsxs("div", {
+					className: "flex items-center gap-1.5 text-[12px] text-ink-4",
+					children: [/* @__PURE__ */ jsx("span", {
+						className: "font-semibold text-blue-600 dark:text-blue-400 truncate max-w-[160px] sm:max-w-[220px]",
+						children: podcastTitle
+					}), author && author !== podcastTitle && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("span", { children: "·" }), /* @__PURE__ */ jsx("span", {
+						className: "truncate max-w-[100px]",
+						children: author
+					})] })]
+				}),
+				/* @__PURE__ */ jsx("h3", {
+					className: "mt-1 text-[15.5px] sm:text-[16.5px] font-bold leading-[1.38] text-ink tracking-tight hover:text-accent transition-colors line-clamp-2",
+					children: /* @__PURE__ */ jsx(Link, {
+						to: `/items/${item.id}`,
+						onClick: onOpen,
+						children: item.title
+					})
+				}),
+				item.summary && /* @__PURE__ */ jsx("p", {
+					className: "mt-1 line-clamp-2 text-[13px] leading-relaxed text-ink-3",
+					children: item.summary
+				})
+			] }), /* @__PURE__ */ jsxs("div", {
+				className: "mt-3 flex flex-wrap items-center gap-3",
+				children: [
+					/* @__PURE__ */ jsxs("button", {
+						type: "button",
+						onClick: handlePlayToggle,
+						disabled: isLoading,
+						className: `inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[12.5px] font-semibold transition-all shadow-xs ${isPlaying ? "bg-blue-600 text-white shadow-blue-500/25 ring-2 ring-blue-500/30" : "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800/60"}`,
+						children: [isLoading ? /* @__PURE__ */ jsx("span", { className: "inline-block size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" }) : isPlaying ? /* @__PURE__ */ jsxs("svg", {
+							width: "12",
+							height: "12",
+							viewBox: "0 0 24 24",
+							fill: "currentColor",
+							children: [/* @__PURE__ */ jsx("rect", {
+								x: "6",
+								y: "4",
+								width: "4",
+								height: "16",
+								rx: "1"
+							}), /* @__PURE__ */ jsx("rect", {
+								x: "14",
+								y: "4",
+								width: "4",
+								height: "16",
+								rx: "1"
+							})]
+						}) : /* @__PURE__ */ jsx("svg", {
+							width: "12",
+							height: "12",
+							viewBox: "0 0 24 24",
+							fill: "currentColor",
+							className: "ml-0.5",
+							children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
+						}), /* @__PURE__ */ jsx("span", { children: isPlaying ? "暂停" : "PLAY 播放" })]
+					}),
+					(durationLabel || duration > 0) && /* @__PURE__ */ jsx("span", {
+						className: "text-[12px] font-mono text-ink-4",
+						children: durationLabel || (duration > 0 ? `${Math.round(duration / 60)} min` : "")
+					}),
+					isPlaying && duration > 0 && /* @__PURE__ */ jsxs("div", {
+						className: "flex-1 min-w-[120px] max-w-[200px] flex items-center gap-2",
+						children: [/* @__PURE__ */ jsx("input", {
+							type: "range",
+							min: "0",
+							max: duration,
+							step: "1",
+							value: currentTime,
+							onChange: handleSeek,
+							className: "w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+						}), /* @__PURE__ */ jsx("span", {
+							className: "text-[11px] font-mono text-ink-4 whitespace-nowrap",
+							children: formatTime(currentTime)
+						})]
+					})
+				]
+			})]
+		})]
+	});
+});
+/**
+* Full Detail Page Player (Detail View - Image 2 style).
+*/
+var PodcastDetailPlayer = memo(function PodcastDetailPlayer({ item }) {
+	const p = item.podcast;
+	const epId = useMemo(() => extractEpisodeId(item.links?.original), [item.links?.original]);
+	const [audioUrl, setAudioUrl] = useState(p?.audioUrl ?? null);
+	const [durationLabel, setDurationLabel] = useState(p?.durationLabel ?? null);
+	const [isPlaying, setIsPlaying] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [currentTime, setCurrentTime] = useState(0);
+	const [duration, setDuration] = useState(typeof p?.duration === "number" ? p.duration : 0);
+	const [playbackRate, setPlaybackRate] = useState(1);
+	const audioRef = useRef(null);
+	const podcastTitle = p?.podcastTitle || "休斯敦火箭播客";
+	const author = p?.author || item.author || item.source?.name || "";
+	const imageUrl = p?.imageUrl || item.x?.media?.[0]?.url || "https://d1ng7msft0qysq.cloudfront.net/2403235_podcast.webp";
+	useEffect(() => {
+		if (!audioUrl && epId) fetch(`/api/site/podcasts/episodes/${epId}`).then((r) => r.ok ? r.json() : null).then((data) => {
+			if (data?.audioUrl) {
+				setAudioUrl(data.audioUrl);
+				if (data.durationLabel) setDurationLabel(data.durationLabel);
+				if (data.duration) setDuration(data.duration);
+			}
+		}).catch(() => {});
+	}, [audioUrl, epId]);
+	const togglePlay = async () => {
+		let targetAudioUrl = audioUrl;
+		if (!targetAudioUrl && epId) {
+			setIsLoading(true);
+			try {
+				const res = await fetch(`/api/site/podcasts/episodes/${epId}`);
+				if (res.ok) {
+					const data = await res.json();
+					if (data.audioUrl) {
+						targetAudioUrl = data.audioUrl;
+						setAudioUrl(data.audioUrl);
+						if (data.durationLabel) setDurationLabel(data.durationLabel);
+						if (data.duration) setDuration(data.duration);
+					}
+				}
+			} catch (err) {
+				console.error(err);
+			} finally {
+				setIsLoading(false);
+			}
+		}
+		if (!targetAudioUrl) {
+			window.open(item.links?.original, "_blank");
+			return;
+		}
+		if (!audioRef.current) {
+			const audio = new Audio(targetAudioUrl);
+			audioRef.current = audio;
+			audio.playbackRate = playbackRate;
+			audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
+			audio.addEventListener("loadedmetadata", () => {
+				if (audio.duration && !isNaN(audio.duration)) setDuration(audio.duration);
+			});
+			audio.addEventListener("ended", () => {
+				setIsPlaying(false);
+				setCurrentTime(0);
+			});
+			audio.addEventListener("pause", () => setIsPlaying(false));
+			audio.addEventListener("play", () => setIsPlaying(true));
+		}
+		const audio = audioRef.current;
+		if (isPlaying) audio.pause();
+		else {
+			registerPlayingAudio(audio, () => setIsPlaying(false));
+			await audio.play();
+		}
+	};
+	const handleSeek = (e) => {
+		const val = parseFloat(e.target.value);
+		setCurrentTime(val);
+		if (audioRef.current) audioRef.current.currentTime = val;
+	};
+	const cycleSpeed = () => {
+		const speeds = [
+			1,
+			1.25,
+			1.5,
+			2
+		];
+		const nextSpeed = speeds[(speeds.indexOf(playbackRate) + 1) % speeds.length] ?? 1;
+		setPlaybackRate(nextSpeed);
+		if (audioRef.current) audioRef.current.playbackRate = nextSpeed;
+	};
+	return /* @__PURE__ */ jsxs("div", {
+		className: "my-6 overflow-hidden rounded-2xl border border-line bg-surface p-5 sm:p-6 shadow-sm",
+		children: [/* @__PURE__ */ jsxs("div", {
+			className: "flex gap-4 sm:gap-5 items-start",
+			children: [/* @__PURE__ */ jsx("div", {
+				className: "shrink-0 overflow-hidden rounded-xl border border-line-soft bg-slate-900 shadow-md size-[96px] sm:size-[112px]",
+				children: /* @__PURE__ */ jsx("img", {
+					src: imageUrl,
+					alt: item.title,
+					className: "size-full object-cover",
+					onError: (e) => {
+						e.target.src = "https://d1ng7msft0qysq.cloudfront.net/2403235_podcast.webp";
+					}
+				})
+			}), /* @__PURE__ */ jsxs("div", {
+				className: "min-w-0 flex-1",
+				children: [
+					/* @__PURE__ */ jsx("h2", {
+						className: "text-[20px] sm:text-[24px] font-extrabold leading-[1.3] text-ink tracking-tight",
+						children: item.title
+					}),
+					/* @__PURE__ */ jsx("div", {
+						className: "mt-2 text-[14px] font-semibold text-blue-600 dark:text-blue-400",
+						children: podcastTitle
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "mt-1 text-[12.5px] text-ink-4",
+						children: [author && /* @__PURE__ */ jsx("span", { children: author }), durationLabel && /* @__PURE__ */ jsxs("span", {
+							className: "ml-2 font-mono",
+							children: ["· ", durationLabel]
+						})]
+					})
+				]
+			})]
+		}), /* @__PURE__ */ jsx("div", {
+			className: "mt-6 pt-5 border-t border-line-soft flex flex-col gap-4",
+			children: /* @__PURE__ */ jsxs("div", {
+				className: "flex items-center gap-4",
+				children: [
+					/* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: togglePlay,
+						disabled: isLoading,
+						className: "grid size-14 place-items-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-700 active:scale-95 transition-all cursor-pointer shrink-0",
+						"aria-label": isPlaying ? "暂停播放" : "开始播放",
+						children: isLoading ? /* @__PURE__ */ jsx("span", { className: "size-5 animate-spin rounded-full border-2 border-white border-t-transparent" }) : isPlaying ? /* @__PURE__ */ jsxs("svg", {
+							width: "22",
+							height: "22",
+							viewBox: "0 0 24 24",
+							fill: "currentColor",
+							children: [/* @__PURE__ */ jsx("rect", {
+								x: "6",
+								y: "4",
+								width: "4",
+								height: "16",
+								rx: "1"
+							}), /* @__PURE__ */ jsx("rect", {
+								x: "14",
+								y: "4",
+								width: "4",
+								height: "16",
+								rx: "1"
+							})]
+						}) : /* @__PURE__ */ jsx("svg", {
+							width: "24",
+							height: "24",
+							viewBox: "0 0 24 24",
+							fill: "currentColor",
+							className: "ml-1",
+							children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
+						})
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "flex-1 min-w-0",
+						children: [/* @__PURE__ */ jsxs("div", {
+							className: "flex justify-between items-center text-[12.5px] font-mono text-ink-3 mb-1.5",
+							children: [/* @__PURE__ */ jsx("span", { children: formatTime(currentTime) }), /* @__PURE__ */ jsx("span", { children: formatTime(duration) })]
+						}), /* @__PURE__ */ jsx("input", {
+							type: "range",
+							min: "0",
+							max: duration || 100,
+							step: "1",
+							value: currentTime,
+							onChange: handleSeek,
+							className: "w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+						})]
+					}),
+					/* @__PURE__ */ jsxs("button", {
+						type: "button",
+						onClick: cycleSpeed,
+						className: "rounded-lg border border-line-strong px-2.5 py-1 text-[12px] font-mono font-medium text-ink-3 hover:text-ink hover:border-ink-4 transition-colors",
+						children: [playbackRate, "x"]
+					})
+				]
+			})
+		})]
+	});
+});
+//#endregion
 //#region app/features/feed/FeedItem.tsx
 function cleanSportsText(text) {
 	if (!text) return "";
@@ -2534,6 +2941,7 @@ function cleanSportsText(text) {
 }
 var FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOpen, showTags = false }) {
 	const isX = item.channel === "x" && !!item.x;
+	const isPodcast = item.category === "podcasts" || !!item.podcast || !!item.url && item.url.includes("/episodes/");
 	const open = () => onOpen?.(item.id);
 	const showSources = !!group && (group.additionalSourceCount > 0 || group.developmentCount <= 1 && group.reportCount > 1);
 	const showDevelopments = !!group?.story && group.developmentCount > 1;
@@ -2585,7 +2993,13 @@ var FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOp
 					})
 				]
 			}),
-			isX ? /* @__PURE__ */ jsx("p", {
+			isPodcast ? /* @__PURE__ */ jsx("div", {
+				className: "mt-3",
+				children: /* @__PURE__ */ jsx(PodcastCardPlayer, {
+					item,
+					onOpen: open
+				})
+			}) : isX ? /* @__PURE__ */ jsx("p", {
 				className: `mt-2.5 whitespace-pre-line text-[14.5px] leading-[1.68] line-clamp-4 lg:text-[15.5px] lg:leading-[1.72] ${read ? "text-ink-4" : "font-normal text-ink"}`,
 				children: /* @__PURE__ */ jsx(IntentLink, {
 					to: `/items/${item.id}`,
@@ -6269,6 +6683,7 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 	const isX = item.channel === "x" && !!item.x;
 	const publishedIso = item.publishedAt ?? item.discoveredAt;
 	const summaryOnly = item.readingMode === "summary-only";
+	const isPodcast = item.category === "podcasts" || !!item.podcast || !!item.links?.original && item.links.original.includes("/episodes/");
 	const showOutline = item.outline.length >= 3;
 	const originalLabel = isX ? "在 X 查看原推" : "打开原文";
 	const related = item.relatedStories.filter((s) => s.publicId !== item.story?.publicId);
@@ -6496,15 +6911,14 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 								})
 							]
 						}),
-						!isX && /* @__PURE__ */ jsx("h1", {
+						isPodcast ? /* @__PURE__ */ jsx(PodcastDetailPlayer, { item }) : /* @__PURE__ */ jsxs(Fragment, { children: [!isX && /* @__PURE__ */ jsx("h1", {
 							className: "text-[26px] font-bold leading-[1.38] tracking-[-0.01em] text-ink lg:text-[32px] lg:leading-[1.34] xl:text-[36px] xl:leading-[1.3]",
 							children: item.title
-						}),
-						!isX && item.originalTitle && /* @__PURE__ */ jsx("p", {
+						}), !isX && item.originalTitle && /* @__PURE__ */ jsx("p", {
 							className: "mt-2.5 text-[14px] leading-relaxed text-ink-4",
 							children: item.originalTitle
-						}),
-						item.summary && /* @__PURE__ */ jsxs("section", {
+						})] }),
+						item.summary && !isPodcast && /* @__PURE__ */ jsxs("section", {
 							className: isX ? "mt-4" : "mt-7 xl:mt-8",
 							children: [/* @__PURE__ */ jsx("div", {
 								className: "mb-2 text-[12px] font-semibold text-accent",
@@ -6531,7 +6945,7 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 								parentId: item.id
 							})
 						}),
-						summaryOnly && /* @__PURE__ */ jsx("p", {
+						summaryOnly && !isPodcast && /* @__PURE__ */ jsx("p", {
 							className: "mt-7 rounded-control bg-bg-sunk px-4 py-3 text-[13.5px] leading-relaxed text-ink-3",
 							children: "应来源方要求，这里只提供摘要与原文入口。完整内容请阅读原文。"
 						}),
@@ -6541,8 +6955,8 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 								/* @__PURE__ */ jsxs("div", {
 									className: "mb-6 flex items-center justify-between gap-3",
 									children: [/* @__PURE__ */ jsx("span", {
-										className: "text-[12px] text-ink-4",
-										children: bodyLabel
+										className: "text-[14px] font-bold text-ink",
+										children: isPodcast ? "单集介绍 Episode Description" : bodyLabel
 									}), hasTranslation && /* @__PURE__ */ jsx(PillTabs, {
 										size: "xs",
 										layoutId: "item-body-lang",
@@ -21698,15 +22112,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-CX95ulQC.js",
+			"module": "/assets/root-Cs_xMPnb.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/Sidebar-C2Yr8B1r.js",
-				"/assets/Chrome-BmT2qpYg.js",
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/Sidebar-pnoOZp0E.js",
+				"/assets/Chrome-Br4ZpcTu.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-kd0b7gv-.css"],
+			"css": ["/assets/root-Lj61cXRh.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -21746,12 +22160,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-3jCIv4-B.js",
+			"module": "/assets/all-CXLZBqBn.js",
 			"imports": [
-				"/assets/all-agBrcKoi.js",
+				"/assets/all-DaXD_tZ6.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-txIQ18na.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/taxonomy-FZ5tlk4M.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21772,8 +22186,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-CU3-VZ-Y.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/schedule-CrbAF-hh.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21793,12 +22207,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-B6di_ERF.js",
+			"module": "/assets/search-busy-Cginu6d6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/all-agBrcKoi.js",
-				"/assets/taxonomy-txIQ18na.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/all-DaXD_tZ6.js",
+				"/assets/taxonomy-FZ5tlk4M.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21819,12 +22233,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-B6di_ERF.js",
+			"module": "/assets/search-busy-Cginu6d6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/all-agBrcKoi.js",
-				"/assets/taxonomy-txIQ18na.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/all-DaXD_tZ6.js",
+				"/assets/taxonomy-FZ5tlk4M.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21845,11 +22259,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-C6KjIoee.js",
+			"module": "/assets/item-DflDKDss.js",
 			"imports": [
-				"/assets/item-CW2eRSDQ.js",
+				"/assets/item-DhTNgKeY.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js"
+				"/assets/shared-w6lLvPhJ.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21870,11 +22284,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-C6KjIoee.js",
+			"module": "/assets/item-original-DflDKDss.js",
 			"imports": [
-				"/assets/item-CW2eRSDQ.js",
+				"/assets/item-DhTNgKeY.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js"
+				"/assets/shared-w6lLvPhJ.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21895,8 +22309,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-WbtR2X2_.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/hot-rl8mshjX.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21916,8 +22330,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-DllQSS6T.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/story-UgZWupqj.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -21937,11 +22351,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DXa7a1xt.js",
+			"module": "/assets/report-latest-DF1KSNlc.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/ReportPaper-BZQBvdtX.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/ReportPaper-CaomtKUD.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21962,11 +22376,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-B12XqEIA.js",
+			"module": "/assets/daily-archive-DLIBPNDx.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/ReportPaper-BZQBvdtX.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/ReportPaper-CaomtKUD.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -21987,11 +22401,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DUcimNqm.js",
+			"module": "/assets/report-detail-D79jMgZI.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/ReportPaper-BZQBvdtX.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/ReportPaper-CaomtKUD.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22012,11 +22426,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DXa7a1xt.js",
+			"module": "/assets/report-latest-DF1KSNlc.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/ReportPaper-BZQBvdtX.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/ReportPaper-CaomtKUD.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22037,11 +22451,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DUcimNqm.js",
+			"module": "/assets/report-detail-D79jMgZI.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/ReportPaper-BZQBvdtX.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/ReportPaper-CaomtKUD.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22062,11 +22476,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DXa7a1xt.js",
+			"module": "/assets/report-latest-DF1KSNlc.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/ReportPaper-BZQBvdtX.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/ReportPaper-CaomtKUD.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22087,11 +22501,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DUcimNqm.js",
+			"module": "/assets/report-detail-D79jMgZI.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/ReportPaper-BZQBvdtX.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/ReportPaper-CaomtKUD.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22175,8 +22589,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-DA7CFrew.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/about-4QutWPVe.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22196,8 +22610,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sponsor-Bb0UlmaS.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/sponsor-DRMHGFu8.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22217,11 +22631,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-DepPZvv1.js",
+			"module": "/assets/terms-D_CqOf87.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/CopyPage-BpRNjwjo.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/CopyPage-C7aqSD7A.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22242,11 +22656,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-Bw6OeEj6.js",
+			"module": "/assets/privacy-B5LgR16G.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/CopyPage-BpRNjwjo.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/CopyPage-C7aqSD7A.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22267,8 +22681,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-DwiH53vC.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/changelog-bCetoRiL.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22288,8 +22702,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-Ob2l2DSp.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/feedback-Df0H5RxH.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22309,11 +22723,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-Cv32thMW.js",
+			"module": "/assets/more-DvP7F8ZP.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/Sidebar-C2Yr8B1r.js",
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/Sidebar-pnoOZp0E.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -22335,8 +22749,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-D_5yHCfh.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/starred-wImYVEB6.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22356,12 +22770,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-5s7c5vBb.js",
+			"module": "/assets/agent-Dg5bGiYZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/taxonomy-txIQ18na.js"
+				"/assets/taxonomy-FZ5tlk4M.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22382,8 +22796,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-1M4LKxq3.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/codex-reset-BMhTlWnj.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22403,8 +22817,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-1M4LKxq3.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/codex-reset-BMhTlWnj.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22424,11 +22838,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-5oJECUoz.js",
+			"module": "/assets/leaderboard-boards-CJt77QrQ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-txIQ18na.js"
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/taxonomy-FZ5tlk4M.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22449,10 +22863,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-BAbp1ULA.js",
+			"module": "/assets/leaderboard-UxgJ_KGN.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22475,10 +22889,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-BAbp1ULA.js",
+			"module": "/assets/leaderboard-UxgJ_KGN.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22501,10 +22915,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-au2-4dML.js",
+			"module": "/assets/leaderboard-sources-WWBDBJEo.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22527,10 +22941,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-BAbz8Tww.js",
+			"module": "/assets/leaderboard-source-bKSJNhkp.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22553,8 +22967,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-CwMR_UuR.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/leaderboard-rules-BEjbXhYe.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22574,11 +22988,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-kqQRUS0H.js",
+			"module": "/assets/leaderboard-model-DESskwcw.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-txIQ18na.js",
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/taxonomy-FZ5tlk4M.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22601,8 +23015,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-CWIU5SGC.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CFmNAWZa.js"],
+			"module": "/assets/admin-login-CfwL08C-.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22622,12 +23036,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-D8UPXW0y.js",
+			"module": "/assets/layout-BfbfJsNA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-BmT2qpYg.js",
+				"/assets/Chrome-Br4ZpcTu.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -22671,10 +23085,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-BmssTPca.js",
+			"module": "/assets/content-DgXmerTm.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22698,11 +23112,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-Lwkls_5-.js",
+			"module": "/assets/content-item-Da3r_kX1.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-txIQ18na.js",
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/taxonomy-FZ5tlk4M.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22728,10 +23142,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-Dit2NtAU.js",
+			"module": "/assets/sources-Bd-ZKbKG.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -22755,10 +23169,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-xjKu9FBF.js",
+			"module": "/assets/source-new-BkEoTM9b.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22784,10 +23198,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-BwM1sBtL.js",
+			"module": "/assets/source-DqDlE5Jj.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22813,10 +23227,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-CyNTT5U2.js",
+			"module": "/assets/monitor-CbPrY1gk.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22841,10 +23255,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-BHzSbLb1.js",
+			"module": "/assets/feedback-pvbqYBB_.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22870,10 +23284,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-DYXq9PS2.js",
+			"module": "/assets/runs-B1RpwtrG.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22898,10 +23312,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-D4JQMepZ.js",
+			"module": "/assets/models-BHZSaELn.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -22926,10 +23340,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-Eg34Ry4E.js",
+			"module": "/assets/selectbench-DPpnN9G0.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -22954,11 +23368,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-ojZnfT0h.js",
+			"module": "/assets/selectbench-run-lICzhxI7.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
-				"/assets/taxonomy-txIQ18na.js",
+				"/assets/shared-w6lLvPhJ.js",
+				"/assets/taxonomy-FZ5tlk4M.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -22981,10 +23395,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-C14zuDYa.js",
+			"module": "/assets/settings-CdZ4u88j.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23009,10 +23423,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-CcU4oFaE.js",
+			"module": "/assets/audit-bES91EMK.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CFmNAWZa.js",
+				"/assets/shared-w6lLvPhJ.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23023,8 +23437,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-417db3b3.js",
-	"version": "417db3b3",
+	"url": "/assets/manifest-3ee87b15.js",
+	"version": "3ee87b15",
 	"sri": void 0
 };
 //#endregion

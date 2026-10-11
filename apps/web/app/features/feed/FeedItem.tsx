@@ -8,6 +8,7 @@ import { MediaThumbs, SourceLine, StarButton } from "./parts";
 import { GroupDevelopments, GroupSources, LatestDevelopment } from "./ReadingGroup";
 import { QuotedLine } from "../item/QuotedPost";
 import { beijingTime } from "../../lib/format";
+import { PodcastCardPlayer } from "../podcast/PodcastPlayer";
 
 export interface FeedItemProps {
   item: FeedItemSummary;
@@ -39,6 +40,7 @@ function cleanSportsText(text?: string | null): string {
 
 export const FeedItem = memo(function FeedItem({ item, group, filters, read = false, onOpen, showTags = false }: FeedItemProps) {
   const isX = item.channel === "x" && !!item.x;
+  const isPodcast = item.category === "podcasts" || !!item.podcast || (!!item.url && item.url.includes("/episodes/"));
   const open = () => onOpen?.(item.id);
   const showSources = !!group && (group.additionalSourceCount > 0 || (group.developmentCount <= 1 && group.reportCount > 1));
   const showDevelopments = !!group?.story && group.developmentCount > 1;
@@ -85,7 +87,11 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
         </span>
       </header>
 
-      {isX ? (
+      {isPodcast ? (
+        <div className="mt-3">
+          <PodcastCardPlayer item={item} onOpen={open} />
+        </div>
+      ) : isX ? (
         <p className={`mt-2.5 whitespace-pre-line text-[14.5px] leading-[1.68] line-clamp-4 lg:text-[15.5px] lg:leading-[1.72] ${read ? "text-ink-4" : "font-normal text-ink"}`}>
           <IntentLink to={`/items/${item.id}`} onClick={open} className="after:absolute after:inset-0 after:content-[''] transition-colors hover:text-[#CE1141]">
             {cleanSummary || cleanTitle}
