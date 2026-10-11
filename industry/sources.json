@@ -931,14 +931,287 @@
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-sportspyder-rockets",
-      "name": "SportSpyder (休斯敦火箭聚合新闻)",
+      "id": "rss-podcast-launchpod",
+      "name": "Rockets LaunchPod (休斯敦火箭官方播客)",
       "kind": "rss",
       "config": {
-        "feedUrl": "https://sportspyder.com/rss/teams/houston-rockets/articles",
+        "feedUrl": "https://www.spreaker.com/show/5549131/episodes/feed",
         "_aihot": {
           "initialBackfillLimit": 20
         }
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "播客",
+        "休斯敦火箭",
+        "音频"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-podcast-sportstalk790",
+      "name": "SportsTalk 790 KBME-AM (休斯敦电台 Rockets The A-Team)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.spreaker.com/show/3442316/episodes/feed",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "播客",
+        "休斯敦电台",
+        "音频"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-podcast-rocketsdaily",
+      "name": "Rockets Daily (休斯敦火箭每日播客)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://feeds.megaphone.fm/BVLLC3344227855",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "播客",
+        "每日播客",
+        "音频"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-podcast-lockedon",
+      "name": "Locked On Rockets (休斯敦火箭日报播客)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://feeds.simplecast.com/VdVZRUNt",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "播客",
+        "随队播客",
+        "音频"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-podcast-rocketfuel",
+      "name": "Rocket Fuel Podcast (休斯敦火箭电台)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://feeds.simplecast.com/bwomcAtS",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "播客",
+        "球迷电台",
+        "音频"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "web-si-rockets",
+      "name": "Sports Illustrated (SI 休斯敦火箭专栏)",
+      "kind": "web_list",
+      "config": {
+        "url": "https://www.si.com/nba/rockets",
+        "itemSelector": "a[href*='/nba/rockets/onsi/']",
+        "linkSelector": "self",
+        "titleSelector": "self",
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "深度专栏",
+        "专栏",
+        "休斯敦火箭"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "web-sportingnews-rockets",
+      "name": "Sporting News (休斯敦火箭深度报道)",
+      "kind": "web_list",
+      "config": {
+        "url": "https://r.jina.ai/https://www.sportingnews.com/us/nba/houston-rockets",
+        "parseMode": "markdown",
+        "allowUrlPrefixes": [
+          "https://www.sportingnews.com/us/nba/houston-rockets/news/"
+        ],
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "深度专栏",
+        "专栏",
+        "休斯敦火箭"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-hoopswire-rockets",
+      "name": "Hoops Wire (休斯敦火箭流言与深度)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://hoopswire.com/category/houston-rockets-rumors-news/feed/",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "交易流言",
+        "深度专栏",
+        "休斯敦火箭"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "web-nba-rockets",
+      "name": "NBA.com (休斯敦火箭官方新闻)",
+      "kind": "web_list",
+      "config": {
+        "url": "https://r.jina.ai/https://www.nba.com/rockets/news",
+        "parseMode": "markdown",
+        "allowUrlPrefixes": [
+          "https://www.nba.com/rockets/news/"
+        ],
+        "fetchPublicContent": true,
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T1",
+      "first_party": true,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "球队动态",
+        "官方动态",
+        "休斯敦火箭"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "json-espn-rockets",
+      "name": "ESPN (休斯敦火箭新闻专区)",
+      "kind": "json_list",
+      "config": {
+        "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/news?team=10",
+        "itemsPath": "articles",
+        "titlePaths": [
+          "headline"
+        ],
+        "urlTemplate": "{links.web.href}",
+        "summaryPaths": [
+          "description"
+        ],
+        "publishedAtPath": "published",
+        "summaryIsBody": true,
+        "_aihot": {
+          "initialBackfillLimit": 20
+        }
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "球队动态",
+        "深度专栏",
+        "休斯敦火箭"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-nbatv-rockets",
+      "name": "NBA TV (@NBATV 火箭相关动态)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:NBATV (Rockets OR \"Houston Rockets\" OR Sengun OR Udoka OR Sheppard OR \"Amen Thompson\" OR \"Jabari Smith\" OR \"Tari Eason\" OR VanVleet OR \"Cam Whitmore\" OR Durant) -filter:replies",
+        "searchType": "Latest"
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 15,
+      "tags": [
+        "球队动态",
+        "官方动态",
+        "NBA官方"
+      ],
+      "site_fulltext": false,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-thedunkcentral-rockets",
+      "name": "Dunk Central (@TheDunkCentral 火箭相关快讯与流言)",
+      "kind": "x_search",
+      "config": {
+        "query": "from:TheDunkCentral (Rockets OR \"Houston Rockets\" OR Sengun OR Udoka OR Sheppard OR \"Amen Thompson\" OR \"Jabari Smith\" OR \"Tari Eason\" OR VanVleet OR \"Cam Whitmore\" OR Durant) -filter:replies",
+        "searchType": "Latest"
       },
       "tier": "T2",
       "first_party": false,
@@ -946,86 +1219,30 @@
       "participation_mode": "editorial",
       "interval_minutes": 15,
       "tags": [
-        "球队动态",
+        "交易流言",
         "全网快讯",
-        "聚合资讯"
+        "球队动态"
       ],
-      "site_fulltext": true,
+      "site_fulltext": false,
       "syndicate_fulltext": false
     },
     {
-      "id": "rss-sportspyder-podcasts",
-      "name": "SportSpyder (休斯敦火箭聚合播客)",
-      "kind": "rss",
+      "id": "x-thehoopcentral-rockets",
+      "name": "Hoop Central (@TheHoopCentral 火箭相关快讯与流言)",
+      "kind": "x_search",
       "config": {
-        "feedUrl": "https://sportspyder.com/rss/teams/houston-rockets/podcasts",
-        "_aihot": {
-          "initialBackfillLimit": 20
-        }
+        "query": "from:TheHoopCentral (Rockets OR \"Houston Rockets\" OR Sengun OR Udoka OR Sheppard OR \"Amen Thompson\" OR \"Jabari Smith\" OR \"Tari Eason\" OR VanVleet OR \"Cam Whitmore\" OR Durant) -filter:replies",
+        "searchType": "Latest"
       },
       "tier": "T2",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 15,
       "tags": [
-        "播客",
-        "音频",
-        "电台"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-sportspyder-videos",
-      "name": "SportSpyder (休斯敦火箭聚合视频)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://sportspyder.com/rss/teams/houston-rockets/videos",
-        "_aihot": {
-          "initialBackfillLimit": 20
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 20,
-      "tags": [
-        "视频",
-        "集锦",
-        "采访原声"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "web-sportspyder-rockets",
-      "name": "SportSpyder (休斯敦火箭全网动态抓取)",
-      "kind": "web_list",
-      "config": {
-        "url": "https://r.jina.ai/https://sportspyder.com/nba/houston-rockets/news",
-        "denyUrlPrefixes": [
-          "https://sportspyder.com/sports/",
-          "https://sportspyder.com/my/",
-          "https://sportspyder.com/login",
-          "https://sportspyder.com/profile",
-          "https://sportspyder.com/notifications",
-          "https://sportspyder.com/settings/"
-        ],
-        "_aihot": {
-          "initialBackfillLimit": 20
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 20,
-      "tags": [
-        "球队动态",
+        "交易流言",
         "全网快讯",
-        "聚合资讯"
+        "球队动态"
       ],
       "site_fulltext": false,
       "syndicate_fulltext": false

@@ -83,6 +83,26 @@ const TEASER_MARKS = [
   /\[\s*(?:…|\.\.\.)\s*\]\s*$/,
 ];
 
+function parseDuration(val: string): number | null {
+  if (!val) return null;
+  val = val.trim();
+  if (/^\d+$/.test(val)) return parseInt(val, 10);
+  const parts = val.split(":").map(Number);
+  if (parts.some(isNaN)) return null;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return null;
+}
+
+function formatDurationLabel(sec: number): string {
+  if (!sec || sec <= 0) return "";
+  const mins = Math.round(sec / 60);
+  if (mins < 60) return `${mins} min`;
+  const hrs = Math.floor(mins / 60);
+  const remMins = mins % 60;
+  return remMins > 0 ? `${hrs}h ${remMins}m` : `${hrs}h`;
+}
+
 export function isTeaser(text: string): boolean {
   const t = text.trim();
   return t.length < TEASER_BELOW && TEASER_MARKS.some((m) => m.test(t));
@@ -147,6 +167,7 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
   // Entries that are sections of one page (#september-24-2026 …) keep their fragment as identity.
   const identity = (link: string) =>
     source.config.preserveUrlFragment === true ? { identityKey: identityKeyForUrl(link, { keepFragment: true }) ?? undefined } : {};
+
   const out: Candidate[] = [];
 
   const channel = doc.rss?.channel ?? doc["rdf:RDF"];
@@ -160,21 +181,61 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
       const description = text(it.description);
       const bodyHtmlRaw = contentEncoded || (summaryIsBody ? description : "");
       const bodyHtml = bodyHtmlRaw ? sanitizeBody(bodyHtmlRaw, link) : null;
-      const enclosure = arr(it.enclosure as Record<string, string> | Array<Record<string, string>>).find((e) => /^image\//.test(e?.["@type"] ?? ""));
-      const media = [
-        ...(enclosure ? [{ kind: "image" as const, url: enclosure["@url"]! }] : []),
+      const enclosures = arr(it.enclosure as Record<string, string> | Array<Record<string, string>>);
+      const imageEnclosure = enclosures.find((e) => /^image\//.test(e?.["@type"] ?? ""));
+      const audioEnclosure = enclosures.find((e) => {
+        const t = e?.["@type"] ?? "";
+        const u = e?.["@url"] ?? "";
+        return /^audio\//.test(t) || /\.(mp3|m4a|aac|wav|ogg)(\?|$)/i.test(u);
+      });
+      const itunesImage = (typeof it["itunes:image"] === "object" ? it["itunes:image"]?.["@href"] || it["itunes:image"]?.href : null) ||
+        (typeof channel["itunes:image"] === "object" ? channel["itunes:image"]?.["@href"] || channel["itunes:image"]?.href : null) ||
+        text(channel.image?.url) || null;
+      const itunesDurationRaw = text(it["itunes:duration"]);
+      const durationSeconds = parseDuration(itunesDurationRaw);
+      const durationLabel = durationSeconds ? formatDurationLabel(durationSeconds) : (itunesDurationRaw || null);
+      const podcastTitle = text(channel.title) || text(channel["itunes:title"]) || text(it["itunes:title"]) || null;
+      const podcastAuthor = text(it["itunes:author"]) || text(it["dc:creator"]) || text(it.author) || text(channel["itunes:author"]) || null;
+
+      const media: Array<{ kind: "image"; url: string }> = [
+        ...(itunesImage ? [{ kind: "image" as const, url: String(itunesImage) }] : []),
+        ...(imageEnclosure ? [{ kind: "image" as const, url: imageEnclosure["@url"]! }] : []),
         ...(bodyHtmlRaw ? imagesFrom(bodyHtmlRaw, link) : []),
       ];
+
+      const isAudio = !!audioEnclosure;
+      const podcastData = isAudio ? {
+        audioUrl: audioEnclosure["@url"]!,
+        duration: durationSeconds,
+        durationLabel,
+        imageUrl: itunesImage ? String(itunesImage) : (imageEnclosure ? imageEnclosure["@url"] : null),
+        podcastTitle,
+        author: podcastAuthor,
+      } : undefined;
+
+      const podcastDesc = contentEncoded || description || text(it["itunes:summary"]);
+      const textFields = isAudio && podcastDesc
+        ? {
+            excerpt: collapseWhitespace(stripTags(podcastDesc)).slice(0, 2000),
+            bodyHtml: sanitizeBody(podcastDesc.includes("<") ? podcastDesc : `<p>${podcastDesc.replace(/\n+/g, "</p><p>")}</p>`, link),
+            bodyText: collapseWhitespace(stripTags(podcastDesc)),
+            bodyStatus: "ok" as const,
+          }
+        : feedText(bodyHtml, description, source);
+
       out.push({
         url: link,
         ...identity(link),
         title,
-        author: text(it["dc:creator"]) || text(it.author) || null,
+        author: podcastAuthor || text(it["dc:creator"]) || text(it.author) || null,
         publishedAt: parseDate(text(it.pubDate) || text(it["dc:date"]) || text(it.published)),
-        ...feedText(bodyHtml, description, source),
+        ...textFields,
         media: media.slice(0, 6),
         categories: arr(it.category).map((c) => text(c)).filter(Boolean),
-        raw: { guid: text(it.guid) || null },
+        raw: {
+          guid: text(it.guid) || null,
+          ...(podcastData ? { podcast: podcastData } : {}),
+        },
       });
     }
     return { candidates: out, validator, notModified: false };

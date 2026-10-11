@@ -179,8 +179,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const zhTitle = analysis?.title_zh?.trim() ? analysis.title_zh : null;
   const fallbackCat =
     source.id.includes("podcast") ? "podcasts" :
-    source.id.includes("video") || source.id.startsWith("yt-") ? "videos" :
-    source.id.includes("sportspyder") ? "news" : null;
+    source.id.includes("video") || source.id.startsWith("yt-") ? "videos" : null;
   const title = pickString(f.title, zhTitle ?? (isChineseTitle || article.x_post || fallbackCat ? collapseWhitespace(article.title) : null));
   const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
   const summary = pickString(f.summary, analysis?.summary_zh ?? (fallbackCat ? fallbackSummary : null));
