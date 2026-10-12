@@ -117,10 +117,14 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     return sql`AND p.category != 'podcasts' AND p.source_id NOT LIKE '%podcast%'`;
   }
   if (category === "news") {
-    // 动态栏目：球队官方动态、伤病、战报与快讯
+    // 动态栏目：球队官方动态、伤病、战报与快讯，以及专注休斯敦火箭的纯博主与社区（SleeperRockets, ClutchFans等）
     return sql`AND (
       p.category = 'news'
-      OR (p.category IS NULL AND (p.channel = 'news' OR p.first_party OR p.source_id IN ('x-houston-rockets', 'x-rocketsnation-cp', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rockets-wire')))
+      OR p.source_id IN (
+        'x-houston-rockets', 'x-clutchfans', 'x-sleeper-rockets', 'x-biased-houston', 
+        'x-bradeaux', 'x-spacecity-hn', 'x-rocketsnation-cp', 'x-rockets-wire'
+      )
+      OR (p.category IS NULL AND (p.channel = 'news' OR p.first_party))
     )
     AND p.category != 'podcasts'
     AND p.source_id NOT LIKE '%podcast%'`;
