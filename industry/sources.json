@@ -1349,20 +1349,22 @@
     },
     {
       "id": "x-search-rockets-global",
-      "name": "X 全网火箭热推 (双关键词严选)",
+      "name": "X 全网火箭热推 (双关键词严选·低频控费)",
       "kind": "x_search",
       "config": {
-        "query": "(Rockets OR \"Houston Rockets\") (Sengun OR Udoka OR \"Jalen Green\" OR Sheppard OR Amen OR VanVleet OR Jabari OR Eason OR Whitmore OR \"Rafael Stone\") -filter:replies min_faves:5",
+        "query": "(Rockets OR \"Houston Rockets\") (Sengun OR Udoka OR \"Jalen Green\" OR Sheppard OR Amen OR VanVleet OR Jabari OR Eason OR Whitmore OR \"Rafael Stone\") -filter:replies min_faves:8 -from:Jonathan_Feigen -from:KellyIko -from:AdamSpolane -from:SalmanAliNBA -from:clutchfans -from:SleeperRockets -from:HoustonRockets",
         "searchType": "Latest",
-        "requireRocketsDoubleMatch": true
+        "requireRocketsDoubleMatch": true,
+        "_aihot": {
+          "initialBackfillLimit": 10
+        }
       },
       "tier": "T2",
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 240,
       "tags": [
-        "球队动态",
         "推特热议",
         "休斯敦火箭"
       ],
