@@ -29,6 +29,7 @@ interface ArticleRow {
   body_html: string | null;
   excerpt: string | null;
   x_post: unknown;
+  media?: unknown;
   grouped_at: Date | null;
 }
 
@@ -151,7 +152,7 @@ export async function publishArticle(articleId: string, options: PublishOptions 
 export async function publishArticleTx(tx: Tx, articleId: string, options: PublishOptions = {}): Promise<PublishResult | null> {
   const [article] = await tx<ArticleRow[]>`
     SELECT id, source_id, url, title, language, published_at, discovered_at, timeline_at, backfill, body_status,
-           body_text, body_html, excerpt, x_post, grouped_at
+           body_text, body_html, excerpt, x_post, media, grouped_at
     FROM articles WHERE id = ${articleId} FOR UPDATE`;
   if (!article) return null;
   // Reports take this lock exclusively while reading candidates. Hold it through commit so a
@@ -174,12 +175,18 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
 
   const f = override?.fields ?? {};
   const isChineseTitle = article.language === "zh" || /[一-鿿]/.test(article.title);
-  // An X post carries its Chinese in the summary and translation; without a Chinese title its own
-  // text is the title, where an article would still be a half-finished card.
   const zhTitle = analysis?.title_zh?.trim() ? analysis.title_zh : null;
+  const rawXPost = article.x_post ? (typeof article.x_post === "string" ? JSON.parse(article.x_post) : article.x_post) : null;
+  const articleMedia = Array.isArray(article.media) ? (article.media as any[]) : null;
+  const hasVideoMedia = (articleMedia && articleMedia.some((m) => m?.kind === "video")) ||
+    (rawXPost?.media && Array.isArray(rawXPost.media) && rawXPost.media.some((m: any) => m?.kind === "video"));
+
+  const isOtherHoustonTeam =
+    /(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|跑卫|角卫|达阵|棒球|橄榄球|全垒打|安打|三振|红雀|马文·哈里森|marvin harrison)/i.test(article.title || "");
+
   const fallbackCat =
     source.id.includes("podcast") ? "podcasts" :
-    source.id.includes("video") || source.id.startsWith("yt-") ? "videos" : null;
+    source.id.includes("video") || source.id.startsWith("yt-") || hasVideoMedia ? "videos" : null;
   const title = pickString(f.title, zhTitle ?? (isChineseTitle || article.x_post || fallbackCat ? collapseWhitespace(article.title) : null));
   const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
   const summary = pickString(f.summary, analysis?.summary_zh ?? (fallbackCat ? fallbackSummary : null));
@@ -189,9 +196,9 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (analysis?.relevance ?? (fallbackCat ? "pass" : null));
   const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
   // Material from an isolated source reaches no public surface at all: not even a detail page.
-  const visibility = source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
+  const visibility = isOtherHoustonTeam || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
 
-  const eligible = isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
+  const eligible = isOtherHoustonTeam ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
   const selected = isSelectable(eligible, judgedSelected, source.tier);
   const reason = selected ? pickString(f.reason, analysis?.reason_zh ?? null) : null;
   const hasXPost = !!article.x_post;
