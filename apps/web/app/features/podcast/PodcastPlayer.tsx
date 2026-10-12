@@ -200,14 +200,14 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
   };
 
   return (
-    <div className="relative flex flex-col sm:flex-row gap-3.5 pt-1">
+    <div className="relative flex flex-row items-start gap-3 pt-0.5">
       {/* Left: Podcast Cover Artwork */}
-      <div className="relative shrink-0 flex items-center justify-center">
+      <div className="relative shrink-0 pt-0.5">
         <button
           type="button"
           onClick={handlePlayToggle}
           title={isPlaying ? "暂停播放" : "点击播放单集"}
-          className="group/thumb relative block size-[88px] sm:size-[96px] rounded-xl overflow-hidden bg-neutral-900 border border-line-soft shadow-xs transition-transform duration-200 active:scale-95 focus:outline-hidden"
+          className="group/thumb relative block size-[68px] sm:size-[84px] rounded-xl overflow-hidden bg-neutral-900 border border-line-soft shadow-xs transition-transform duration-200 active:scale-95 focus:outline-hidden"
         >
           <img
             src={imageUrl}
@@ -222,20 +222,20 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
 
           {/* Duration tag at bottom-right of artwork */}
           {(durationLabel || duration > 0) && (
-            <span className="absolute bottom-1.5 right-1.5 rounded bg-black/80 px-1 py-0.5 font-mono text-[10px] font-semibold text-white/90 backdrop-blur-xs">
+            <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1 py-0.2 font-mono text-[9px] font-semibold text-white/90 backdrop-blur-xs">
               {durationLabel || `${Math.round(duration / 60)}m`}
             </span>
           )}
 
           {/* Centered Play/Pause Icon Overlay */}
           <div className={`absolute inset-0 grid place-items-center transition-opacity ${isPlaying ? "opacity-100 bg-black/30" : "opacity-0 group-hover/thumb:opacity-100 bg-black/40"}`}>
-            <span className="grid size-8 place-items-center rounded-full bg-[#CE1141] text-white shadow-md transition-transform group-hover/thumb:scale-110">
+            <span className="grid size-7 place-items-center rounded-full bg-[#CE1141] text-white shadow-md transition-transform group-hover/thumb:scale-110">
               {isPlaying ? (
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                 </svg>
               ) : (
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               )}
@@ -248,7 +248,7 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
       <div className="min-w-0 flex-1 flex flex-col justify-between">
         <div>
           {/* Episode Title */}
-          <h3 className="text-[15.5px] sm:text-[16.5px] font-bold leading-[1.4] text-ink tracking-tight transition-colors hover:text-[#CE1141] line-clamp-2">
+          <h3 className="text-[14px] sm:text-[15.5px] font-bold leading-snug text-ink tracking-tight transition-colors hover:text-[#CE1141] line-clamp-2">
             <Link to={`/items/${item.id}`} onClick={onOpen}>
               {item.title}
             </Link>
@@ -256,14 +256,14 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
 
           {/* Episode Summary */}
           {item.summary && (
-            <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-ink-3">
+            <p className="mt-1 line-clamp-2 text-[12px] sm:text-[12.5px] leading-relaxed text-ink-3">
               {item.summary}
             </p>
           )}
         </div>
 
         {/* Minimalist Player Controls Strip */}
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px]">
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11.5px]">
           {/* Main Play / Pause Button */}
           <button
             type="button"

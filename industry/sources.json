@@ -940,7 +940,7 @@
       "config": {
         "feedUrl": "https://www.spreaker.com/show/5549131/episodes/feed",
         "_aihot": {
-          "initialBackfillLimit": 20
+          "initialBackfillLimit": 80
         }
       },
       "tier": "T1",
@@ -963,7 +963,7 @@
       "config": {
         "feedUrl": "https://www.spreaker.com/show/3442316/episodes/feed",
         "_aihot": {
-          "initialBackfillLimit": 30
+          "initialBackfillLimit": 80
         },
         "ingestNoiseFilter": {
           "keepIfMatches": [
@@ -1012,7 +1012,7 @@
       "config": {
         "feedUrl": "https://www.spreaker.com/show/2599904/episodes/feed",
         "_aihot": {
-          "initialBackfillLimit": 30
+          "initialBackfillLimit": 80
         },
         "ingestNoiseFilter": {
           "keepIfMatches": [
@@ -1173,29 +1173,6 @@
       "tags": [
         "深度专栏",
         "专栏",
-        "休斯敦火箭"
-      ],
-      "site_fulltext": true,
-      "syndicate_fulltext": false
-    },
-    {
-      "id": "rss-hoopswire-rockets",
-      "name": "Hoops Wire (休斯敦火箭流言与深度)",
-      "kind": "rss",
-      "config": {
-        "feedUrl": "https://hoopswire.com/category/houston-rockets-rumors-news/feed/",
-        "_aihot": {
-          "initialBackfillLimit": 20
-        }
-      },
-      "tier": "T2",
-      "first_party": false,
-      "owner_entity_id": "rockets",
-      "participation_mode": "editorial",
-      "interval_minutes": 25,
-      "tags": [
-        "交易流言",
-        "深度专栏",
         "休斯敦火箭"
       ],
       "site_fulltext": true,
