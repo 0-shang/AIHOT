@@ -131,6 +131,38 @@ export function registerSite(app: FastifyInstance) {
     return sendJsonWithEtag(req, reply, siteItemDetail(result.detail, true), { etagPrefix: "item-original", cacheControl: "public, max-age=60, s-maxage=60" });
   }));
 
+  app.post("/api/site/translate", siteHandler(async (req, reply) => {
+    const body = (req.body ?? {}) as { texts?: string[]; text?: string };
+    const rawTexts = Array.isArray(body?.texts) ? body.texts : (body?.text ? [body.text] : []);
+    if (rawTexts.length === 0) {
+      return reply.send({ translations: [] });
+    }
+    const translations: string[] = [];
+    for (const t of rawTexts.slice(0, 40)) {
+      const clean = (t || "").trim();
+      if (!clean) {
+        translations.push("");
+        continue;
+      }
+      try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=zh-CN&dt=t&q=${encodeURIComponent(clean.slice(0, 3500))}`;
+        const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+        if (res.ok) {
+          const data = (await res.json()) as any;
+          const translated = Array.isArray(data?.[0])
+            ? data[0].map((part: any) => part?.[0] || "").join("")
+            : clean;
+          translations.push(translated);
+        } else {
+          translations.push(clean);
+        }
+      } catch {
+        translations.push(clean);
+      }
+    }
+    return reply.header("Cache-Control", "public, max-age=86400").send({ translations });
+  }));
+
   app.get("/api/site/stories/:publicId/followups", siteHandler(async (req, reply) => {
     const result = await loadStoryFollowups((req.params as { publicId: string }).publicId);
     if (!result) return sendProblem(req, reply, { status: 404, code: "not_found", detail: "story not found" });

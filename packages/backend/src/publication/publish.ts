@@ -184,13 +184,23 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const isOtherHoustonTeam =
     /(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|跑卫|角卫|达阵|棒球|橄榄球|全垒打|安打|三振|红雀|马文·哈里森|marvin harrison)/i.test(article.title || "");
 
+  const hasLongArticleBody = !article.x_post && typeof article.body_text === "string" && article.body_text.length >= 1800;
+  const isDedicatedRocketsCommunity = source.id.includes("sleeper") || source.id.includes("clutchfans") || source.id.includes("rocketsnation");
+
   const fallbackCat =
     source.id.includes("podcast") ? "podcasts" :
-    source.id.includes("video") || source.id.startsWith("yt-") || hasVideoMedia ? "videos" : null;
+    source.id.includes("video") || source.id.startsWith("yt-") || hasVideoMedia ? "videos" :
+    hasLongArticleBody ? "analysis" :
+    (isDedicatedRocketsCommunity ? "news" : null);
+
   const title = pickString(f.title, zhTitle ?? (isChineseTitle || article.x_post || fallbackCat ? collapseWhitespace(article.title) : null));
   const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
   const summary = pickString(f.summary, analysis?.summary_zh ?? (fallbackCat ? fallbackSummary : null));
-  const category = pickString(f.category, analysis?.category ?? fallbackCat);
+  
+  // 长文入库专栏：具备实质长文正文的深度报道优先归入专栏，短讯归入动态
+  const initialCat = analysis?.category ?? fallbackCat;
+  const resolvedCat = (hasLongArticleBody && (!analysis?.category || analysis.category === "news" || analysis.category === "beat_tweets")) ? "analysis" : initialCat;
+  const category = pickString(f.category, resolvedCat);
   const tags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(source.tags ?? [])])];
   const score = typeof f.score === "number" ? f.score : (analysis?.score ?? 70);
   const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (analysis?.relevance ?? (fallbackCat ? "pass" : null));

@@ -40,6 +40,16 @@ export function noiseFiltered(c: Candidate, source: SourceRow): boolean {
     return true;
   }
 
+  // 双关键词严格匹配：必须同时命中 1) 火箭队主体 + 2) 球员/主帅/管理层核心实体
+  if (source.config.requireRocketsDoubleMatch || source.id.includes("rockets-global") || source.id.includes("x-search-rockets")) {
+    const hayMatch = `${c.title}\n${c.excerpt ?? ""}`;
+    const hasRocketTeam = /(rockets|houston rockets|休斯敦火箭|休斯顿火箭|clutch city)/i.test(hayMatch);
+    const hasRocketEntity = /(udoka|乌度卡|ime|sengun|申京|alperen|alpi|jalen|green|格林|amen|thompson|阿门|sheppard|reed|谢泼德|vanvleet|freddie|范弗里特|范乔丹|jabari|smith|小贾巴里|史密斯|bari|eason|tari|伊森|whitmore|cam|惠特莫尔|adams|亚当斯|dillon|brooks|狄龙|stone|rafael|斯通|toyota center|丰田中心|clutchfans)/i.test(hayMatch);
+    if (!hasRocketTeam || !hasRocketEntity) {
+      return true; // 丢弃：未同时满足双关键词
+    }
+  }
+
   const f = source.config.ingestNoiseFilter;
   const cats: string[] = c.categories ?? [];
   if (source.config.denyCategories?.some((d: string) => cats.includes(d))) return true;

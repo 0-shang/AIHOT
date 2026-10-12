@@ -122,7 +122,112 @@ export default function ItemPage() {
     if (r === "copied") setToast("链接已复制");
   };
 
+  const [translatedData, setTranslatedData] = useState<{ title?: string; summary?: string | null; bodyHtml?: string } | null>(null);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [translating, setTranslating] = useState(false);
+
   const bodyHtml = lang === "zh" ? (item.body?.zh ?? item.body?.original) : (item.body?.original ?? item.body?.zh);
+
+  const handleFreeTranslate = async () => {
+    if (showTranslation) {
+      setShowTranslation(false);
+      return;
+    }
+    if (translatedData) {
+      setShowTranslation(true);
+      return;
+    }
+    setTranslating(true);
+    try {
+      const isZhTitle = /[一-鿿]/.test(item.title);
+      const titleToTranslate = !isZhTitle ? (item.originalTitle || item.title) : "";
+      const isZhSummary = item.summary ? /[一-鿿]/.test(item.summary) : true;
+      const summaryToTranslate = !isZhSummary ? (item.summary || "") : "";
+
+      const dummy = document.createElement("div");
+      dummy.innerHTML = bodyHtml || "";
+      const textNodes: Text[] = [];
+      const walk = (node: Node) => {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+          textNodes.push(node as Text);
+        } else {
+          node.childNodes.forEach(walk);
+        }
+      };
+      walk(dummy);
+      const textsToTranslate = textNodes.map((n) => n.textContent || "").filter((t) => /[a-zA-Z]{2,}/.test(t));
+
+      const payload = [titleToTranslate, summaryToTranslate, ...textsToTranslate].filter(Boolean);
+      if (payload.length === 0) {
+        setShowTranslation(true);
+        return;
+      }
+      const res = await fetch("/api/site/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texts: payload }),
+      });
+      if (res.ok) {
+        const { translations } = (await res.json()) as { translations: string[] };
+        let idx = 0;
+        let transTitle = item.title;
+        let transSummary = item.summary;
+        if (titleToTranslate) transTitle = translations[idx++] || transTitle;
+        if (summaryToTranslate) transSummary = translations[idx++] || transSummary;
+
+        for (const node of textNodes) {
+          if (/[a-zA-Z]{2,}/.test(node.textContent || "")) {
+            if (idx < translations.length && translations[idx]) {
+              node.textContent = translations[idx++];
+            }
+          }
+        }
+        setTranslatedData({
+          title: transTitle,
+          summary: transSummary,
+          bodyHtml: dummy.innerHTML,
+        });
+        setShowTranslation(true);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setTranslating(false);
+    }
+  };
+
+  const translateButton = (
+    <button
+      type="button"
+      onClick={handleFreeTranslate}
+      disabled={translating}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium transition-all ${
+        showTranslation
+          ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+          : "border border-line-strong bg-surface text-ink-2 hover:border-accent hover:text-accent shadow-xs active:scale-95"
+      }`}
+      title="通过免费客户端引擎将英文一键翻译为中文 (0 Token 消耗)"
+    >
+      <span className="text-[13px]">{translating ? "🔄" : showTranslation ? "✓" : "🌐"}</span>
+      <span>
+        {translating
+          ? "翻译中..."
+          : showTranslation
+          ? "已译为中文 (点击还原)"
+          : "一键翻译中文 (免Token)"}
+      </span>
+      {!showTranslation && (
+        <span className="rounded bg-accent/10 px-1 py-0.2 text-[9.5px] font-semibold text-accent">
+          0 Token
+        </span>
+      )}
+    </button>
+  );
+
+  const displayedTitle = showTranslation && translatedData?.title ? translatedData.title : item.title;
+  const displayedSummary = showTranslation && translatedData?.summary ? translatedData.summary : item.summary;
+  const displayedBodyHtml = (showTranslation && translatedData?.bodyHtml ? translatedData.bodyHtml : bodyHtml) || "";
+
   const bodyLabel = !item.body ? null : lang === "zh" && item.body.zhKind === "translation" ? "正文 · 中文翻译" : lang === "original" && hasTranslation ? "正文 · 原文" : "正文";
   const isX = item.channel === "x" && !!item.x;
   const publishedIso = item.publishedAt ?? item.discoveredAt;
@@ -310,15 +415,18 @@ export default function ItemPage() {
             <PodcastDetailPlayer item={item} />
           ) : (
             <>
-              {!isX && <h1 className="text-[26px] font-bold leading-[1.38] tracking-[-0.01em] text-ink lg:text-[32px] lg:leading-[1.34] xl:text-[36px] xl:leading-[1.3]">{item.title}</h1>}
+              {!isX && <h1 className="text-[26px] font-bold leading-[1.38] tracking-[-0.01em] text-ink lg:text-[32px] lg:leading-[1.34] xl:text-[36px] xl:leading-[1.3]">{displayedTitle}</h1>}
               {!isX && item.originalTitle && <p className="mt-2.5 text-[14px] leading-relaxed text-ink-4">{item.originalTitle}</p>}
+              <div className="mt-3.5 mb-1 flex flex-wrap items-center gap-2">
+                {translateButton}
+              </div>
             </>
           )}
 
           {item.summary && !isPodcast && (
-            <section className={isX ? "mt-4" : "mt-7 xl:mt-8"}>
+            <section className={isX ? "mt-4" : "mt-6 xl:mt-7"}>
               <div className="mb-2 text-[12px] font-semibold text-accent">{summaryOnly ? "摘要" : "情报要点"}</div>
-              <p className="text-[18px] leading-[1.7] text-ink xl:text-[20px] xl:leading-[1.7]">{item.summary}</p>
+              <p className="text-[18px] leading-[1.7] text-ink xl:text-[20px] xl:leading-[1.7]">{displayedSummary}</p>
             </section>
           )}
 
@@ -339,25 +447,28 @@ export default function ItemPage() {
 
           {item.body && bodyHtml && (
             <section className="mt-9 border-t border-line pt-4 xl:mt-10">
-              <div className="mb-6 flex items-center justify-between gap-3">
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <span className="text-[14px] font-bold text-ink">{isPodcast ? "单集介绍 Episode Description" : bodyLabel}</span>
-                {hasTranslation && (
-                  <PillTabs
-                    size="xs"
-                    layoutId="item-body-lang"
-                    label="正文语言"
-                    active={lang}
-                    items={[
-                      { key: "zh", label: "中文", prefetch: "intent", replace: true, to: `/items/${item.id}` },
-                      { key: "original", label: "原文", prefetch: "intent", replace: true, to: `/items/${item.id}/original` },
-                    ]}
-                  />
-                )}
+                <div className="flex items-center gap-2">
+                  {translateButton}
+                  {hasTranslation && (
+                    <PillTabs
+                      size="xs"
+                      layoutId="item-body-lang"
+                      label="正文语言"
+                      active={lang}
+                      items={[
+                        { key: "zh", label: "中文", prefetch: "intent", replace: true, to: `/items/${item.id}` },
+                        { key: "original", label: "原文", prefetch: "intent", replace: true, to: `/items/${item.id}/original` },
+                      ]}
+                    />
+                  )}
+                </div>
               </div>
               {hasTranslation && lang === "zh" && !item.body.complete && (
                 <p className="mb-5 rounded-control bg-bg-sunk px-3 py-2 text-[13px] text-ink-3">译文尚不完整，完整内容请切换到原文。</p>
               )}
-              <div className="prose" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+              <div className="prose" dangerouslySetInnerHTML={{ __html: displayedBodyHtml }} />
             </section>
           )}
 

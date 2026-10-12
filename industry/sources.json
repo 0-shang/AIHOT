@@ -1322,6 +1322,52 @@
       ],
       "site_fulltext": true,
       "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-web-rockets-global",
+      "name": "全网火箭精选报道 (ESPN/The Athletic/纪事报)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://news.google.com/rss/search?q=%22Houston+Rockets%22+(Sengun+OR+Udoka+OR+%22Jalen+Green%22+OR+Sheppard+OR+Amen+OR+VanVleet+OR+Jabari+OR+Eason+OR+Whitmore+OR+Brooks+OR+Stone)&hl=en-US&gl=US&ceid=US:en",
+        "_aihot": {
+          "initialBackfillLimit": 20
+        },
+        "requireRocketsDoubleMatch": true
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 30,
+      "tags": [
+        "全网精选",
+        "深度专栏",
+        "休斯敦火箭"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "x-search-rockets-global",
+      "name": "X 全网火箭热推 (双关键词严选)",
+      "kind": "x_search",
+      "config": {
+        "query": "(Rockets OR \"Houston Rockets\") (Sengun OR Udoka OR \"Jalen Green\" OR Sheppard OR Amen OR VanVleet OR Jabari OR Eason OR Whitmore OR \"Rafael Stone\") -filter:replies min_faves:5",
+        "searchType": "Latest",
+        "requireRocketsDoubleMatch": true
+      },
+      "tier": "T2",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 20,
+      "tags": [
+        "球队动态",
+        "推特热议",
+        "休斯敦火箭"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
     }
   ]
 }

@@ -81,7 +81,6 @@ export const ITEM_FROM = sql`
 /** Listed items: public, not a reply tweet, exclude withdrawn/deleted items, and a selected item only after its release gate. */
 export function listedCondition(now: Date) {
   return sql`p.visibility = 'public'
-    AND p.source_id != 'rss-google-news-rockets'
     AND p.source_id NOT LIKE '%sportspyder%'
     AND p.url NOT LIKE '%sportspyder.com%'
     AND p.title NOT LIKE '%卡斯特罗%'
@@ -92,7 +91,6 @@ export function listedCondition(now: Date) {
 /** Selected set as shown on the home timeline, v1 selected mode and RSS. */
 export function selectedCondition(now: Date) {
   return sql`p.visibility = 'public'
-    AND p.source_id != 'rss-google-news-rockets'
     AND p.source_id NOT LIKE 'yt-%'
     AND p.source_id NOT LIKE '%youtube%'
     AND p.source_id NOT LIKE '%sportspyder%'
