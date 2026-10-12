@@ -3,7 +3,7 @@ import { withSubject } from "@aihot/industry/site";
 import { FEATURES } from "@aihot/industry/features";
 import type { ReactNode } from "react";
 import {
-  IconApps, IconBolt, IconBookmark, IconCalendar, IconChart, IconCoffee, IconDoc, IconFlame, IconGrid, IconHeart, IconHistory, IconList, IconMessage, IconPlug,
+  IconApps, IconBolt, IconBookmark, IconCalendar, IconChart, IconCoffee, IconDoc, IconFlame, IconGrid, IconHeart, IconHistory, IconList, IconMessage, IconPlug, IconPodcast, IconVideo,
 } from "../icons";
 
 export interface NavItem {
@@ -20,9 +20,10 @@ export const SIDEBAR: Array<{ title: string; items: NavItem[] }> = [
   {
     title: "内容",
     items: [
-      { to: "/all", label: `全部${withSubject("动态")}`, icon: IconList },
+      { to: "/all", label: "动态", icon: IconList },
+      { to: "/podcasts", label: "播客", icon: IconPodcast },
+      { to: "/videos", label: "视频", icon: IconVideo },
       { to: "/schedule", label: "赛程战绩", icon: IconCalendar },
-      { to: "/hot", label: "热点榜", icon: IconFlame },
       { to: "/starred", label: "收藏", icon: IconBookmark },
     ],
   },
@@ -50,13 +51,15 @@ export const SIDEBAR: Array<{ title: string; items: NavItem[] }> = [
 
 export const TABBAR: NavItem[] = [
   { to: "/all", label: "动态", icon: IconList },
-  { to: "/hot", label: "热点", icon: IconFlame },
+  { to: "/podcasts", label: "播客", icon: IconPodcast },
+  { to: "/videos", label: "视频", icon: IconVideo },
   { to: "/schedule", label: "赛程", icon: IconCalendar },
   { to: "/more", label: "更多", icon: IconApps, changelog: false },
 ];
 
 /** Pages reached from the mobile "更多" tab keep that tab highlighted. */
 export const MORE_PATHS = ["/more", "/starred", "/about", "/feedback", "/terms", "/privacy", "/sponsor"];
+
 
 export function tabIsActive(item: NavItem, pathname: string): boolean {
   if (item.end) return pathname === item.to;

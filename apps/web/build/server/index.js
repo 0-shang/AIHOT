@@ -1,6 +1,6 @@
 import { t as __exportAll } from "./assets/rolldown-runtime-D7D4PA-g.js";
 import { t as entry_server_node_exports } from "./assets/framework-DvgSLGWb.js";
-import { A as IconMonitor, C as IconHeart, D as IconList, E as IconInfo, F as IconUsers, I as ABOUT, L as SITE, M as IconSearch, N as IconShare, O as IconMenu, P as IconSun, R as withSubject, S as IconFlame, T as IconImage, _ as IconCoffee, a as IconArrowRight, b as IconDownload, c as IconBolt, d as IconChart, f as IconCheck, g as IconClose, h as IconClock, i as IconArrowLeft, j as IconMoon, k as IconMessage, l as IconBookmark, m as IconChevronRight, n as Presence, o as IconArrowUp, p as IconChevronDown, r as IconApps, s as IconArrowUpRight, t as Collapse, u as IconCalendar, v as IconCopy, w as IconHistory, x as IconExternal, y as IconDoc } from "./assets/Presence-gkduGZJ4.js";
+import { A as IconMoon, C as IconHistory, D as IconMenu, E as IconList, F as IconUsers, I as IconVideo, L as ABOUT, M as IconSearch, N as IconShare, O as IconMessage, P as IconSun, R as SITE, S as IconHeart, T as IconInfo, _ as IconCoffee, a as IconArrowRight, b as IconDownload, c as IconBolt, d as IconChart, f as IconCheck, g as IconClose, h as IconClock, i as IconArrowLeft, j as IconPodcast, k as IconMonitor, l as IconBookmark, m as IconChevronRight, n as Presence, o as IconArrowUp, p as IconChevronDown, r as IconApps, s as IconArrowUpRight, t as Collapse, u as IconCalendar, v as IconCopy, w as IconImage, x as IconExternal, y as IconDoc, z as withSubject } from "./assets/Presence-wnzD2g-3.js";
 import { Form, Link, Links, Meta, NavLink, Outlet, Scripts, ScrollRestoration, UNSAFE_withComponentProps, UNSAFE_withErrorBoundaryProps, data, isRouteErrorResponse, redirect, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation, useRevalidator, useRouteError, useRouteLoaderData, useSearchParams } from "react-router";
 import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 import { Fragment as Fragment$1, Suspense, forwardRef, lazy, memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -527,18 +527,23 @@ var SIDEBAR = [
 		items: [
 			{
 				to: "/all",
-				label: `全部${withSubject("动态")}`,
+				label: "动态",
 				icon: IconList
+			},
+			{
+				to: "/podcasts",
+				label: "播客",
+				icon: IconPodcast
+			},
+			{
+				to: "/videos",
+				label: "视频",
+				icon: IconVideo
 			},
 			{
 				to: "/schedule",
 				label: "赛程战绩",
 				icon: IconCalendar
-			},
-			{
-				to: "/hot",
-				label: "热点榜",
-				icon: IconFlame
 			},
 			{
 				to: "/starred",
@@ -587,9 +592,14 @@ var TABBAR = [
 		icon: IconList
 	},
 	{
-		to: "/hot",
-		label: "热点",
-		icon: IconFlame
+		to: "/podcasts",
+		label: "播客",
+		icon: IconPodcast
+	},
+	{
+		to: "/videos",
+		label: "视频",
+		icon: IconVideo
 	},
 	{
 		to: "/schedule",
@@ -946,8 +956,8 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	Layout: () => Layout,
 	default: () => root_default,
 	links: () => links,
-	loader: () => loader$35,
-	meta: () => meta$40,
+	loader: () => loader$37,
+	meta: () => meta$42,
 	shouldRevalidate: () => shouldRevalidate$1
 });
 var ICON_V = "v=20261011_fresh";
@@ -994,7 +1004,7 @@ var links = () => [
 		href: "/feed.xml"
 	}
 ];
-async function loader$35({ request }) {
+async function loader$37({ request }) {
 	try {
 		return await apiGet("/api/site/meta", { signal: request.signal });
 	} catch {
@@ -1053,7 +1063,7 @@ function Layout({ children }) {
 	});
 }
 /** Only a page nobody matched falls back to this; every page names itself. */
-function meta$40({ error }) {
+function meta$42({ error }) {
 	if (!error) return [];
 	return [{ title: titled(isRouteErrorResponse(error) && error.status === 404 ? "页面不存在" : "暂时无法加载") }, {
 		name: "robots",
@@ -1145,14 +1155,14 @@ var ErrorBoundary = UNSAFE_withErrorBoundaryProps(function ErrorBoundary() {
 //#region app/routes/home.tsx
 var home_exports = /* @__PURE__ */ __exportAll({
 	default: () => home_default,
-	loader: () => loader$34,
-	meta: () => meta$39
+	loader: () => loader$36,
+	meta: () => meta$41
 });
-async function loader$34({ request }) {
+async function loader$36({ request }) {
 	const url = new URL(request.url);
 	throw redirect(`/all${url.search}`);
 }
-function meta$39() {
+function meta$41() {
 	return [];
 }
 var home_default = UNSAFE_withComponentProps(function Home() {
@@ -1410,12 +1420,12 @@ function hrefWith(base, params, patch) {
 * time: picking 一手 clears the category and picking a category clears 一手. Older 资讯 / X links
 * still filter; the row then shows 全部.
 */
-function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", className = "" }) {
+function CategoryTabs({ base, category, channel = "all", activeKey, layoutId, size = "md", className = "" }) {
 	const [params] = useSearchParams();
 	const items = [
 		{
-			key: "all",
-			label: "全部",
+			key: "news",
+			label: "动态",
 			to: hrefWith(base, params, {
 				category: null,
 				channel: null,
@@ -1423,13 +1433,9 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			})
 		},
 		{
-			key: "news",
-			label: "动态",
-			to: hrefWith(base, params, {
-				category: "news",
-				channel: null,
-				reporter: null
-			})
+			key: "hot",
+			label: "热点",
+			to: "/hot"
 		},
 		{
 			key: "beat_tweets",
@@ -1449,24 +1455,6 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 			})
 		},
 		{
-			key: "podcasts",
-			label: "播客",
-			to: hrefWith(base, params, {
-				category: "podcasts",
-				channel: null,
-				reporter: null
-			})
-		},
-		{
-			key: "videos",
-			label: "视频",
-			to: hrefWith(base, params, {
-				category: "videos",
-				channel: null,
-				reporter: null
-			})
-		},
-		{
 			key: "trades",
 			label: "流言",
 			to: hrefWith(base, params, {
@@ -1478,7 +1466,7 @@ function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", 
 	];
 	return /* @__PURE__ */ jsx(PillTabs, {
 		items,
-		active: category ?? "all",
+		active: activeKey ?? (category === "beat_tweets" ? "beat_tweets" : category === "analysis" ? "analysis" : category === "trades" ? "trades" : "news"),
 		layoutId,
 		label: "筛选",
 		size,
@@ -2552,7 +2540,22 @@ function registerPlayingAudio(audio, stop) {
 	currentStopCallback = stop;
 }
 /**
-* Inline Card Player for the feed stream (List View - Image 1 style).
+* Modern Animated Equalizer Bars when playing
+*/
+function EqualizerWave() {
+	return /* @__PURE__ */ jsxs("span", {
+		className: "flex items-end gap-[2px] h-3.5 px-0.5",
+		"aria-hidden": "true",
+		children: [
+			/* @__PURE__ */ jsx("span", { className: "w-[2.5px] bg-white rounded-full animate-[pulse_0.6s_ease-in-out_infinite] h-2" }),
+			/* @__PURE__ */ jsx("span", { className: "w-[2.5px] bg-white rounded-full animate-[pulse_0.9s_ease-in-out_infinite_0.2s] h-3.5" }),
+			/* @__PURE__ */ jsx("span", { className: "w-[2.5px] bg-white rounded-full animate-[pulse_0.7s_ease-in-out_infinite_0.4s] h-2.5" }),
+			/* @__PURE__ */ jsx("span", { className: "w-[2.5px] bg-white rounded-full animate-[pulse_0.8s_ease-in-out_infinite_0.1s] h-3" })
+		]
+	});
+}
+/**
+* Upgraded, Premium Inline Podcast Card Player for the feed stream
 */
 var PodcastCardPlayer = memo(function PodcastCardPlayer({ item, onOpen }) {
 	const p = item.podcast;
@@ -2564,8 +2567,8 @@ var PodcastCardPlayer = memo(function PodcastCardPlayer({ item, onOpen }) {
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(typeof p?.duration === "number" ? p.duration : 0);
 	const audioRef = useRef(null);
-	const podcastTitle = p?.podcastTitle || "休斯敦火箭播客";
-	const author = p?.author || item.source?.name || "";
+	const podcastTitle = (p?.podcastTitle || item.source?.name || "休斯敦火箭播客").replace(/\(.*\)/, "").trim();
+	const author = p?.author || "";
 	const imageUrl = p?.imageUrl || item.x?.media?.[0]?.url || "https://d1ng7msft0qysq.cloudfront.net/2403235_podcast.webp";
 	const handlePlayToggle = async (e) => {
 		e.stopPropagation();
@@ -2628,55 +2631,99 @@ var PodcastCardPlayer = memo(function PodcastCardPlayer({ item, onOpen }) {
 			}
 		}
 	};
+	const skipTime = (seconds, e) => {
+		e.stopPropagation();
+		e.preventDefault();
+		if (audioRef.current) {
+			const next = Math.max(0, Math.min(duration || Infinity, audioRef.current.currentTime + seconds));
+			audioRef.current.currentTime = next;
+			setCurrentTime(next);
+		}
+	};
 	const handleSeek = (e) => {
 		const val = parseFloat(e.target.value);
 		setCurrentTime(val);
 		if (audioRef.current) audioRef.current.currentTime = val;
 	};
-	duration > 0 && currentTime / duration * 100;
 	return /* @__PURE__ */ jsxs("div", {
-		className: "flex gap-3.5 sm:gap-4 items-start",
-		children: [/* @__PURE__ */ jsxs(Link, {
-			to: `/items/${item.id}`,
-			onClick: onOpen,
-			className: "relative shrink-0 overflow-hidden rounded-xl bg-slate-800 border border-line-soft shadow-sm group/thumb size-[78px] sm:size-[88px]",
-			children: [/* @__PURE__ */ jsx("img", {
-				src: imageUrl,
-				alt: item.title,
-				className: "size-full object-cover transition-transform duration-300 group-hover/thumb:scale-105",
-				loading: "lazy",
-				onError: (e) => {
-					e.target.src = "https://d1ng7msft0qysq.cloudfront.net/2403235_podcast.webp";
-				}
-			}), /* @__PURE__ */ jsx("div", {
-				className: "absolute inset-0 grid place-items-center bg-black/30 opacity-0 group-hover/thumb:opacity-100 transition-opacity",
-				children: /* @__PURE__ */ jsx("span", {
-					className: "grid size-8 place-items-center rounded-full bg-white/90 text-black shadow-md",
-					children: /* @__PURE__ */ jsx("svg", {
-						width: "14",
-						height: "14",
-						viewBox: "0 0 24 24",
-						fill: "currentColor",
-						className: "ml-0.5",
-						children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
+		className: "group/podcast relative flex flex-col sm:flex-row gap-4 p-4 rounded-2xl bg-surface border border-line-soft hover:border-[#CE1141]/35 shadow-xs hover:shadow-md transition-all duration-200",
+		children: [/* @__PURE__ */ jsx("div", {
+			className: "relative shrink-0 flex items-center justify-center",
+			children: /* @__PURE__ */ jsxs(Link, {
+				to: `/items/${item.id}`,
+				onClick: onOpen,
+				className: "relative block size-[92px] sm:size-[104px] rounded-xl overflow-hidden shadow-md ring-1 ring-black/10 dark:ring-white/10 group/thumb",
+				children: [
+					/* @__PURE__ */ jsx("img", {
+						src: imageUrl,
+						alt: item.title,
+						className: "size-full object-cover transition-transform duration-300 group-hover/thumb:scale-105",
+						loading: "lazy",
+						onError: (e) => {
+							e.target.src = "https://d1ng7msft0qysq.cloudfront.net/2403235_podcast.webp";
+						}
+					}),
+					/* @__PURE__ */ jsx("div", { className: "pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" }),
+					(durationLabel || duration > 0) && /* @__PURE__ */ jsx("span", {
+						className: "absolute bottom-1.5 right-1.5 rounded-md bg-black/75 px-1.5 py-0.5 font-mono text-[10.5px] font-semibold text-white/90 backdrop-blur-xs",
+						children: durationLabel || `${Math.round(duration / 60)}m`
+					}),
+					/* @__PURE__ */ jsx("div", {
+						className: "absolute inset-0 grid place-items-center opacity-0 group-hover/thumb:opacity-100 transition-opacity bg-black/40",
+						children: /* @__PURE__ */ jsx("span", {
+							className: "grid size-9 place-items-center rounded-full bg-[#CE1141] text-white shadow-lg",
+							children: /* @__PURE__ */ jsx("svg", {
+								width: "15",
+								height: "15",
+								viewBox: "0 0 24 24",
+								fill: "currentColor",
+								className: "ml-0.5",
+								children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
+							})
+						})
 					})
-				})
-			})]
+				]
+			})
 		}), /* @__PURE__ */ jsxs("div", {
 			className: "min-w-0 flex-1 flex flex-col justify-between",
 			children: [/* @__PURE__ */ jsxs("div", { children: [
 				/* @__PURE__ */ jsxs("div", {
-					className: "flex items-center gap-1.5 text-[12px] text-ink-4",
-					children: [/* @__PURE__ */ jsx("span", {
-						className: "font-semibold text-blue-600 dark:text-blue-400 truncate max-w-[160px] sm:max-w-[220px]",
-						children: podcastTitle
-					}), author && author !== podcastTitle && /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("span", { children: "·" }), /* @__PURE__ */ jsx("span", {
-						className: "truncate max-w-[100px]",
-						children: author
-					})] })]
+					className: "flex flex-wrap items-center gap-2 text-[12px]",
+					children: [/* @__PURE__ */ jsxs("span", {
+						className: "inline-flex items-center gap-1 font-bold text-[#CE1141] bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded-full ring-1 ring-[#CE1141]/20",
+						children: [/* @__PURE__ */ jsxs("svg", {
+							width: "12",
+							height: "12",
+							viewBox: "0 0 24 24",
+							fill: "none",
+							stroke: "currentColor",
+							strokeWidth: "2.2",
+							strokeLinecap: "round",
+							strokeLinejoin: "round",
+							children: [
+								/* @__PURE__ */ jsx("path", { d: "M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" }),
+								/* @__PURE__ */ jsx("path", { d: "M19 10v2a7 7 0 0 1-14 0v-2" }),
+								/* @__PURE__ */ jsx("line", {
+									x1: "12",
+									y1: "19",
+									x2: "12",
+									y2: "23"
+								}),
+								/* @__PURE__ */ jsx("line", {
+									x1: "8",
+									y1: "23",
+									x2: "16",
+									y2: "23"
+								})
+							]
+						}), podcastTitle]
+					}), author && author !== podcastTitle && /* @__PURE__ */ jsxs("span", {
+						className: "text-ink-4 truncate max-w-[140px]",
+						children: ["主播: ", author]
+					})]
 				}),
 				/* @__PURE__ */ jsx("h3", {
-					className: "mt-1 text-[15.5px] sm:text-[16.5px] font-bold leading-[1.38] text-ink tracking-tight hover:text-accent transition-colors line-clamp-2",
+					className: "mt-1.5 text-[16px] sm:text-[17px] font-extrabold leading-[1.4] text-ink tracking-tight transition-colors hover:text-[#CE1141] line-clamp-2",
 					children: /* @__PURE__ */ jsx(Link, {
 						to: `/items/${item.id}`,
 						onClick: onOpen,
@@ -2684,50 +2731,44 @@ var PodcastCardPlayer = memo(function PodcastCardPlayer({ item, onOpen }) {
 					})
 				}),
 				item.summary && /* @__PURE__ */ jsx("p", {
-					className: "mt-1 line-clamp-2 text-[13px] leading-relaxed text-ink-3",
+					className: "mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-ink-3",
 					children: item.summary
 				})
 			] }), /* @__PURE__ */ jsxs("div", {
-				className: "mt-3 flex flex-wrap items-center gap-3",
+				className: "mt-3.5 flex flex-wrap items-center gap-2.5",
 				children: [
-					/* @__PURE__ */ jsxs("button", {
+					/* @__PURE__ */ jsx("button", {
 						type: "button",
 						onClick: handlePlayToggle,
 						disabled: isLoading,
-						className: `inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[12.5px] font-semibold transition-all shadow-xs ${isPlaying ? "bg-blue-600 text-white shadow-blue-500/25 ring-2 ring-blue-500/30" : "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800/60"}`,
-						children: [isLoading ? /* @__PURE__ */ jsx("span", { className: "inline-block size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" }) : isPlaying ? /* @__PURE__ */ jsxs("svg", {
-							width: "12",
-							height: "12",
-							viewBox: "0 0 24 24",
-							fill: "currentColor",
-							children: [/* @__PURE__ */ jsx("rect", {
-								x: "6",
-								y: "4",
-								width: "4",
-								height: "16",
-								rx: "1"
-							}), /* @__PURE__ */ jsx("rect", {
-								x: "14",
-								y: "4",
-								width: "4",
-								height: "16",
-								rx: "1"
-							})]
-						}) : /* @__PURE__ */ jsx("svg", {
-							width: "12",
-							height: "12",
+						className: `inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[13px] font-bold transition-all shadow-sm active:scale-95 ${isPlaying ? "bg-[#CE1141] text-white shadow-[#CE1141]/30 ring-2 ring-[#CE1141]/20" : "bg-surface border border-[#CE1141]/40 text-[#CE1141] hover:bg-red-50 dark:hover:bg-red-950/40"}`,
+						children: isLoading ? /* @__PURE__ */ jsx("span", { className: "inline-block size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" }) : isPlaying ? /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx(EqualizerWave, {}), /* @__PURE__ */ jsx("span", { children: "暂停收听" })] }) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("svg", {
+							width: "13",
+							height: "13",
 							viewBox: "0 0 24 24",
 							fill: "currentColor",
 							className: "ml-0.5",
 							children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
-						}), /* @__PURE__ */ jsx("span", { children: isPlaying ? "暂停" : "PLAY 播放" })]
+						}), /* @__PURE__ */ jsx("span", { children: "收听单集" })] })
 					}),
-					(durationLabel || duration > 0) && /* @__PURE__ */ jsx("span", {
-						className: "text-[12px] font-mono text-ink-4",
-						children: durationLabel || (duration > 0 ? `${Math.round(duration / 60)} min` : "")
+					isPlaying && /* @__PURE__ */ jsxs("div", {
+						className: "inline-flex items-center gap-1",
+						children: [/* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: (e) => skipTime(-15, e),
+							title: "后退 15 秒",
+							className: "grid size-7 place-items-center rounded-full bg-bg-sunk hover:bg-line text-ink-3 text-[11px] font-mono transition-colors",
+							children: "-15s"
+						}), /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: (e) => skipTime(15, e),
+							title: "快进 15 秒",
+							className: "grid size-7 place-items-center rounded-full bg-bg-sunk hover:bg-line text-ink-3 text-[11px] font-mono transition-colors",
+							children: "+15s"
+						})]
 					}),
-					isPlaying && duration > 0 && /* @__PURE__ */ jsxs("div", {
-						className: "flex-1 min-w-[120px] max-w-[200px] flex items-center gap-2",
+					isPlaying && duration > 0 ? /* @__PURE__ */ jsxs("div", {
+						className: "flex-1 min-w-[140px] max-w-xs flex items-center gap-2 px-1",
 						children: [/* @__PURE__ */ jsx("input", {
 							type: "range",
 							min: "0",
@@ -2735,10 +2776,44 @@ var PodcastCardPlayer = memo(function PodcastCardPlayer({ item, onOpen }) {
 							step: "1",
 							value: currentTime,
 							onChange: handleSeek,
-							className: "w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-						}), /* @__PURE__ */ jsx("span", {
-							className: "text-[11px] font-mono text-ink-4 whitespace-nowrap",
-							children: formatTime(currentTime)
+							className: "w-full h-1.5 bg-line-strong rounded-lg appearance-none cursor-pointer accent-[#CE1141]"
+						}), /* @__PURE__ */ jsxs("span", {
+							className: "text-[11.5px] font-mono font-medium text-ink-3 whitespace-nowrap",
+							children: [
+								formatTime(currentTime),
+								" / ",
+								formatTime(duration)
+							]
+						})]
+					}) : /* @__PURE__ */ jsx("span", {
+						className: "text-[12px] font-mono text-ink-4",
+						children: durationLabel || (duration > 0 ? `${Math.round(duration / 60)} 分钟全集` : "")
+					}),
+					/* @__PURE__ */ jsxs("a", {
+						href: item.links?.original || item.url,
+						target: "_blank",
+						rel: "noopener noreferrer",
+						title: "打开原始播客主页",
+						className: "ml-auto inline-flex items-center gap-1 text-[12px] font-medium text-ink-4 hover:text-[#CE1141] transition-colors",
+						children: [/* @__PURE__ */ jsx("span", { children: "源台收听" }), /* @__PURE__ */ jsxs("svg", {
+							width: "12",
+							height: "12",
+							viewBox: "0 0 24 24",
+							fill: "none",
+							stroke: "currentColor",
+							strokeWidth: "2",
+							strokeLinecap: "round",
+							strokeLinejoin: "round",
+							children: [
+								/* @__PURE__ */ jsx("path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" }),
+								/* @__PURE__ */ jsx("polyline", { points: "15 3 21 3 21 9" }),
+								/* @__PURE__ */ jsx("line", {
+									x1: "10",
+									y1: "14",
+									x2: "21",
+									y2: "3"
+								})
+							]
 						})]
 					})
 				]
@@ -2747,7 +2822,7 @@ var PodcastCardPlayer = memo(function PodcastCardPlayer({ item, onOpen }) {
 	});
 });
 /**
-* Full Detail Page Player (Detail View - Image 2 style).
+* Full Detail Page Player
 */
 var PodcastDetailPlayer = memo(function PodcastDetailPlayer({ item }) {
 	const p = item.podcast;
@@ -2788,7 +2863,7 @@ var PodcastDetailPlayer = memo(function PodcastDetailPlayer({ item }) {
 					}
 				}
 			} catch (err) {
-				console.error(err);
+				console.error("Failed to load episode stream:", err);
 			} finally {
 				setIsLoading(false);
 			}
@@ -2800,7 +2875,6 @@ var PodcastDetailPlayer = memo(function PodcastDetailPlayer({ item }) {
 		if (!audioRef.current) {
 			const audio = new Audio(targetAudioUrl);
 			audioRef.current = audio;
-			audio.playbackRate = playbackRate;
 			audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
 			audio.addEventListener("loadedmetadata", () => {
 				if (audio.duration && !isNaN(audio.duration)) setDuration(audio.duration);
@@ -2813,34 +2887,36 @@ var PodcastDetailPlayer = memo(function PodcastDetailPlayer({ item }) {
 			audio.addEventListener("play", () => setIsPlaying(true));
 		}
 		const audio = audioRef.current;
-		if (isPlaying) audio.pause();
-		else {
+		if (isPlaying) {
+			audio.pause();
+			setIsPlaying(false);
+		} else {
 			registerPlayingAudio(audio, () => setIsPlaying(false));
-			await audio.play();
+			try {
+				await audio.play();
+				setIsPlaying(true);
+			} catch (err) {
+				console.error("Audio playback error:", err);
+			}
 		}
 	};
-	const handleSeek = (e) => {
-		const val = parseFloat(e.target.value);
-		setCurrentTime(val);
-		if (audioRef.current) audioRef.current.currentTime = val;
+	const changeRate = (rate) => {
+		setPlaybackRate(rate);
+		if (audioRef.current) audioRef.current.playbackRate = rate;
 	};
-	const cycleSpeed = () => {
-		const speeds = [
-			1,
-			1.25,
-			1.5,
-			2
-		];
-		const nextSpeed = speeds[(speeds.indexOf(playbackRate) + 1) % speeds.length] ?? 1;
-		setPlaybackRate(nextSpeed);
-		if (audioRef.current) audioRef.current.playbackRate = nextSpeed;
+	const skip = (secs) => {
+		if (audioRef.current) {
+			const next = Math.max(0, Math.min(duration || Infinity, audioRef.current.currentTime + secs));
+			audioRef.current.currentTime = next;
+			setCurrentTime(next);
+		}
 	};
 	return /* @__PURE__ */ jsxs("div", {
-		className: "my-6 overflow-hidden rounded-2xl border border-line bg-surface p-5 sm:p-6 shadow-sm",
+		className: "my-6 overflow-hidden rounded-2xl border border-line-soft bg-surface p-5 sm:p-7 shadow-md",
 		children: [/* @__PURE__ */ jsxs("div", {
-			className: "flex gap-4 sm:gap-5 items-start",
+			className: "flex flex-col sm:flex-row gap-5 items-start",
 			children: [/* @__PURE__ */ jsx("div", {
-				className: "shrink-0 overflow-hidden rounded-xl border border-line-soft bg-slate-900 shadow-md size-[96px] sm:size-[112px]",
+				className: "shrink-0 size-[100px] sm:size-[120px] rounded-2xl overflow-hidden shadow-lg border border-line-soft",
 				children: /* @__PURE__ */ jsx("img", {
 					src: imageUrl,
 					alt: item.title,
@@ -2852,84 +2928,84 @@ var PodcastDetailPlayer = memo(function PodcastDetailPlayer({ item }) {
 			}), /* @__PURE__ */ jsxs("div", {
 				className: "min-w-0 flex-1",
 				children: [
+					/* @__PURE__ */ jsxs("div", {
+						className: "inline-flex items-center gap-1.5 font-bold text-[#CE1141] text-[13px]",
+						children: [/* @__PURE__ */ jsx("span", { children: podcastTitle }), author && /* @__PURE__ */ jsxs("span", {
+							className: "text-ink-4",
+							children: ["· ", author]
+						})]
+					}),
 					/* @__PURE__ */ jsx("h2", {
-						className: "text-[20px] sm:text-[24px] font-extrabold leading-[1.3] text-ink tracking-tight",
+						className: "mt-1 text-[20px] sm:text-[23px] font-black leading-tight text-ink tracking-tight",
 						children: item.title
 					}),
-					/* @__PURE__ */ jsx("div", {
-						className: "mt-2 text-[14px] font-semibold text-blue-600 dark:text-blue-400",
-						children: podcastTitle
-					}),
-					/* @__PURE__ */ jsxs("div", {
-						className: "mt-1 text-[12.5px] text-ink-4",
-						children: [author && /* @__PURE__ */ jsx("span", { children: author }), durationLabel && /* @__PURE__ */ jsxs("span", {
-							className: "ml-2 font-mono",
-							children: ["· ", durationLabel]
-						})]
+					durationLabel && /* @__PURE__ */ jsxs("p", {
+						className: "mt-1 text-[13px] font-mono text-ink-4",
+						children: ["节目总长：", durationLabel]
 					})
 				]
 			})]
-		}), /* @__PURE__ */ jsx("div", {
-			className: "mt-6 pt-5 border-t border-line-soft flex flex-col gap-4",
-			children: /* @__PURE__ */ jsxs("div", {
-				className: "flex items-center gap-4",
+		}), /* @__PURE__ */ jsxs("div", {
+			className: "mt-6 pt-5 border-t border-line-soft flex flex-col gap-3",
+			children: [/* @__PURE__ */ jsxs("div", {
+				className: "flex items-center gap-3",
 				children: [
 					/* @__PURE__ */ jsx("button", {
 						type: "button",
 						onClick: togglePlay,
 						disabled: isLoading,
-						className: "grid size-14 place-items-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-700 active:scale-95 transition-all cursor-pointer shrink-0",
-						"aria-label": isPlaying ? "暂停播放" : "开始播放",
-						children: isLoading ? /* @__PURE__ */ jsx("span", { className: "size-5 animate-spin rounded-full border-2 border-white border-t-transparent" }) : isPlaying ? /* @__PURE__ */ jsxs("svg", {
-							width: "22",
-							height: "22",
-							viewBox: "0 0 24 24",
-							fill: "currentColor",
-							children: [/* @__PURE__ */ jsx("rect", {
-								x: "6",
-								y: "4",
-								width: "4",
-								height: "16",
-								rx: "1"
-							}), /* @__PURE__ */ jsx("rect", {
-								x: "14",
-								y: "4",
-								width: "4",
-								height: "16",
-								rx: "1"
-							})]
-						}) : /* @__PURE__ */ jsx("svg", {
-							width: "24",
-							height: "24",
-							viewBox: "0 0 24 24",
-							fill: "currentColor",
-							className: "ml-1",
-							children: /* @__PURE__ */ jsx("path", { d: "M8 5v14l11-7z" })
-						})
+						className: "inline-flex items-center gap-2 rounded-full bg-[#CE1141] px-5 py-2 text-[14px] font-bold text-white shadow-md hover:bg-[#b00e36] transition-all",
+						children: isPlaying ? "暂停播放" : "立即播放"
 					}),
-					/* @__PURE__ */ jsxs("div", {
-						className: "flex-1 min-w-0",
-						children: [/* @__PURE__ */ jsxs("div", {
-							className: "flex justify-between items-center text-[12.5px] font-mono text-ink-3 mb-1.5",
-							children: [/* @__PURE__ */ jsx("span", { children: formatTime(currentTime) }), /* @__PURE__ */ jsx("span", { children: formatTime(duration) })]
-						}), /* @__PURE__ */ jsx("input", {
-							type: "range",
-							min: "0",
-							max: duration || 100,
-							step: "1",
-							value: currentTime,
-							onChange: handleSeek,
-							className: "w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-						})]
-					}),
-					/* @__PURE__ */ jsxs("button", {
+					/* @__PURE__ */ jsx("button", {
 						type: "button",
-						onClick: cycleSpeed,
-						className: "rounded-lg border border-line-strong px-2.5 py-1 text-[12px] font-mono font-medium text-ink-3 hover:text-ink hover:border-ink-4 transition-colors",
-						children: [playbackRate, "x"]
+						onClick: () => skip(-15),
+						className: "px-2.5 py-1 text-[12px] font-mono bg-bg-sunk rounded-full hover:bg-line",
+						children: "-15s"
+					}),
+					/* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => skip(15),
+						className: "px-2.5 py-1 text-[12px] font-mono bg-bg-sunk rounded-full hover:bg-line",
+						children: "+15s"
+					}),
+					[
+						1,
+						1.25,
+						1.5
+					].map((r) => /* @__PURE__ */ jsxs("button", {
+						type: "button",
+						onClick: () => changeRate(r),
+						className: `px-2 py-0.5 text-[11.5px] font-mono rounded-full ${playbackRate === r ? "bg-ink text-bg font-bold" : "text-ink-4 hover:text-ink"}`,
+						children: [r, "x"]
+					}, r))
+				]
+			}), duration > 0 && /* @__PURE__ */ jsxs("div", {
+				className: "flex items-center gap-3 pt-2",
+				children: [
+					/* @__PURE__ */ jsx("span", {
+						className: "text-[12px] font-mono text-ink-3",
+						children: formatTime(currentTime)
+					}),
+					/* @__PURE__ */ jsx("input", {
+						type: "range",
+						min: "0",
+						max: duration,
+						step: "1",
+						value: currentTime,
+						onChange: (e) => {
+							const val = parseFloat(e.target.value);
+							setCurrentTime(val);
+							if (audioRef.current) audioRef.current.currentTime = val;
+						},
+						className: "w-full h-2 bg-line rounded-lg appearance-none cursor-pointer accent-[#CE1141]"
+					}),
+					/* @__PURE__ */ jsx("span", {
+						className: "text-[12px] font-mono text-ink-4",
+						children: formatTime(duration)
 					})
 				]
-			})
+			})]
 		})]
 	});
 });
@@ -3391,9 +3467,9 @@ function Pagination({ page, pageCount, href }) {
 var all_exports = /* @__PURE__ */ __exportAll({
 	SearchBusy: () => SearchBusy,
 	default: () => all_default,
-	headers: () => headers$26,
-	loader: () => loader$33,
-	meta: () => meta$38
+	headers: () => headers$28,
+	loader: () => loader$35,
+	meta: () => meta$40
 });
 var BEAT_REPORTERS = [
 	{
@@ -3457,7 +3533,7 @@ var BEAT_REPORTERS = [
 		label: "ClutchFans"
 	}
 ];
-async function loader$33({ request }) {
+async function loader$35({ request }) {
 	const url = new URL(request.url);
 	const channelParam = url.searchParams.get("channel") ?? "all";
 	const categoryParam = url.searchParams.get("category");
@@ -3485,7 +3561,7 @@ async function loader$33({ request }) {
 		currentReporter: reporter
 	};
 }
-function meta$38({ loaderData }) {
+function meta$40({ loaderData }) {
 	const f = loaderData?.data.filters;
 	const q = f?.q;
 	const page = loaderData?.data.page ?? 1;
@@ -3503,10 +3579,10 @@ function meta$38({ loaderData }) {
 		noindex: !!q
 	});
 }
-function headers$26() {
+function headers$28() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=15, stale-while-revalidate=10" };
 }
-function pageHref(params, page) {
+function pageHref$2(params, page) {
 	const sp = new URLSearchParams(params);
 	sp.delete("deep");
 	sp.delete("anchorAt");
@@ -3705,7 +3781,7 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 			/* @__PURE__ */ jsx(Pagination, {
 				page: data.page,
 				pageCount: data.pageCount,
-				href: (p) => pageHref(params, p)
+				href: (p) => pageHref$2(params, p)
 			}),
 			data.page >= 50 && /* @__PURE__ */ jsx("p", {
 				className: "mt-4 text-center text-[12px] text-ink-4",
@@ -3745,6 +3821,248 @@ function SearchBusy() {
 		]
 	});
 }
+//#endregion
+//#region app/routes/podcasts.tsx
+var podcasts_exports = /* @__PURE__ */ __exportAll({
+	default: () => podcasts_default,
+	headers: () => headers$27,
+	loader: () => loader$34,
+	meta: () => meta$39
+});
+var PODCAST_SHOWS = [
+	{
+		key: "all",
+		label: "全部播客"
+	},
+	{
+		key: "Locked On Rockets",
+		label: "Locked On Rockets"
+	},
+	{
+		key: "Rockets LaunchPod",
+		label: "LaunchPod"
+	},
+	{
+		key: "Rocket Fuel",
+		label: "Rocket Fuel"
+	},
+	{
+		key: "Rockets Daily",
+		label: "Rockets Daily"
+	},
+	{
+		key: "SportsTalk 790",
+		label: "SportsTalk 790"
+	}
+];
+async function loader$34({ request }) {
+	const url = new URL(request.url);
+	const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
+	const show = url.searchParams.get("show")?.trim() || null;
+	const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
+	return {
+		data: await loadOr404(`/api/site/pool${queryString({
+			category: "podcasts",
+			q: show && show !== "all" ? q ? `${q} ${show}` : show : q,
+			page: page > 1 ? page : null
+		})}`, {
+			signal: request.signal,
+			busyRedirect: "/all/search-busy"
+		}),
+		currentShow: show ?? "all"
+	};
+}
+function meta$39() {
+	return pageMeta({
+		title: "火箭播客专区 · 每日电台与赛后复盘",
+		description: `${SITE.name} 独家火箭播客专区：聚合 Locked On Rockets、LaunchPod、Rocket Fuel、Rockets Daily 与 SportsTalk 790 等权威随队电台。`,
+		path: "/podcasts"
+	});
+}
+function headers$27() {
+	return { "Cache-Control": "public, max-age=0, s-maxage=30, stale-while-revalidate=15" };
+}
+function pageHref$1(params, page) {
+	const sp = new URLSearchParams(params);
+	if (page <= 1) sp.delete("page");
+	else sp.set("page", String(page));
+	const s = sp.toString();
+	return s ? `/podcasts?${s}` : "/podcasts";
+}
+var podcasts_default = UNSAFE_withComponentProps(function PodcastsPage() {
+	const { data, currentShow } = useLoaderData();
+	const [params] = useSearchParams();
+	const navigation = useNavigation();
+	const busy = navigation.state === "loading" && navigation.location?.pathname === "/podcasts";
+	const showHref = (showKey) => {
+		const sp = new URLSearchParams(params);
+		sp.delete("page");
+		if (showKey === "all") sp.delete("show");
+		else sp.set("show", showKey);
+		const s = sp.toString();
+		return s ? `/podcasts?${s}` : "/podcasts";
+	};
+	return /* @__PURE__ */ jsxs("div", {
+		className: "pb-10",
+		children: [
+			/* @__PURE__ */ jsxs("div", {
+				className: "py-4 lg:py-6 border-b border-line-soft",
+				children: [/* @__PURE__ */ jsxs("div", {
+					className: "flex flex-wrap items-center justify-between gap-3",
+					children: [/* @__PURE__ */ jsxs("div", { children: [
+						/* @__PURE__ */ jsxs("div", {
+							className: "inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#CE1141] uppercase tracking-wider",
+							children: [/* @__PURE__ */ jsx(IconPodcast, { size: 15 }), /* @__PURE__ */ jsx("span", { children: "官方 & 随队电台专区" })]
+						}),
+						/* @__PURE__ */ jsx("h1", {
+							className: "mt-1 text-[26px] lg:text-[30px] font-black tracking-tight text-ink",
+							children: "休斯敦火箭播客"
+						}),
+						/* @__PURE__ */ jsx("p", {
+							className: "mt-1 text-[13.5px] text-ink-3",
+							children: "实时收听 Locked On Rockets、LaunchPod、Rocket Fuel 等原声单集与深度复盘"
+						})
+					] }), /* @__PURE__ */ jsxs("div", {
+						className: "text-[13px] text-ink-4",
+						children: [
+							"共收录 ",
+							/* @__PURE__ */ jsx("span", {
+								className: "font-bold text-accent num",
+								children: data.total
+							}),
+							" 期节目"
+						]
+					})]
+				}), /* @__PURE__ */ jsx("div", {
+					className: "mt-5 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none",
+					children: PODCAST_SHOWS.map((s) => {
+						const active = currentShow === s.key;
+						return /* @__PURE__ */ jsx(Link, {
+							to: showHref(s.key),
+							className: `inline-flex shrink-0 items-center rounded-full px-3.5 py-1 text-[12.5px] font-bold transition-all ${active ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/25" : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"}`,
+							children: s.label
+						}, s.key);
+					})
+				})]
+			}),
+			/* @__PURE__ */ jsx("div", {
+				className: `mt-6 transition-opacity duration-200 ${busy ? "opacity-50" : ""}`,
+				children: data.items.length === 0 ? /* @__PURE__ */ jsx("div", {
+					className: "card mt-4 p-8 text-center",
+					children: /* @__PURE__ */ jsx(EmptyState, {
+						title: "暂时没有单集",
+						children: "正在同步最新播客音频源，请稍后再试。"
+					})
+				}) : /* @__PURE__ */ jsx(DayList, {
+					items: data.items,
+					showTags: true
+				})
+			}),
+			/* @__PURE__ */ jsx(Pagination, {
+				page: data.page,
+				pageCount: data.pageCount,
+				href: (p) => pageHref$1(params, p)
+			})
+		]
+	});
+});
+//#endregion
+//#region app/routes/videos.tsx
+var videos_exports = /* @__PURE__ */ __exportAll({
+	default: () => videos_default,
+	headers: () => headers$26,
+	loader: () => loader$33,
+	meta: () => meta$38
+});
+async function loader$33({ request }) {
+	const url = new URL(request.url);
+	const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
+	const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
+	return { data: await loadOr404(`/api/site/pool${queryString({
+		category: "videos",
+		q,
+		page: page > 1 ? page : null
+	})}`, {
+		signal: request.signal,
+		busyRedirect: "/all/search-busy"
+	}) };
+}
+function meta$38() {
+	return pageMeta({
+		title: "火箭视频专栏 · 比赛集锦与更衣室采访",
+		description: `${SITE.name} 火箭视频专栏：收录休斯敦火箭比赛精彩集锦、赛后采访原声、战术录像剪辑。`,
+		path: "/videos"
+	});
+}
+function headers$26() {
+	return { "Cache-Control": "public, max-age=0, s-maxage=30, stale-while-revalidate=15" };
+}
+function pageHref(params, page) {
+	const sp = new URLSearchParams(params);
+	if (page <= 1) sp.delete("page");
+	else sp.set("page", String(page));
+	const s = sp.toString();
+	return s ? `/videos?${s}` : "/videos";
+}
+var videos_default = UNSAFE_withComponentProps(function VideosPage() {
+	const { data } = useLoaderData();
+	const [params] = useSearchParams();
+	const navigation = useNavigation();
+	const busy = navigation.state === "loading" && navigation.location?.pathname === "/videos";
+	return /* @__PURE__ */ jsxs("div", {
+		className: "pb-10",
+		children: [
+			/* @__PURE__ */ jsx("div", {
+				className: "py-4 lg:py-6 border-b border-line-soft",
+				children: /* @__PURE__ */ jsxs("div", {
+					className: "flex flex-wrap items-center justify-between gap-3",
+					children: [/* @__PURE__ */ jsxs("div", { children: [
+						/* @__PURE__ */ jsxs("div", {
+							className: "inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#CE1141] uppercase tracking-wider",
+							children: [/* @__PURE__ */ jsx(IconVideo, { size: 15 }), /* @__PURE__ */ jsx("span", { children: "视频集锦与原声" })]
+						}),
+						/* @__PURE__ */ jsx("h1", {
+							className: "mt-1 text-[26px] lg:text-[30px] font-black tracking-tight text-ink",
+							children: "休斯敦火箭精选视频"
+						}),
+						/* @__PURE__ */ jsx("p", {
+							className: "mt-1 text-[13.5px] text-ink-3",
+							children: "比赛高清集锦、赛后将帅新闻发布会原声录像与战术复盘切片"
+						})
+					] }), /* @__PURE__ */ jsxs("div", {
+						className: "text-[13px] text-ink-4",
+						children: [
+							"共收录 ",
+							/* @__PURE__ */ jsx("span", {
+								className: "font-bold text-accent num",
+								children: data.total
+							}),
+							" 条视频"
+						]
+					})]
+				})
+			}),
+			/* @__PURE__ */ jsx("div", {
+				className: `mt-6 transition-opacity duration-200 ${busy ? "opacity-50" : ""}`,
+				children: data.items.length === 0 ? /* @__PURE__ */ jsx("div", {
+					className: "card mt-4 p-8 text-center",
+					children: /* @__PURE__ */ jsx(EmptyState, {
+						title: "暂时没有视频",
+						children: "正在同步最新精彩视频，请稍后再试。"
+					})
+				}) : /* @__PURE__ */ jsx(DayList, {
+					items: data.items,
+					showTags: true
+				})
+			}),
+			/* @__PURE__ */ jsx(Pagination, {
+				page: data.page,
+				pageCount: data.pageCount,
+				href: (p) => pageHref(params, p)
+			})
+		]
+	});
+});
 //#endregion
 //#region app/features/schedule/rocketsApi.ts
 /** 从后端 API 拉取火箭全季赛程 */
@@ -6569,7 +6887,7 @@ var item_exports = /* @__PURE__ */ __exportAll({
 	loader: () => loader$32,
 	meta: () => meta$35
 });
-var PosterSheet = lazy(() => import("./assets/PosterSheet-BoNz-GzH.js"));
+var PosterSheet = lazy(() => import("./assets/PosterSheet-BqSbgw86.js"));
 async function loader$32({ params, request }) {
 	return { item: await loadOr404(`/api/site/items/${encodeURIComponent(params.id)}`, { signal: request.signal }) };
 }
@@ -7626,8 +7944,27 @@ var hot_default = UNSAFE_withComponentProps(function HotPage() {
 	return /* @__PURE__ */ jsxs("div", {
 		className: "pb-10",
 		children: [
+			/* @__PURE__ */ jsx("div", {
+				className: "mb-4 mt-2 hidden lg:block",
+				children: /* @__PURE__ */ jsx(CategoryTabs, {
+					base: "/all",
+					category: null,
+					activeKey: "hot",
+					layoutId: "hot-cat-desk"
+				})
+			}),
+			/* @__PURE__ */ jsx("div", {
+				className: "mb-4 mt-2 lg:hidden",
+				children: /* @__PURE__ */ jsx(CategoryTabs, {
+					base: "/all",
+					category: null,
+					activeKey: "hot",
+					layoutId: "hot-cat-mobile",
+					size: "sm"
+				})
+			}),
 			/* @__PURE__ */ jsxs("header", {
-				className: "flex flex-wrap items-end justify-between gap-x-6 gap-y-2 pb-5 pt-5 lg:pt-1",
+				className: "flex flex-wrap items-end justify-between gap-x-6 gap-y-2 pb-5 pt-3",
 				children: [/* @__PURE__ */ jsxs("div", { children: [
 					/* @__PURE__ */ jsxs("div", {
 						className: "flex items-center gap-2 text-[12px] font-semibold tracking-[0.08em] text-hot",
@@ -22112,15 +22449,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-Cs_xMPnb.js",
+			"module": "/assets/root-UMbLZSWF.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/Sidebar-pnoOZp0E.js",
-				"/assets/Chrome-Br4ZpcTu.js",
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/Sidebar-BPpc6RRM.js",
+				"/assets/Chrome-BPc_dGqm.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-Lj61cXRh.css"],
+			"css": ["/assets/root-DJMcZA-f.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22160,13 +22497,55 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-CXLZBqBn.js",
+			"module": "/assets/all-DSwPPL-F.js",
 			"imports": [
-				"/assets/all-DaXD_tZ6.js",
+				"/assets/all-B8kkpixu.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/taxonomy-FZ5tlk4M.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/Filters-B7gLjl9c.js"
 			],
+			"css": [],
+			"clientActionModule": void 0,
+			"clientLoaderModule": void 0,
+			"clientMiddlewareModule": void 0,
+			"hydrateFallbackModule": void 0
+		},
+		"routes/podcasts": {
+			"id": "routes/podcasts",
+			"parentId": "root",
+			"path": "podcasts",
+			"index": void 0,
+			"caseSensitive": void 0,
+			"hasAction": false,
+			"hasLoader": true,
+			"hasClientAction": false,
+			"hasClientLoader": false,
+			"hasClientMiddleware": false,
+			"hasDefaultExport": true,
+			"hasErrorBoundary": false,
+			"module": "/assets/podcasts-oP8GO2Xf.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
+			"css": [],
+			"clientActionModule": void 0,
+			"clientLoaderModule": void 0,
+			"clientMiddlewareModule": void 0,
+			"hydrateFallbackModule": void 0
+		},
+		"routes/videos": {
+			"id": "routes/videos",
+			"parentId": "root",
+			"path": "videos",
+			"index": void 0,
+			"caseSensitive": void 0,
+			"hasAction": false,
+			"hasLoader": true,
+			"hasClientAction": false,
+			"hasClientLoader": false,
+			"hasClientMiddleware": false,
+			"hasDefaultExport": true,
+			"hasErrorBoundary": false,
+			"module": "/assets/videos-BRxOB7hk.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22186,8 +22565,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-CrbAF-hh.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/schedule-BavcmIX1.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22207,12 +22586,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Cginu6d6.js",
+			"module": "/assets/search-busy-e__f4HmZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/all-DaXD_tZ6.js",
-				"/assets/taxonomy-FZ5tlk4M.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/all-B8kkpixu.js",
+				"/assets/Filters-B7gLjl9c.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22233,12 +22612,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Cginu6d6.js",
+			"module": "/assets/search-busy-e__f4HmZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/all-DaXD_tZ6.js",
-				"/assets/taxonomy-FZ5tlk4M.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/all-B8kkpixu.js",
+				"/assets/Filters-B7gLjl9c.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22259,11 +22638,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-DflDKDss.js",
+			"module": "/assets/item-CadcurwJ.js",
 			"imports": [
-				"/assets/item-DhTNgKeY.js",
+				"/assets/item-BXBCaR7E.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js"
+				"/assets/shared-DMYjYWJz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22284,11 +22663,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-DflDKDss.js",
+			"module": "/assets/item-original-CadcurwJ.js",
 			"imports": [
-				"/assets/item-DhTNgKeY.js",
+				"/assets/item-BXBCaR7E.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js"
+				"/assets/shared-DMYjYWJz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22309,8 +22688,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-rl8mshjX.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/hot-tIkZcQZ0.js",
+			"imports": [
+				"/assets/entry.client-6tyZgf_X.js",
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/Filters-B7gLjl9c.js"
+			],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22330,8 +22713,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-UgZWupqj.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/story-Cmi6CoKb.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22351,11 +22734,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DF1KSNlc.js",
+			"module": "/assets/report-latest-DKbBzsTm.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/ReportPaper-CaomtKUD.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/ReportPaper-Dewvmmhf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22376,11 +22759,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-DLIBPNDx.js",
+			"module": "/assets/daily-archive-BQp9-SFE.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/ReportPaper-CaomtKUD.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/ReportPaper-Dewvmmhf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22401,11 +22784,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-D79jMgZI.js",
+			"module": "/assets/report-detail-C4QkWY24.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/ReportPaper-CaomtKUD.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/ReportPaper-Dewvmmhf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22426,11 +22809,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DF1KSNlc.js",
+			"module": "/assets/report-latest-DKbBzsTm.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/ReportPaper-CaomtKUD.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/ReportPaper-Dewvmmhf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22451,11 +22834,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-D79jMgZI.js",
+			"module": "/assets/report-detail-C4QkWY24.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/ReportPaper-CaomtKUD.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/ReportPaper-Dewvmmhf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22476,11 +22859,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DF1KSNlc.js",
+			"module": "/assets/report-latest-DKbBzsTm.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/ReportPaper-CaomtKUD.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/ReportPaper-Dewvmmhf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22501,11 +22884,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-D79jMgZI.js",
+			"module": "/assets/report-detail-C4QkWY24.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/ReportPaper-CaomtKUD.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/ReportPaper-Dewvmmhf.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22589,8 +22972,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-4QutWPVe.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/about-BoSoKtFf.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22610,8 +22993,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sponsor-DRMHGFu8.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/sponsor-O_uMuqvg.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22631,11 +23014,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-D_CqOf87.js",
+			"module": "/assets/terms-Bz3E9tl7.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/CopyPage-C7aqSD7A.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/CopyPage-hQZjKDyr.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22656,11 +23039,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-B5LgR16G.js",
+			"module": "/assets/privacy-U81XNRS1.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/CopyPage-C7aqSD7A.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/CopyPage-hQZjKDyr.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22681,8 +23064,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-bCetoRiL.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/changelog-i-ZZlMuj.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22702,8 +23085,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-Df0H5RxH.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/feedback-DpudmzPY.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22723,11 +23106,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-DvP7F8ZP.js",
+			"module": "/assets/more-CRXiHP_P.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/Sidebar-pnoOZp0E.js",
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/Sidebar-BPpc6RRM.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -22749,8 +23132,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-wImYVEB6.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/starred-DG1Kat9o.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22770,12 +23153,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-Dg5bGiYZ.js",
+			"module": "/assets/agent-DoCn6pmz.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/features-DbRQZ5Mo.js",
-				"/assets/taxonomy-FZ5tlk4M.js"
+				"/assets/shared-DMYjYWJz.js",
+				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22796,8 +23178,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-BMhTlWnj.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/codex-reset-urkixQPe.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22817,8 +23199,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-BMhTlWnj.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/codex-reset-urkixQPe.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22838,12 +23220,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-CJt77QrQ.js",
-			"imports": [
-				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/taxonomy-FZ5tlk4M.js"
-			],
+			"module": "/assets/leaderboard-boards-D7VYNzfI.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22863,10 +23241,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-UxgJ_KGN.js",
+			"module": "/assets/leaderboard-BfmpQBrB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22889,10 +23267,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-UxgJ_KGN.js",
+			"module": "/assets/leaderboard-BfmpQBrB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -22915,10 +23293,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-WWBDBJEo.js",
+			"module": "/assets/leaderboard-sources-Du4cM7a3.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22941,10 +23319,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-bKSJNhkp.js",
+			"module": "/assets/leaderboard-source-CRSMTb39.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -22967,8 +23345,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-BEjbXhYe.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/leaderboard-rules-Cyk0KNS-.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22988,11 +23366,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-DESskwcw.js",
+			"module": "/assets/leaderboard-model-CjC9FBHL.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/taxonomy-FZ5tlk4M.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23015,8 +23392,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-CfwL08C-.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-w6lLvPhJ.js"],
+			"module": "/assets/admin-login-D8A64eSw.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-DMYjYWJz.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23036,12 +23413,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-BfbfJsNA.js",
+			"module": "/assets/layout-DzX5F9k-.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-Br4ZpcTu.js",
+				"/assets/Chrome-BPc_dGqm.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -23085,10 +23462,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-DgXmerTm.js",
+			"module": "/assets/content-MM8R7Hs8.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23112,11 +23489,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-Da3r_kX1.js",
+			"module": "/assets/content-item-DpE27GbU.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/taxonomy-FZ5tlk4M.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23142,10 +23518,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-Bd-ZKbKG.js",
+			"module": "/assets/sources-BhrMsddG.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23169,10 +23545,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-BkEoTM9b.js",
+			"module": "/assets/source-new-D-E7bjtt.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23198,10 +23574,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-DqDlE5Jj.js",
+			"module": "/assets/source-D0l_XXPz.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23227,10 +23603,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-CbPrY1gk.js",
+			"module": "/assets/monitor-DxtSuGpu.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23255,10 +23631,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-pvbqYBB_.js",
+			"module": "/assets/feedback-skhwlI7z.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23284,10 +23660,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-B1RpwtrG.js",
+			"module": "/assets/runs-D5I3calZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23312,10 +23688,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-BHZSaELn.js",
+			"module": "/assets/models-DgpyzNs5.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23340,10 +23716,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-DPpnN9G0.js",
+			"module": "/assets/selectbench-BDObJg1c.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23368,11 +23744,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-lICzhxI7.js",
+			"module": "/assets/selectbench-run-q3TUR9_6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
-				"/assets/taxonomy-FZ5tlk4M.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23395,10 +23770,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-CdZ4u88j.js",
+			"module": "/assets/settings-L9aPVHIR.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23423,10 +23798,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-bES91EMK.js",
+			"module": "/assets/audit-BwArGIxH.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-w6lLvPhJ.js",
+				"/assets/shared-DMYjYWJz.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23437,8 +23812,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-3ee87b15.js",
-	"version": "3ee87b15",
+	"url": "/assets/manifest-011b19e2.js",
+	"version": "011b19e2",
 	"sri": void 0
 };
 //#endregion
@@ -23479,6 +23854,22 @@ var routes = {
 		index: void 0,
 		caseSensitive: void 0,
 		module: all_exports
+	},
+	"routes/podcasts": {
+		id: "routes/podcasts",
+		parentId: "root",
+		path: "podcasts",
+		index: void 0,
+		caseSensitive: void 0,
+		module: podcasts_exports
+	},
+	"routes/videos": {
+		id: "routes/videos",
+		parentId: "root",
+		path: "videos",
+		index: void 0,
+		caseSensitive: void 0,
+		module: videos_exports
 	},
 	"routes/schedule": {
 		id: "routes/schedule",

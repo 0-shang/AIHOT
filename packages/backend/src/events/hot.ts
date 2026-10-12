@@ -84,19 +84,28 @@ async function heatRows(at: Date, behind: string[] = []): Promise<HeatRow[]> {
     WHERE st.merged_into IS NULL`;
 }
 
+export function isNonRocketsStory(title: string): boolean {
+  const nonRocketsPattern = /(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)/i;
+  const rocketsPattern = /(rockets|火箭|nba|丰田中心|乌度卡|格林|申京|史密斯|伊森|阿门|谢泼德|范弗里特|亚当斯|惠特莫尔|布鲁克斯)/i;
+  return nonRocketsPattern.test(title) && !rocketsPattern.test(title);
+}
+
 export function heatIndex(heat: number): number {
   return Math.round(heat * 100) / 10; // one decimal on the 10× scale shown to readers
 }
 
 export async function computeHotRanking(at = new Date()): Promise<{ id: number; entries: number }> {
   const behind = behindSources(await sourceClocks(), at.getTime(), true);
-  const rows = (await heatRows(at, behind)).filter((r) => Number(r.participants) >= MIN_PARTICIPANTS && Number(r.editorial_participants) >= 1);
+  const rows = (await heatRows(at, behind))
+    .filter((r) => Number(r.participants) >= MIN_PARTICIPANTS && Number(r.editorial_participants) >= 1)
+    .filter((r) => !isNonRocketsStory(r.title));
   rows.sort((a, b) => Number(b.heat) - Number(a.heat) || (b.latest_at?.getTime() ?? 0) - (a.latest_at?.getTime() ?? 0));
 
   const entries: HotEntry[] = [];
   for (const r of rows) {
     if (entries.length >= 10) break;
     const reports = await sql<{ id: string; url: string; title: string; source_name: string; first_party: boolean; selected: boolean; score: number | null; at: Date }[]>`
+
       SELECT DISTINCT ON (p.article_id) p.article_id AS id, p.url, p.title, s.name AS source_name, p.first_party, p.selected, p.score,
              coalesce(p.published_at, p.discovered_at) AS at
       FROM facts f JOIN fact_articles fa ON fa.fact_id = f.id JOIN publications p ON p.article_id = fa.article_id

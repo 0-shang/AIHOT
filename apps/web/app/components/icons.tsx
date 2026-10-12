@@ -49,3 +49,6 @@ export const IconMinus = (p: P) => (<Svg {...p}><path d="M5 12h14" /></Svg>);
 export const IconCheck = (p: P) => (<Svg {...p}><path d="M5 12.5l4.5 4.5L19 7.5" /></Svg>);
 export const IconCopy = (p: P) => (<Svg {...p}><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3" /></Svg>);
 export const IconCoffee = (p: P) => (<Svg {...p}><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" /></Svg>);
+export const IconPodcast = (p: P) => (<Svg {...p}><circle cx="12" cy="11" r="1.5" fill="currentColor" /><path d="M7.76 15.24a6 6 0 010-8.48M16.24 6.76a6 6 0 010 8.48M4.93 18.07a10 10 0 010-14.14M19.07 3.93a10 10 0 010 14.14M12 14v7" /></Svg>);
+export const IconVideo = (p: P) => (<Svg {...p}><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></Svg>);
+

@@ -10,6 +10,7 @@ import { IconChevronDown, IconInfo } from "../components/icons";
 import { Sparkline } from "../features/hot/Sparkline";
 import { Faces } from "../features/hot/Faces";
 import { Delta } from "../features/hot/Delta";
+import { CategoryTabs } from "../features/feed/Filters";
 
 export async function loader({ request }: { request: Request }) {
   return { hot: await loadOr404<HotResponse>("/api/site/hot", { signal: request.signal }) };
@@ -191,7 +192,13 @@ export default function HotPage() {
   const others = rest.slice(2);
   return (
     <div className="pb-10">
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 pb-5 pt-5 lg:pt-1">
+      <div className="mb-4 mt-2 hidden lg:block">
+        <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-desk" />
+      </div>
+      <div className="mb-4 mt-2 lg:hidden">
+        <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-mobile" size="sm" />
+      </div>
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 pb-5 pt-3">
         <div>
           <div className="flex items-center gap-2 text-[12px] font-semibold tracking-[0.08em] text-hot">
             <span className="relative flex size-2" aria-hidden="true">

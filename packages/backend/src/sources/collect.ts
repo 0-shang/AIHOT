@@ -24,6 +24,22 @@ export interface CollectResult {
 const MAX_ITEMS_PER_RUN = 60;
 
 export function noiseFiltered(c: Candidate, source: SourceRow): boolean {
+  // SportsTalk 790 必须严格过滤关键词 rockets，非火箭的一律不要
+  if (source.id.includes("sportstalk790")) {
+    const hay790 = `${c.title}\n${c.excerpt ?? ""}`.toLowerCase();
+    if (!hay790.includes("rockets") && !hay790.includes("火箭")) {
+      return true;
+    }
+  }
+
+  // 休斯敦同城其他球队（德州人、太空人、油人、NFL、MLB等）强力拦截：未提火箭/NBA直接丢弃
+  const nonRocketsPattern = /(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)/i;
+  const rocketsPattern = /(rockets|火箭|nba|丰田中心|乌度卡|格林|申京|史密斯|伊森|阿门|谢泼德|范弗里特|亚当斯|惠特莫尔|布鲁克斯)/i;
+  const hayAll = `${c.title}\n${c.excerpt ?? ""}`;
+  if (nonRocketsPattern.test(hayAll) && !rocketsPattern.test(hayAll)) {
+    return true;
+  }
+
   const f = source.config.ingestNoiseFilter;
   const cats: string[] = c.categories ?? [];
   if (source.config.denyCategories?.some((d: string) => cats.includes(d))) return true;
@@ -36,6 +52,7 @@ export function noiseFiltered(c: Candidate, source: SourceRow): boolean {
   if (has(hay, f.keepIfMatches)) return false;
   return has(title, f.dropMarkersTitleOnly) || has(hay, f.dropMarkers);
 }
+
 
 function rewriteUrl(c: Candidate, source: SourceRow): Candidate {
   const rw = source.config.itemUrlPrefixRewrite;

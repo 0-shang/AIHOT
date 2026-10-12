@@ -54,8 +54,14 @@ async function queryLatestHotRanking(): Promise<HotRanking | null> {
   const [row] = await sql<{ id: number; computed_at: Date; rule_version: string; entries: HotEntry[]; evidence: Record<string, unknown> | null }[]>`
     SELECT id, computed_at, rule_version, entries, evidence FROM hot_rankings WHERE published ORDER BY computed_at DESC LIMIT 1`;
   if (!row) return null;
-  return { id: row.id, computedAt: row.computed_at.toISOString(), ruleVersion: row.rule_version, entries: row.entries, coverage: row.evidence };
+  const nonRocketsPattern = /(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)/i;
+  const rocketsPattern = /(rockets|火箭|nba|丰田中心|乌度卡|格林|申京|史密斯|伊森|阿门|谢泼德|范弗里特|亚当斯|惠特莫尔|布鲁克斯)/i;
+  const filteredEntries = (row.entries || []).filter(
+    (e) => !(nonRocketsPattern.test(e.title) && !rocketsPattern.test(e.title))
+  );
+  return { id: row.id, computedAt: row.computed_at.toISOString(), ruleVersion: row.rule_version, entries: filteredEntries, coverage: row.evidence };
 }
+
 
 // Faces and words change only with the ranking, so they are read once per ranking.
 interface Extras {

@@ -15,7 +15,7 @@
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 10,
       "tags": [
         "本地权威",
         "随队深度",
@@ -38,7 +38,7 @@
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 20,
+      "interval_minutes": 10,
       "tags": [
         "深度专栏",
         "比赛战报",
@@ -86,7 +86,7 @@
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 10,
       "tags": [
         "深度专栏",
         "战术复盘",
@@ -132,7 +132,7 @@
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 10,
       "tags": [
         "赛后复盘",
         "交易流言"
@@ -154,7 +154,7 @@
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 30,
+      "interval_minutes": 10,
       "tags": [
         "随队专栏",
         "球员前瞻"
@@ -162,7 +162,6 @@
       "site_fulltext": true,
       "syndicate_fulltext": false
     },
-
     {
       "id": "rss-fox26-rockets",
       "name": "FOX 26 Houston (休斯敦FOX电视台火箭专区)",
@@ -193,6 +192,12 @@
         "feedUrl": "https://sportstalk790.iheart.com/features/houston-rockets/feed/",
         "_aihot": {
           "initialBackfillLimit": 10
+        },
+        "ingestNoiseFilter": {
+          "keepIfMatches": [
+            "rockets",
+            "火箭"
+          ]
         }
       },
       "tier": "T1",
@@ -359,7 +364,7 @@
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 25,
+      "interval_minutes": 10,
       "tags": [
         "深度专栏",
         "战术分析",
@@ -382,7 +387,7 @@
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 25,
+      "interval_minutes": 10,
       "tags": [
         "深度专栏",
         "球员前瞻",
@@ -405,7 +410,7 @@
       "first_party": false,
       "owner_entity_id": "rockets",
       "participation_mode": "editorial",
-      "interval_minutes": 25,
+      "interval_minutes": 10,
       "tags": [
         "深度专栏",
         "随队专栏",
@@ -515,7 +520,6 @@
       "site_fulltext": true,
       "syndicate_fulltext": false
     },
-
     {
       "id": "x-bradeaux",
       "name": "Bradeaux (火箭高阶数据与高光切片)",
@@ -887,7 +891,6 @@
       "site_fulltext": true,
       "syndicate_fulltext": false
     },
-
     {
       "id": "x-rockets-wire",
       "name": "The Rockets Wire (@TheRocketsWire USA Today火箭推特号)",
@@ -961,6 +964,12 @@
         "feedUrl": "https://www.spreaker.com/show/3442316/episodes/feed",
         "_aihot": {
           "initialBackfillLimit": 20
+        },
+        "ingestNoiseFilter": {
+          "keepIfMatches": [
+            "rockets",
+            "火箭"
+          ]
         }
       },
       "tier": "T1",

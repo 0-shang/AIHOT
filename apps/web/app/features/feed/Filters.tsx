@@ -23,22 +23,36 @@ export function hrefWith(base: string, params: URLSearchParams, patch: Record<st
  * time: picking 一手 clears the category and picking a category clears 一手. Older 资讯 / X links
  * still filter; the row then shows 全部.
  */
-export function CategoryTabs({ base, category, channel = "all", layoutId, size = "md", className = "" }: { base: string; category: CategoryKey | null; channel?: ChannelKey; layoutId: string; size?: "md" | "sm"; className?: string }) {
+export function CategoryTabs({
+  base,
+  category,
+  channel = "all",
+  activeKey,
+  layoutId,
+  size = "md",
+  className = "",
+}: {
+  base: string;
+  category: CategoryKey | null;
+  channel?: ChannelKey;
+  activeKey?: string;
+  layoutId: string;
+  size?: "md" | "sm";
+  className?: string;
+}) {
   const [params] = useSearchParams();
-  // Tab order: 全部 → 动态 → 队记 → 专栏 → 播客 → 视频 → 流言
-  // 切换到非队记分类时，必须强制清除 reporter 参数，避免 URL 滞留导致 0 结果与跳转异常
+  // Tab 顺序：动态 → 热点 → 队记 → 专栏 → 流言（去掉全部，播客与视频移至一级导航）
   const items = [
-    { key: "all", label: "全部", to: hrefWith(base, params, { category: null, channel: null, reporter: null }) },
-    { key: "news", label: "动态", to: hrefWith(base, params, { category: "news", channel: null, reporter: null }) },
+    { key: "news", label: "动态", to: hrefWith(base, params, { category: null, channel: null, reporter: null }) },
+    { key: "hot", label: "热点", to: "/hot" },
     { key: "beat_tweets", label: "队记", to: hrefWith(base, params, { category: "beat_tweets", channel: null }) },
     { key: "analysis", label: "专栏", to: hrefWith(base, params, { category: "analysis", channel: null, reporter: null }) },
-    { key: "podcasts", label: "播客", to: hrefWith(base, params, { category: "podcasts", channel: null, reporter: null }) },
-    { key: "videos", label: "视频", to: hrefWith(base, params, { category: "videos", channel: null, reporter: null }) },
     { key: "trades", label: "流言", to: hrefWith(base, params, { category: "trades", channel: null, reporter: null }) },
   ];
-  const active = category ?? "all";
+  const active = activeKey ?? (category === "beat_tweets" ? "beat_tweets" : category === "analysis" ? "analysis" : category === "trades" ? "trades" : "news");
   return <PillTabs items={items} active={active} layoutId={layoutId} label="筛选" size={size} className={className} />;
 }
+
 
 function useSlashFocus(ref: React.RefObject<HTMLInputElement | null>) {
   useEffect(() => {

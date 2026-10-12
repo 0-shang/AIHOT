@@ -1,0 +1,130 @@
+import { SITE } from "@aihot/industry/site";
+import { Link, useLoaderData, useNavigation, useSearchParams } from "react-router";
+import type { Route } from "./+types/podcasts";
+import type { PoolResponse } from "@aihot/contracts/site";
+import { loadOr404, queryString } from "../lib/api.server";
+import { pageMeta } from "../lib/seo";
+import { DayList, Pagination } from "../features/feed/DayList";
+import { EmptyState } from "../components/ui/Page";
+import { IconPodcast, IconSearch } from "../components/icons";
+
+const PODCAST_SHOWS = [
+  { key: "all", label: "全部播客" },
+  { key: "Locked On Rockets", label: "Locked On Rockets" },
+  { key: "Rockets LaunchPod", label: "LaunchPod" },
+  { key: "Rocket Fuel", label: "Rocket Fuel" },
+  { key: "Rockets Daily", label: "Rockets Daily" },
+  { key: "SportsTalk 790", label: "SportsTalk 790" },
+];
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
+  const show = url.searchParams.get("show")?.trim() || null;
+  const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
+
+  // If filtered by show, merge into search query
+  const effectiveQ = show && show !== "all" ? (q ? `${q} ${show}` : show) : q;
+
+  const data = await loadOr404<PoolResponse>(
+    `/api/site/pool${queryString({ category: "podcasts", q: effectiveQ, page: page > 1 ? page : null })}`,
+    { signal: request.signal, busyRedirect: "/all/search-busy" }
+  );
+  return { data, currentShow: show ?? "all" };
+}
+
+export function meta() {
+  return pageMeta({
+    title: "火箭播客专区 · 每日电台与赛后复盘",
+    description: `${SITE.name} 独家火箭播客专区：聚合 Locked On Rockets、LaunchPod、Rocket Fuel、Rockets Daily 与 SportsTalk 790 等权威随队电台。`,
+    path: "/podcasts",
+  });
+}
+
+export function headers() {
+  return { "Cache-Control": "public, max-age=0, s-maxage=30, stale-while-revalidate=15" };
+}
+
+function pageHref(params: URLSearchParams, page: number) {
+  const sp = new URLSearchParams(params);
+  if (page <= 1) sp.delete("page");
+  else sp.set("page", String(page));
+  const s = sp.toString();
+  return s ? `/podcasts?${s}` : "/podcasts";
+}
+
+export default function PodcastsPage() {
+  const { data, currentShow } = useLoaderData<typeof loader>();
+  const [params] = useSearchParams();
+  const navigation = useNavigation();
+  const busy = navigation.state === "loading" && navigation.location?.pathname === "/podcasts";
+
+  const showHref = (showKey: string) => {
+    const sp = new URLSearchParams(params);
+    sp.delete("page");
+    if (showKey === "all") sp.delete("show");
+    else sp.set("show", showKey);
+    const s = sp.toString();
+    return s ? `/podcasts?${s}` : "/podcasts";
+  };
+
+  return (
+    <div className="pb-10">
+      {/* Header Banner */}
+      <div className="py-4 lg:py-6 border-b border-line-soft">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#CE1141] uppercase tracking-wider">
+              <IconPodcast size={15} />
+              <span>官方 & 随队电台专区</span>
+            </div>
+            <h1 className="mt-1 text-[26px] lg:text-[30px] font-black tracking-tight text-ink">
+              休斯敦火箭播客
+            </h1>
+            <p className="mt-1 text-[13.5px] text-ink-3">
+              实时收听 Locked On Rockets、LaunchPod、Rocket Fuel 等原声单集与深度复盘
+            </p>
+          </div>
+          <div className="text-[13px] text-ink-4">
+            共收录 <span className="font-bold text-accent num">{data.total}</span> 期节目
+          </div>
+        </div>
+
+        {/* Shows filter tabs */}
+        <div className="mt-5 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          {PODCAST_SHOWS.map((s) => {
+            const active = currentShow === s.key;
+            return (
+              <Link
+                key={s.key}
+                to={showHref(s.key)}
+                className={`inline-flex shrink-0 items-center rounded-full px-3.5 py-1 text-[12.5px] font-bold transition-all ${
+                  active
+                    ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/25"
+                    : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"
+                }`}
+              >
+                {s.label}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Episodes Stream */}
+      <div className={`mt-6 transition-opacity duration-200 ${busy ? "opacity-50" : ""}`}>
+        {data.items.length === 0 ? (
+          <div className="card mt-4 p-8 text-center">
+            <EmptyState title="暂时没有单集">
+              正在同步最新播客音频源，请稍后再试。
+            </EmptyState>
+          </div>
+        ) : (
+          <DayList items={data.items} showTags={true} />
+        )}
+      </div>
+
+      <Pagination page={data.page} pageCount={data.pageCount} href={(p) => pageHref(params, p)} />
+    </div>
+  );
+}

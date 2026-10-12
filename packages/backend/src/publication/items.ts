@@ -80,12 +80,59 @@ export const ITEM_FROM = sql`
 
 /** Listed items: public, not a reply tweet, no youtube, exclude deleted old articles, and a selected item only after its release gate. */
 export function listedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND p.source_id NOT LIKE 'yt-%' AND p.source_id NOT LIKE '%youtube%' AND p.url NOT LIKE '%youtube.com%' AND p.url NOT LIKE '%youtu.be%' AND p.url NOT LIKE '%youtube%' AND p.title NOT LIKE '%YouTube%' AND p.title NOT LIKE '%卡斯特罗%' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND (NOT p.selected OR p.visible_after <= ${now})`;
+  return sql`p.visibility = 'public'
+    AND p.source_id != 'rss-google-news-rockets'
+    AND p.source_id NOT LIKE 'yt-%'
+    AND p.source_id NOT LIKE '%youtube%'
+    AND p.url NOT LIKE '%youtube.com%'
+    AND p.url NOT LIKE '%youtu.be%'
+    AND p.url NOT LIKE '%youtube%'
+    AND p.title NOT LIKE '%YouTube%'
+    AND p.title NOT LIKE '%卡斯特罗%'
+    AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%'))
+    AND (NOT p.selected OR p.visible_after <= ${now})
+    AND NOT (
+      (p.title ~* '(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)'
+       OR p.original_title ~* '(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)'
+       OR coalesce(p.summary, '') ~* '(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)')
+      AND NOT (
+        p.title ~* '(rockets|火箭|nba|丰田中心|乌度卡|格林|申京|史密斯|伊森|阿门|谢泼德|范弗里特|亚当斯|惠特莫尔|布鲁克斯)'
+        OR p.original_title ~* '(rockets|火箭|nba|toyota center|udoka|green|sengun|smith|eason|amen|sheppard|vanvleet|adams|whitmore|brooks)'
+      )
+    )
+    AND NOT (
+      p.source_id IN ('rss-podcast-sportstalk790', 'rss-sportstalk790')
+      AND NOT (p.title ~* '(rockets|火箭)' OR p.original_title ~* '(rockets|火箭)' OR coalesce(p.summary, '') ~* '(rockets|火箭)')
+    )`;
 }
 
 /** Selected set as shown on the home timeline, v1 selected mode and RSS. */
 export function selectedCondition(now: Date) {
-  return sql`p.visibility = 'public' AND p.source_id != 'rss-google-news-rockets' AND p.source_id NOT LIKE 'yt-%' AND p.source_id NOT LIKE '%youtube%' AND p.url NOT LIKE '%youtube.com%' AND p.url NOT LIKE '%youtu.be%' AND p.url NOT LIKE '%youtube%' AND p.title NOT LIKE '%YouTube%' AND p.title NOT LIKE '%卡斯特罗%' AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%')) AND p.selected AND p.visible_after <= ${now}`;
+  return sql`p.visibility = 'public'
+    AND p.source_id != 'rss-google-news-rockets'
+    AND p.source_id NOT LIKE 'yt-%'
+    AND p.source_id NOT LIKE '%youtube%'
+    AND p.url NOT LIKE '%youtube.com%'
+    AND p.url NOT LIKE '%youtu.be%'
+    AND p.url NOT LIKE '%youtube%'
+    AND p.title NOT LIKE '%YouTube%'
+    AND p.title NOT LIKE '%卡斯特罗%'
+    AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%'))
+    AND p.selected
+    AND p.visible_after <= ${now}
+    AND NOT (
+      (p.title ~* '(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)'
+       OR p.original_title ~* '(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)'
+       OR coalesce(p.summary, '') ~* '(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)')
+      AND NOT (
+        p.title ~* '(rockets|火箭|nba|丰田中心|乌度卡|格林|申京|史密斯|伊森|阿门|谢泼德|范弗里特|亚当斯|惠特莫尔|布鲁克斯)'
+        OR p.original_title ~* '(rockets|火箭|nba|toyota center|udoka|green|sengun|smith|eason|amen|sheppard|vanvleet|adams|whitmore|brooks)'
+      )
+    )
+    AND NOT (
+      p.source_id IN ('rss-podcast-sportstalk790', 'rss-sportstalk790')
+      AND NOT (p.title ~* '(rockets|火箭)' OR p.original_title ~* '(rockets|火箭)' OR coalesce(p.summary, '') ~* '(rockets|火箭)')
+    )`;
 }
 
 export function channelCondition(channel: ChannelKey | null | undefined) {
@@ -101,16 +148,15 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     return sql`AND (p.channel = 'x' OR p.source_id LIKE 'x-%') AND p.source_id != 'x-houston-rockets'`;
   }
   if (category === "analysis") {
-    // 专栏：专取的长文深度报道、战术剖析、复盘等
-    return sql`AND (
+    // 专栏：专取的长文深度报道、战术剖析、复盘等；严禁任何推文混入（只收录抓取到的长文专栏）
+    return sql`AND p.channel != 'x' AND p.source_id NOT LIKE 'x-%' AND (
       p.category = 'analysis'
-      OR p.tags && ARRAY['深度专栏', '战术分析', '随队专栏', '球员前瞻', '战术拆解', '高阶战术', '战术复盘', '复盘', '深度分析', '战术剖析', '专栏', '深度']::text[]
+      OR p.tags && ARRAY['深度专栏', '战术分析', '球员前瞻', '战术拆解', '高阶战术', '战术复盘', '深度分析', '战术剖析', '专栏', '深度']::text[]
       OR p.source_id IN (
         'rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets',
         'rss-si-rockets', 'web-si-rockets', 'web-sportingnews-rockets', 'rss-hoopswire-rockets',
         'rss-realgm-rockets', 'rss-houstonchronicle-rockets',
-        'rss-rocketswire', 'rss-hoopshype-rockets', 'rss-clutchpoints-rockets',
-        'x-lockedon-rockets', 'x-spacecity-scoop'
+        'rss-rocketswire', 'rss-hoopshype-rockets', 'rss-clutchpoints-rockets'
       )
     )
     AND p.source_id NOT IN ('rss-fadeawayworld', 'rss-theleadsports')`;
@@ -130,27 +176,37 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
       AND NOT (p.title LIKE '%球衣历史%' OR p.title LIKE '%球衣回顾%' OR p.title LIKE '%球衣盘点%')`;
   }
   if (category === "podcasts") {
-    // 播客栏目：官方与随队播客、Locked On Rockets、LaunchPod、SportsTalk 790等
+    // 播客栏目：只保留指定的 5 个源：Locked On Rockets, Rockets LaunchPod, Rocket Fuel, Rockets Daily, 以及 SportsTalk 790 (必须含 rockets)
     return sql`AND (
       p.category = 'podcasts'
-      OR p.source_id LIKE 'rss-podcast-%'
-      OR p.source_id IN ('rss-lockedonrockets', 'rss-thedreamshake-pod')
-      OR p.tags && ARRAY['播客', '电台', '音频', 'Podcasts', 'Podcast']::text[]
-      OR p.title ~* '(播客|podcast|locked on|lockedon|episode|ep\\.|launchpod|sportstalk|rockets daily|rocket fuel)'
-    )`;
+      OR p.source_id IN ('rss-podcast-lockedon', 'rss-podcast-launchpod', 'rss-podcast-rocketfuel', 'rss-podcast-rocketsdaily')
+      OR (p.source_id IN ('rss-podcast-sportstalk790', 'rss-sportstalk790') AND (p.title ~* '(rockets|火箭)' OR p.original_title ~* '(rockets|火箭)' OR coalesce(p.summary, '') ~* '(rockets|火箭)'))
+    )
+    AND p.source_id NOT IN ('rss-sportspyder-podcasts')`;
   }
   if (category === "videos") {
-    // 视频栏目：官方 YouTube 专栏与集锦
+    // 视频栏目：官方与随队精彩视频，严格过滤同城其他球队（Texans/Astros等）视频
     return sql`AND (
       p.category = 'videos'
       OR p.source_id LIKE 'yt-%'
+      OR (p.media IS NOT NULL AND p.media::text LIKE '%"kind":"video"%' AND (p.title ~* '(rockets|火箭|nba|乌度卡|格林|申京|史密斯|伊森|阿门|谢泼德|范弗里特|亚当斯)' OR p.original_title ~* '(rockets|火箭|nba|udoka|green|sengun|smith|eason|amen|sheppard|vanvleet|adams)'))
       OR p.tags && ARRAY['视频', '精彩视频', '集锦', 'Videos', 'Video']::text[]
+    )
+    AND NOT (
+      (p.title ~* '(德州人|太空人|油人|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球)'
+       OR p.original_title ~* '(德州人|太空人|油人|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球)'
+       OR coalesce(p.summary, '') ~* '(德州人|太空人|油人|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球)')
+      AND NOT (
+        p.title ~* '(rockets|火箭|nba|乌度卡|格林|申京|史密斯|伊森|阿门|谢泼德|范弗里特|亚当斯)'
+        OR p.original_title ~* '(rockets|火箭|nba|udoka|green|sengun|smith|eason|amen|sheppard|vanvleet|adams)'
+      )
     )`;
   }
   // v1 and RSS publish opinion as tip.
   if (v1 && (category as string) === "tip") return sql`AND p.category IN ('tip', 'opinion')`;
   return sql`AND p.category = ${category}`;
 }
+
 
 /** 智能去重算法：仅针对新闻报道多源同一事件去重，队记推文、社交推帖与视频内容全量保留 */
 export function deduplicateFeedItems<T extends { id: string; title: string; summary?: string | null; score?: number | null; publishedAt?: string | null; timelineAt?: string | null; channel?: string | null; category?: string | null }>(items: T[]): T[] {
