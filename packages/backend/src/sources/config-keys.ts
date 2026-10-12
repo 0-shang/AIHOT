@@ -4,7 +4,7 @@
 import type { SourceRow } from "./types.ts";
 
 // Rules applied in collect.ts to every kind read through collectSource.
-const COLLECTED = ["_aihot", "allowUrlPrefixes", "denyUrlPrefixes", "ingestNoiseFilter", "itemUrlPrefixRewrite", "sortByPublishedAt", "detail", "fetchPublicContent"];
+const COLLECTED = ["_aihot", "allowUrlPrefixes", "denyUrlPrefixes", "ingestNoiseFilter", "itemUrlPrefixRewrite", "sortByPublishedAt", "detail", "fetchPublicContent", "requireRocketsDoubleMatch"];
 
 const KEYS: Record<SourceRow["kind"], string[]> = {
   rss: [...COLLECTED, "feedUrl", "summaryIsBody", "preserveUrlFragment", "allowCategories", "denyCategories"],
@@ -18,7 +18,7 @@ const KEYS: Record<SourceRow["kind"], string[]> = {
     "urlTemplate", "urlTemplateFallback", "rawDropKeys", "requireBoolean", "minNumeric",
   ],
   // X accounts are mostly read in shards, which apply only these.
-  x_search: ["_aihot", "ingestNoiseFilter", "itemUrlPrefixRewrite", "query", "searchType"],
+  x_search: ["_aihot", "ingestNoiseFilter", "itemUrlPrefixRewrite", "query", "searchType", "requireRocketsDoubleMatch"],
   mp_account: ["wxid", "ghid", "nickname"],
   external: [],
 };
