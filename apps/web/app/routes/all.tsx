@@ -36,7 +36,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const channel = isChannelKey(channelParam) ? channelParam : "all";
   const tag = url.searchParams.get("tag")?.trim() || null;
   const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
-  const category = categoryParam && isCategoryKey(categoryParam) ? categoryParam : null;
+  const category = categoryParam && isCategoryKey(categoryParam)
+    ? categoryParam
+    : (q || categoryParam === "all" ? null : "news");
   // 随队记者仅在“队记推文”栏目生效；切换到其他栏目时自动忽略，保证内容立即呈现
   const rawReporter = url.searchParams.get("reporter")?.trim() || null;
   const reporter = category === "beat_tweets" ? rawReporter : null;

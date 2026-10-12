@@ -31,7 +31,7 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
     rows: [
       { to: "/about", label: `关于 ${SITE.name}`, icon: <IconHeart size={18} /> },
       { to: "/feedback", label: "意见反馈", icon: <IconMessage size={18} /> },
-      { to: "/sponsor", label: "支持本站 ☕", icon: <IconCoffee size={18} /> },
+      { to: "/sponsor", label: "支持本站", icon: <IconCoffee size={18} /> },
     ],
   },
 ];

@@ -3,7 +3,7 @@ import type { PoolResponse, TimelineFilters } from "@aihot/contracts/site";
 import { beijingDate, beijingMidnight } from "@aihot/contracts/time";
 import { one, sql, withCustomPlans, type Db } from "../db.ts";
 import {
-  categoryCondition, channelCondition, deduplicateFeedItems, ITEM_COLUMNS, ITEM_FROM, listedCondition, reporterCondition, tagCondition, toFeedItemSummary, topicCondition,
+  categoryCondition, channelCondition, deduplicateFeedItems, ITEM_COLUMNS, ITEM_FROM, listedCondition, reporterCondition, sourceCondition, tagCondition, toFeedItemSummary, topicCondition,
   type ItemRow,
 } from "./items.ts";
 
@@ -108,6 +108,7 @@ export interface PoolQuery extends TimelineFilters {
   page?: number;
   topicTags?: string[] | null;
   now?: Date;
+  source?: string | null;
 }
 
 export async function loadPool(query: PoolQuery): Promise<PoolResponse> {
@@ -116,11 +117,11 @@ export async function loadPool(query: PoolQuery): Promise<PoolResponse> {
   const q = query.q?.trim() || null;
   const tab = q && query.tab === "relevance" ? "relevance" : "time";
   const terms = q ? searchTerms(q) : [];
-  const filters = sql`${channelCondition(query.channel)} ${categoryCondition(query.category)} ${tagCondition(query.tag)} ${topicCondition(query.topicTags)} ${reporterCondition(query.reporter)}`;
+  const filters = sql`${channelCondition(query.channel)} ${categoryCondition(query.category)} ${tagCondition(query.tag)} ${topicCondition(query.topicTags)} ${reporterCondition(query.reporter)} ${sourceCondition(query.source)}`;
   const offset = (page - 1) * POOL_PAGE_SIZE;
   const cap = POOL_MAX_PAGES * POOL_PAGE_SIZE;
   // A fixed clock (tests, replays) never shares cached totals.
-  const filterKey = query.now ? null : JSON.stringify([query.channel, query.category, query.tag, query.topicTags ?? null, query.reporter ?? null]);
+  const filterKey = query.now ? null : JSON.stringify([query.channel, query.category, query.tag, query.topicTags ?? null, query.reporter ?? null, query.source ?? null]);
 
   // Searches go through pool_search (eligible items only): trigram indexes for longer terms, a small
   // table to scan for one- and two-character ones.

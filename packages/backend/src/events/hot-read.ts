@@ -50,15 +50,20 @@ export function latestHotRanking(): Promise<HotRanking | null> {
   return rankingPending;
 }
 
+const NON_ROCKETS_SPORT_PATTERN = /(德州人|太空人|油人队|迪纳摩|美式橄榄球|橄榄球|棒球|texans|astros|oilers|dynamo|\bnfl\b|\bmlb\b|\bmls\b|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|跑卫|角卫|内线卫|特勤组|达阵|全垒打|安打|三振|投手|击球手|保送|红雀|马文·哈里森|marvin harrison)/i;
+
+export function isNonRocketsStory(title: string, summary?: string | null): boolean {
+  const text = `${title} ${summary ?? ""}`;
+  return NON_ROCKETS_SPORT_PATTERN.test(text);
+}
+
 async function queryLatestHotRanking(): Promise<HotRanking | null> {
   const [row] = await sql<{ id: number; computed_at: Date; rule_version: string; entries: HotEntry[]; evidence: Record<string, unknown> | null }[]>`
     SELECT id, computed_at, rule_version, entries, evidence FROM hot_rankings WHERE published ORDER BY computed_at DESC LIMIT 1`;
   if (!row) return null;
-  const nonRocketsPattern = /(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)/i;
-  const rocketsPattern = /(rockets|火箭|nba|丰田中心|乌度卡|格林|申京|史密斯|伊森|阿门|谢泼德|范弗里特|亚当斯|惠特莫尔|布鲁克斯)/i;
-  const filteredEntries = (row.entries || []).filter(
-    (e) => !(nonRocketsPattern.test(e.title) && !rocketsPattern.test(e.title))
-  );
+  const filteredEntries = (row.entries || [])
+    .filter((e) => !isNonRocketsStory(e.title))
+    .map((e, idx) => ({ ...e, rank: idx + 1 }));
   return { id: row.id, computedAt: row.computed_at.toISOString(), ruleVersion: row.rule_version, entries: filteredEntries, coverage: row.evidence };
 }
 

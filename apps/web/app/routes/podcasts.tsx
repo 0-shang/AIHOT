@@ -9,12 +9,12 @@ import { EmptyState } from "../components/ui/Page";
 import { IconPodcast, IconSearch } from "../components/icons";
 
 const PODCAST_SHOWS = [
-  { key: "all", label: "全部播客" },
-  { key: "Locked On Rockets", label: "Locked On Rockets" },
-  { key: "Rockets LaunchPod", label: "LaunchPod" },
-  { key: "Rocket Fuel", label: "Rocket Fuel" },
-  { key: "Rockets Daily", label: "Rockets Daily" },
-  { key: "SportsTalk 790", label: "SportsTalk 790" },
+  { key: "all", label: "全部播客", source: null },
+  { key: "Locked On Rockets", label: "Locked On Rockets", source: "rss-podcast-lockedon" },
+  { key: "Rockets LaunchPod", label: "LaunchPod", source: "rss-podcast-launchpod" },
+  { key: "Rocket Fuel", label: "Rocket Fuel", source: "rss-podcast-rocketfuel" },
+  { key: "Rockets Daily", label: "Rockets Daily", source: "rss-podcast-rocketsdaily" },
+  { key: "SportsTalk 790", label: "SportsTalk 790", source: "rss-podcast-sportstalk790%" },
 ];
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -23,12 +23,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   const show = url.searchParams.get("show")?.trim() || null;
   const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
 
-  // If filtered by show, merge into search query
-  const effectiveQ = show && show !== "all" ? (q ? `${q} ${show}` : show) : q;
+  const matched = PODCAST_SHOWS.find((s) => s.key === show || s.label === show);
+  const source = matched?.source ?? null;
 
   const data = await loadOr404<PoolResponse>(
-    `/api/site/pool${queryString({ category: "podcasts", q: effectiveQ, page: page > 1 ? page : null })}`,
-    { signal: request.signal, busyRedirect: "/all/search-busy" }
+    `/api/site/pool${queryString({ category: "podcasts", source, q, page: page > 1 ? page : null })}`,
+    { signal: request.signal, busyRedirect: q ? "/all/search-busy" : undefined }
   );
   return { data, currentShow: show ?? "all" };
 }
@@ -74,11 +74,7 @@ export default function PodcastsPage() {
       <div className="py-4 lg:py-6 border-b border-line-soft">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#CE1141] uppercase tracking-wider">
-              <IconPodcast size={15} />
-              <span>官方 & 随队电台专区</span>
-            </div>
-            <h1 className="mt-1 text-[26px] lg:text-[30px] font-black tracking-tight text-ink">
+            <h1 className="text-[22px] font-black text-ink lg:text-3xl lg:tracking-tight">
               休斯敦火箭播客
             </h1>
             <p className="mt-1 text-[13.5px] text-ink-3">

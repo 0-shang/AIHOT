@@ -204,6 +204,19 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
       ];
 
       const isAudio = !!audioEnclosure;
+      let episodeUrl = link;
+      let explicitIdentityKey: string | undefined;
+      if (isAudio && text(it.guid)) {
+        const guidVal = text(it.guid);
+        if (/^https?:\/\//i.test(guidVal)) {
+          episodeUrl = guidVal;
+        } else if (text(it.link)) {
+          const sep = text(it.link).includes("?") ? "&" : "?";
+          episodeUrl = `${text(it.link)}${sep}ep=${encodeURIComponent(guidVal)}`;
+        }
+        explicitIdentityKey = `podcast:${source.id}:${guidVal}`;
+      }
+
       const podcastData = isAudio ? {
         audioUrl: audioEnclosure["@url"]!,
         duration: durationSeconds,
@@ -224,8 +237,8 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
         : feedText(bodyHtml, description, source);
 
       out.push({
-        url: link,
-        ...identity(link),
+        url: episodeUrl,
+        ...(explicitIdentityKey ? { identityKey: explicitIdentityKey } : identity(episodeUrl)),
         title,
         author: podcastAuthor || text(it["dc:creator"]) || text(it.author) || null,
         publishedAt: parseDate(text(it.pubDate) || text(it["dc:date"]) || text(it.published)),

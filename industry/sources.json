@@ -963,12 +963,81 @@
       "config": {
         "feedUrl": "https://www.spreaker.com/show/3442316/episodes/feed",
         "_aihot": {
-          "initialBackfillLimit": 20
+          "initialBackfillLimit": 30
         },
         "ingestNoiseFilter": {
           "keepIfMatches": [
             "rockets",
-            "火箭"
+            "火箭",
+            "udoka",
+            "乌度卡",
+            "sengun",
+            "申京",
+            "jalen green",
+            "格林",
+            "amen",
+            "阿门",
+            "sheppard",
+            "谢泼德",
+            "vanvleet",
+            "范弗里特",
+            "durant",
+            "杜兰特",
+            "jabari",
+            "史密斯",
+            "eason",
+            "伊森",
+            "clutch city",
+            "toyota center"
+          ]
+        }
+      },
+      "tier": "T1",
+      "first_party": false,
+      "owner_entity_id": "rockets",
+      "participation_mode": "editorial",
+      "interval_minutes": 25,
+      "tags": [
+        "播客",
+        "休斯敦电台",
+        "音频"
+      ],
+      "site_fulltext": true,
+      "syndicate_fulltext": false
+    },
+    {
+      "id": "rss-podcast-sportstalk790-mattthomas",
+      "name": "SportsTalk 790 KBME-AM (休斯敦电台 The Matt Thomas Show)",
+      "kind": "rss",
+      "config": {
+        "feedUrl": "https://www.spreaker.com/show/2599904/episodes/feed",
+        "_aihot": {
+          "initialBackfillLimit": 30
+        },
+        "ingestNoiseFilter": {
+          "keepIfMatches": [
+            "rockets",
+            "火箭",
+            "udoka",
+            "乌度卡",
+            "sengun",
+            "申京",
+            "jalen green",
+            "格林",
+            "amen",
+            "阿门",
+            "sheppard",
+            "谢泼德",
+            "vanvleet",
+            "范弗里特",
+            "durant",
+            "杜兰特",
+            "jabari",
+            "史密斯",
+            "eason",
+            "伊森",
+            "clutch city",
+            "toyota center"
           ]
         }
       },

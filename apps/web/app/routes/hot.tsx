@@ -10,7 +10,7 @@ import { IconChevronDown, IconInfo } from "../components/icons";
 import { Sparkline } from "../features/hot/Sparkline";
 import { Faces } from "../features/hot/Faces";
 import { Delta } from "../features/hot/Delta";
-import { CategoryTabs } from "../features/feed/Filters";
+import { CategoryTabs, SearchField } from "../features/feed/Filters";
 
 export async function loader({ request }: { request: Request }) {
   return { hot: await loadOr404<HotResponse>("/api/site/hot", { signal: request.signal }) };
@@ -192,11 +192,26 @@ export default function HotPage() {
   const others = rest.slice(2);
   return (
     <div className="pb-10">
-      <div className="mb-4 mt-2 hidden lg:block">
-        <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-desk" />
+      {/* Desktop Header */}
+      <div className="hidden lg:block">
+        <div className="flex items-baseline justify-between">
+          <h1 className="text-[26px] font-black tracking-tight text-ink lg:text-3xl">火箭队资讯</h1>
+        </div>
+        <div className="mb-4 mt-4 flex flex-wrap items-center justify-between gap-3">
+          <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-desk" className="min-w-0" />
+          <SearchField variant="track" keep={{ category: null }} />
+        </div>
       </div>
-      <div className="mb-4 mt-2 lg:hidden">
-        <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-mobile" size="sm" />
+
+      {/* Phones: ClutchWire header, search bar, and CategoryTabs */}
+      <div className="lg:hidden">
+        <div className="flex items-baseline justify-between pb-3 pt-3">
+          <h1 className="text-[22px] font-black text-ink">{SITE.name}</h1>
+        </div>
+        <SearchField variant="bar" keep={{ category: null }} />
+        <div className="-mx-4 mt-3 border-b border-line-soft px-4 pb-3">
+          <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-mobile" size="sm" className="min-w-0" />
+        </div>
       </div>
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 pb-5 pt-3">
         <div>

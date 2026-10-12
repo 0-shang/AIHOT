@@ -78,16 +78,16 @@ async function heatRows(at: Date, behind: string[] = []): Promise<HeatRow[]> {
         count(*) FILTER (WHERE NOT editorial) AS signal_participants
       FROM obs GROUP BY story_id
     )
-    SELECT a.story_id, st.public_id::text AS public_id, st.title, st.first_report_at, st.latest_at,
+    SELECT a.story_id, st.public_id::text AS public_id, st.title, st.summary, st.first_report_at, st.latest_at,
            a.participants, a.heat, a.heat_prev, a.heat_obs, a.heat_prev_obs, a.behind_participants, a.recent6h, a.editorial_participants, a.signal_participants
     FROM agg a JOIN stories st ON st.id = a.story_id
     WHERE st.merged_into IS NULL`;
 }
 
-export function isNonRocketsStory(title: string): boolean {
-  const nonRocketsPattern = /(德州人|太空人|油人队|texans|astros|oilers|nfl|mlb|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|达阵|棒球|橄榄球|全垒打|安打)/i;
-  const rocketsPattern = /(rockets|火箭|nba|丰田中心|乌度卡|格林|申京|史密斯|伊森|阿门|谢泼德|范弗里特|亚当斯|惠特莫尔|布鲁克斯)/i;
-  return nonRocketsPattern.test(title) && !rocketsPattern.test(title);
+export function isNonRocketsStory(title: string, summary?: string | null): boolean {
+  const text = `${title} ${summary ?? ""}`;
+  const nonRocketsSportPattern = /(德州人|太空人|油人队|迪纳摩|美式橄榄球|橄榄球|棒球|texans|astros|oilers|dynamo|\bnfl\b|\bmlb\b|\bmls\b|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|跑卫|角卫|内线卫|特勤组|达阵|全垒打|安打|三振|投手|击球手|保送|红雀|马文·哈里森|marvin harrison)/i;
+  return nonRocketsSportPattern.test(text);
 }
 
 export function heatIndex(heat: number): number {
@@ -98,7 +98,7 @@ export async function computeHotRanking(at = new Date()): Promise<{ id: number; 
   const behind = behindSources(await sourceClocks(), at.getTime(), true);
   const rows = (await heatRows(at, behind))
     .filter((r) => Number(r.participants) >= MIN_PARTICIPANTS && Number(r.editorial_participants) >= 1)
-    .filter((r) => !isNonRocketsStory(r.title));
+    .filter((r) => !isNonRocketsStory(r.title, (r as { summary?: string | null }).summary));
   rows.sort((a, b) => Number(b.heat) - Number(a.heat) || (b.latest_at?.getTime() ?? 0) - (a.latest_at?.getTime() ?? 0));
 
   const entries: HotEntry[] = [];

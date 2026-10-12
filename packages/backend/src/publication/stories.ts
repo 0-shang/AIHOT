@@ -3,7 +3,7 @@
 import type { HeatPoint, HotResponse, StoryDetail, StoryReportView } from "@aihot/contracts/site";
 import { sql } from "../db.ts";
 import { proxiedImage, proxiedImageSet } from "../media/imgproxy.ts";
-import { latestHotRanking, rankingExtras } from "../events/hot-read.ts";
+import { latestHotRanking, rankingExtras, isNonRocketsStory } from "../events/hot-read.ts";
 import { behindSources, sourceClocks } from "../events/hot.ts";
 import { storyStatusFor } from "../events/digest.ts";
 import { itemUrl, storyApiUrl, storyUrl } from "./links.ts";
@@ -234,11 +234,18 @@ export async function loadHot(): Promise<HotResponse> {
     hotCovers(ranking.id, ranking.entries, at),
     rankingExtras(ranking),
   ]);
+  const validEntries = ranking.entries
+    .filter((e) => {
+      const text = extras.text(e);
+      return !isNonRocketsStory(e.title, text.summary);
+    })
+    .map((e, idx) => ({ ...e, rank: idx + 1 }));
+
   return {
     computedAt: ranking.computedAt,
     ruleVersion: ranking.ruleVersion,
     windowHours: 48,
-    entries: ranking.entries.map((e) => {
+    entries: validEntries.map((e) => {
       const picture = covers.get(e.storyId);
       const coverUrl = picture ? proxiedImage(picture.url, "full") : null;
       const text = extras.text(e);
@@ -273,8 +280,9 @@ export async function loadHot(): Promise<HotResponse> {
 
 export async function v1HotTopics() {
   const ranking = await latestHotRanking();
-  const items = (ranking?.entries ?? []).map((e) => ({
-    rank: e.rank,
+  const validEntries = (ranking?.entries ?? []).filter((e) => !isNonRocketsStory(e.title));
+  const items = validEntries.map((e, idx) => ({
+    rank: idx + 1,
     id: e.representativeItemId ?? e.storyPublicId,
     title: e.title,
     source: { name: e.representativeSource ?? e.sourceNames[0] ?? SITE.name },

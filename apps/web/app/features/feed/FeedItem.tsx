@@ -69,6 +69,12 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
       <header className="flex min-h-[22px] items-center gap-2 text-[12px] leading-none text-ink-4">
         <SourceLine item={item} className="font-bold text-ink-2" />
 
+        {isPodcast && item.podcast?.author && (
+          <span className="hidden sm:inline text-ink-4 text-[11.5px]">
+            · {item.podcast.author}
+          </span>
+        )}
+
         {/* 移动端内联显示发布时间 */}
         <time dateTime={item.timelineAt} className="text-[11.5px] text-ink-4 font-mono lg:hidden">
           · {beijingTime(item.timelineAt)}
@@ -88,7 +94,7 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
       </header>
 
       {isPodcast ? (
-        <div className="mt-3">
+        <div className="mt-2.5">
           <PodcastCardPlayer item={item} onOpen={open} />
         </div>
       ) : isX ? (
@@ -115,7 +121,7 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
       {isX && item.x!.media.length > 0 && <MediaThumbs media={item.x!.media} className="mt-3" />}
       {isX && item.x!.quoted?.text && <QuotedLine quoted={item.x!.quoted} />}
 
-      {cleanTags.length > 0 && (
+      {!isPodcast && cleanTags.length > 0 && (
         <div className="relative z-10 mt-3 flex flex-wrap items-center gap-1.5">
           {cleanTags.map((t) => (
             <Link

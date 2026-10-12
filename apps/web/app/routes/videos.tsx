@@ -15,7 +15,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const data = await loadOr404<PoolResponse>(
     `/api/site/pool${queryString({ category: "videos", q, page: page > 1 ? page : null })}`,
-    { signal: request.signal, busyRedirect: "/all/search-busy" }
+    { signal: request.signal, busyRedirect: q ? "/all/search-busy" : undefined }
   );
   return { data };
 }
@@ -51,11 +51,7 @@ export default function VideosPage() {
       <div className="py-4 lg:py-6 border-b border-line-soft">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#CE1141] uppercase tracking-wider">
-              <IconVideo size={15} />
-              <span>视频集锦与原声</span>
-            </div>
-            <h1 className="mt-1 text-[26px] lg:text-[30px] font-black tracking-tight text-ink">
+            <h1 className="text-[22px] font-black text-ink lg:text-3xl lg:tracking-tight">
               休斯敦火箭精选视频
             </h1>
             <p className="mt-1 text-[13.5px] text-ink-3">

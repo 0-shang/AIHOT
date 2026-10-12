@@ -66,7 +66,18 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
   const [isLoading, setIsLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState<number>(typeof p?.duration === "number" ? p.duration : 0);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const playbackRateRef = useRef(1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   // Normalize podcast show name
   const rawTitle = p?.podcastTitle || item.source?.name || "休斯敦火箭播客";
@@ -106,6 +117,8 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
 
     if (!audioRef.current) {
       const audio = new Audio(targetAudioUrl);
+      audio.defaultPlaybackRate = playbackRateRef.current;
+      audio.playbackRate = playbackRateRef.current;
       audioRef.current = audio;
 
       audio.addEventListener("timeupdate", () => {
@@ -115,6 +128,12 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
         if (audio.duration && !isNaN(audio.duration)) {
           setDuration(audio.duration);
         }
+        audio.defaultPlaybackRate = playbackRateRef.current;
+        audio.playbackRate = playbackRateRef.current;
+      });
+      audio.addEventListener("canplay", () => {
+        audio.defaultPlaybackRate = playbackRateRef.current;
+        audio.playbackRate = playbackRateRef.current;
       });
       audio.addEventListener("ended", () => {
         setIsPlaying(false);
@@ -125,6 +144,8 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
       });
       audio.addEventListener("play", () => {
         setIsPlaying(true);
+        audio.defaultPlaybackRate = playbackRateRef.current;
+        audio.playbackRate = playbackRateRef.current;
       });
     }
 
@@ -135,10 +156,27 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
     } else {
       registerPlayingAudio(audio, () => setIsPlaying(false));
       try {
+        audio.defaultPlaybackRate = playbackRateRef.current;
+        audio.playbackRate = playbackRateRef.current;
         await audio.play();
         setIsPlaying(true);
       } catch (err) {
         console.error("Audio playback error:", err);
+      }
+    }
+  };
+
+  const changeRate = (rate: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    playbackRateRef.current = rate;
+    setPlaybackRate(rate);
+    if (audioRef.current) {
+      try {
+        audioRef.current.defaultPlaybackRate = rate;
+        audioRef.current.playbackRate = rate;
+      } catch (err) {
+        console.error("Failed to change playback rate:", err);
       }
     }
   };
@@ -162,71 +200,61 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
   };
 
   return (
-    <div className="group/podcast relative flex flex-col sm:flex-row gap-4 p-4 rounded-2xl bg-surface border border-line-soft hover:border-[#CE1141]/35 shadow-xs hover:shadow-md transition-all duration-200">
-      {/* Left: Enhanced Vinyl / Album Artwork with Hover Action */}
+    <div className="relative flex flex-col sm:flex-row gap-3.5 pt-1">
+      {/* Left: Podcast Cover Artwork */}
       <div className="relative shrink-0 flex items-center justify-center">
-        <Link
-          to={`/items/${item.id}`}
-          onClick={onOpen}
-          className="relative block size-[92px] sm:size-[104px] rounded-xl overflow-hidden shadow-md ring-1 ring-black/10 dark:ring-white/10 group/thumb"
+        <button
+          type="button"
+          onClick={handlePlayToggle}
+          title={isPlaying ? "暂停播放" : "点击播放单集"}
+          className="group/thumb relative block size-[88px] sm:size-[96px] rounded-xl overflow-hidden bg-neutral-900 border border-line-soft shadow-xs transition-transform duration-200 active:scale-95 focus:outline-hidden"
         >
           <img
             src={imageUrl}
             alt={item.title}
-            className="size-full object-cover transition-transform duration-300 group-hover/thumb:scale-105"
+            className={`size-full object-cover transition-all duration-300 ${isPlaying ? "scale-105 opacity-90" : "group-hover/thumb:scale-105"}`}
             loading="lazy"
             onError={(e) => {
               (e.target as HTMLImageElement).src = "https://d1ng7msft0qysq.cloudfront.net/2403235_podcast.webp";
             }}
           />
-          {/* Subtle Vinyl Record Groove Overlay */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
 
           {/* Duration tag at bottom-right of artwork */}
           {(durationLabel || duration > 0) && (
-            <span className="absolute bottom-1.5 right-1.5 rounded-md bg-black/75 px-1.5 py-0.5 font-mono text-[10.5px] font-semibold text-white/90 backdrop-blur-xs">
+            <span className="absolute bottom-1.5 right-1.5 rounded bg-black/80 px-1 py-0.5 font-mono text-[10px] font-semibold text-white/90 backdrop-blur-xs">
               {durationLabel || `${Math.round(duration / 60)}m`}
             </span>
           )}
 
-          {/* Overlay Play Icon */}
-          <div className="absolute inset-0 grid place-items-center opacity-0 group-hover/thumb:opacity-100 transition-opacity bg-black/40">
-            <span className="grid size-9 place-items-center rounded-full bg-[#CE1141] text-white shadow-lg">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5">
-                <path d="M8 5v14l11-7z" />
-              </svg>
+          {/* Centered Play/Pause Icon Overlay */}
+          <div className={`absolute inset-0 grid place-items-center transition-opacity ${isPlaying ? "opacity-100 bg-black/30" : "opacity-0 group-hover/thumb:opacity-100 bg-black/40"}`}>
+            <span className="grid size-8 place-items-center rounded-full bg-[#CE1141] text-white shadow-md transition-transform group-hover/thumb:scale-110">
+              {isPlaying ? (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+              ) : (
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              )}
             </span>
           </div>
-        </Link>
+        </button>
       </div>
 
-      {/* Right: Content details, player controls */}
+      {/* Right: Content details & player controls */}
       <div className="min-w-0 flex-1 flex flex-col justify-between">
         <div>
-          {/* Channel / Podcast Badge */}
-          <div className="flex flex-wrap items-center gap-2 text-[12px]">
-            <span className="inline-flex items-center gap-1 font-bold text-[#CE1141] bg-red-50 dark:bg-red-950/40 px-2 py-0.5 rounded-full ring-1 ring-[#CE1141]/20">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                <line x1="12" y1="19" x2="12" y2="23"/>
-                <line x1="8" y1="23" x2="16" y2="23"/>
-              </svg>
-              {podcastTitle}
-            </span>
-            {author && author !== podcastTitle && (
-              <span className="text-ink-4 truncate max-w-[140px]">主播: {author}</span>
-            )}
-          </div>
-
           {/* Episode Title */}
-          <h3 className="mt-1.5 text-[16px] sm:text-[17px] font-extrabold leading-[1.4] text-ink tracking-tight transition-colors hover:text-[#CE1141] line-clamp-2">
+          <h3 className="text-[15.5px] sm:text-[16.5px] font-bold leading-[1.4] text-ink tracking-tight transition-colors hover:text-[#CE1141] line-clamp-2">
             <Link to={`/items/${item.id}`} onClick={onOpen}>
               {item.title}
             </Link>
           </h3>
 
-          {/* Summary / Notes */}
+          {/* Episode Summary */}
           {item.summary && (
             <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-ink-3">
               {item.summary}
@@ -234,32 +262,32 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
           )}
         </div>
 
-        {/* Player Controls Strip */}
-        <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
-          {/* Main Play / Pause Capsule */}
+        {/* Minimalist Player Controls Strip */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px]">
+          {/* Main Play / Pause Button */}
           <button
             type="button"
             onClick={handlePlayToggle}
             disabled={isLoading}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[13px] font-bold transition-all shadow-sm active:scale-95 ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[12px] font-semibold transition-all active:scale-95 ${
               isPlaying
-                ? "bg-[#CE1141] text-white shadow-[#CE1141]/30 ring-2 ring-[#CE1141]/20"
-                : "bg-surface border border-[#CE1141]/40 text-[#CE1141] hover:bg-red-50 dark:hover:bg-red-950/40"
+                ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/25"
+                : "bg-bg-sunk hover:bg-neutral-200 dark:hover:bg-neutral-800 text-ink-2 hover:text-[#CE1141]"
             }`}
           >
             {isLoading ? (
-              <span className="inline-block size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              <span className="inline-block size-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
             ) : isPlaying ? (
               <>
                 <EqualizerWave />
-                <span>暂停收听</span>
+                <span>暂停</span>
               </>
             ) : (
               <>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="ml-0.5">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-                <span>收听单集</span>
+                <span>播放 {durationLabel ? `· ${durationLabel}` : ""}</span>
               </>
             )}
           </button>
@@ -271,24 +299,36 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
                 type="button"
                 onClick={(e) => skipTime(-15, e)}
                 title="后退 15 秒"
-                className="grid size-7 place-items-center rounded-full bg-bg-sunk hover:bg-line text-ink-3 text-[11px] font-mono transition-colors"
+                className="grid size-6 place-items-center rounded-full bg-bg-sunk hover:bg-line text-ink-3 text-[10.5px] font-mono transition-colors"
               >
-                -15s
+                -15
               </button>
               <button
                 type="button"
                 onClick={(e) => skipTime(15, e)}
                 title="快进 15 秒"
-                className="grid size-7 place-items-center rounded-full bg-bg-sunk hover:bg-line text-ink-3 text-[11px] font-mono transition-colors"
+                className="grid size-6 place-items-center rounded-full bg-bg-sunk hover:bg-line text-ink-3 text-[10.5px] font-mono transition-colors"
               >
-                +15s
+                +15
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  const rates = [1, 1.25, 1.5, 2];
+                  const nextRate = rates[(rates.indexOf(playbackRate) + 1) % rates.length];
+                  changeRate(nextRate, e);
+                }}
+                title="切换播放速度"
+                className="px-2 py-0.5 rounded-full bg-bg-sunk hover:bg-line text-ink-3 hover:text-ink text-[11px] font-mono transition-colors cursor-pointer"
+              >
+                {playbackRate}x
               </button>
             </div>
           )}
 
-          {/* Interactive Progress Scrubbing */}
-          {isPlaying && duration > 0 ? (
-            <div className="flex-1 min-w-[140px] max-w-xs flex items-center gap-2 px-1">
+          {/* Interactive Progress Scrubbing when playing */}
+          {isPlaying && duration > 0 && (
+            <div className="flex-1 min-w-[130px] max-w-xs flex items-center gap-2 px-1">
               <input
                 type="range"
                 min="0"
@@ -296,16 +336,12 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
                 step="1"
                 value={currentTime}
                 onChange={handleSeek}
-                className="w-full h-1.5 bg-line-strong rounded-lg appearance-none cursor-pointer accent-[#CE1141]"
+                className="w-full h-1 bg-line-strong rounded-lg appearance-none cursor-pointer accent-[#CE1141]"
               />
-              <span className="text-[11.5px] font-mono font-medium text-ink-3 whitespace-nowrap">
+              <span className="text-[11px] font-mono text-ink-3 whitespace-nowrap">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
             </div>
-          ) : (
-            <span className="text-[12px] font-mono text-ink-4">
-              {durationLabel || (duration > 0 ? `${Math.round(duration / 60)} 分钟全集` : "")}
-            </span>
           )}
 
           {/* Direct External Link */}
@@ -313,11 +349,11 @@ export const PodcastCardPlayer = memo(function PodcastCardPlayer({
             href={item.links?.original || item.url}
             target="_blank"
             rel="noopener noreferrer"
-            title="打开原始播客主页"
-            className="ml-auto inline-flex items-center gap-1 text-[12px] font-medium text-ink-4 hover:text-[#CE1141] transition-colors"
+            title="前往原平台收听"
+            className="ml-auto inline-flex items-center gap-1 text-[11.5px] text-ink-4 hover:text-[#CE1141] transition-colors"
           >
             <span>源台收听</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
               <polyline points="15 3 21 3 21 9"/>
               <line x1="10" y1="14" x2="21" y2="3"/>
@@ -346,7 +382,17 @@ export const PodcastDetailPlayer = memo(function PodcastDetailPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState<number>(typeof p?.duration === "number" ? p.duration : 0);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const playbackRateRef = useRef(1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const podcastTitle = p?.podcastTitle || "休斯敦火箭播客";
   const author = p?.author || item.author || item.source?.name || "";
@@ -396,17 +442,29 @@ export const PodcastDetailPlayer = memo(function PodcastDetailPlayer({
 
     if (!audioRef.current) {
       const audio = new Audio(targetAudioUrl);
+      audio.defaultPlaybackRate = playbackRateRef.current;
+      audio.playbackRate = playbackRateRef.current;
       audioRef.current = audio;
       audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
       audio.addEventListener("loadedmetadata", () => {
         if (audio.duration && !isNaN(audio.duration)) setDuration(audio.duration);
+        audio.defaultPlaybackRate = playbackRateRef.current;
+        audio.playbackRate = playbackRateRef.current;
+      });
+      audio.addEventListener("canplay", () => {
+        audio.defaultPlaybackRate = playbackRateRef.current;
+        audio.playbackRate = playbackRateRef.current;
       });
       audio.addEventListener("ended", () => {
         setIsPlaying(false);
         setCurrentTime(0);
       });
       audio.addEventListener("pause", () => setIsPlaying(false));
-      audio.addEventListener("play", () => setIsPlaying(true));
+      audio.addEventListener("play", () => {
+        setIsPlaying(true);
+        audio.defaultPlaybackRate = playbackRateRef.current;
+        audio.playbackRate = playbackRateRef.current;
+      });
     }
 
     const audio = audioRef.current;
@@ -416,6 +474,8 @@ export const PodcastDetailPlayer = memo(function PodcastDetailPlayer({
     } else {
       registerPlayingAudio(audio, () => setIsPlaying(false));
       try {
+        audio.defaultPlaybackRate = playbackRateRef.current;
+        audio.playbackRate = playbackRateRef.current;
         await audio.play();
         setIsPlaying(true);
       } catch (err) {
@@ -425,8 +485,16 @@ export const PodcastDetailPlayer = memo(function PodcastDetailPlayer({
   };
 
   const changeRate = (rate: number) => {
+    playbackRateRef.current = rate;
     setPlaybackRate(rate);
-    if (audioRef.current) audioRef.current.playbackRate = rate;
+    if (audioRef.current) {
+      try {
+        audioRef.current.defaultPlaybackRate = rate;
+        audioRef.current.playbackRate = rate;
+      } catch (err) {
+        console.error("Failed to set playback rate:", err);
+      }
+    }
   };
 
   const skip = (secs: number) => {
@@ -463,31 +531,37 @@ export const PodcastDetailPlayer = memo(function PodcastDetailPlayer({
       </div>
 
       <div className="mt-6 pt-5 border-t border-line-soft flex flex-col gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={togglePlay}
             disabled={isLoading}
-            className="inline-flex items-center gap-2 rounded-full bg-[#CE1141] px-5 py-2 text-[14px] font-bold text-white shadow-md hover:bg-[#b00e36] transition-all"
+            className="inline-flex items-center gap-2 rounded-full bg-[#CE1141] px-5 py-2 text-[14px] font-bold text-white shadow-md hover:bg-[#b00e36] transition-all cursor-pointer"
           >
             {isPlaying ? "暂停播放" : "立即播放"}
           </button>
-          <button type="button" onClick={() => skip(-15)} className="px-2.5 py-1 text-[12px] font-mono bg-bg-sunk rounded-full hover:bg-line">
+          <button type="button" onClick={() => skip(-15)} className="px-2.5 py-1 text-[12px] font-mono bg-bg-sunk rounded-full hover:bg-line cursor-pointer">
             -15s
           </button>
-          <button type="button" onClick={() => skip(15)} className="px-2.5 py-1 text-[12px] font-mono bg-bg-sunk rounded-full hover:bg-line">
+          <button type="button" onClick={() => skip(15)} className="px-2.5 py-1 text-[12px] font-mono bg-bg-sunk rounded-full hover:bg-line cursor-pointer">
             +15s
           </button>
-          {[1, 1.25, 1.5].map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => changeRate(r)}
-              className={`px-2 py-0.5 text-[11.5px] font-mono rounded-full ${playbackRate === r ? "bg-ink text-bg font-bold" : "text-ink-4 hover:text-ink"}`}
-            >
-              {r}x
-            </button>
-          ))}
+          <div className="inline-flex items-center rounded-full bg-bg-sunk p-0.5 border border-line-soft">
+            {[1, 1.25, 1.5, 2].map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => changeRate(r)}
+                className={`px-2.5 py-1 text-[12px] font-mono rounded-full transition-all cursor-pointer ${
+                  playbackRate === r
+                    ? "bg-[#CE1141] text-white font-bold shadow-xs"
+                    : "text-ink-3 hover:text-ink"
+                }`}
+              >
+                {r}x
+              </button>
+            ))}
+          </div>
         </div>
         {duration > 0 && (
           <div className="flex items-center gap-3 pt-2">
