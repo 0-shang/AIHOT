@@ -84,6 +84,15 @@ export function listedCondition(now: Date) {
     AND p.source_id NOT LIKE '%sportspyder%'
     AND p.url NOT LIKE '%sportspyder.com%'
     AND p.title NOT LIKE '%卡斯特罗%'
+    AND NOT (p.tags && ARRAY['非火箭/联盟其他', '非火箭', '联盟其他']::text[])
+    AND NOT (
+      p.title ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振)'
+      AND NOT p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|durant|杜兰特)'
+    )
+    AND (
+      p.source_id != 'rss-podcast-sportstalk790'
+      OR p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯|nba|preseason|draft|training camp|media day)'
+    )
     AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%'))
     AND (NOT p.selected OR p.visible_after IS NULL OR p.visible_after <= ${now})`;
 }
@@ -96,6 +105,11 @@ export function selectedCondition(now: Date) {
     AND p.source_id NOT LIKE '%sportspyder%'
     AND p.url NOT LIKE '%sportspyder.com%'
     AND p.title NOT LIKE '%卡斯特罗%'
+    AND NOT (p.tags && ARRAY['非火箭/联盟其他', '非火箭', '联盟其他']::text[])
+    AND NOT (
+      p.title ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振)'
+      AND NOT p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|durant|杜兰特)'
+    )
     AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%'))
     AND p.selected
     AND (p.visible_after IS NULL OR p.visible_after <= ${now})
@@ -123,11 +137,12 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
       AND (p.channel = 'x' OR p.category = 'videos' OR p.source_id LIKE 'yt-%' OR p.body_mode = 'full')`;
   }
   if (category === "news") {
-    // 动态栏目：球队官方动态、伤病、战报与快讯，以及专注休斯敦火箭的纯博主与社区（SleeperRockets, ClutchFans等），图文必须具备正文
+    // 动态栏目：球队官方动态、伤病、战报与全网快讯（含 DunkCentral, HoopCentral 等聚合快讯），以及专注休斯敦火箭的博主与社区，图文必须具备正文
     return sql`AND (
       p.category = 'news'
       OR p.source_id IN (
-        'x-houston-rockets', 'x-clutchfans', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rocketsnation-cp', 'x-rockets-wire'
+        'x-houston-rockets', 'x-clutchfans', 'x-sleeper-rockets', 'x-spacecity-hn', 'x-rocketsnation-cp', 'x-rockets-wire',
+        'x-thedunkcentral-rockets', 'x-thehoopcentral-rockets'
       )
       OR (p.category IS NULL AND (p.channel = 'news' OR p.first_party))
     )
@@ -136,11 +151,15 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     AND p.source_id NOT LIKE '%podcast%'`;
   }
   if (category === "podcasts") {
-    // 播客栏目：官方与随队播客
+    // 播客栏目：官方与随队播客，针对综合电台 SportsTalk 790 必须严格限定包含火箭核心内容
     return sql`AND (
       p.category = 'podcasts'
       OR p.source_id LIKE 'rss-podcast-%'
       OR p.source_id IN ('rss-podcast-lockedon', 'rss-podcast-launchpod', 'rss-podcast-rocketfuel', 'rss-podcast-rocketsdaily')
+    )
+    AND (
+      p.source_id != 'rss-podcast-sportstalk790'
+      OR p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯|nba|preseason|draft|training camp|media day)'
     )`;
   }
   if (category === "videos") {
@@ -152,10 +171,13 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     )`;
   }
   if (category === "beat_tweets") {
-    // 队记推文栏目：随队名记推文流，排除官方推特
+    // 队记推文栏目：随队名记推文流，排除官方推特与全网快讯账号（DunkCentral, HoopCentral 等已归入动态）
     return sql`AND (
       p.category = 'beat_tweets'
-      OR ((p.channel = 'x' OR p.source_id LIKE 'x-%') AND p.source_id != 'x-houston-rockets')
+      OR (
+        (p.channel = 'x' OR p.source_id LIKE 'x-%')
+        AND p.source_id NOT IN ('x-houston-rockets', 'x-thedunkcentral-rockets', 'x-thehoopcentral-rockets')
+      )
     )`;
   }
   if (category === "analysis") {
@@ -168,10 +190,8 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     AND p.channel != 'x'`;
   }
   if (category === "trades") {
-    return sql`AND (
-      p.category = 'trades'
-      OR p.tags && ARRAY['交易流言', '签约', '交易']::text[]
-    )
+    // 流言栏目：仅展示实质交易、签约、买断、合同谈判等交易流言，排除排名与非交易内容
+    return sql`AND p.category = 'trades'
     AND (p.channel = 'x' OR p.body_mode = 'full')`;
   }
   // v1 and RSS publish opinion as tip.

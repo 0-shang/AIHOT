@@ -57,3 +57,11 @@ test("accepts genuine articles containing occasional inline reference links", ()
   const text = "Houston Rockets head coach Ime Udoka addressed the media following Wednesday's practice session to clarify the team's planned opening-night rotation. With veteran guard Fred VanVleet sidelined due to injury, Udoka noted that Amen Thompson is slated to join Jalen Green in the primary backcourt pairing, according to local beat reporters. Meanwhile, newly acquired forward Kevin Durant will start alongside Dillon Brooks and Turkish center Alperen Sengun, giving Houston one of the most versatile frontline lineups in the Western Conference this upcoming season.";
   assert.equal(isSubstantiveBody(html, text), true, "should accept real news article with a few inline links");
 });
+
+test("rejects photo metadata and Getty Images license disclaimers without substantive body (e.g. Yahoo single-photo news)", () => {
+  const html = `
+    <p>MACAU, CHINA - OCTOBER 11: Kyrie Irving #11 of Dallas Mavericks shoots during NBA China Games 2026 between Dallas Mavericks and Houston Rockets at The Venetian Arena on the Cotai Strip on October 11, 2026 in Macau, China. NOTE TO USER: User expressly acknowledges and agrees that, by downloading and/or using this Photograph, user is consenting to the terms and conditions of the Getty Images License Agreement. (Photo by Zhizhao Wu/Getty Images)</p>
+  `;
+  const text = "MACAU, CHINA - OCTOBER 11: Kyrie Irving #11 of Dallas Mavericks shoots during NBA China Games 2026 between Dallas Mavericks and Houston Rockets at The Venetian Arena on the Cotai Strip on October 11, 2026 in Macau, China. NOTE TO USER: User expressly acknowledges and agrees that, by downloading and/or using this Photograph, user is consenting to the terms and conditions of the Getty Images License Agreement. (Photo by Zhizhao Wu/Getty Images)";
+  assert.equal(isSubstantiveBody(html, text), false, "should reject single photo captions with Getty Images disclaimers");
+});

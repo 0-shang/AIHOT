@@ -35,6 +35,15 @@ export function noiseFiltered(c: Candidate, source: SourceRow): boolean {
     return false;
   }
 
+  // 综合 NBA 源（如 NBA Analysis Network）：必须包含火箭队主体或核心人员，否则属于其他球队内容，直接丢弃
+  if (source.id.includes("nbaanalysis") || source.id.includes("general")) {
+    const hayAnalysis = `${c.title}\n${c.excerpt ?? ""}`;
+    const rocketsKeywords = /\b(rockets|houston rockets|clutch city|toyota center|udoka|ime udoka|sengun|alperen sengun|alpi|jalen green|amen thompson|reed sheppard|sheppard|vanvleet|freddie|durant|kevin durant|jabari smith|tari eason|cam whitmore|whitmore|steven adams|adams|rafael stone|stone)\b|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|格林|阿门|谢泼德|范弗里特|杜兰特|小贾巴里|史密斯|伊森|惠特莫尔|亚当斯|斯通|丰田中心/i;
+    if (!rocketsKeywords.test(hayAnalysis)) {
+      return true; // 丢弃：非火箭内容
+    }
+  }
+
   // 休斯敦同城其他球队（德州人、太空人、油人、NFL、MLB等）强力拦截：直接丢弃
   const nonRocketsPattern = /(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|\bnfl\b|\bmlb\b|\bmls\b|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|跑卫|角卫|内线卫|特勤组|达阵|棒球|橄榄球|全垒打|安打|三振|投手|击球手|保送|红雀|马文·哈里森|marvin harrison)/i;
   const hayAll = `${c.title}\n${c.excerpt ?? ""}`;

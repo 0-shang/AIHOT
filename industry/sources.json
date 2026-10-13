@@ -1262,7 +1262,7 @@
     },
     {
       "id": "x-thedunkcentral-rockets",
-      "name": "Dunk Central (@TheDunkCentral 火箭相关快讯与流言)",
+      "name": "Dunk Central (@TheDunkCentral)",
       "kind": "x_search",
       "config": {
         "query": "from:TheDunkCentral (Rockets OR \"Houston Rockets\" OR Sengun OR Udoka OR Sheppard OR \"Amen Thompson\" OR \"Jabari Smith\" OR \"Tari Eason\" OR VanVleet OR \"Cam Whitmore\" OR Durant) -filter:replies",
@@ -1274,7 +1274,6 @@
       "participation_mode": "editorial",
       "interval_minutes": 15,
       "tags": [
-        "交易流言",
         "全网快讯",
         "球队动态"
       ],
@@ -1283,7 +1282,7 @@
     },
     {
       "id": "x-thehoopcentral-rockets",
-      "name": "Hoop Central (@TheHoopCentral 火箭相关快讯与流言)",
+      "name": "Hoop Central (@TheHoopCentral)",
       "kind": "x_search",
       "config": {
         "query": "from:TheHoopCentral (Rockets OR \"Houston Rockets\" OR Sengun OR Udoka OR Sheppard OR \"Amen Thompson\" OR \"Jabari Smith\" OR \"Tari Eason\" OR VanVleet OR \"Cam Whitmore\" OR Durant) -filter:replies",
@@ -1295,7 +1294,6 @@
       "participation_mode": "editorial",
       "interval_minutes": 15,
       "tags": [
-        "交易流言",
         "全网快讯",
         "球队动态"
       ],

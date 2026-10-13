@@ -207,10 +207,25 @@ export function isSubstantiveBody(html: string, text: string): boolean {
   const minChars = hasCjk ? 120 : 250;
   if (trimmed.length < minChars) return false;
 
-  // 拦截单张图片说明/摄影记者署名等伪正文（如图一中的图片版权信息与单句描述）
-  const isPhotoCaption = /^(?:[A-Za-z]{3}\s+\d{1,2},\s+\d{4}|\d{4})[^\n]+(?:mandatory credit|imagn images|reuters|getty images|ap photo|usa today sports|pool photo)/i.test(trimmed)
+  // 彻底拦截 Getty / AP / Reuters 等纯图片授权声明与照片描述（如 Yahoo 等图文报道正文抓空仅剩照片元数据）
+  if (/NOTE TO USER:\s*User expressly acknowledges/i.test(trimmed) || /Getty Images License Agreement/i.test(trimmed)) {
+    return false;
+  }
+
+  // 拦截单张图片说明/摄影记者署名等伪正文（支持 "MACAU, CHINA - OCTOBER 11: ..." 等全球电讯图说）
+  const isPhotoCaption = /^(?:[A-Za-z\s,.-]+ - [A-Za-z]+\s+\d{1,2}:|[A-Za-z]{3}\s+\d{1,2},\s+\d{4}|\d{4})[^\n]+(?:mandatory credit|imagn images|reuters|getty images|ap photo|usa today sports|pool photo|license agreement)/i.test(trimmed)
     || /^(?:mandatory credit|photo by|photo:|image:|credit:)/i.test(trimmed);
-  if (isPhotoCaption && trimmed.length < 600) return false;
+  if (isPhotoCaption && trimmed.length < 750) return false;
+
+  // 计算剔除图片版权与图说后的实质正文字数
+  const cleanedText = trimmed
+    .replace(/NOTE TO USER:[^\n]+/gi, "")
+    .replace(/\(Photo by[^\)]+\)/gi, "")
+    .replace(/(?:Mandatory Credit|Photo by|Photo:|Image:|Credit:)[^\n]+/gi, "")
+    .replace(/^[A-Za-z\s,.-]+ - [A-Za-z]+\s+\d{1,2}:[^\n]+/gi, "")
+    .replace(/[^\n]+(?:mandatory credit|imagn images|reuters|getty images|ap photo|usa today sports)[^\n]*/gi, "")
+    .trim();
+  if (cleanedText.length < (hasCjk ? 100 : 220)) return false;
 
   const $ = cheerio.load(html, null, false);
 
@@ -225,7 +240,7 @@ export function isSubstantiveBody(html: string, text: string): boolean {
   const paraTexts = paragraphs.map((el) => $(el).text().trim()).filter(Boolean);
   if (paraTexts.length === 0) return false;
   // 单段且字数不足或为图片说明的判定为无效正文
-  if (paraTexts.length <= 1 && (trimmed.length < 450 || isPhotoCaption)) return false;
+  if (paraTexts.length <= 1 && (trimmed.length < 450 || isPhotoCaption || cleanedText.length < 350)) return false;
 
   const maxParaLen = Math.max(...paraTexts.map((p) => p.length));
   if (maxParaLen < 45 && trimmed.length < 600) return false;

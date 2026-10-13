@@ -181,33 +181,58 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const hasVideoMedia = (articleMedia && articleMedia.some((m) => m?.kind === "video")) ||
     (rawXPost?.media && Array.isArray(rawXPost.media) && rawXPost.media.some((m: any) => m?.kind === "video"));
 
-  const mentionsRockets = /(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯)/i.test(article.title || "");
+  const titleAndSummary = `${article.title || ""} ${zhTitle || ""} ${analysis?.summary_zh || ""} ${article.excerpt || ""}`;
+  const mentionsRockets = /(rockets|houston rockets|clutch city|toyota center|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|阿门|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|格林|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯)/i.test(titleAndSummary);
+
   const isOtherHoustonTeam =
     !mentionsRockets &&
     /(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|跑卫|角卫|达阵|棒球|橄榄球|全垒打|安打|三振|红雀|马文·哈里森|marvin harrison)/i.test(article.title || "");
 
+  // 综合信源（如综合战术网 nbaanalysis、雅虎等非纯火箭专区）或者被判定为“非火箭/联盟其他”标签的内容彻底过滤
+  const isExplicitNonRockets = (analysis?.tags ?? []).some((t) => t.includes("非火箭") || t.includes("联盟其他")) ||
+    (analysis?.subjects ?? []).some((s) => s.includes("非火箭"));
+  const isGeneralSource = source.id.includes("nbaanalysis") || source.id.includes("general") || source.id.includes("yahoo") || source.id.includes("bleacherreport");
+  const isIrrelevantGeneralNews = isGeneralSource && !mentionsRockets;
+  const isIrrelevantSportsTalk = source.id.includes("sportstalk790") && !mentionsRockets;
+
+  const isNonRocketsContent = isOtherHoustonTeam || isExplicitNonRockets || isIrrelevantGeneralNews || isIrrelevantSportsTalk;
+
   const hasLongArticleBody = !article.x_post && typeof article.body_text === "string" && article.body_text.length >= 1800;
   const isDedicatedRocketsCommunity = source.id.includes("sleeper") || source.id.includes("clutchfans") || source.id.includes("rocketsnation");
-  const isTradeRumor = /(trade|rumor|waive|signing|buyout|deal|free agen|contract|交易|签约|流言|买断|裁掉|互换)/i.test(article.title || "");
+
+  // 严格交易流言判定：必须正面涉及交易、签约、买断、裁员、合同续约等实质运作，排除排名与普通资讯
+  const explicitTradeRegex = /(trade|rumor|waive|signing|buyout|free agent|free agency|contract extension|contract|swap|deal\b|交易|签约|流言|买断|裁掉|互换|续约|报价|离队传闻)/i;
+  const nonTradeExclusionRegex = /(防守排名|排名预测|预测排名|实力榜|复出|战报|全场集锦|赛前前瞻|赛后采访|伤病名单|首发阵容|power ranking|defensive ranking|standings|lineup|injury report)/i;
+
+  const isTradeRumor = explicitTradeRegex.test(titleAndSummary) && !nonTradeExclusionRegex.test(titleAndSummary);
+  const isCentralAggregator = source.id.includes("thedunkcentral") || source.id.includes("thehoopcentral") || source.id.includes("nbacentral");
   const isTacticalOrPreview = /(tactical|preview|film breakdown|scouting|deep dive|breakdown|salary cap|前瞻|战术|深度|剖析|拆解|高阶)/i.test(article.title || "");
 
   const fallbackCat =
     source.id.includes("podcast") ? "podcasts" :
     source.id.includes("video") || source.id.startsWith("yt-") || hasVideoMedia ? "videos" :
-    (channelOf(source.kind, !!article.x_post) === "x" && !source.id.includes("houston-rockets")) ? "beat_tweets" :
     isTradeRumor ? "trades" :
+    isCentralAggregator ? "news" :
+    (channelOf(source.kind, !!article.x_post) === "x" && !source.id.includes("houston-rockets")) ? "beat_tweets" :
     isTacticalOrPreview ? "analysis" :
     "news";
 
   const rawCat = pickString(f.category, analysis?.category);
-  const resolvedCat = (rawCat && isCategoryKey(rawCat)) ? rawCat : fallbackCat;
+  // 严格限制流言分类：必须真实包含交易传闻关键词且非排名或比赛资讯
+  const validatedCat = (rawCat === "trades" && !isTradeRumor) ? "news" : rawCat;
+  const resolvedCat = (validatedCat && isCategoryKey(validatedCat)) ? validatedCat : fallbackCat;
   const category = pickString(f.category, resolvedCat);
 
   const title = pickString(f.title, zhTitle ?? collapseWhitespace(article.title));
   const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
   const summary = pickString(f.summary, analysis?.summary_zh ?? fallbackSummary);
   
-  const tags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(source.tags ?? [])])];
+  const rawTags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(source.tags ?? [])])];
+  const tags = rawTags.filter((t) => {
+    if (t.includes("非火箭") || t.includes("联盟其他")) return false;
+    if (category !== "trades" && (t === "交易流言" || t === "交易" || t === "签约")) return false;
+    return true;
+  });
   const score = typeof f.score === "number" ? f.score : (analysis?.score ?? 70);
   const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (analysis?.relevance ?? "pass");
   const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
@@ -223,11 +248,11 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const isInvalidCrawl = isWebArticle && isTargetFeedCategory && (bodyMode !== "full" || !hasQualityBody || summaryIndicatesFailedCrawl);
 
   // Material from an isolated source reaches no public surface at all: not even a detail page.
-  // 无效抓取的图文报道（无实质正文或摘要表明抓取失败）也彻底下架（withdrawn），禁止在全站（包含首页、动态、专栏、流言、聚合报道及详情页）展示
-  const visibility = isOtherHoustonTeam || isInvalidCrawl || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
+  // 无效抓取的图文报道（无实质正文或摘要表明抓取失败）以及非火箭内容也彻底下架（withdrawn），禁止在全站展示
+  const visibility = isNonRocketsContent || isInvalidCrawl || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
 
-  const eligible = isOtherHoustonTeam || isInvalidCrawl ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
-  const selected = isInvalidCrawl ? false : isSelectable(eligible, judgedSelected, source.tier);
+  const eligible = isNonRocketsContent || isInvalidCrawl ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
+  const selected = isInvalidCrawl || isNonRocketsContent ? false : isSelectable(eligible, judgedSelected, source.tier);
   const reason = selected ? pickString(f.reason, analysis?.reason_zh ?? null) : null;
   const syndicate = mayRedistribute(source, bodyMode);
   const originalTitle = isChineseTitle && title === collapseWhitespace(article.title) ? null : collapseWhitespace(article.title);
