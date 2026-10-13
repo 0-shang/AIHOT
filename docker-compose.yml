@@ -41,7 +41,7 @@ services:
   setup:
     <<: *app
     restart: "no"
-    command: ["sh", "-c", "node scripts/migrate.ts && node scripts/seed.ts"]
+    command: ["sh", "-c", "node scripts/migrate.ts && node scripts/seed.ts && node scripts/sync-publications.ts"]
 
   api:
     <<: *app

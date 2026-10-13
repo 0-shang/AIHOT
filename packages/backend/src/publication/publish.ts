@@ -217,13 +217,14 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const effectiveBodyStatus = hasQualityBody ? "ok" : article.body_status;
   const bodyMode = bodyModeOf(source, effectiveBodyStatus, hasQualityBody);
 
-  // 无效抓取判定：对于新闻/专栏/流言类图文报道，未成功抓取到实质正文（仅有摘要、仅有单句图片说明或未确认正文）的判定为无效抓取，禁止推入我的动态、专栏与流言
   const isWebArticle = channel !== "x" && !source.id.includes("podcast") && !source.id.includes("video") && !source.id.startsWith("yt-") && !hasVideoMedia;
   const isTargetFeedCategory = !category || category === "news" || category === "analysis" || category === "trades";
-  const isInvalidCrawl = isWebArticle && isTargetFeedCategory && (bodyMode !== "full" || !hasQualityBody);
+  const summaryIndicatesFailedCrawl = typeof summary === "string" && /(页面组件未能加载|具体分析细节无法获取|未能加载|无法获取正文|未能抓取到正文|正文未加载|正文内容缺失)/i.test(summary);
+  const isInvalidCrawl = isWebArticle && isTargetFeedCategory && (bodyMode !== "full" || !hasQualityBody || summaryIndicatesFailedCrawl);
 
   // Material from an isolated source reaches no public surface at all: not even a detail page.
-  const visibility = isOtherHoustonTeam || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
+  // 无效抓取的图文报道（无实质正文或摘要表明抓取失败）也彻底下架（withdrawn），禁止在全站（包含首页、动态、专栏、流言、聚合报道及详情页）展示
+  const visibility = isOtherHoustonTeam || isInvalidCrawl || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
 
   const eligible = isOtherHoustonTeam || isInvalidCrawl ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
   const selected = isInvalidCrawl ? false : isSelectable(eligible, judgedSelected, source.tier);
