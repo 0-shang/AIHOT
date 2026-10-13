@@ -90,7 +90,7 @@ export function listedCondition(now: Date) {
       AND NOT p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|durant|杜兰特)'
     )
     AND (
-      p.source_id != 'rss-podcast-sportstalk790'
+      p.source_id NOT LIKE 'rss-podcast-sportstalk790%'
       OR p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯|nba|preseason|draft|training camp|media day)'
     )
     AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%'))
@@ -158,7 +158,7 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
       OR p.source_id IN ('rss-podcast-lockedon', 'rss-podcast-launchpod', 'rss-podcast-rocketfuel', 'rss-podcast-rocketsdaily')
     )
     AND (
-      p.source_id != 'rss-podcast-sportstalk790'
+      p.source_id NOT LIKE 'rss-podcast-sportstalk790%'
       OR p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯|nba|preseason|draft|training camp|media day)'
     )`;
   }
@@ -277,6 +277,13 @@ export function deduplicateFeedItems<T extends { id: string; title: string; summ
     }
   }
 
+  // Re-sort after in-place replacements: a replaced item may have a different timelineAt,
+  // which breaks the original chronological order and causes day-groups to appear out of sequence.
+  result.sort((a, b) => {
+    const ta = new Date(a.timelineAt || a.publishedAt || 0).getTime();
+    const tb = new Date(b.timelineAt || b.publishedAt || 0).getTime();
+    return tb - ta;
+  });
   return result;
 }
 

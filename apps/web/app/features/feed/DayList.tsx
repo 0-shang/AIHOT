@@ -59,6 +59,15 @@ export function DayList({ items, todayCount = null, showTags = true, animate = f
       if (!dup) deduplicated.push(it);
     }
 
+    // Sort by timelineAt DESC after dedup: in-place replacements can swap dates, causing
+    // non-contiguous day groups (e.g. 10/13, 10/10, 9/30, 10/12). Sorting first guarantees
+    // that the streaming grouper below never produces duplicate day sections.
+    deduplicated.sort((a, b) => {
+      const ta = new Date(a.timelineAt || 0).getTime();
+      const tb = new Date(b.timelineAt || 0).getTime();
+      return tb - ta;
+    });
+
     const out: Array<{ day: string; items: FeedItemSummary[] }> = [];
     for (const it of deduplicated) {
       const d = beijingDate(it.timelineAt);
