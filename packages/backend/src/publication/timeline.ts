@@ -94,7 +94,43 @@ async function queryGroupedAnchors(q: TimelineQuery, now: Date) {
   return rows;
 }
 
+// Cached timeline responses for initial page loads (no cursor), reused for 25 seconds.
+const timelineDataCache = new Map<string, { at: number; data: Omit<TimelineResponse, "hot" | "generatedAt"> }>();
+const timelinePending = new Map<string, Promise<Omit<TimelineResponse, "hot" | "generatedAt">>>();
+
 export async function loadTimeline(q: TimelineQuery): Promise<Omit<TimelineResponse, "hot" | "generatedAt">> {
+  const cacheKey = !q.cursor && !q.now ? JSON.stringify([
+    q.channel ?? "all",
+    q.category ?? null,
+    q.tag ?? null,
+    q.topicTags ?? null,
+    q.limit ?? 20,
+  ]) : null;
+
+  if (cacheKey) {
+    const hit = timelineDataCache.get(cacheKey);
+    if (hit && Date.now() - hit.at < 25_000) return hit.data;
+    const pending = timelinePending.get(cacheKey);
+    if (pending) return pending;
+  }
+
+  const load = (async () => {
+    const res = await loadTimelineInternal(q);
+    if (cacheKey) {
+      if (timelineDataCache.size >= 100) timelineDataCache.delete(timelineDataCache.keys().next().value!);
+      timelineDataCache.set(cacheKey, { at: Date.now(), data: res });
+    }
+    return res;
+  })();
+
+  if (cacheKey) {
+    timelinePending.set(cacheKey, load);
+    try { return await load; } finally { timelinePending.delete(cacheKey); }
+  }
+  return load;
+}
+
+async function loadTimelineInternal(q: TimelineQuery): Promise<Omit<TimelineResponse, "hot" | "generatedAt">> {
   const now = q.now ?? new Date();
   const limit = Math.min(Math.max(q.limit ?? 20, 1), 40);
   const bind = binding(q);

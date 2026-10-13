@@ -16,23 +16,113 @@ export class ApiError extends Error {
   }
 }
 
+interface ApiCacheEntry {
+  data: any;
+  cachedAt: number;
+  headers: [string, string][];
+}
+
+const apiCache = new Map<string, ApiCacheEntry>();
+const apiPending = new Map<string, Promise<{ data: any; headers: [string, string][] }>>();
+
+const FRESH_TTL_MS = 25_000;
+const MAX_STALE_MS = 300_000;
+
 export async function apiGet<T>(path: string, init?: { signal?: AbortSignal; headers?: Record<string, string>; responseHeaders?: Headers }): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { accept: "application/json", "x-aihot-ssr": "1", ...init?.headers },
-    signal: init?.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(15_000)]) : AbortSignal.timeout(15_000),
-  });
-  if (!res.ok) {
-    let code: string | null = null;
-    try {
-      code = ((await res.json()) as { code?: string }).code ?? null;
-    } catch {
-      // not JSON
+  const isSiteGet = path.startsWith("/api/site/") && !path.includes("/admin");
+
+  if (isSiteGet) {
+    const hit = apiCache.get(path);
+    const now = Date.now();
+    if (hit) {
+      if (now - hit.cachedAt < FRESH_TTL_MS) {
+        if (init?.responseHeaders) {
+          for (const [k, v] of hit.headers) init.responseHeaders.set(k, v);
+        }
+        return hit.data as T;
+      }
+      // Stale-While-Revalidate: trigger background revalidation if not already in flight
+      if (now - hit.cachedAt < MAX_STALE_MS) {
+        if (!apiPending.has(path)) {
+          fetchFresh<T>(path, init).catch(() => {});
+        }
+        if (init?.responseHeaders) {
+          for (const [k, v] of hit.headers) init.responseHeaders.set(k, v);
+        }
+        return hit.data as T;
+      }
     }
-    const retry = res.headers.get("retry-after");
-    throw new ApiError(res.status, code, retry ? Number(retry) : null);
+
+    const pending = apiPending.get(path);
+    if (pending) {
+      const res = await pending;
+      if (init?.responseHeaders) {
+        for (const [k, v] of res.headers) init.responseHeaders.set(k, v);
+      }
+      return res.data as T;
+    }
   }
-  res.headers.forEach((value, name) => init?.responseHeaders?.set(name, value));
-  return (await res.json()) as T;
+
+  try {
+    const res = await fetchFresh<T>(path, init);
+    return res;
+  } catch (err) {
+    // Resilient fallback: if upstream API fails or times out, serve stale cache if we have one
+    const staleHit = apiCache.get(path);
+    if (staleHit) {
+      if (init?.responseHeaders) {
+        for (const [k, v] of staleHit.headers) init.responseHeaders.set(k, v);
+      }
+      return staleHit.data as T;
+    }
+    throw err;
+  }
+}
+
+async function fetchFresh<T>(path: string, init?: { signal?: AbortSignal; headers?: Record<string, string>; responseHeaders?: Headers }): Promise<T> {
+  const isSiteGet = path.startsWith("/api/site/") && !path.includes("/admin");
+  const perform = async (): Promise<{ data: T; headers: [string, string][] }> => {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { accept: "application/json", "x-aihot-ssr": "1", ...init?.headers },
+      signal: init?.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(15_000)]) : AbortSignal.timeout(15_000),
+    });
+    if (!res.ok) {
+      let code: string | null = null;
+      try {
+        code = ((await res.json()) as { code?: string }).code ?? null;
+      } catch {
+        // not JSON
+      }
+      const retry = res.headers.get("retry-after");
+      throw new ApiError(res.status, code, retry ? Number(retry) : null);
+    }
+    const headersList: [string, string][] = [];
+    res.headers.forEach((value, name) => {
+      headersList.push([name, value]);
+      init?.responseHeaders?.set(name, value);
+    });
+    const json = (await res.json()) as T;
+    return { data: json, headers: headersList };
+  };
+
+  if (!isSiteGet) {
+    const { data } = await perform();
+    return data;
+  }
+
+  const p = perform().then((res) => {
+    if (apiCache.size >= 300) apiCache.delete(apiCache.keys().next().value!);
+    apiCache.set(path, { data: res.data, cachedAt: Date.now(), headers: res.headers });
+    return res;
+  });
+
+  apiPending.set(path, p);
+  try {
+    const result = await p;
+    return result.data;
+  } finally {
+    apiPending.delete(path);
+  }
 }
 
 /** Maps API failures to route responses: real 404s, search-busy page, otherwise 503. */

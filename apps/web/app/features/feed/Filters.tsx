@@ -43,11 +43,11 @@ export function CategoryTabs({
   const [params] = useSearchParams();
   // Tab 顺序：动态 → 热点 → 队记 → 专栏 → 流言（去掉全部，播客与视频移至一级导航）
   const items = [
-    { key: "news", label: "动态", to: hrefWith(base, params, { category: "news", channel: null, reporter: null }) },
-    { key: "hot", label: "热点", to: "/hot" },
-    { key: "beat_tweets", label: "队记", to: hrefWith(base, params, { category: "beat_tweets", channel: null }) },
-    { key: "analysis", label: "专栏", to: hrefWith(base, params, { category: "analysis", channel: null, reporter: null }) },
-    { key: "trades", label: "流言", to: hrefWith(base, params, { category: "trades", channel: null, reporter: null }) },
+    { key: "news", label: "动态", to: hrefWith(base, params, { category: "news", channel: null, reporter: null }), prefetch: "intent" as const },
+    { key: "hot", label: "热点", to: "/hot", prefetch: "intent" as const },
+    { key: "beat_tweets", label: "队记", to: hrefWith(base, params, { category: "beat_tweets", channel: null }), prefetch: "intent" as const },
+    { key: "analysis", label: "专栏", to: hrefWith(base, params, { category: "analysis", channel: null, reporter: null }), prefetch: "intent" as const },
+    { key: "trades", label: "流言", to: hrefWith(base, params, { category: "trades", channel: null, reporter: null }), prefetch: "intent" as const },
   ];
   const active = activeKey ?? (category === "beat_tweets" ? "beat_tweets" : category === "analysis" ? "analysis" : category === "trades" ? "trades" : "news");
   return <PillTabs items={items} active={active} layoutId={layoutId} label="筛选" size={size} className={className} />;

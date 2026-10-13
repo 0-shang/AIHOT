@@ -111,10 +111,50 @@ export interface PoolQuery extends TimelineFilters {
   source?: string | null;
 }
 
+// Cached pool responses for non-search browsing, reused for 25 seconds per filter + page.
+const poolDataCache = new Map<string, { at: number; data: PoolResponse }>();
+const poolPending = new Map<string, Promise<PoolResponse>>();
+
 export async function loadPool(query: PoolQuery): Promise<PoolResponse> {
-  const now = query.now ?? new Date();
   const page = Math.min(Math.max(query.page ?? 1, 1), POOL_MAX_PAGES);
   const q = query.q?.trim() || null;
+
+  // Cache non-search queries with standard clock
+  const cacheKey = !q && !query.now ? JSON.stringify([
+    query.channel ?? "all",
+    query.category ?? null,
+    query.tag ?? null,
+    query.topicTags ?? null,
+    query.reporter ?? null,
+    query.source ?? null,
+    page,
+  ]) : null;
+
+  if (cacheKey) {
+    const hit = poolDataCache.get(cacheKey);
+    if (hit && Date.now() - hit.at < 25_000) return hit.data;
+    const pending = poolPending.get(cacheKey);
+    if (pending) return pending;
+  }
+
+  const load = (async () => {
+    const res = await loadPoolInternal(query, page, q);
+    if (cacheKey) {
+      if (poolDataCache.size >= 200) poolDataCache.delete(poolDataCache.keys().next().value!);
+      poolDataCache.set(cacheKey, { at: Date.now(), data: res });
+    }
+    return res;
+  })();
+
+  if (cacheKey) {
+    poolPending.set(cacheKey, load);
+    try { return await load; } finally { poolPending.delete(cacheKey); }
+  }
+  return load;
+}
+
+async function loadPoolInternal(query: PoolQuery, page: number, q: string | null): Promise<PoolResponse> {
+  const now = query.now ?? new Date();
   const tab = q && query.tab === "relevance" ? "relevance" : "time";
   const terms = q ? searchTerms(q) : [];
   const filters = sql`${channelCondition(query.channel)} ${categoryCondition(query.category)} ${tagCondition(query.tag)} ${topicCondition(query.topicTags)} ${reporterCondition(query.reporter)} ${sourceCondition(query.source)}`;
