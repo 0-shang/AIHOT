@@ -2,7 +2,7 @@
 // manual overrides and grouping, then record selected-set changes in the sync ledger.
 // Rebuilding only re-reads stored results; it never calls a model.
 import { SITE } from "@aihot/industry/site";
-import { toPublicApiCategory } from "@aihot/contracts/taxonomy";
+import { isCategoryKey, toPublicApiCategory, type CategoryKey } from "@aihot/contracts/taxonomy";
 import { config } from "../config.ts";
 import { one, sql, type Tx } from "../db.ts";
 import { sha256, stableJson } from "../lib/ids.ts";
@@ -181,40 +181,53 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const hasVideoMedia = (articleMedia && articleMedia.some((m) => m?.kind === "video")) ||
     (rawXPost?.media && Array.isArray(rawXPost.media) && rawXPost.media.some((m: any) => m?.kind === "video"));
 
+  const mentionsRockets = /(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯)/i.test(article.title || "");
   const isOtherHoustonTeam =
+    !mentionsRockets &&
     /(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|跑卫|角卫|达阵|棒球|橄榄球|全垒打|安打|三振|红雀|马文·哈里森|marvin harrison)/i.test(article.title || "");
 
   const hasLongArticleBody = !article.x_post && typeof article.body_text === "string" && article.body_text.length >= 1800;
   const isDedicatedRocketsCommunity = source.id.includes("sleeper") || source.id.includes("clutchfans") || source.id.includes("rocketsnation");
+  const isTradeRumor = /(trade|rumor|waive|signing|buyout|deal|free agen|contract|交易|签约|流言|买断|裁掉|互换)/i.test(article.title || "");
+  const isTacticalOrPreview = /(tactical|preview|film breakdown|scouting|deep dive|breakdown|salary cap|前瞻|战术|深度|剖析|拆解|高阶)/i.test(article.title || "");
 
   const fallbackCat =
     source.id.includes("podcast") ? "podcasts" :
     source.id.includes("video") || source.id.startsWith("yt-") || hasVideoMedia ? "videos" :
-    hasLongArticleBody ? "analysis" :
-    (isDedicatedRocketsCommunity ? "news" : null);
+    (channelOf(source.kind, !!article.x_post) === "x" && !source.id.includes("houston-rockets")) ? "beat_tweets" :
+    isTradeRumor ? "trades" :
+    isTacticalOrPreview ? "analysis" :
+    "news";
 
-  const title = pickString(f.title, zhTitle ?? (isChineseTitle || article.x_post || fallbackCat ? collapseWhitespace(article.title) : null));
-  const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
-  const summary = pickString(f.summary, analysis?.summary_zh ?? (fallbackCat ? fallbackSummary : null));
-  
-  // 长文入库专栏：具备实质长文正文的深度报道优先归入专栏，短讯归入动态
-  const initialCat = analysis?.category ?? fallbackCat;
-  const resolvedCat = (hasLongArticleBody && (!analysis?.category || analysis.category === "news" || analysis.category === "beat_tweets")) ? "analysis" : initialCat;
+  const rawCat = pickString(f.category, analysis?.category);
+  const resolvedCat = (rawCat && isCategoryKey(rawCat)) ? rawCat : fallbackCat;
   const category = pickString(f.category, resolvedCat);
+
+  const title = pickString(f.title, zhTitle ?? collapseWhitespace(article.title));
+  const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
+  const summary = pickString(f.summary, analysis?.summary_zh ?? fallbackSummary);
+  
   const tags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(source.tags ?? [])])];
   const score = typeof f.score === "number" ? f.score : (analysis?.score ?? 70);
-  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (analysis?.relevance ?? (fallbackCat ? "pass" : null));
+  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (analysis?.relevance ?? "pass");
   const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
-  // Material from an isolated source reaches no public surface at all: not even a detail page.
-  const visibility = isOtherHoustonTeam || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
-
-  const eligible = isOtherHoustonTeam ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
-  const selected = isSelectable(eligible, judgedSelected, source.tier);
-  const reason = selected ? pickString(f.reason, analysis?.reason_zh ?? null) : null;
   const hasXPost = !!article.x_post;
   const channel = channelOf(source.kind, hasXPost);
   const hasQualityBody = !!article.body_text && article.body_text.length > 0 && isSubstantiveBody(article.body_html ?? "", article.body_text);
-  const bodyMode = bodyModeOf(source, article.body_status, hasQualityBody);
+  const effectiveBodyStatus = hasQualityBody ? "ok" : article.body_status;
+  const bodyMode = bodyModeOf(source, effectiveBodyStatus, hasQualityBody);
+
+  // 无效抓取判定：对于新闻/专栏/流言类图文报道，未成功抓取到实质正文（仅有摘要、仅有单句图片说明或未确认正文）的判定为无效抓取，禁止推入我的动态、专栏与流言
+  const isWebArticle = channel !== "x" && !source.id.includes("podcast") && !source.id.includes("video") && !source.id.startsWith("yt-") && !hasVideoMedia;
+  const isTargetFeedCategory = !category || category === "news" || category === "analysis" || category === "trades";
+  const isInvalidCrawl = isWebArticle && isTargetFeedCategory && (bodyMode !== "full" || !hasQualityBody);
+
+  // Material from an isolated source reaches no public surface at all: not even a detail page.
+  const visibility = isOtherHoustonTeam || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
+
+  const eligible = isOtherHoustonTeam || isInvalidCrawl ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
+  const selected = isInvalidCrawl ? false : isSelectable(eligible, judgedSelected, source.tier);
+  const reason = selected ? pickString(f.reason, analysis?.reason_zh ?? null) : null;
   const syndicate = mayRedistribute(source, bodyMode);
   const originalTitle = isChineseTitle && title === collapseWhitespace(article.title) ? null : collapseWhitespace(article.title);
 

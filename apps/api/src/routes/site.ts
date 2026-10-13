@@ -132,35 +132,80 @@ export function registerSite(app: FastifyInstance) {
   }));
 
   app.post("/api/site/translate", siteHandler(async (req, reply) => {
-    const body = (req.body ?? {}) as { texts?: string[]; text?: string };
-    const rawTexts = Array.isArray(body?.texts) ? body.texts : (body?.text ? [body.text] : []);
-    if (rawTexts.length === 0) {
-      return reply.send({ translations: [] });
-    }
-    const translations: string[] = [];
-    for (const t of rawTexts.slice(0, 40)) {
-      const clean = (t || "").trim();
-      if (!clean) {
-        translations.push("");
-        continue;
-      }
+    const body = (req.body ?? {}) as {
+      texts?: string[];
+      text?: string;
+      title?: string;
+      summary?: string;
+    };
+
+    async function translateOne(str: string): Promise<string> {
+      const clean = (str || "").trim();
+      if (!clean || !/[a-zA-Z]{2,}/.test(clean)) return str;
+
+      // 1. Google 免费扩展端点（高速无封锁，支持多段文字）
       try {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=zh-CN&dt=t&q=${encodeURIComponent(clean.slice(0, 3500))}`;
-        const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+        const url = `https://translate.googleapis.com/translate_a/single?client=dict-chrome-ex&sl=auto&tl=zh-CN&dt=t&q=${encodeURIComponent(clean.slice(0, 4000))}`;
+        const res = await fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+            "Accept": "*/*",
+          },
+          signal: AbortSignal.timeout(6000),
+        });
         if (res.ok) {
           const data = (await res.json()) as any;
-          const translated = Array.isArray(data?.[0])
-            ? data[0].map((part: any) => part?.[0] || "").join("")
-            : clean;
-          translations.push(translated);
-        } else {
-          translations.push(clean);
+          if (Array.isArray(data?.[0])) {
+            const translated = data[0].map((part: any) => part?.[0] || "").join("");
+            if (translated && translated.trim()) return translated;
+          }
         }
       } catch {
-        translations.push(clean);
+        // fall through to backup
       }
+
+      // 2. MyMemory 备用端点
+      try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean.slice(0, 1000))}&langpair=en|zh-CN`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+        if (res.ok) {
+          const data = (await res.json()) as any;
+          const trans = data?.responseData?.translatedText;
+          if (trans && trans !== clean && !trans.includes("MYMEMORY WARNING")) {
+            return trans;
+          }
+        }
+      } catch {
+        // fall through
+      }
+
+      return clean;
     }
-    return reply.header("Cache-Control", "public, max-age=86400").send({ translations });
+
+    async function pMap<T, R>(items: T[], fn: (item: T) => Promise<R>, concurrency = 6): Promise<R[]> {
+      const results: R[] = new Array(items.length);
+      let index = 0;
+      const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+        while (index < items.length) {
+          const i = index++;
+          results[i] = await fn(items[i]!);
+        }
+      });
+      await Promise.all(workers);
+      return results;
+    }
+
+    const rawTexts = Array.isArray(body?.texts) ? body.texts : (body?.text ? [body.text] : []);
+    const translatedTitle = body.title ? await translateOne(body.title) : undefined;
+    const translatedSummary = body.summary ? await translateOne(body.summary) : undefined;
+    const translations = await pMap(rawTexts.slice(0, 160), translateOne, 6);
+
+    reply.header("Cache-Control", "no-cache");
+    return reply.send({
+      title: translatedTitle,
+      summary: translatedSummary,
+      translations,
+    });
   }));
 
   app.get("/api/site/stories/:publicId/followups", siteHandler(async (req, reply) => {

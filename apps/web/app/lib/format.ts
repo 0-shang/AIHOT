@@ -35,8 +35,32 @@ export function monthDayTime(iso: string): string {
   return `${m}月${d}日 ${beijingTime(iso)}`;
 }
 
-/** "X：Ethan Mollick (@emollick)" → "Ethan Mollick"; other sources keep their name. */
-export function shortSourceName(name: string): string {
+/** "X：Ethan Mollick (@emollick)" → "Ethan Mollick"; other sources keep their name, or resolve from URL if aggregator. */
+export function shortSourceName(name: string, url?: unknown): string {
+  if (typeof url === "string" && /google\s*news|全网|sportspyder/i.test(name)) {
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+      if (host.includes("bleacherreport")) return "Bleacher Report";
+      if (host.includes("yahoo")) return "Yahoo Sports";
+      if (host.includes("rocketswire") || host.includes("usatoday")) return "Rockets Wire";
+      if (host.includes("chronicle") || host.includes("chron.com")) return "Houston Chronicle";
+      if (host.includes("marca.com")) return "MARCA";
+      if (host.includes("clutchpoints")) return "ClutchPoints";
+      if (host.includes("theathletic")) return "The Athletic";
+      if (host.includes("espn")) return "ESPN";
+      if (host.includes("si.com")) return "Sports Illustrated";
+      if (host.includes("hoopshype")) return "HoopsHype";
+      if (host.includes("hoopsrumors")) return "Hoops Rumors";
+      if (host.includes("realgm")) return "RealGM";
+      if (host.includes("thedreamshake")) return "The Dream Shake";
+      if (host.includes("spacecityscoop")) return "Space City Scoop";
+      if (host.includes("yardbarker")) return "Yardbarker";
+      if (host.includes("theringer")) return "The Ringer";
+      const parts = host.split(".");
+      if (parts.length >= 2) return parts[parts.length - 2]!;
+      return host;
+    } catch {}
+  }
   const m = /^X[:：]\s*(.+?)\s*\(@[^)]+\)\s*$/.exec(name);
   if (m) return m[1]!.replace(/（.*?）/g, "").trim();
   return name.replace(/（RSS）|（网页）|（API）/g, "").trim();

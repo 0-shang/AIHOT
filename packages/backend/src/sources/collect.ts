@@ -24,13 +24,15 @@ export interface CollectResult {
 const MAX_ITEMS_PER_RUN = 60;
 
 export function noiseFiltered(c: Candidate, source: SourceRow): boolean {
-  // SportsTalk 790 过滤：必须包含火箭队或队内球员、教练等核心实体
+  // SportsTalk 790 过滤：必须包含火箭队或队内球员、教练等核心实体（带单词边界，避免误匹配非火箭运动）
   if (source.id.includes("sportstalk790")) {
     const hay790 = `${c.title}\n${c.excerpt ?? ""}`;
-    const rocketsKeywords = /(rockets|火箭|udoka|乌度卡|ime|sengun|申京|alpi|jalen|green|格林|amen|阿门|sheppard|谢泼德|reed|vanvleet|范弗里特|freddie|durant|杜兰特|kd|jabari|史密斯|bari|eason|伊森|tari|whitmore|惠特莫尔|cam|adams|亚当斯|stone|斯通|clutch|toyota center|nba|preseason|training camp|regular season)/i;
+    const rocketsKeywords = /\b(rockets|houston rockets|clutch city|toyota center|udoka|ime udoka|sengun|alperen sengun|alpi|jalen green|amen thompson|reed sheppard|sheppard|vanvleet|freddie|durant|kevin durant|jabari smith|tari eason|cam whitmore|whitmore|steven adams|adams|rafael stone|stone|nba|preseason)\b|火箭|休斯敦火箭|乌度卡|申京|格林|阿门|谢泼德|范弗里特|杜兰特|小贾巴里|史密斯|伊森|惠特莫尔|亚当斯|斯通|丰田中心/i;
     if (!rocketsKeywords.test(hay790)) {
-      return true;
+      return true; // 丢弃：未包含火箭内容
     }
+    // 命中火箭核心内容的电台节目直接保留，避免被节目同场讨论的休斯敦同城其他球队（德州人、太空人）误杀
+    return false;
   }
 
   // 休斯敦同城其他球队（德州人、太空人、油人、NFL、MLB等）强力拦截：直接丢弃

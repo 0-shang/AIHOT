@@ -99,6 +99,13 @@ export function selectedCondition(now: Date) {
     AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%'))
     AND p.selected
     AND (p.visible_after IS NULL OR p.visible_after <= ${now})
+    AND (
+      p.channel = 'x'
+      OR p.category IN ('podcasts', 'videos')
+      OR p.source_id LIKE 'rss-podcast-%'
+      OR p.source_id LIKE 'yt-%'
+      OR p.body_mode = 'full'
+    )
     AND p.category != 'podcasts'
     AND p.source_id NOT LIKE '%podcast%'`;
 }
@@ -111,11 +118,12 @@ export function channelCondition(channel: ChannelKey | null | undefined) {
 
 export function categoryCondition(category: CategoryKey | null | undefined, v1 = false) {
   if (!category) {
-    // 默认全局动态流：排除播客（播客专有板块收听）
-    return sql`AND p.category != 'podcasts' AND p.source_id NOT LIKE '%podcast%'`;
+    // 默认全局动态流：排除播客，且图文报道必须具备实质完整正文
+    return sql`AND p.category != 'podcasts' AND p.source_id NOT LIKE '%podcast%'
+      AND (p.channel = 'x' OR p.category = 'videos' OR p.source_id LIKE 'yt-%' OR p.body_mode = 'full')`;
   }
   if (category === "news") {
-    // 动态栏目：球队官方动态、伤病、战报与快讯，以及专注休斯敦火箭的纯博主与社区（SleeperRockets, ClutchFans等）
+    // 动态栏目：球队官方动态、伤病、战报与快讯，以及专注休斯敦火箭的纯博主与社区（SleeperRockets, ClutchFans等），图文必须具备正文
     return sql`AND (
       p.category = 'news'
       OR p.source_id IN (
@@ -123,6 +131,7 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
       )
       OR (p.category IS NULL AND (p.channel = 'news' OR p.first_party))
     )
+    AND (p.channel = 'x' OR p.body_mode = 'full')
     AND p.category != 'podcasts'
     AND p.source_id NOT LIKE '%podcast%'`;
   }
@@ -150,23 +159,20 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     )`;
   }
   if (category === "analysis") {
-    // 专栏：长文深度报道、战术剖析
+    // 专栏：长文深度报道、战术剖析，必须具备实质完整正文
     return sql`AND (
       p.category = 'analysis'
       OR p.tags && ARRAY['深度专栏', '战术分析', '球员前瞻', '战术拆解', '高阶战术', '战术复盘', '深度分析', '战术剖析', '专栏', '深度']::text[]
-      OR p.source_id IN (
-        'rss-thedreamshake', 'rss-spacecityscoop', 'rss-clutchfans-news', 'rss-bleacherreport-rockets',
-        'rss-si-rockets', 'web-si-rockets', 'web-sportingnews-rockets', 'rss-hoopswire-rockets',
-        'rss-realgm-rockets', 'rss-houstonchronicle-rockets', 'rss-rocketswire', 'rss-hoopshype-rockets', 'rss-clutchpoints-rockets'
-      )
     )
+    AND p.body_mode = 'full'
     AND p.channel != 'x'`;
   }
   if (category === "trades") {
     return sql`AND (
       p.category = 'trades'
       OR p.tags && ARRAY['交易流言', '签约', '交易']::text[]
-    )`;
+    )
+    AND (p.channel = 'x' OR p.body_mode = 'full')`;
   }
   // v1 and RSS publish opinion as tip.
   if (v1 && (category as string) === "tip") return sql`AND p.category IN ('tip', 'opinion')`;
@@ -220,18 +226,27 @@ export function deduplicateFeedItems<T extends { id: string; title: string; summ
         isDuplicate = true;
       } else {
         const sim = similarity(normTitle, existingNormTitle);
-        if (sim >= 0.82) {
+        if (sim >= 0.68) {
           isDuplicate = true;
         }
       }
 
       if (isDuplicate) {
-        const currentScore = item.score ?? 0;
-        const existingScore = existing.score ?? 0;
-        const currentLen = (item.summary?.length ?? 0) + item.title.length;
-        const existingLen = (existing.summary?.length ?? 0) + existing.title.length;
-        if (currentScore > existingScore || (currentScore === existingScore && currentLen > existingLen)) {
+        const itemIsAggregator = /google\s*news|全网|sportspyder/i.test((item as any).source?.name ?? (item as any).source_name ?? "");
+        const existingIsAggregator = /google\s*news|全网|sportspyder/i.test((existing as any).source?.name ?? (existing as any).source_name ?? "");
+        if (existingIsAggregator && !itemIsAggregator) {
+          // 正主/一手信源优先，替换掉二次聚合的二手信源
           result[i] = item;
+        } else if (!existingIsAggregator && itemIsAggregator) {
+          // 已有一手正主信源，丢弃二次聚合内容
+        } else {
+          const currentScore = item.score ?? 0;
+          const existingScore = existing.score ?? 0;
+          const currentLen = (item.summary?.length ?? 0) + item.title.length;
+          const existingLen = (existing.summary?.length ?? 0) + existing.title.length;
+          if (currentScore > existingScore || (currentScore === existingScore && currentLen > existingLen)) {
+            result[i] = item;
+          }
         }
         break;
       }
@@ -335,6 +350,37 @@ export function xView(row: Pick<ItemRow, "x_post" | "zh_text"> & Partial<Pick<It
   };
 }
 
+export function cleanPublisherName(sourceName: string, url?: string | null): string {
+  if (!url) return sourceName;
+  if (/google\s*news|全网|sportspyder/i.test(sourceName)) {
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+      if (host.includes("bleacherreport")) return "Bleacher Report";
+      if (host.includes("yahoo")) return "Yahoo Sports";
+      if (host.includes("rocketswire") || host.includes("usatoday")) return "Rockets Wire";
+      if (host.includes("chronicle") || host.includes("chron.com")) return "Houston Chronicle";
+      if (host.includes("marca.com")) return "MARCA";
+      if (host.includes("clutchpoints")) return "ClutchPoints";
+      if (host.includes("theathletic")) return "The Athletic";
+      if (host.includes("espn")) return "ESPN";
+      if (host.includes("si.com")) return "Sports Illustrated";
+      if (host.includes("hoopshype")) return "HoopsHype";
+      if (host.includes("hoopsrumors")) return "Hoops Rumors";
+      if (host.includes("realgm")) return "RealGM";
+      if (host.includes("thedreamshake")) return "The Dream Shake";
+      if (host.includes("spacecityscoop")) return "Space City Scoop";
+      if (host.includes("yardbarker")) return "Yardbarker";
+      if (host.includes("theringer")) return "The Ringer";
+      const parts = host.split(".");
+      if (parts.length >= 2) return parts[parts.length - 2]!;
+      return host;
+    } catch {
+      return sourceName;
+    }
+  }
+  return sourceName;
+}
+
 export function toItemSummary(row: ItemRow): ItemSummary {
   const x = row.channel === "x" ? xView(row, true) : null;
   const rawPodcast = (row.raw as any)?.podcast;
@@ -361,7 +407,7 @@ export function toItemSummary(row: ItemRow): ItemSummary {
     reason: row.selected ? row.reason : null,
     source: {
       id: row.source_id,
-      name: row.source_name,
+      name: cleanPublisherName(row.source_name, row.url),
       kind: row.source_kind,
       firstParty: row.first_party,
       iconUrl: proxiedImage(row.source_icon, "avatar"),

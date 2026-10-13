@@ -1611,8 +1611,30 @@ function monthDayTime(iso) {
 	const [, m, d] = beijingDate(iso).split("-").map(Number);
 	return `${m}月${d}日 ${beijingTime(iso)}`;
 }
-/** "X：Ethan Mollick (@emollick)" → "Ethan Mollick"; other sources keep their name. */
-function shortSourceName(name) {
+/** "X：Ethan Mollick (@emollick)" → "Ethan Mollick"; other sources keep their name, or resolve from URL if aggregator. */
+function shortSourceName(name, url) {
+	if (typeof url === "string" && /google\s*news|全网|sportspyder/i.test(name)) try {
+		const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+		if (host.includes("bleacherreport")) return "Bleacher Report";
+		if (host.includes("yahoo")) return "Yahoo Sports";
+		if (host.includes("rocketswire") || host.includes("usatoday")) return "Rockets Wire";
+		if (host.includes("chronicle") || host.includes("chron.com")) return "Houston Chronicle";
+		if (host.includes("marca.com")) return "MARCA";
+		if (host.includes("clutchpoints")) return "ClutchPoints";
+		if (host.includes("theathletic")) return "The Athletic";
+		if (host.includes("espn")) return "ESPN";
+		if (host.includes("si.com")) return "Sports Illustrated";
+		if (host.includes("hoopshype")) return "HoopsHype";
+		if (host.includes("hoopsrumors")) return "Hoops Rumors";
+		if (host.includes("realgm")) return "RealGM";
+		if (host.includes("thedreamshake")) return "The Dream Shake";
+		if (host.includes("spacecityscoop")) return "Space City Scoop";
+		if (host.includes("yardbarker")) return "Yardbarker";
+		if (host.includes("theringer")) return "The Ringer";
+		const parts = host.split(".");
+		if (parts.length >= 2) return parts[parts.length - 2];
+		return host;
+	} catch {}
 	const m = /^X[:：]\s*(.+?)\s*\(@[^)]+\)\s*$/.exec(name);
 	if (m) return m[1].replace(/（.*?）/g, "").trim();
 	return name.replace(/（RSS）|（网页）|（API）/g, "").trim();
@@ -1901,7 +1923,7 @@ function VideoModal({ open, videoUrl, poster, onClose }) {
 }
 //#endregion
 //#region app/features/feed/parts.tsx
-/** "IT之家（RSS）" or, for X, avatar + display name + @handle. */
+/** "IT之家（RSS）" or, for X, avatar + display name + @handle. Resolves aggregator name to specific source. */
 function SourceLine({ item, avatarSize = 16, className = "" }) {
 	if (item.channel === "x" && item.x) return /* @__PURE__ */ jsxs("span", {
 		className: `flex min-w-0 items-center gap-1.5 ${className}`,
@@ -1922,9 +1944,11 @@ function SourceLine({ item, avatarSize = 16, className = "" }) {
 			})
 		]
 	});
+	const originalUrl = item.url ?? item.links?.original;
+	const displayName = shortSourceName(item.source.name, originalUrl);
 	return /* @__PURE__ */ jsx("span", {
 		className: `min-w-0 truncate ${className}`,
-		children: item.source.name
+		children: displayName
 	});
 }
 /** Up to four media thumbnails, kept small in lists (the detail page shows them larger). Videos are stills. */
@@ -7073,27 +7097,30 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 				else node.childNodes.forEach(walk);
 			};
 			walk(dummy);
-			const payload = [
+			const textsToTranslate = textNodes.map((n) => n.textContent || "").filter((t) => /[a-zA-Z]{2,}/.test(t));
+			if ([
 				titleToTranslate,
 				summaryToTranslate,
-				...textNodes.map((n) => n.textContent || "").filter((t) => /[a-zA-Z]{2,}/.test(t))
-			].filter(Boolean);
-			if (payload.length === 0) {
+				...textsToTranslate
+			].filter(Boolean).length === 0) {
 				setShowTranslation(true);
 				return;
 			}
 			const res = await fetch("/api/site/translate", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ texts: payload })
+				body: JSON.stringify({
+					title: titleToTranslate || void 0,
+					summary: summaryToTranslate || void 0,
+					texts: textsToTranslate
+				})
 			});
 			if (res.ok) {
-				const { translations } = await res.json();
+				const data = await res.json();
+				const transTitle = data.title || item.title;
+				const transSummary = data.summary || item.summary;
+				const translations = data.translations || [];
 				let idx = 0;
-				let transTitle = item.title;
-				let transSummary = item.summary;
-				if (titleToTranslate) transTitle = translations[idx++] || transTitle;
-				if (summaryToTranslate) transSummary = translations[idx++] || transSummary;
 				for (const node of textNodes) if (/[a-zA-Z]{2,}/.test(node.textContent || "")) {
 					if (idx < translations.length && translations[idx]) node.textContent = translations[idx++];
 				}
@@ -7112,19 +7139,12 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 		type: "button",
 		onClick: handleFreeTranslate,
 		disabled: translating,
-		className: `inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium transition-all ${showTranslation ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "border border-line-strong bg-surface text-ink-2 hover:border-accent hover:text-accent shadow-xs active:scale-95"}`,
-		title: "通过免费客户端引擎将英文一键翻译为中文 (0 Token 消耗)",
-		children: [
-			/* @__PURE__ */ jsx("span", {
-				className: "text-[13px]",
-				children: translating ? "🔄" : showTranslation ? "✓" : "🌐"
-			}),
-			/* @__PURE__ */ jsx("span", { children: translating ? "翻译中..." : showTranslation ? "已译为中文 (点击还原)" : "一键翻译中文 (免Token)" }),
-			!showTranslation && /* @__PURE__ */ jsx("span", {
-				className: "rounded bg-accent/10 px-1 py-0.2 text-[9.5px] font-semibold text-accent",
-				children: "0 Token"
-			})
-		]
+		className: `inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-medium transition-all ${showTranslation ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold" : "border border-line-strong bg-surface text-ink-2 hover:border-accent hover:text-accent shadow-xs active:scale-95"}`,
+		title: "翻译为中文",
+		children: [/* @__PURE__ */ jsx("span", {
+			className: "text-[12px]",
+			children: translating ? "🔄" : showTranslation ? "✓" : "🌐"
+		}), /* @__PURE__ */ jsx("span", { children: translating ? "翻译中..." : showTranslation ? "查看原文" : "英译中" })]
 	});
 	const displayedTitle = showTranslation && translatedData?.title ? translatedData.title : item.title;
 	const displayedSummary = showTranslation && translatedData?.summary ? translatedData.summary : item.summary;
@@ -7219,7 +7239,7 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 		children: [
 			/* @__PURE__ */ jsx("div", {
 				className: "text-[14px] font-semibold leading-snug text-ink",
-				children: isX ? item.x.authorName : item.source.name
+				children: isX ? item.x.authorName : shortSourceName(item.source.name, item.links.original)
 			}),
 			/* @__PURE__ */ jsx("div", {
 				className: "mt-1 text-[12.5px] leading-relaxed text-ink-3",
@@ -7333,7 +7353,7 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 							children: [
 								/* @__PURE__ */ jsx("span", {
 									className: "font-semibold text-ink-2",
-									children: isX ? item.x.authorName : item.source.name
+									children: isX ? item.x.authorName : shortSourceName(item.source.name, item.links.original)
 								}),
 								isX && /* @__PURE__ */ jsxs("span", { children: [
 									"· @",
@@ -7361,20 +7381,13 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 								})
 							]
 						}),
-						isPodcast ? /* @__PURE__ */ jsx(PodcastDetailPlayer, { item }) : /* @__PURE__ */ jsxs(Fragment, { children: [
-							!isX && /* @__PURE__ */ jsx("h1", {
-								className: "text-[26px] font-bold leading-[1.38] tracking-[-0.01em] text-ink lg:text-[32px] lg:leading-[1.34] xl:text-[36px] xl:leading-[1.3]",
-								children: displayedTitle
-							}),
-							!isX && item.originalTitle && /* @__PURE__ */ jsx("p", {
-								className: "mt-2.5 text-[14px] leading-relaxed text-ink-4",
-								children: item.originalTitle
-							}),
-							/* @__PURE__ */ jsx("div", {
-								className: "mt-3.5 mb-1 flex flex-wrap items-center gap-2",
-								children: translateButton
-							})
-						] }),
+						isPodcast ? /* @__PURE__ */ jsx(PodcastDetailPlayer, { item }) : /* @__PURE__ */ jsxs(Fragment, { children: [!isX && /* @__PURE__ */ jsx("h1", {
+							className: "text-[26px] font-bold leading-[1.38] tracking-[-0.01em] text-ink lg:text-[32px] lg:leading-[1.34] xl:text-[36px] xl:leading-[1.3]",
+							children: displayedTitle
+						}), !isX && item.originalTitle && /* @__PURE__ */ jsx("p", {
+							className: "mt-2.5 text-[14px] leading-relaxed text-ink-4",
+							children: item.originalTitle
+						})] }),
 						item.summary && !isPodcast && /* @__PURE__ */ jsxs("section", {
 							className: isX ? "mt-4" : "mt-6 xl:mt-7",
 							children: [/* @__PURE__ */ jsx("div", {
@@ -7471,7 +7484,7 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 									target: "_blank",
 									rel: "noopener noreferrer",
 									className: "text-ink-3 hover:text-accent",
-									children: isX ? item.x.authorName : item.source.name
+									children: isX ? item.x.authorName : shortSourceName(item.source.name, item.links.original)
 								}),
 								/* @__PURE__ */ jsxs("span", { children: [" · ", hostOf(item.links.original)] })
 							]
@@ -22621,15 +22634,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-CLYjNoF6.js",
+			"module": "/assets/root-Bwg182oX.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/Sidebar-ABUX5Vj5.js",
-				"/assets/Chrome-DXoJ9ek8.js",
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/Sidebar-BrHQpOLb.js",
+				"/assets/Chrome-D3arIvM3.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-MoYWqPRk.css"],
+			"css": ["/assets/root-CwI-Ou6p.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22669,12 +22682,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-BPZU-dLh.js",
+			"module": "/assets/all-eEEBJgBM.js",
 			"imports": [
-				"/assets/all-jIKcCD4S.js",
+				"/assets/all-Bn-Ll_KU.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/Filters-C76hI1s-.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/Filters-CMZ5qEBG.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22695,8 +22708,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/podcasts-CQOq0T6X.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/podcasts-eawMCSaa.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22716,8 +22729,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/videos-0xCPG7yv.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/videos-FbmJHlCn.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22737,8 +22750,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-KU9wV3YV.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/schedule-C6vyz0tA.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22758,12 +22771,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-DeHAHAR2.js",
+			"module": "/assets/search-busy-DOaijVkN.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/all-jIKcCD4S.js",
-				"/assets/Filters-C76hI1s-.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/all-Bn-Ll_KU.js",
+				"/assets/Filters-CMZ5qEBG.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22784,12 +22797,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-DeHAHAR2.js",
+			"module": "/assets/search-busy-DOaijVkN.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/all-jIKcCD4S.js",
-				"/assets/Filters-C76hI1s-.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/all-Bn-Ll_KU.js",
+				"/assets/Filters-CMZ5qEBG.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22810,11 +22823,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-WAGT1TVR.js",
+			"module": "/assets/item-4lxFsNAK.js",
 			"imports": [
-				"/assets/item-BTb2j2ey.js",
+				"/assets/item-xMTuQo9a.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js"
+				"/assets/shared-Bto2RmhO.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22835,11 +22848,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-WAGT1TVR.js",
+			"module": "/assets/item-original-4lxFsNAK.js",
 			"imports": [
-				"/assets/item-BTb2j2ey.js",
+				"/assets/item-xMTuQo9a.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js"
+				"/assets/shared-Bto2RmhO.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22860,11 +22873,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-C4db9HG8.js",
+			"module": "/assets/hot-gjDlLXrY.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/Filters-C76hI1s-.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/Filters-CMZ5qEBG.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22885,8 +22898,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-BD5h3bdX.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/story-DT_GJFq8.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22906,11 +22919,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-D5JlVqpS.js",
+			"module": "/assets/report-latest-Ds1ahYHC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/ReportPaper-Cz2PfIbz.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/ReportPaper-DFfryGzB.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22931,11 +22944,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-D2Kgdwqs.js",
+			"module": "/assets/daily-archive-qV2QdYzc.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/ReportPaper-Cz2PfIbz.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/ReportPaper-DFfryGzB.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22956,11 +22969,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-CSf2LQfR.js",
+			"module": "/assets/report-detail-CeqR7TU4.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/ReportPaper-Cz2PfIbz.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/ReportPaper-DFfryGzB.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22981,11 +22994,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-D5JlVqpS.js",
+			"module": "/assets/report-latest-Ds1ahYHC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/ReportPaper-Cz2PfIbz.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/ReportPaper-DFfryGzB.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23006,11 +23019,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-CSf2LQfR.js",
+			"module": "/assets/report-detail-CeqR7TU4.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/ReportPaper-Cz2PfIbz.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/ReportPaper-DFfryGzB.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23031,11 +23044,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-D5JlVqpS.js",
+			"module": "/assets/report-latest-Ds1ahYHC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/ReportPaper-Cz2PfIbz.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/ReportPaper-DFfryGzB.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23056,11 +23069,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-CSf2LQfR.js",
+			"module": "/assets/report-detail-CeqR7TU4.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/ReportPaper-Cz2PfIbz.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/ReportPaper-DFfryGzB.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23144,8 +23157,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-BvoXbruu.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/about-Ca3xObes.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23165,8 +23178,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sponsor-tn9PnfeG.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/sponsor-qFajaB-s.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23186,11 +23199,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-ByDPNFba.js",
+			"module": "/assets/terms-Dtn-pkTk.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/CopyPage-DvyeJNBx.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/CopyPage-CXFBOF1A.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23211,11 +23224,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-DCNVkBQR.js",
+			"module": "/assets/privacy-DMOoxJvW.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/CopyPage-DvyeJNBx.js"
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/CopyPage-CXFBOF1A.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23236,8 +23249,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-BtNOKDnq.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/changelog-Cy0ULFd4.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23257,8 +23270,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-CBnRf8EV.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/feedback-vQ60pC_z.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23278,11 +23291,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-CNhRvDBU.js",
+			"module": "/assets/more-BKLNngsm.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
-				"/assets/Sidebar-ABUX5Vj5.js",
+				"/assets/shared-Bto2RmhO.js",
+				"/assets/Sidebar-BrHQpOLb.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -23304,8 +23317,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-BbwauyC3.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/starred-BbLG6PT-.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23325,10 +23338,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-3GRiZnKk.js",
+			"module": "/assets/agent--HdR_Ocd.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -23350,8 +23363,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-BwgIlmAF.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/codex-reset-CHmXuS1O.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23371,8 +23384,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-BwgIlmAF.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/codex-reset-CHmXuS1O.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23392,8 +23405,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-D3tOELHs.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/leaderboard-boards-CXVns_Sy.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23413,10 +23426,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-CFfN-fHH.js",
+			"module": "/assets/leaderboard-BdYb6wA0.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -23439,10 +23452,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-CFfN-fHH.js",
+			"module": "/assets/leaderboard-BdYb6wA0.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -23465,10 +23478,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-Bxb_YP4W.js",
+			"module": "/assets/leaderboard-sources-DR2oUIzJ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23491,10 +23504,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-BHCLiMMQ.js",
+			"module": "/assets/leaderboard-source-BOWsU2ZI.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23517,8 +23530,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-_-MffXsW.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/leaderboard-rules-ZXdVPezc.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23538,10 +23551,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-CKRJsdiz.js",
+			"module": "/assets/leaderboard-model-BBQeMGbm.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23564,8 +23577,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-BCsFiPCJ.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CzHC9jmb.js"],
+			"module": "/assets/admin-login-B5HL_fyO.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-Bto2RmhO.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23585,12 +23598,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-CEgS1a5e.js",
+			"module": "/assets/layout-DMJNKj2P.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-DXoJ9ek8.js",
+				"/assets/Chrome-D3arIvM3.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -23634,10 +23647,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-CubTT_JE.js",
+			"module": "/assets/content-prDDAyLY.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23661,10 +23674,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-gVsWzxv0.js",
+			"module": "/assets/content-item-COIh1Eag.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23690,10 +23703,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-DKyKiy1d.js",
+			"module": "/assets/sources-CQaXUz6O.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23717,10 +23730,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-D4KabeoN.js",
+			"module": "/assets/source-new-ltrqJ78Y.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23746,10 +23759,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-C50sPtX1.js",
+			"module": "/assets/source-DnnxuItB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23775,10 +23788,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-BWPMNWBQ.js",
+			"module": "/assets/monitor-BmmkyoAz.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23803,10 +23816,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-DZ3WFKim.js",
+			"module": "/assets/feedback-_aDp4GKS.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23832,10 +23845,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-pF9rO5o0.js",
+			"module": "/assets/runs-ZV5so-Uy.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23860,10 +23873,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-40K2Kyzq.js",
+			"module": "/assets/models-COd5zE94.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23888,10 +23901,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-BtkbHpAS.js",
+			"module": "/assets/selectbench-Dq4bDgLv.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23916,10 +23929,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-BNnKRFT5.js",
+			"module": "/assets/selectbench-run-rzWgTtn_.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23942,10 +23955,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-8n9b7Dsi.js",
+			"module": "/assets/settings-BAF9PaMr.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23970,10 +23983,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-CVG1mmj5.js",
+			"module": "/assets/audit-sw3amklK.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CzHC9jmb.js",
+				"/assets/shared-Bto2RmhO.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23984,8 +23997,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-dd5bc32e.js",
-	"version": "dd5bc32e",
+	"url": "/assets/manifest-0e63c603.js",
+	"version": "0e63c603",
 	"sri": void 0
 };
 //#endregion

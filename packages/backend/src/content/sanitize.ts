@@ -203,7 +203,14 @@ const LEADING_CHROME_TITLE = /^(?:trending|top stories|popular stories|latest (?
 export function isSubstantiveBody(html: string, text: string): boolean {
   if (!html || !text) return false;
   const trimmed = text.trim();
-  if (trimmed.length < 150) return false;
+  const hasCjk = /[\p{Script=Han}]/u.test(trimmed);
+  const minChars = hasCjk ? 120 : 250;
+  if (trimmed.length < minChars) return false;
+
+  // 拦截单张图片说明/摄影记者署名等伪正文（如图一中的图片版权信息与单句描述）
+  const isPhotoCaption = /^(?:[A-Za-z]{3}\s+\d{1,2},\s+\d{4}|\d{4})[^\n]+(?:mandatory credit|imagn images|reuters|getty images|ap photo|usa today sports|pool photo)/i.test(trimmed)
+    || /^(?:mandatory credit|photo by|photo:|image:|credit:)/i.test(trimmed);
+  if (isPhotoCaption && trimmed.length < 600) return false;
 
   const $ = cheerio.load(html, null, false);
 
@@ -217,6 +224,8 @@ export function isSubstantiveBody(html: string, text: string): boolean {
   const paragraphs = $("p, blockquote").toArray();
   const paraTexts = paragraphs.map((el) => $(el).text().trim()).filter(Boolean);
   if (paraTexts.length === 0) return false;
+  // 单段且字数不足或为图片说明的判定为无效正文
+  if (paraTexts.length <= 1 && (trimmed.length < 450 || isPhotoCaption)) return false;
 
   const maxParaLen = Math.max(...paraTexts.map((p) => p.length));
   if (maxParaLen < 45 && trimmed.length < 600) return false;

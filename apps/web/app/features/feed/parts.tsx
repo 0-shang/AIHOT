@@ -6,9 +6,10 @@ import { SourceAvatar } from "../../components/ui/SourceAvatar";
 import { Lightbox } from "../../components/ui/Lightbox";
 import { VideoModal } from "../../components/ui/VideoModal";
 import { toggleStar, useIsStarred } from "../../lib/local-state";
+import { shortSourceName } from "../../lib/format";
 
-/** "IT之家（RSS）" or, for X, avatar + display name + @handle. */
-export function SourceLine({ item, avatarSize = 16, className = "" }: { item: Pick<FeedItemSummary, "source" | "x" | "channel">; avatarSize?: number; className?: string }) {
+/** "IT之家（RSS）" or, for X, avatar + display name + @handle. Resolves aggregator name to specific source. */
+export function SourceLine({ item, avatarSize = 16, className = "" }: { item: Pick<FeedItemSummary, "source" | "x" | "channel"> & { url?: string; links?: { original: string } }; avatarSize?: number; className?: string }) {
   if (item.channel === "x" && item.x) {
     return (
       <span className={`flex min-w-0 items-center gap-1.5 ${className}`}>
@@ -18,7 +19,9 @@ export function SourceLine({ item, avatarSize = 16, className = "" }: { item: Pi
       </span>
     );
   }
-  return <span className={`min-w-0 truncate ${className}`}>{item.source.name}</span>;
+  const originalUrl = item.url ?? item.links?.original;
+  const displayName = shortSourceName(item.source.name, originalUrl);
+  return <span className={`min-w-0 truncate ${className}`}>{displayName}</span>;
 }
 
 /** Up to four media thumbnails, kept small in lists (the detail page shows them larger). Videos are stills. */

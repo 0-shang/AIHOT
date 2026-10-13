@@ -5,7 +5,7 @@ import type { Route } from "./+types/item";
 import type { SiteItemDetail } from "@aihot/contracts/site";
 import { loadOr404 } from "../lib/api.server";
 import { breadcrumbLd, pageMeta, siteUrl, titled } from "../lib/seo";
-import { fullDateTime, relativeTime } from "../lib/format";
+import { fullDateTime, relativeTime, shortSourceName } from "../lib/format";
 import { markRead } from "../lib/local-state";
 import { SelectedBadge } from "../components/ui/Badge";
 import { ScoreLabel } from "../components/ui/Score";
@@ -165,16 +165,19 @@ export default function ItemPage() {
       const res = await fetch("/api/site/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ texts: payload }),
+        body: JSON.stringify({
+          title: titleToTranslate || undefined,
+          summary: summaryToTranslate || undefined,
+          texts: textsToTranslate,
+        }),
       });
       if (res.ok) {
-        const { translations } = (await res.json()) as { translations: string[] };
-        let idx = 0;
-        let transTitle = item.title;
-        let transSummary = item.summary;
-        if (titleToTranslate) transTitle = translations[idx++] || transTitle;
-        if (summaryToTranslate) transSummary = translations[idx++] || transSummary;
+        const data = (await res.json()) as { title?: string; summary?: string; translations?: string[] };
+        const transTitle = data.title || item.title;
+        const transSummary = data.summary || item.summary;
+        const translations = data.translations || [];
 
+        let idx = 0;
         for (const node of textNodes) {
           if (/[a-zA-Z]{2,}/.test(node.textContent || "")) {
             if (idx < translations.length && translations[idx]) {
@@ -201,26 +204,21 @@ export default function ItemPage() {
       type="button"
       onClick={handleFreeTranslate}
       disabled={translating}
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium transition-all ${
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-medium transition-all ${
         showTranslation
-          ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+          ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold"
           : "border border-line-strong bg-surface text-ink-2 hover:border-accent hover:text-accent shadow-xs active:scale-95"
       }`}
-      title="通过免费客户端引擎将英文一键翻译为中文 (0 Token 消耗)"
+      title="翻译为中文"
     >
-      <span className="text-[13px]">{translating ? "🔄" : showTranslation ? "✓" : "🌐"}</span>
+      <span className="text-[12px]">{translating ? "🔄" : showTranslation ? "✓" : "🌐"}</span>
       <span>
         {translating
           ? "翻译中..."
           : showTranslation
-          ? "已译为中文 (点击还原)"
-          : "一键翻译中文 (免Token)"}
+          ? "查看原文"
+          : "英译中"}
       </span>
-      {!showTranslation && (
-        <span className="rounded bg-accent/10 px-1 py-0.2 text-[9.5px] font-semibold text-accent">
-          0 Token
-        </span>
-      )}
     </button>
   );
 
@@ -304,7 +302,7 @@ export default function ItemPage() {
   // under the facts (or under the notes when only the right rail shows).
   const facts = (
     <RailSection title="来源">
-      <div className="text-[14px] font-semibold leading-snug text-ink">{isX ? item.x!.authorName : item.source.name}</div>
+      <div className="text-[14px] font-semibold leading-snug text-ink">{isX ? item.x!.authorName : shortSourceName(item.source.name, item.links.original)}</div>
       <div className="mt-1 text-[12.5px] leading-relaxed text-ink-3">
         {isX ? `@${item.x!.handle} · X` : item.author ?? hostOf(item.links.original)}
       </div>
@@ -394,7 +392,7 @@ export default function ItemPage() {
         <div className="hidden lg:block 2xl:hidden">{backButton}</div>
         <article className="pb-6 pt-6 lg:pt-2 2xl:pt-1">
           <div className={`flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-ink-3 2xl:hidden ${isX ? "" : "mb-3"}`}>
-            <span className="font-semibold text-ink-2">{isX ? item.x!.authorName : item.source.name}</span>
+            <span className="font-semibold text-ink-2">{isX ? item.x!.authorName : shortSourceName(item.source.name, item.links.original)}</span>
             {isX && <span>· @{item.x!.handle} · X</span>}
             {item.author && !isX && <span>· {item.author}</span>}
             <span>·</span>
@@ -417,9 +415,6 @@ export default function ItemPage() {
             <>
               {!isX && <h1 className="text-[26px] font-bold leading-[1.38] tracking-[-0.01em] text-ink lg:text-[32px] lg:leading-[1.34] xl:text-[36px] xl:leading-[1.3]">{displayedTitle}</h1>}
               {!isX && item.originalTitle && <p className="mt-2.5 text-[14px] leading-relaxed text-ink-4">{item.originalTitle}</p>}
-              <div className="mt-3.5 mb-1 flex flex-wrap items-center gap-2">
-                {translateButton}
-              </div>
             </>
           )}
 
@@ -487,7 +482,7 @@ export default function ItemPage() {
           <p className="mt-8 text-[13px] text-ink-4">
             来源：
             <a href={item.links.original} target="_blank" rel="noopener noreferrer" className="text-ink-3 hover:text-accent">
-              {isX ? item.x!.authorName : item.source.name}
+              {isX ? item.x!.authorName : shortSourceName(item.source.name, item.links.original)}
             </a>
             <span> · {hostOf(item.links.original)}</span>
           </p>
