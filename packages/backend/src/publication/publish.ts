@@ -193,9 +193,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
     (analysis?.subjects ?? []).some((s) => s.includes("非火箭"));
   const isGeneralSource = source.id.includes("nbaanalysis") || source.id.includes("general") || source.id.includes("yahoo") || source.id.includes("bleacherreport");
   const isIrrelevantGeneralNews = isGeneralSource && !mentionsRockets;
-  const isIrrelevantSportsTalk = source.id.includes("sportstalk790") && !mentionsRockets;
-
-  const isNonRocketsContent = isOtherHoustonTeam || isExplicitNonRockets || isIrrelevantGeneralNews || isIrrelevantSportsTalk;
+  const isNonRocketsContent = !source.id.includes("sportstalk790") && (isOtherHoustonTeam || isExplicitNonRockets || isIrrelevantGeneralNews);
 
   const hasLongArticleBody = !article.x_post && typeof article.body_text === "string" && article.body_text.length >= 1800;
   const isDedicatedRocketsCommunity = source.id.includes("sleeper") || source.id.includes("clutchfans") || source.id.includes("rocketsnation");
@@ -234,7 +232,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
     return true;
   });
   const score = typeof f.score === "number" ? f.score : (analysis?.score ?? 70);
-  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (analysis?.relevance ?? "pass");
+  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (source.id.includes("sportstalk790") ? "pass" : (analysis?.relevance ?? "pass"));
   const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
   const hasXPost = !!article.x_post;
   const channel = channelOf(source.kind, hasXPost);
