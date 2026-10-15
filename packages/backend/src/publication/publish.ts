@@ -182,7 +182,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
     (rawXPost?.media && Array.isArray(rawXPost.media) && rawXPost.media.some((m: any) => m?.kind === "video"));
 
   const titleAndSummary = `${article.title || ""} ${zhTitle || ""} ${analysis?.summary_zh || ""} ${article.excerpt || ""}`;
-  const mentionsRockets = /(rockets|houston rockets|clutch city|toyota center|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|阿门|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|格林|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯)/i.test(titleAndSummary);
+  const mentionsRockets = /(rockets|houston rockets|clutch city|toyota center|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|阿门|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|格林|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯|preseason|季前赛|media day|媒体日|training camp|训练营)/i.test(titleAndSummary);
 
   const isOtherHoustonTeam =
     !mentionsRockets &&

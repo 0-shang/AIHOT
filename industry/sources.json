@@ -963,7 +963,7 @@
       "config": {
         "feedUrl": "https://www.spreaker.com/show/3442316/episodes/feed",
         "_aihot": {
-          "initialBackfillLimit": 80
+          "initialBackfillLimit": 120
         },
         "ingestNoiseFilter": {
           "keepIfMatches": [
@@ -987,6 +987,15 @@
             "史密斯",
             "eason",
             "伊森",
+            "stone",
+            "rafael stone",
+            "斯通",
+            "preseason",
+            "季前赛",
+            "media day",
+            "媒体日",
+            "training camp",
+            "训练营",
             "clutch city",
             "toyota center"
           ]

@@ -86,12 +86,12 @@ export function listedCondition(now: Date) {
     AND p.title NOT LIKE '%卡斯特罗%'
     AND NOT (p.tags && ARRAY['非火箭/联盟其他', '非火箭', '联盟其他']::text[])
     AND NOT (
-      p.title ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振)'
-      AND NOT p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|durant|杜兰特)'
+      (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振)'
+      AND NOT (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
     )
     AND (
       p.source_id NOT LIKE 'rss-podcast-sportstalk790%'
-      OR p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯|nba|preseason|draft|training camp|media day)'
+      OR (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|amen|thompson|eason|sheppard|durant|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|nba|preseason|draft|training camp|media day)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|阿门|伊森|谢泼德|杜兰特|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|训练营|媒体日)'
     )
     AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%'))
     AND (NOT p.selected OR p.visible_after IS NULL OR p.visible_after <= ${now})`;
@@ -107,8 +107,8 @@ export function selectedCondition(now: Date) {
     AND p.title NOT LIKE '%卡斯特罗%'
     AND NOT (p.tags && ARRAY['非火箭/联盟其他', '非火箭', '联盟其他']::text[])
     AND NOT (
-      p.title ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振)'
-      AND NOT p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|durant|杜兰特)'
+      (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振)'
+      AND NOT (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
     )
     AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%'))
     AND p.selected
@@ -159,7 +159,7 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     )
     AND (
       p.source_id NOT LIKE 'rss-podcast-sportstalk790%'
-      OR p.title ~* '(rockets|houston rockets|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯|nba|preseason|draft|training camp|media day)'
+      OR (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|amen|thompson|eason|sheppard|durant|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|nba|preseason|draft|training camp|media day)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|阿门|伊森|谢泼德|杜兰特|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|训练营|媒体日)'
     )`;
   }
   if (category === "videos") {

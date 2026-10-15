@@ -206,15 +206,13 @@ export async function fetchRss(source: SourceRow, opts: { force?: boolean } = {}
       const isAudio = !!audioEnclosure;
       let episodeUrl = link;
       let explicitIdentityKey: string | undefined;
-      if (isAudio && text(it.guid)) {
+      if (isAudio && (text(it.guid) || text(it.link))) {
         const guidVal = text(it.guid);
-        if (/^https?:\/\//i.test(guidVal)) {
-          episodeUrl = guidVal;
-        } else if (text(it.link)) {
-          const sep = text(it.link).includes("?") ? "&" : "?";
-          episodeUrl = `${text(it.link)}${sep}ep=${encodeURIComponent(guidVal)}`;
-        }
-        explicitIdentityKey = `podcast:${source.id}:${guidVal}`;
+        const linkVal = text(it.link);
+        const epIdMatch = (guidVal + " " + linkVal).match(/(?:episode\/|ep=)?(\d{7,12})/);
+        const epId = epIdMatch ? epIdMatch[1] : (guidVal || linkVal);
+        episodeUrl = linkVal && /^https?:\/\//i.test(linkVal) ? linkVal : (guidVal || link);
+        explicitIdentityKey = `podcast:${source.id}:${epId}`;
       }
 
       const podcastData = isAudio ? {

@@ -42,7 +42,7 @@ export function meta() {
 }
 
 export function headers() {
-  return { "Cache-Control": "public, max-age=0, s-maxage=30, stale-while-revalidate=15" };
+  return { "Cache-Control": "public, max-age=30, s-maxage=60, stale-while-revalidate=120" };
 }
 
 function pageHref(params: URLSearchParams, page: number) {

@@ -702,7 +702,7 @@ function SideLink({ item, dot }) {
 	const Icon = item.icon;
 	return /* @__PURE__ */ jsxs(Link, {
 		to: item.to,
-		prefetch: "intent",
+		prefetch: "viewport",
 		"aria-current": isActive ? "page" : void 0,
 		className: `flex h-10 items-center gap-2.5 rounded-xl px-3 text-[14px] transition-all duration-150 ${isActive ? "bg-bg-sunk text-ink font-bold dark:bg-slate-800" : "font-medium text-ink-3 hover:bg-bg-sunk hover:text-ink"}`,
 		children: [
@@ -775,7 +775,7 @@ function MobileTabBar({ changelogVersion }) {
 				const Icon = t.icon;
 				return /* @__PURE__ */ jsxs(Link, {
 					to: t.to,
-					prefetch: "intent",
+					prefetch: "viewport",
 					"aria-current": active ? "page" : void 0,
 					className: `relative flex flex-col items-center justify-center gap-[2px] text-[11px] transition-colors ${active ? "font-bold text-[#CE1141]" : "text-ink-3 hover:text-ink active:text-ink"}`,
 					children: [
@@ -4045,7 +4045,7 @@ function meta$39() {
 	});
 }
 function headers$27() {
-	return { "Cache-Control": "public, max-age=0, s-maxage=30, stale-while-revalidate=15" };
+	return { "Cache-Control": "public, max-age=30, s-maxage=60, stale-while-revalidate=120" };
 }
 function pageHref$1(params, page) {
 	const sp = new URLSearchParams(params);
@@ -4153,7 +4153,7 @@ function meta$38() {
 	});
 }
 function headers$26() {
-	return { "Cache-Control": "public, max-age=0, s-maxage=30, stale-while-revalidate=15" };
+	return { "Cache-Control": "public, max-age=30, s-maxage=60, stale-while-revalidate=120" };
 }
 function pageHref(params, page) {
 	const sp = new URLSearchParams(params);
@@ -22709,11 +22709,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-BWhzQXyK.js",
+			"module": "/assets/root-BbfV451k.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CSVvFEvC.js",
-				"/assets/Sidebar-BQIuSAtv.js",
+				"/assets/Sidebar-Do6eKDKV.js",
 				"/assets/Chrome-DyQb9Z8F.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
@@ -23366,11 +23366,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-g_J2aBY_.js",
+			"module": "/assets/more-CvJDbYJ7.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CSVvFEvC.js",
-				"/assets/Sidebar-BQIuSAtv.js",
+				"/assets/Sidebar-Do6eKDKV.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -24072,8 +24072,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-77d7179f.js",
-	"version": "77d7179f",
+	"url": "/assets/manifest-20c91799.js",
+	"version": "20c91799",
 	"sri": void 0
 };
 //#endregion

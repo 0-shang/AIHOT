@@ -16,7 +16,7 @@ export function MobileTabBar({ changelogVersion }: { changelogVersion: string | 
             <Link
               key={t.to}
               to={t.to}
-              prefetch="intent"
+              prefetch="viewport"
               aria-current={active ? "page" : undefined}
               className={`relative flex flex-col items-center justify-center gap-[2px] text-[11px] transition-colors ${
                 active ? "font-bold text-[#CE1141]" : "text-ink-3 hover:text-ink active:text-ink"
