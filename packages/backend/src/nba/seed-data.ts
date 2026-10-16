@@ -60,7 +60,12 @@ export const SEED_GAMES: GameItem[] = [
     "arena": "Toyota Center (Houston)",
     "broadcast": "腾讯体育 / 咪咕",
     "stage": "preseason",
-    "status": "upcoming"
+    "status": "final",
+    "result": {
+      "outcome": "W",
+      "rocketsScore": 116,
+      "opponentScore": 89
+    }
   },
   {
     "id": "401909840",

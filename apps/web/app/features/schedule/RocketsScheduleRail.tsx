@@ -20,43 +20,28 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
     return `${y}-${m}-${d}`;
   }, []);
 
-  // 智能寻找距离今天最近的焦点场次（正在进行、今天、明天或下一场待开赛场次）
-  const focusGameInfo = useMemo(() => {
+  // 寻找下一场比赛：优先检测正在进行的比赛，否则为第一场尚未完赛的场次（下一场比赛）
+  const nextGame = useMemo(() => {
     if (!games || games.length === 0) return null;
-    // 0. 优先检测正在进行中的比赛
     const liveGame = games.find((g) => g.status === "live");
-    if (liveGame) return { game: liveGame, label: "正在进行", isHot: true };
+    if (liveGame) return liveGame;
 
-    // 1. 今天是否有比赛
-    const todayGame = games.find((g) => g.date === todayStr);
-    if (todayGame) return { game: todayGame, label: "今日对决", isHot: true };
+    const upcoming = games.find((g) => g.status !== "final");
+    if (upcoming) return upcoming;
 
-    // 2. 明天或最近未完赛的下一场比赛
-    const upcoming = games.find((g) => g.date >= todayStr && g.status !== "final") || games.find((g) => g.date >= todayStr);
-    if (upcoming) {
-      const isTomorrow = upcoming.date > todayStr &&
-        (new Date(upcoming.date).getTime() - new Date(todayStr).getTime()) <= 86400000 * 1.5;
-      return {
-        game: upcoming,
-        label: isTomorrow ? "明日焦点" : "下一场",
-        isHot: isTomorrow,
-      };
-    }
+    return games[games.length - 1];
+  }, [games]);
 
-    // 3. 兜底最新赛况
-    return { game: games[games.length - 1], label: "最新战况", isHot: false };
-  }, [games, todayStr]);
-
-  // 默认月份优先定位至当前焦点比赛的月份，而非生硬倾倒全部 83 场
+  // 默认月份优先定位至下一场比赛的月份
   const [selectedMonth, setSelectedMonth] = useState<string>("ALL");
 
   useEffect(() => {
-    if (!hasInitializedMonth.current && focusGameInfo?.game) {
-      const focusMonth = focusGameInfo.game.date.slice(0, 7);
+    if (!hasInitializedMonth.current && nextGame) {
+      const focusMonth = nextGame.date.slice(0, 7);
       setSelectedMonth(focusMonth);
       hasInitializedMonth.current = true;
     }
-  }, [focusGameInfo]);
+  }, [nextGame]);
 
   // 月份列表
   const months = useMemo(() => {
@@ -73,10 +58,10 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
     return games.filter((g) => g.date.startsWith(selectedMonth));
   }, [games, selectedMonth]);
 
-  // 自动将焦点场次滚动至视口中央
+  // 自动将下一场比赛滚动至视口中央
   useEffect(() => {
-    if (focusGameInfo?.game && scrollRef.current) {
-      const cardEl = document.getElementById(`schedule-game-${focusGameInfo.game.id}`);
+    if (nextGame && scrollRef.current) {
+      const cardEl = document.getElementById(`schedule-game-${nextGame.id}`);
       if (cardEl) {
         const timer = setTimeout(() => {
           cardEl.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
@@ -84,7 +69,7 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
         return () => clearTimeout(timer);
       }
     }
-  }, [focusGameInfo, selectedMonth]);
+  }, [nextGame, selectedMonth]);
 
   const handleScroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -191,7 +176,7 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
           const isAwayRockets = awayTeam.abbr === "HOU";
           const isHomeRockets = homeTeam.abbr === "HOU";
 
-          const isFocusGame = focusGameInfo?.game.id === g.id;
+          const isNextGame = nextGame?.id === g.id;
 
           return (
             <div
@@ -201,8 +186,8 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
               className={`flex-shrink-0 w-60 sm:w-64 rounded-xl p-3.5 border transition-all text-xs flex flex-col justify-between ${
                 isLive
                   ? "cursor-pointer ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/30 dark:bg-[#1f1013] shadow-md hover:shadow-lg"
-                  : isFocusGame
-                    ? "ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/20 dark:bg-[#1c1114] shadow-sm"
+                  : isNextGame
+                    ? "ring-2 ring-[#CE1141] border-[#CE1141] bg-white dark:bg-[#14161b] shadow-sm"
                     : isFinal
                       ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md border-slate-200 dark:border-white/10"
                       : "cursor-default bg-slate-50/60 dark:bg-[#111317] border-slate-200 dark:border-white/10"
@@ -210,17 +195,12 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
                 isSelected ? "border-[#CE1141] ring-2 ring-[#CE1141]" : ""
               }`}
             >
-              {/* 卡片顶部：比赛时间、焦点标记与状态 */}
+              {/* 卡片顶部：比赛时间与状态（下一场直接红框展示，不使用花哨徽标） */}
               <div className="flex items-center justify-between text-[11px] pb-2 mb-2 border-b border-slate-100 dark:border-white/5">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="font-mono text-slate-600 dark:text-zinc-400 font-medium">
                     {g.date.slice(5)} {g.time}
                   </span>
-                  {isFocusGame && (
-                    <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#CE1141] text-white animate-pulse shrink-0">
-                      {focusGameInfo.label}
-                    </span>
-                  )}
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] text-slate-400 dark:text-zinc-500">

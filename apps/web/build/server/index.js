@@ -4317,47 +4317,26 @@ function RocketsHeroBanner({ standings, totalGames, totalPlayers }) {
 function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 	const scrollRef = useRef(null);
 	const hasInitializedMonth = useRef(false);
-	const todayStr = useMemo(() => {
+	useMemo(() => {
 		const now = /* @__PURE__ */ new Date();
 		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 	}, []);
-	const focusGameInfo = useMemo(() => {
+	const nextGame = useMemo(() => {
 		if (!games || games.length === 0) return null;
 		const liveGame = games.find((g) => g.status === "live");
-		if (liveGame) return {
-			game: liveGame,
-			label: "正在进行",
-			isHot: true
-		};
-		const todayGame = games.find((g) => g.date === todayStr);
-		if (todayGame) return {
-			game: todayGame,
-			label: "今日对决",
-			isHot: true
-		};
-		const upcoming = games.find((g) => g.date >= todayStr && g.status !== "final") || games.find((g) => g.date >= todayStr);
-		if (upcoming) {
-			const isTomorrow = upcoming.date > todayStr && new Date(upcoming.date).getTime() - new Date(todayStr).getTime() <= 1296e5;
-			return {
-				game: upcoming,
-				label: isTomorrow ? "明日焦点" : "下一场",
-				isHot: isTomorrow
-			};
-		}
-		return {
-			game: games[games.length - 1],
-			label: "最新战况",
-			isHot: false
-		};
-	}, [games, todayStr]);
+		if (liveGame) return liveGame;
+		const upcoming = games.find((g) => g.status !== "final");
+		if (upcoming) return upcoming;
+		return games[games.length - 1];
+	}, [games]);
 	const [selectedMonth, setSelectedMonth] = useState("ALL");
 	useEffect(() => {
-		if (!hasInitializedMonth.current && focusGameInfo?.game) {
-			const focusMonth = focusGameInfo.game.date.slice(0, 7);
+		if (!hasInitializedMonth.current && nextGame) {
+			const focusMonth = nextGame.date.slice(0, 7);
 			setSelectedMonth(focusMonth);
 			hasInitializedMonth.current = true;
 		}
-	}, [focusGameInfo]);
+	}, [nextGame]);
 	const months = useMemo(() => {
 		const set = /* @__PURE__ */ new Set();
 		games.forEach((g) => {
@@ -4371,8 +4350,8 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 		return games.filter((g) => g.date.startsWith(selectedMonth));
 	}, [games, selectedMonth]);
 	useEffect(() => {
-		if (focusGameInfo?.game && scrollRef.current) {
-			const cardEl = document.getElementById(`schedule-game-${focusGameInfo.game.id}`);
+		if (nextGame && scrollRef.current) {
+			const cardEl = document.getElementById(`schedule-game-${nextGame.id}`);
 			if (cardEl) {
 				const timer = setTimeout(() => {
 					cardEl.scrollIntoView({
@@ -4384,7 +4363,7 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 				return () => clearTimeout(timer);
 			}
 		}
-	}, [focusGameInfo, selectedMonth]);
+	}, [nextGame, selectedMonth]);
 	const handleScroll = (direction) => {
 		if (scrollRef.current) {
 			const offset = direction === "left" ? -460 : 460;
@@ -4479,27 +4458,24 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 			};
 			const isAwayRockets = awayTeam.abbr === "HOU";
 			const isHomeRockets = homeTeam.abbr === "HOU";
-			const isFocusGame = focusGameInfo?.game.id === g.id;
+			const isNextGame = nextGame?.id === g.id;
 			return /* @__PURE__ */ jsxs("div", {
 				id: `schedule-game-${g.id}`,
 				onClick: () => (isFinal || isLive) && onSelectGame(g.id),
-				className: `flex-shrink-0 w-60 sm:w-64 rounded-xl p-3.5 border transition-all text-xs flex flex-col justify-between ${isLive ? "cursor-pointer ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/30 dark:bg-[#1f1013] shadow-md hover:shadow-lg" : isFocusGame ? "ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/20 dark:bg-[#1c1114] shadow-sm" : isFinal ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md border-slate-200 dark:border-white/10" : "cursor-default bg-slate-50/60 dark:bg-[#111317] border-slate-200 dark:border-white/10"} ${isSelected ? "border-[#CE1141] ring-2 ring-[#CE1141]" : ""}`,
+				className: `flex-shrink-0 w-60 sm:w-64 rounded-xl p-3.5 border transition-all text-xs flex flex-col justify-between ${isLive ? "cursor-pointer ring-2 ring-[#CE1141] border-[#CE1141] bg-red-50/30 dark:bg-[#1f1013] shadow-md hover:shadow-lg" : isNextGame ? "ring-2 ring-[#CE1141] border-[#CE1141] bg-white dark:bg-[#14161b] shadow-sm" : isFinal ? "cursor-pointer hover:border-[#CE1141]/50 bg-white dark:bg-[#14161b] shadow-xs hover:shadow-md border-slate-200 dark:border-white/10" : "cursor-default bg-slate-50/60 dark:bg-[#111317] border-slate-200 dark:border-white/10"} ${isSelected ? "border-[#CE1141] ring-2 ring-[#CE1141]" : ""}`,
 				children: [
 					/* @__PURE__ */ jsxs("div", {
 						className: "flex items-center justify-between text-[11px] pb-2 mb-2 border-b border-slate-100 dark:border-white/5",
-						children: [/* @__PURE__ */ jsxs("div", {
+						children: [/* @__PURE__ */ jsx("div", {
 							className: "flex items-center gap-1.5 min-w-0",
-							children: [/* @__PURE__ */ jsxs("span", {
+							children: /* @__PURE__ */ jsxs("span", {
 								className: "font-mono text-slate-600 dark:text-zinc-400 font-medium",
 								children: [
 									g.date.slice(5),
 									" ",
 									g.time
 								]
-							}), isFocusGame && /* @__PURE__ */ jsx("span", {
-								className: "text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-[#CE1141] text-white animate-pulse shrink-0",
-								children: focusGameInfo.label
-							})]
+							})
 						}), /* @__PURE__ */ jsxs("div", {
 							className: "flex items-center gap-1.5",
 							children: [/* @__PURE__ */ jsx("span", {
@@ -22747,7 +22723,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-BbfV451k.js",
+			"module": "/assets/root-DYl3qkba.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CSVvFEvC.js",
@@ -22755,7 +22731,7 @@ var server_manifest_default = {
 				"/assets/Chrome-DyQb9Z8F.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-CwI-Ou6p.css"],
+			"css": ["/assets/root-CcICvbdu.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22863,7 +22839,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-r7dHnV3G.js",
+			"module": "/assets/schedule-DYxZH-Eg.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CSVvFEvC.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -24110,8 +24086,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-ba82e5fd.js",
-	"version": "ba82e5fd",
+	"url": "/assets/manifest-1b092bd2.js",
+	"version": "1b092bd2",
 	"sri": void 0
 };
 //#endregion

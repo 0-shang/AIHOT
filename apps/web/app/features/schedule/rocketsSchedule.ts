@@ -376,9 +376,19 @@ export const ROCKETS_GAMES: GameData[] = [
     "arena": "休斯敦·丰田中心",
     "broadcast": "腾讯体育 / 咪咕视频",
     "stage": "preseason",
-    "status": "upcoming",
+    "status": "final",
     "keyMatchup": "阿门·汤普森 vs 谢伊·吉尔杰斯-亚历山大",
-    "previewNotes": "年轻一代顶级强强对话！阿门外线领防SGA，杜兰特半场攻坚拆解雷霆防线。"
+    "previewNotes": "季前赛收官对决！阿门防守大放异彩，申京攻防全能，火箭大胜雷霆圆满收官。",
+    "result": {
+      "outcome": "W",
+      "rocketsScore": 116,
+      "opponentScore": 89,
+      "topPerformer": {
+        "name": "阿尔佩伦·申京",
+        "stats": "14分 7篮板 5助攻 2盖帽"
+      },
+      "highlights": "申京高效砍下14+7+5，阿门12分5板4助，杜兰特11分，火箭末节爆发116-89大胜雷霆，季前赛收官大捷！"
+    }
   },
   {
     "id": "401909840",

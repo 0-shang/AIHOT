@@ -57,9 +57,9 @@ export class RocketsDataPipeline {
     const nowBeijing = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
     const [m, d, y] = nowBeijing.split("/");
     const todayStr = `${y}-${m}-${d}`;
-    const hasLiveOrToday = list.some((g) => g.status === "live" || (g.date === todayStr && g.status !== "final"));
+    const hasLiveOrPastUpcoming = list.some((g) => g.status === "live" || (g.date <= todayStr && g.status !== "final"));
 
-    if (hasLiveOrToday && Date.now() - this.lastLiveCheckMs > 20_000) {
+    if (hasLiveOrPastUpcoming && Date.now() - this.lastLiveCheckMs > 20_000) {
       this.lastLiveCheckMs = Date.now();
       try {
         const liveSchedule = await this.espn.fetchRocketsSchedule();
