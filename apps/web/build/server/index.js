@@ -6308,6 +6308,7 @@ function RocketsPlayerModal({ player, onClose }) {
 var cachedSchedule = [];
 var cachedStandings = null;
 var cachedPlayers = [];
+var cachedBreakdowns = /* @__PURE__ */ new Map();
 function ScheduleCalendar({ initialSchedule, initialStandings, initialPlayers } = {}) {
 	const [searchParams, setSearchParams] = useSearchParams();
 	if (initialSchedule && initialSchedule.length > 0) cachedSchedule = initialSchedule;
@@ -6377,17 +6378,32 @@ function ScheduleCalendar({ initialSchedule, initialStandings, initialPlayers } 
 			if (matchP) setActivePlayer(matchP);
 		}
 	}, [searchParams, players]);
+	useEffect(() => {
+		if (!schedule || schedule.length === 0) return;
+		const finalGames = schedule.filter((g) => g.status === "final");
+		for (const g of finalGames) if (!cachedBreakdowns.has(g.id)) fetchGameBreakdown(g.id).then((bd) => {
+			if (bd) cachedBreakdowns.set(g.id, bd);
+		}).catch(() => {});
+	}, [schedule]);
 	async function handleOpenGame(gameId) {
 		setActiveGameId(gameId);
-		setIsLoadingGame(true);
 		setSearchParams((prev) => {
 			const next = new URLSearchParams(prev);
 			next.set("game", gameId);
 			return next;
 		});
+		if (cachedBreakdowns.has(gameId)) {
+			setGameBreakdown(cachedBreakdowns.get(gameId));
+			setIsLoadingGame(false);
+			return;
+		}
+		setIsLoadingGame(true);
 		try {
 			const breakdown = await fetchGameBreakdown(gameId);
-			setGameBreakdown(breakdown);
+			if (breakdown) {
+				cachedBreakdowns.set(gameId, breakdown);
+				setGameBreakdown(breakdown);
+			}
 		} catch {} finally {
 			setIsLoadingGame(false);
 		}
@@ -22839,7 +22855,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-DYxZH-Eg.js",
+			"module": "/assets/schedule-D6Qo5yWx.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CSVvFEvC.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -24086,8 +24102,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-1b092bd2.js",
-	"version": "1b092bd2",
+	"url": "/assets/manifest-9b1ea853.js",
+	"version": "9b1ea853",
 	"sri": void 0
 };
 //#endregion

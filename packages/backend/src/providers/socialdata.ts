@@ -122,21 +122,25 @@ export function pickVideoUrl(m: SdMedia): string | null {
     const anyUrl = variants.find((v) => v && typeof v.url === "string")?.url;
     return anyUrl ?? null;
   }
-  // Prefer balanced 720p/540p bitrate (around 800k - 2.5M) for fast instant streaming,
-  // falling back to highest available if no sweet-spot variant exists.
-  const balanced = mp4s.find((v) => (v.bitrate ?? 0) >= 700_000 && (v.bitrate ?? 0) <= 2_500_000);
-  if (balanced) return balanced.url;
 
-  mp4s.sort((a, b) => (b.bitrate ?? 0) - (a.bitrate ?? 0));
-  return mp4s[0].url;
+  // 优先选取 720p 黄金高清档位（分辨率 1280x720 或码率 1.5M ~ 3.2M 范围）
+  // 保证画质清晰细腻无马赛克，且国内加载快不卡顿
+  const sweetSpot720p = mp4s.find(
+    (v) =>
+      v.url.includes("720x") ||
+      v.url.includes("1280x") ||
+      ((v.bitrate ?? 0) >= 1_500_000 && (v.bitrate ?? 0) <= 3_200_000)
+  );
+  if (sweetSpot720p) return sweetSpot720p.url;
+
+  // 否则按码率从高到低排序，优先选取最高画质，彻底弃用 360p 渣画质
+  const sortedByQuality = [...mp4s].sort((a, b) => (b.bitrate ?? 0) - (a.bitrate ?? 0));
+  return sortedByQuality[0]?.url ?? mp4s[0].url;
 }
 
 export function tweetMedia(t: SdTweet) {
   return (t.extended_entities?.media ?? t.entities?.media ?? []).map((m) => {
     const videoUrl = m.type === "video" || m.type === "animated_gif" ? pickVideoUrl(m) : null;
-    if (videoUrl) {
-      prefetchVideo(videoUrl);
-    }
     return {
       kind: m.type === "photo" ? ("image" as const) : ("video" as const),
       url: m.media_url_https,

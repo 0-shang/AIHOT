@@ -29,6 +29,48 @@ export function videoFilePath(url: string): string {
 // In-flight download promises to deduplicate concurrent requests for the same video.
 const inFlightDownloads = new Map<string, Promise<string | null>>();
 
+// 磁盘配额管理：严格限制最大占用 1.0 GB，触发清理时回退至 750 MB，保证 VPS 永不爆盘
+const MAX_CACHE_BYTES = 1024 * 1024 * 1024;
+const TARGET_CACHE_BYTES = 750 * 1024 * 1024;
+
+async function cleanOldVideosIfNeeded(): Promise<void> {
+  try {
+    await ensureDir();
+    const files = await fs.readdir(VIDEO_CACHE_DIR);
+    const videoFiles: Array<{ path: string; size: number; mtime: number }> = [];
+    let totalSize = 0;
+
+    for (const name of files) {
+      if (!name.endsWith(".mp4")) continue;
+      const fullPath = path.join(VIDEO_CACHE_DIR, name);
+      try {
+        const stat = await fs.stat(fullPath);
+        videoFiles.push({ path: fullPath, size: stat.size, mtime: stat.mtimeMs });
+        totalSize += stat.size;
+      } catch {
+        // ignore
+      }
+    }
+
+    if (totalSize <= MAX_CACHE_BYTES) return;
+
+    // 按修改时间从旧到新排序，最老的视频最先被淘汰
+    videoFiles.sort((a, b) => a.mtime - b.mtime);
+
+    for (const file of videoFiles) {
+      try {
+        await fs.unlink(file.path);
+        totalSize -= file.size;
+        if (totalSize <= TARGET_CACHE_BYTES) break;
+      } catch {
+        // ignore
+      }
+    }
+  } catch {
+    // ignore
+  }
+}
+
 /** Check if video is already fully cached on local disk */
 export async function isVideoCached(url: string): Promise<boolean> {
   const filePath = videoFilePath(url);
@@ -62,6 +104,8 @@ export async function downloadAndCacheVideo(url: string): Promise<string | null>
       const stat = await fs.stat(tmpPath);
       if (stat.size > 1024) {
         await fs.rename(tmpPath, finalPath);
+        // 保存成功后触发磁盘配额自检与旧文件滚动淘汰
+        cleanOldVideosIfNeeded().catch(() => {});
         return finalPath;
       } else {
         await fs.unlink(tmpPath).catch(() => {});

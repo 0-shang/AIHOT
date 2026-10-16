@@ -22,38 +22,59 @@ function PlayMark() {
  */
 export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: string }) {
   const [open, setOpen] = useState<number | null>(null);
-  const [activeVideo, setActiveVideo] = useState<{ url: string; poster?: string | null } | null>(null);
+  const [playingVideoUrl, setPlayingVideoUrl] = useState<string | null>(null);
   const shown = media.slice(0, 9);
   const images = shown.filter((m) => m.kind !== "video");
   const single = shown.length === 1;
-  const tile = `group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk ${single ? "max-w-[420px]" : "aspect-[16/10]"}`;
+  const tile = `group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk ${single ? "max-w-[540px] w-full" : "aspect-[16/10]"}`;
   return (
     <>
-      <div className={`mt-5 grid gap-2 ${single ? "grid-cols-1" : shown.length === 2 || shown.length === 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}`}>
+      <div className={`mt-5 grid gap-2.5 ${single ? "grid-cols-1" : shown.length === 2 || shown.length === 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}`}>
         {shown.map((m) => {
           const img = (
             <img
               src={m.poster ?? m.url}
               srcSet={m.srcSet}
-              sizes={single ? "auto, (min-width: 460px) 420px, calc(100vw - 32px)" : "auto, (min-width: 800px) 248px, (min-width: 640px) calc(33.333vw - 19px), calc(50vw - 24px)"}
+              sizes={single ? "auto, (min-width: 540px) 540px, calc(100vw - 32px)" : "auto, (min-width: 800px) 248px, (min-width: 640px) calc(33.333vw - 19px), calc(50vw - 24px)"}
               width={m.width ?? undefined}
               height={m.height ?? undefined}
               decoding="async"
               alt={m.alt ?? ""}
               loading="lazy"
-              className={`block w-full object-cover transition-transform duration-300 group-hover:scale-[1.015] ${single ? "max-h-[360px]" : "h-full"}`}
+              className={`block w-full object-cover transition-transform duration-300 group-hover:scale-[1.015] ${single ? "max-h-[460px]" : "h-full"}`}
               style={single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : undefined}
             />
           );
           if (m.kind === "video") {
             if (m.videoUrl) {
+              const isPlaying = playingVideoUrl === m.videoUrl;
+              if (isPlaying) {
+                return (
+                  <div
+                    key={m.url}
+                    className={`relative overflow-hidden rounded-tile border border-line-soft bg-black ${single ? "max-w-[580px] w-full" : "aspect-[16/10]"}`}
+                    style={single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : undefined}
+                  >
+                    <video
+                      src={m.videoUrl}
+                      poster={m.poster ?? m.url}
+                      controls
+                      autoPlay
+                      playsInline
+                      preload="auto"
+                      className={`block w-full object-contain ${single ? "max-h-[480px]" : "h-full"}`}
+                    />
+                  </div>
+                );
+              }
+
               return (
                 <button
                   key={m.url}
                   type="button"
-                  onClick={() => setActiveVideo({ url: m.videoUrl!, poster: m.poster ?? m.url })}
-                  aria-label="播放视频"
-                  className={`${tile} cursor-pointer text-left`}
+                  onClick={() => setPlayingVideoUrl(m.videoUrl!)}
+                  aria-label="在当前页面播放视频"
+                  className={`${tile} cursor-pointer text-left focus:outline-none`}
                 >
                   {img}
                   <PlayMark />
@@ -75,12 +96,6 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
         })}
       </div>
       <Lightbox images={images.map((m) => ({ src: m.url, alt: m.alt }))} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
-      <VideoModal
-        open={!!activeVideo}
-        videoUrl={activeVideo?.url ?? null}
-        poster={activeVideo?.poster}
-        onClose={() => setActiveVideo(null)}
-      />
     </>
   );
 }

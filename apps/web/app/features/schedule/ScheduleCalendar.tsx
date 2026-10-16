@@ -23,6 +23,9 @@ let cachedSchedule: GameItem[] = [];
 let cachedStandings: StandingsData | null = null;
 let cachedPlayers: PlayerStatsData[] = [];
 
+// 单例级单场战报缓存，实现点开秒出
+const cachedBreakdowns = new Map<string, GameBreakdownData>();
+
 export interface ScheduleCalendarProps {
   initialSchedule?: GameItem[];
   initialStandings?: StandingsData | null;
@@ -133,19 +136,42 @@ export function ScheduleCalendar({
     }
   }, [searchParams, players]);
 
+  // 静默预加载已完赛场次的详细战报，确保用户点击卡片时 0 毫秒秒开
+  useEffect(() => {
+    if (!schedule || schedule.length === 0) return;
+    const finalGames = schedule.filter((g) => g.status === "final");
+    for (const g of finalGames) {
+      if (!cachedBreakdowns.has(g.id)) {
+        fetchGameBreakdown(g.id).then((bd) => {
+          if (bd) cachedBreakdowns.set(g.id, bd);
+        }).catch(() => {});
+      }
+    }
+  }, [schedule]);
+
   // 打开单场比赛 Boxscore
   async function handleOpenGame(gameId: string) {
     setActiveGameId(gameId);
-    setIsLoadingGame(true);
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.set("game", gameId);
       return next;
     });
 
+    // 若本地已有缓存，直接 0 延迟秒开，不显示全屏 loading
+    if (cachedBreakdowns.has(gameId)) {
+      setGameBreakdown(cachedBreakdowns.get(gameId)!);
+      setIsLoadingGame(false);
+      return;
+    }
+
+    setIsLoadingGame(true);
     try {
       const breakdown = await fetchGameBreakdown(gameId);
-      setGameBreakdown(breakdown);
+      if (breakdown) {
+        cachedBreakdowns.set(gameId, breakdown);
+        setGameBreakdown(breakdown);
+      }
     } catch {
       // ignore
     } finally {

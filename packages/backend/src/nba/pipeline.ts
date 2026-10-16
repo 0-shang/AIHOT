@@ -3,6 +3,7 @@ import path from "node:path";
 import { EspnClient } from "./espn-client.ts";
 import type { GameBreakdownData, GameItem, PlayerStatsData, StandingsData } from "./types.ts";
 import { SEED_GAMES, SEED_PLAYERS, SEED_STANDINGS } from "./seed-data.ts";
+import { SEED_GAME_BREAKDOWNS } from "./seed-games.ts";
 
 const ROOT_DIR = path.resolve(import.meta.dirname, "../../../../");
 const DATA_DIR = path.resolve(ROOT_DIR, ".data", "rockets");
@@ -90,9 +91,15 @@ export class RocketsDataPipeline {
     const matchGame = schedule.find((g) => g.id === gameId);
     const isLive = matchGame?.status === "live";
 
-    // 正在进行的比赛不读取静态磁盘缓存，优先向 ESPN 实时抓取最新技术统计
+    // 优先从内存缓存中获取已读取的比赛数据
     if (!isLive && this.memoryGames.has(gameId)) {
       return this.memoryGames.get(gameId)!;
+    }
+
+    // 优先从静态官方完整种子中瞬间秒开（0 延迟直接返回，无需任何外网 ESPN 请求）
+    if (!isLive && SEED_GAME_BREAKDOWNS[gameId]) {
+      this.memoryGames.set(gameId, SEED_GAME_BREAKDOWNS[gameId]);
+      return SEED_GAME_BREAKDOWNS[gameId];
     }
 
     if (!isLive) {
