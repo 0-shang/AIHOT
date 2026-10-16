@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { MediaView } from "@aihot/contracts/site";
 import { Lightbox } from "../../components/ui/Lightbox";
-import { VideoModal } from "../../components/ui/VideoModal";
 
 /** A round play mark over a video's still. */
 function PlayMark() {

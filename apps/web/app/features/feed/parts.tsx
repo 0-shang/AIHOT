@@ -4,7 +4,6 @@ import type { FeedItemSummary, MediaView } from "@aihot/contracts/site";
 import { IconBookmark } from "../../components/icons";
 import { SourceAvatar } from "../../components/ui/SourceAvatar";
 import { Lightbox } from "../../components/ui/Lightbox";
-import { VideoModal } from "../../components/ui/VideoModal";
 import { toggleStar, useIsStarred } from "../../lib/local-state";
 import { shortSourceName } from "../../lib/format";
 
@@ -27,7 +26,7 @@ export function SourceLine({ item, avatarSize = 16, className = "" }: { item: Pi
 /** Up to four media thumbnails, kept small in lists (the detail page shows them larger). Videos are stills. */
 export function MediaThumbs({ media, className = "" }: { media: MediaView[]; className?: string }) {
   const [index, setIndex] = useState<number | null>(null);
-  const [activeVideo, setActiveVideo] = useState<{ url: string; poster?: string | null } | null>(null);
+  const [playingVideoUrl, setPlayingVideoUrl] = useState<string | null>(null);
   const images = media.filter((m) => m.kind === "image").map((m) => ({ src: m.fullUrl ?? m.url, alt: m.alt }));
   const shown = media.slice(0, 4);
   if (shown.length === 0) return null;
@@ -37,6 +36,28 @@ export function MediaThumbs({ media, className = "" }: { media: MediaView[]; cla
       {shown.map((m) => {
         const isClickableVideo = m.kind === "video" && !!m.videoUrl;
         const isClickableImage = m.kind === "image";
+        const isPlaying = isClickableVideo && playingVideoUrl === m.videoUrl;
+
+        if (isPlaying) {
+          return (
+            <div
+              key={m.url}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              className="relative z-10 overflow-hidden rounded-control border border-line-soft bg-black w-[280px] max-w-full"
+            >
+              <video
+                src={m.videoUrl!}
+                poster={m.poster ?? m.url}
+                controls
+                autoPlay
+                playsInline
+                preload="auto"
+                className="h-[160px] w-full object-contain"
+              />
+            </div>
+          );
+        }
+
         const isClickable = isClickableImage || isClickableVideo;
         const Wrapper = isClickable ? "button" : "span";
         return (
@@ -52,11 +73,11 @@ export function MediaThumbs({ media, className = "" }: { media: MediaView[]; cla
             }
           } : isClickableVideo ? {
             type: "button" as const,
-            "aria-label": "播放视频",
+            "aria-label": "在当前页面播放视频",
             onClick: (e: React.MouseEvent) => {
               e.preventDefault();
               e.stopPropagation();
-              setActiveVideo({ url: m.videoUrl!, poster: m.poster ?? m.url });
+              setPlayingVideoUrl(m.videoUrl!);
             }
           } : {})}
           className={`relative ${isClickable ? "z-10 cursor-pointer" : ""} ${isClickableImage ? "cursor-zoom-in" : ""} shrink-0 overflow-hidden rounded-control border border-line-soft bg-bg-sunk ${shown.length === 1 ? "max-w-[240px]" : "w-[112px]"}`}
@@ -75,12 +96,6 @@ export function MediaThumbs({ media, className = "" }: { media: MediaView[]; cla
       ); })}
     </div>
     <Lightbox images={images} index={index} onIndex={setIndex} onClose={() => setIndex(null)} />
-    <VideoModal
-      open={!!activeVideo}
-      videoUrl={activeVideo?.url ?? null}
-      poster={activeVideo?.poster}
-      onClose={() => setActiveVideo(null)}
-    />
     </>
   );
 }
