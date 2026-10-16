@@ -185,11 +185,16 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
       p.category = 'videos'
       OR p.source_id LIKE 'yt-%'
     )
+    AND p.source_id NOT IN ('rss-google-news-rockets', 'rss-web-rockets-global')
     AND (
       p.source_id LIKE 'yt-%'
-      OR (a.media IS NOT NULL AND a.media::text ~* '"kind"\\s*:\\s*"video"')
-    )
-    AND p.source_id NOT IN ('rss-google-news-rockets', 'rss-web-rockets-global')`;
+      OR EXISTS (
+        SELECT 1 FROM articles a
+        WHERE a.id = p.article_id
+          AND a.media IS NOT NULL
+          AND a.media::text ~* '"kind"\\s*:\\s*"video"'
+      )
+    )`;
   }
   if (category === "beat_tweets") {
     // 队记推文栏目：随队名记推文流，排除官方推特与全网快讯账号（DunkCentral, HoopCentral 等已归入动态）

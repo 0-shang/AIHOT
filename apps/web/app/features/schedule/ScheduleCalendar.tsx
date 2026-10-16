@@ -18,14 +18,39 @@ import { RocketsRosterSection } from "./RocketsRosterSection.tsx";
 import { RocketsGameDetail } from "./RocketsGameDetail.tsx";
 import { RocketsPlayerModal } from "./RocketsPlayerModal.tsx";
 
-export function ScheduleCalendar() {
+// 模块级单例缓存，实现客户端 Tab 切换 0 延迟秒开
+let cachedSchedule: GameItem[] = [];
+let cachedStandings: StandingsData | null = null;
+let cachedPlayers: PlayerStatsData[] = [];
+
+export interface ScheduleCalendarProps {
+  initialSchedule?: GameItem[];
+  initialStandings?: StandingsData | null;
+  initialPlayers?: PlayerStatsData[];
+}
+
+export function ScheduleCalendar({
+  initialSchedule,
+  initialStandings,
+  initialPlayers,
+}: ScheduleCalendarProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 数据集状态
-  const [schedule, setSchedule] = useState<GameItem[]>([]);
-  const [standings, setStandings] = useState<StandingsData | null>(null);
-  const [players, setPlayers] = useState<PlayerStatsData[]>([]);
-  const [isLoadingInitial, setIsLoadingInitial] = useState(true);
+  // 接收服务端或前序数据并同步至缓存
+  if (initialSchedule && initialSchedule.length > 0) cachedSchedule = initialSchedule;
+  if (initialStandings) cachedStandings = initialStandings;
+  if (initialPlayers && initialPlayers.length > 0) cachedPlayers = initialPlayers;
+
+  const effectiveSchedule = (initialSchedule && initialSchedule.length > 0) ? initialSchedule : cachedSchedule;
+  const effectiveStandings = initialStandings ?? cachedStandings;
+  const effectivePlayers = (initialPlayers && initialPlayers.length > 0) ? initialPlayers : cachedPlayers;
+  const hasExistingData = effectiveSchedule.length > 0 || effectivePlayers.length > 0;
+
+  // 数据集状态：优先使用服务端预取数据或缓存，直接打开无骨架阻塞
+  const [schedule, setSchedule] = useState<GameItem[]>(effectiveSchedule);
+  const [standings, setStandings] = useState<StandingsData | null>(effectiveStandings);
+  const [players, setPlayers] = useState<PlayerStatsData[]>(effectivePlayers);
+  const [isLoadingInitial, setIsLoadingInitial] = useState(!hasExistingData);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
 
@@ -36,17 +61,29 @@ export function ScheduleCalendar() {
 
   const [activePlayer, setActivePlayer] = useState<PlayerStatsData | null>(null);
 
-  // 初始从后端加载数据
-  async function loadAllData() {
+  // 加载数据（有缓存时静默在后台验证更新，不阻塞界面渲染）
+  async function loadAllData(silent = false) {
+    if (!silent && !hasExistingData) {
+      setIsLoadingInitial(true);
+    }
     try {
       const [sList, stData, pList] = await Promise.all([
         fetchRocketsSchedule(),
         fetchRocketsStandings(),
         fetchRocketsPlayers(),
       ]);
-      setSchedule(sList);
-      setStandings(stData);
-      setPlayers(pList);
+      if (sList && sList.length > 0) {
+        setSchedule(sList);
+        cachedSchedule = sList;
+      }
+      if (stData) {
+        setStandings(stData);
+        cachedStandings = stData;
+      }
+      if (pList && pList.length > 0) {
+        setPlayers(pList);
+        cachedPlayers = pList;
+      }
     } catch {
       // ignore
     } finally {
@@ -55,7 +92,8 @@ export function ScheduleCalendar() {
   }
 
   useEffect(() => {
-    loadAllData();
+    // 若已有数据，进行无感知的后台静默校验；无数据时才前台载入
+    loadAllData(hasExistingData);
   }, []);
 
   // 实时比赛自动轮询同步 (当存在正在进行的比赛时每 25 秒自动拉取最新比分与进展)

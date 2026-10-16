@@ -1025,7 +1025,7 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	Layout: () => Layout,
 	default: () => root_default,
 	links: () => links,
-	loader: () => loader$37,
+	loader: () => loader$38,
 	meta: () => meta$42,
 	shouldRevalidate: () => shouldRevalidate$1
 });
@@ -1073,7 +1073,7 @@ var links = () => [
 		href: "/feed.xml"
 	}
 ];
-async function loader$37({ request }) {
+async function loader$38({ request }) {
 	try {
 		return await apiGet("/api/site/meta", { signal: request.signal });
 	} catch {
@@ -1224,10 +1224,10 @@ var ErrorBoundary = UNSAFE_withErrorBoundaryProps(function ErrorBoundary() {
 //#region app/routes/home.tsx
 var home_exports = /* @__PURE__ */ __exportAll({
 	default: () => home_default,
-	loader: () => loader$36,
+	loader: () => loader$37,
 	meta: () => meta$41
 });
-async function loader$36({ request }) {
+async function loader$37({ request }) {
 	const url = new URL(request.url);
 	throw redirect(`/all${url.search}`);
 }
@@ -3626,7 +3626,7 @@ var all_exports = /* @__PURE__ */ __exportAll({
 	SearchBusy: () => SearchBusy,
 	default: () => all_default,
 	headers: () => headers$28,
-	loader: () => loader$35,
+	loader: () => loader$36,
 	meta: () => meta$40
 });
 var BEAT_REPORTERS = [
@@ -3691,7 +3691,7 @@ var BEAT_REPORTERS = [
 		label: "ClutchFans"
 	}
 ];
-async function loader$35({ request }) {
+async function loader$36({ request }) {
 	const url = new URL(request.url);
 	const channelParam = url.searchParams.get("channel") ?? "all";
 	const categoryParam = url.searchParams.get("category");
@@ -3984,7 +3984,7 @@ function SearchBusy() {
 var podcasts_exports = /* @__PURE__ */ __exportAll({
 	default: () => podcasts_default,
 	headers: () => headers$27,
-	loader: () => loader$34,
+	loader: () => loader$35,
 	meta: () => meta$39
 });
 var PODCAST_SHOWS = [
@@ -4019,7 +4019,7 @@ var PODCAST_SHOWS = [
 		source: "rss-podcast-sportstalk790%"
 	}
 ];
-async function loader$34({ request }) {
+async function loader$35({ request }) {
 	const url = new URL(request.url);
 	const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
 	const show = url.searchParams.get("show")?.trim() || null;
@@ -4129,10 +4129,10 @@ var podcasts_default = UNSAFE_withComponentProps(function PodcastsPage() {
 var videos_exports = /* @__PURE__ */ __exportAll({
 	default: () => videos_default,
 	headers: () => headers$26,
-	loader: () => loader$33,
+	loader: () => loader$34,
 	meta: () => meta$38
 });
-async function loader$33({ request }) {
+async function loader$34({ request }) {
 	const url = new URL(request.url);
 	const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
 	const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
@@ -6329,34 +6329,54 @@ function RocketsPlayerModal({ player, onClose }) {
 }
 //#endregion
 //#region app/features/schedule/ScheduleCalendar.tsx
-function ScheduleCalendar() {
+var cachedSchedule = [];
+var cachedStandings = null;
+var cachedPlayers = [];
+function ScheduleCalendar({ initialSchedule, initialStandings, initialPlayers } = {}) {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const [schedule, setSchedule] = useState([]);
-	const [standings, setStandings] = useState(null);
-	const [players, setPlayers] = useState([]);
-	const [isLoadingInitial, setIsLoadingInitial] = useState(true);
+	if (initialSchedule && initialSchedule.length > 0) cachedSchedule = initialSchedule;
+	if (initialStandings) cachedStandings = initialStandings;
+	if (initialPlayers && initialPlayers.length > 0) cachedPlayers = initialPlayers;
+	const effectiveSchedule = initialSchedule && initialSchedule.length > 0 ? initialSchedule : cachedSchedule;
+	const effectiveStandings = initialStandings ?? cachedStandings;
+	const effectivePlayers = initialPlayers && initialPlayers.length > 0 ? initialPlayers : cachedPlayers;
+	const hasExistingData = effectiveSchedule.length > 0 || effectivePlayers.length > 0;
+	const [schedule, setSchedule] = useState(effectiveSchedule);
+	const [standings, setStandings] = useState(effectiveStandings);
+	const [players, setPlayers] = useState(effectivePlayers);
+	const [isLoadingInitial, setIsLoadingInitial] = useState(!hasExistingData);
 	const [isSyncing, setIsSyncing] = useState(false);
 	const [syncNotice, setSyncNotice] = useState(null);
 	const [activeGameId, setActiveGameId] = useState(null);
 	const [gameBreakdown, setGameBreakdown] = useState(null);
 	const [isLoadingGame, setIsLoadingGame] = useState(false);
 	const [activePlayer, setActivePlayer] = useState(null);
-	async function loadAllData() {
+	async function loadAllData(silent = false) {
+		if (!silent && !hasExistingData) setIsLoadingInitial(true);
 		try {
 			const [sList, stData, pList] = await Promise.all([
 				fetchRocketsSchedule(),
 				fetchRocketsStandings(),
 				fetchRocketsPlayers()
 			]);
-			setSchedule(sList);
-			setStandings(stData);
-			setPlayers(pList);
+			if (sList && sList.length > 0) {
+				setSchedule(sList);
+				cachedSchedule = sList;
+			}
+			if (stData) {
+				setStandings(stData);
+				cachedStandings = stData;
+			}
+			if (pList && pList.length > 0) {
+				setPlayers(pList);
+				cachedPlayers = pList;
+			}
 		} catch {} finally {
 			setIsLoadingInitial(false);
 		}
 	}
 	useEffect(() => {
-		loadAllData();
+		loadAllData(hasExistingData);
 	}, []);
 	useEffect(() => {
 		if (!schedule.some((g) => g.status === "live")) return;
@@ -6492,8 +6512,21 @@ function ScheduleCalendar() {
 var schedule_exports = /* @__PURE__ */ __exportAll({
 	default: () => schedule_default,
 	headers: () => headers$25,
+	loader: () => loader$33,
 	meta: () => meta$37
 });
+async function loader$33({ request }) {
+	const [schedule, standings, players] = await Promise.all([
+		apiGet("/api/site/rockets/schedule", { signal: request.signal }).catch(() => []),
+		apiGet("/api/site/rockets/standings", { signal: request.signal }).catch(() => null),
+		apiGet("/api/site/rockets/players", { signal: request.signal }).catch(() => [])
+	]);
+	return {
+		schedule,
+		standings,
+		players
+	};
+}
 function headers$25() {
 	return { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600" };
 }
@@ -6505,6 +6538,7 @@ function meta$37() {
 	});
 }
 var schedule_default = UNSAFE_withComponentProps(function SchedulePage() {
+	const { schedule, standings, players } = useLoaderData();
 	return /* @__PURE__ */ jsxs("div", {
 		className: "pb-10 pt-3 sm:pt-5",
 		children: [/* @__PURE__ */ jsxs("div", {
@@ -6516,7 +6550,11 @@ var schedule_default = UNSAFE_withComponentProps(function SchedulePage() {
 				className: "mt-1 text-xs text-ink-3 sm:text-sm",
 				children: "休斯敦火箭 2026-27 赛季官方赛程战果与全队球员技术统计"
 			})]
-		}), /* @__PURE__ */ jsx(ScheduleCalendar, {})]
+		}), /* @__PURE__ */ jsx(ScheduleCalendar, {
+			initialSchedule: schedule,
+			initialStandings: standings,
+			initialPlayers: players
+		})]
 	});
 });
 //#endregion
@@ -22819,13 +22857,13 @@ var server_manifest_default = {
 			"index": void 0,
 			"caseSensitive": void 0,
 			"hasAction": false,
-			"hasLoader": false,
+			"hasLoader": true,
 			"hasClientAction": false,
 			"hasClientLoader": false,
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-BgjeJ1ZE.js",
+			"module": "/assets/schedule-r7dHnV3G.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CSVvFEvC.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -24072,8 +24110,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-20c91799.js",
-	"version": "20c91799",
+	"url": "/assets/manifest-ba82e5fd.js",
+	"version": "ba82e5fd",
 	"sri": void 0
 };
 //#endregion

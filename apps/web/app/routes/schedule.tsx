@@ -1,6 +1,19 @@
 import { SITE } from "@aihot/industry/site";
+import { useLoaderData } from "react-router";
+import type { Route } from "./+types/schedule";
 import { ScheduleCalendar } from "../features/schedule/ScheduleCalendar";
 import { pageMeta } from "../lib/seo";
+import { apiGet } from "../lib/api.server";
+import type { GameItem, PlayerStatsData, StandingsData } from "../features/schedule/rocketsApi";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const [schedule, standings, players] = await Promise.all([
+    apiGet<GameItem[]>("/api/site/rockets/schedule", { signal: request.signal }).catch(() => []),
+    apiGet<StandingsData>("/api/site/rockets/standings", { signal: request.signal }).catch(() => null),
+    apiGet<PlayerStatsData[]>("/api/site/rockets/players", { signal: request.signal }).catch(() => []),
+  ]);
+  return { schedule, standings, players };
+}
 
 export function headers() {
   return { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600" };
@@ -15,6 +28,8 @@ export function meta() {
 }
 
 export default function SchedulePage() {
+  const { schedule, standings, players } = useLoaderData<typeof loader>();
+
   return (
     <div className="pb-10 pt-3 sm:pt-5">
       {/* 顶部标题与说明 */}
@@ -27,8 +42,12 @@ export default function SchedulePage() {
         </p>
       </div>
 
-      {/* 赛程日历主体 */}
-      <ScheduleCalendar />
+      {/* 赛程日历主体：注入服务端数据，秒级直开 */}
+      <ScheduleCalendar
+        initialSchedule={schedule}
+        initialStandings={standings}
+        initialPlayers={players}
+      />
     </div>
   );
 }
