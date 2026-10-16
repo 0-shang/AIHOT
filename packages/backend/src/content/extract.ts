@@ -323,6 +323,14 @@ export async function extractArticleBody(articleId: string, allowJina = process.
   } else if (/sportspyder\.com\/(?:[^\s/]+\/)?articles\/\d+/i.test(a.url)) {
     resolvedUrl = await resolveSportSpyderUrl(a.url);
   }
+
+  // 凡是跳转到 Yahoo 的，直接废弃并下架
+  if (resolvedUrl && /yahoo\.com|sports\.yahoo/i.test(resolvedUrl)) {
+    await sql`UPDATE articles SET body_status = 'blocked', url = ${resolvedUrl}, updated_at = now() WHERE id = ${articleId}`;
+    await sql`UPDATE publications SET visibility = 'withdrawn', eligible = false, selected = false WHERE article_id = ${articleId}`;
+    return "skipped";
+  }
+
   const fetchUrl = resolvedUrl ?? a.url;
   const got = await extractFromUrl(fetchUrl, { allowJina, subject: `article:${a.id}` });
   if (!got) {

@@ -83,15 +83,22 @@ export function listedCondition(now: Date) {
   return sql`p.visibility = 'public'
     AND p.source_id NOT LIKE '%sportspyder%'
     AND p.url NOT LIKE '%sportspyder.com%'
+    AND p.url NOT LIKE '%yahoo.com%'
+    AND p.url NOT LIKE '%sports.yahoo%'
+    AND p.title NOT LIKE '%Yahoo%'
+    AND p.title NOT LIKE '%雅虎%'
     AND p.title NOT LIKE '%卡斯特罗%'
+    AND NOT (p.tags && ARRAY['非火箭/联盟其他', '非火箭', '联盟其他']::text[])
+    AND NOT (
+      (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振|willie fritz|espada|埃斯帕达|marvin harrison)'
+      AND NOT (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
+    )
+    AND NOT (coalesce(p.summary, '') ~* '(与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)')
     AND (
-      p.source_id LIKE 'rss-podcast-sportstalk790%'
+      p.source_id NOT LIKE 'rss-podcast-sportstalk790%'
       OR (
-        NOT (p.tags && ARRAY['非火箭/联盟其他', '非火箭', '联盟其他']::text[])
-        AND NOT (
-          (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振)'
-          AND NOT (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
-        )
+        (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
+        AND NOT (coalesce(p.summary, '') ~* '(与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)')
       )
     )
 
@@ -106,11 +113,23 @@ export function selectedCondition(now: Date) {
     AND p.source_id NOT LIKE '%youtube%'
     AND p.source_id NOT LIKE '%sportspyder%'
     AND p.url NOT LIKE '%sportspyder.com%'
+    AND p.url NOT LIKE '%yahoo.com%'
+    AND p.url NOT LIKE '%sports.yahoo%'
+    AND p.title NOT LIKE '%Yahoo%'
+    AND p.title NOT LIKE '%雅虎%'
     AND p.title NOT LIKE '%卡斯特罗%'
     AND NOT (p.tags && ARRAY['非火箭/联盟其他', '非火箭', '联盟其他']::text[])
     AND NOT (
-      (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振)'
+      (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振|willie fritz|espada|埃斯帕达|marvin harrison)'
       AND NOT (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
+    )
+    AND NOT (coalesce(p.summary, '') ~* '(与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)')
+    AND (
+      p.source_id NOT LIKE 'rss-podcast-sportstalk790%'
+      OR (
+        (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
+        AND NOT (coalesce(p.summary, '') ~* '(与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)')
+      )
     )
     AND NOT (p.channel = 'x' AND (p.title LIKE '@%' OR p.original_title LIKE '@%'))
     AND p.selected
@@ -153,7 +172,7 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     AND p.source_id NOT LIKE '%podcast%'`;
   }
   if (category === "podcasts") {
-    // 播客栏目：官方与随队播客，SportsTalk 790 综合电台全量收录
+    // 播客栏目：官方与随队播客，SportsTalk 790 仅呈现火箭相关单集
     return sql`AND (
       p.category = 'podcasts'
       OR p.source_id LIKE 'rss-podcast-%'
@@ -161,12 +180,16 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     )`;
   }
   if (category === "videos") {
-    // 视频栏目：官方与随队精彩视频录像（已通过数据库和发布器进行休斯敦火箭专项标记）
+    // 视频栏目：官方与随队精彩视频录像（必须具备实际可播放视频媒体或专职视频信源，排除无视频呈现的文字快讯）
     return sql`AND (
       p.category = 'videos'
       OR p.source_id LIKE 'yt-%'
-      OR p.tags && ARRAY['视频', '精彩视频', '集锦', 'Videos', 'Video']::text[]
-    )`;
+    )
+    AND (
+      p.source_id LIKE 'yt-%'
+      OR (a.media IS NOT NULL AND a.media::text ~* '"kind"\\s*:\\s*"video"')
+    )
+    AND p.source_id NOT IN ('rss-google-news-rockets', 'rss-web-rockets-global')`;
   }
   if (category === "beat_tweets") {
     // 队记推文栏目：随队名记推文流，排除官方推特与全网快讯账号（DunkCentral, HoopCentral 等已归入动态）

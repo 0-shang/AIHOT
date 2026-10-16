@@ -191,9 +191,18 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   // 综合信源（如综合战术网 nbaanalysis、雅虎等非纯火箭专区）或者被判定为“非火箭/联盟其他”标签的内容彻底过滤
   const isExplicitNonRockets = (analysis?.tags ?? []).some((t) => t.includes("非火箭") || t.includes("联盟其他")) ||
     (analysis?.subjects ?? []).some((s) => s.includes("非火箭"));
-  const isGeneralSource = source.id.includes("nbaanalysis") || source.id.includes("general") || source.id.includes("yahoo") || source.id.includes("bleacherreport");
+  const isGeneralSource = source.id.includes("nbaanalysis") || source.id.includes("general") || source.id.includes("bleacherreport");
   const isIrrelevantGeneralNews = isGeneralSource && !mentionsRockets;
-  const isNonRocketsContent = !source.id.includes("sportstalk790") && (isOtherHoustonTeam || isExplicitNonRockets || isIrrelevantGeneralNews);
+  const isSportstalkNonRockets = source.id.includes("sportstalk790") &&
+    (!mentionsRockets || /(该话题与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)/i.test(titleAndSummary));
+  const isYahooArticle =
+    (article.url && /yahoo\.com|sports\.yahoo/i.test(article.url)) ||
+    (article.title && /\b(yahoo|yahoo\s*sports)\b/i.test(article.title)) ||
+    (article.excerpt && /\b(yahoo|yahoo\s*sports)\b/i.test(article.excerpt)) ||
+    (zhTitle && /\b(yahoo|雅虎)\b/i.test(zhTitle)) ||
+    /yahoo\.com|sports\.yahoo/i.test(titleAndSummary);
+
+  const isNonRocketsContent = isOtherHoustonTeam || isExplicitNonRockets || isIrrelevantGeneralNews || isSportstalkNonRockets || isYahooArticle;
 
   const hasLongArticleBody = !article.x_post && typeof article.body_text === "string" && article.body_text.length >= 1800;
   const isDedicatedRocketsCommunity = source.id.includes("sleeper") || source.id.includes("clutchfans") || source.id.includes("rocketsnation");
@@ -208,7 +217,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
 
   const fallbackCat =
     source.id.includes("podcast") ? "podcasts" :
-    source.id.includes("video") || source.id.startsWith("yt-") || hasVideoMedia ? "videos" :
+    (source.id.includes("video") || source.id.startsWith("yt-") || hasVideoMedia) ? "videos" :
     isTradeRumor ? "trades" :
     isCentralAggregator ? "news" :
     (channelOf(source.kind, !!article.x_post) === "x" && !source.id.includes("houston-rockets")) ? "beat_tweets" :
@@ -219,7 +228,11 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   // 严格限制流言分类：必须真实包含交易传闻关键词且非排名或比赛资讯
   const validatedCat = (rawCat === "trades" && !isTradeRumor) ? "news" : rawCat;
   const resolvedCat = (validatedCat && isCategoryKey(validatedCat)) ? validatedCat : fallbackCat;
-  const category = pickString(f.category, resolvedCat);
+  let category = pickString(f.category, resolvedCat);
+  // 严格限制视频分类：只有真正具备视频媒体（hasVideoMedia）或专职视频源（yt-）才允许归入 videos
+  if (category === "videos" && !hasVideoMedia && !source.id.startsWith("yt-") && !source.id.includes("video")) {
+    category = isTradeRumor ? "trades" : (channelOf(source.kind, !!article.x_post) === "x" ? "beat_tweets" : "news");
+  }
 
   const title = pickString(f.title, zhTitle ?? collapseWhitespace(article.title));
   const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
@@ -229,10 +242,11 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
   const tags = rawTags.filter((t) => {
     if (t.includes("非火箭") || t.includes("联盟其他")) return false;
     if (category !== "trades" && (t === "交易流言" || t === "交易" || t === "签约")) return false;
+    if (category !== "videos" && (t === "视频" || t === "精彩视频" || t === "集锦" || t === "Videos" || t === "Video")) return false;
     return true;
   });
   const score = typeof f.score === "number" ? f.score : (analysis?.score ?? 70);
-  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (source.id.includes("sportstalk790") ? "pass" : (analysis?.relevance ?? "pass"));
+  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (analysis?.relevance ?? "pass");
   const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
   const hasXPost = !!article.x_post;
   const channel = channelOf(source.kind, hasXPost);
@@ -242,11 +256,15 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
 
   const isWebArticle = channel !== "x" && !source.id.includes("podcast") && !source.id.includes("video") && !source.id.startsWith("yt-") && !hasVideoMedia;
   const isTargetFeedCategory = !category || category === "news" || category === "analysis" || category === "trades";
-  const summaryIndicatesFailedCrawl = typeof summary === "string" && /(页面组件未能加载|具体分析细节无法获取|未能加载|无法获取正文|未能抓取到正文|正文未加载|正文内容缺失)/i.test(summary);
-  const isInvalidCrawl = isWebArticle && isTargetFeedCategory && (bodyMode !== "full" || !hasQualityBody || summaryIndicatesFailedCrawl);
+  const summaryIndicatesFailedCrawl = typeof summary === "string" && /(页面组件未能加载|具体分析细节无法获取|未能加载|无法获取正文|未能抓取到正文|正文未加载|正文内容缺失|原文未提供比分、球员数据或其他细节)/i.test(summary);
+  const isFakeVideoHighlight = !hasVideoMedia && !source.id.startsWith("yt-") &&
+    /(比赛集锦|集锦|全场集锦|个人集锦)/i.test(article.title || "") &&
+    (article.body_text?.length ?? 0) < 300 &&
+    /(已在.*上线|原文未提供|发布了其个人集锦|集锦已在)/i.test(titleAndSummary);
+  const isInvalidCrawl = (isWebArticle && isTargetFeedCategory && (bodyMode !== "full" || !hasQualityBody || summaryIndicatesFailedCrawl)) || isFakeVideoHighlight;
 
   // Material from an isolated source reaches no public surface at all: not even a detail page.
-  // 无效抓取的图文报道（无实质正文或摘要表明抓取失败）以及非火箭内容也彻底下架（withdrawn），禁止在全站展示
+  // 无效抓取的图文报道（无实质正文或摘要表明抓取失败）、无视频的伪集锦短讯以及非火箭内容也彻底下架（withdrawn），禁止在全站展示
   const visibility = isNonRocketsContent || isInvalidCrawl || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
 
   const eligible = isNonRocketsContent || isInvalidCrawl ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });

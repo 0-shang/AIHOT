@@ -24,8 +24,24 @@ export interface CollectResult {
 const MAX_ITEMS_PER_RUN = 60;
 
 export function noiseFiltered(c: Candidate, source: SourceRow): boolean {
-  // SportsTalk 790 综合电台：每期均涉及火箭但标题常只列 Texans/Astros，全量收录不过滤
-  if (source.id.includes("sportstalk790")) return false;
+  // 彻底过滤 Yahoo 文章：凡是转到 Yahoo 或标题/摘要来自 Yahoo 的内容，直接丢弃
+  if (
+    c.url.includes("yahoo.com") ||
+    c.url.includes("sports.yahoo") ||
+    (c.title && /\b(yahoo|yahoo\s*sports)\b/i.test(c.title)) ||
+    (c.excerpt && /\b(yahoo|yahoo\s*sports)\b/i.test(c.excerpt))
+  ) {
+    return true; // 丢弃：来自 Yahoo
+  }
+
+  // SportsTalk 790 综合电台：仅筛选火箭队相关内容，未提及火箭核心实体则丢弃
+  if (source.id.includes("sportstalk790")) {
+    const haySt = `${c.title}\n${c.excerpt ?? ""}`;
+    const rocketsKeywords = /\b(rockets|houston rockets|clutch city|toyota center|udoka|ime udoka|sengun|alperen sengun|alpi|jalen green|amen thompson|reed sheppard|sheppard|vanvleet|freddie|durant|kevin durant|jabari smith|tari eason|cam whitmore|whitmore|steven adams|adams|rafael stone|stone)\b|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|格林|阿门|谢泼德|范弗里特|杜兰特|小贾巴里|史密斯|伊森|惠特莫尔|亚当斯|斯通|丰田中心/i;
+    if (!rocketsKeywords.test(haySt)) {
+      return true; // 丢弃：未提及火箭
+    }
+  }
 
   // 综合 NBA 源（如 NBA Analysis Network）：必须包含火箭队主体或核心人员，否则属于其他球队内容，直接丢弃
   if (source.id.includes("nbaanalysis") || source.id.includes("general")) {
