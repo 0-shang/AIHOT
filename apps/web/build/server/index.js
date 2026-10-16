@@ -6688,26 +6688,27 @@ function MediaGallery({ media, postUrl }) {
 	const shown = media.slice(0, 9);
 	const images = shown.filter((m) => m.kind !== "video");
 	const single = shown.length === 1;
-	const tile = `group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk ${single ? "max-w-[540px] w-full" : "aspect-[16/10]"}`;
 	return /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("div", {
 		className: `mt-5 grid gap-2.5 ${single ? "grid-cols-1" : shown.length === 2 || shown.length === 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}`,
 		children: shown.map((m) => {
+			const isPortrait = !!(m.width && m.height && m.height > m.width);
+			const currentTile = single ? `group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk ${isPortrait ? "max-w-[320px]" : "max-w-[540px]"} w-fit` : "group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk aspect-[16/10]";
 			const img = /* @__PURE__ */ jsx("img", {
 				src: m.poster ?? m.url,
 				srcSet: m.srcSet,
-				sizes: single ? "auto, (min-width: 540px) 540px, calc(100vw - 32px)" : "auto, (min-width: 800px) 248px, (min-width: 640px) calc(33.333vw - 19px), calc(50vw - 24px)",
+				sizes: single ? isPortrait ? "auto, 320px" : "auto, 540px" : "auto, (min-width: 800px) 248px, (min-width: 640px) calc(33.333vw - 19px), calc(50vw - 24px)",
 				width: m.width ?? void 0,
 				height: m.height ?? void 0,
 				decoding: "async",
 				alt: m.alt ?? "",
 				loading: "lazy",
-				className: `block w-full object-cover transition-transform duration-300 group-hover:scale-[1.015] ${single ? "max-h-[460px]" : "h-full"}`,
+				className: `block transition-transform duration-300 group-hover:scale-[1.015] ${single ? "w-auto h-auto max-h-[500px] max-w-full object-contain" : "w-full h-full object-cover"}`,
 				style: single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : void 0
 			});
 			if (m.kind === "video") {
 				if (m.videoUrl) {
 					if (playingVideoUrl === m.videoUrl) return /* @__PURE__ */ jsx("div", {
-						className: `relative overflow-hidden rounded-tile border border-line-soft bg-black ${single ? "max-w-[580px] w-full" : "aspect-[16/10]"}`,
+						className: `relative overflow-hidden rounded-tile border border-line-soft bg-black w-fit max-w-full ${single ? "" : "aspect-[16/10]"}`,
 						style: single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : void 0,
 						children: /* @__PURE__ */ jsx("video", {
 							src: m.videoUrl,
@@ -6716,14 +6717,14 @@ function MediaGallery({ media, postUrl }) {
 							autoPlay: true,
 							playsInline: true,
 							preload: "auto",
-							className: `block w-full object-contain ${single ? "max-h-[480px]" : "h-full"}`
+							className: "block max-h-[520px] max-w-full w-auto h-auto object-contain rounded-tile"
 						})
 					}, m.url);
 					return /* @__PURE__ */ jsxs("button", {
 						type: "button",
 						onClick: () => setPlayingVideoUrl(m.videoUrl),
 						"aria-label": "在当前页面播放视频",
-						className: `${tile} cursor-pointer text-left focus:outline-none`,
+						className: `${currentTile} cursor-pointer text-left focus:outline-none`,
 						children: [img, /* @__PURE__ */ jsx(PlayMark, {})]
 					}, m.url);
 				}
@@ -6732,7 +6733,7 @@ function MediaGallery({ media, postUrl }) {
 					target: "_blank",
 					rel: "noopener noreferrer",
 					"aria-label": "打开原推播放视频",
-					className: tile,
+					className: currentTile,
 					children: [img, /* @__PURE__ */ jsx(PlayMark, {})]
 				}, m.url);
 			}
@@ -6740,7 +6741,7 @@ function MediaGallery({ media, postUrl }) {
 				type: "button",
 				onClick: () => setOpen(images.indexOf(m)),
 				"aria-label": m.alt ? `查看大图：${m.alt}` : "查看大图",
-				className: `${tile} cursor-zoom-in`,
+				className: `${currentTile} cursor-zoom-in`,
 				children: img
 			}, m.url);
 		})
@@ -22621,7 +22622,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-BkIHTiJq.js",
+			"module": "/assets/root-0b2JTO7-.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CT955nrD.js",
@@ -22629,7 +22630,7 @@ var server_manifest_default = {
 				"/assets/Chrome-BkI_NNJN.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-ClVAJZCD.css"],
+			"css": ["/assets/root-C4ai_80P.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22810,9 +22811,9 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-oMeC5h80.js",
+			"module": "/assets/item-BOJb-cN7.js",
 			"imports": [
-				"/assets/item-DozK3QGG.js",
+				"/assets/item-D6vm603a.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CT955nrD.js"
 			],
@@ -22835,9 +22836,9 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-oMeC5h80.js",
+			"module": "/assets/item-original-BOJb-cN7.js",
 			"imports": [
-				"/assets/item-DozK3QGG.js",
+				"/assets/item-D6vm603a.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CT955nrD.js"
 			],
@@ -23984,8 +23985,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-f356f79a.js",
-	"version": "f356f79a",
+	"url": "/assets/manifest-3640d7df.js",
+	"version": "3640d7df",
 	"sri": void 0
 };
 //#endregion

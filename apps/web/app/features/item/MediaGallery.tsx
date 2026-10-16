@@ -25,22 +25,27 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
   const shown = media.slice(0, 9);
   const images = shown.filter((m) => m.kind !== "video");
   const single = shown.length === 1;
-  const tile = `group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk ${single ? "max-w-[540px] w-full" : "aspect-[16/10]"}`;
+
   return (
     <>
       <div className={`mt-5 grid gap-2.5 ${single ? "grid-cols-1" : shown.length === 2 || shown.length === 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}`}>
         {shown.map((m) => {
+          const isPortrait = !!(m.width && m.height && m.height > m.width);
+          const currentTile = single
+            ? `group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk ${isPortrait ? "max-w-[320px]" : "max-w-[540px]"} w-fit`
+            : "group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk aspect-[16/10]";
+
           const img = (
             <img
               src={m.poster ?? m.url}
               srcSet={m.srcSet}
-              sizes={single ? "auto, (min-width: 540px) 540px, calc(100vw - 32px)" : "auto, (min-width: 800px) 248px, (min-width: 640px) calc(33.333vw - 19px), calc(50vw - 24px)"}
+              sizes={single ? (isPortrait ? "auto, 320px" : "auto, 540px") : "auto, (min-width: 800px) 248px, (min-width: 640px) calc(33.333vw - 19px), calc(50vw - 24px)"}
               width={m.width ?? undefined}
               height={m.height ?? undefined}
               decoding="async"
               alt={m.alt ?? ""}
               loading="lazy"
-              className={`block w-full object-cover transition-transform duration-300 group-hover:scale-[1.015] ${single ? "max-h-[460px]" : "h-full"}`}
+              className={`block transition-transform duration-300 group-hover:scale-[1.015] ${single ? "w-auto h-auto max-h-[500px] max-w-full object-contain" : "w-full h-full object-cover"}`}
               style={single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : undefined}
             />
           );
@@ -51,7 +56,7 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
                 return (
                   <div
                     key={m.url}
-                    className={`relative overflow-hidden rounded-tile border border-line-soft bg-black ${single ? "max-w-[580px] w-full" : "aspect-[16/10]"}`}
+                    className={`relative overflow-hidden rounded-tile border border-line-soft bg-black w-fit max-w-full ${single ? "" : "aspect-[16/10]"}`}
                     style={single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : undefined}
                   >
                     <video
@@ -61,7 +66,7 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
                       autoPlay
                       playsInline
                       preload="auto"
-                      className={`block w-full object-contain ${single ? "max-h-[480px]" : "h-full"}`}
+                      className="block max-h-[520px] max-w-full w-auto h-auto object-contain rounded-tile"
                     />
                   </div>
                 );
@@ -73,7 +78,7 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
                   type="button"
                   onClick={() => setPlayingVideoUrl(m.videoUrl!)}
                   aria-label="在当前页面播放视频"
-                  className={`${tile} cursor-pointer text-left focus:outline-none`}
+                  className={`${currentTile} cursor-pointer text-left focus:outline-none`}
                 >
                   {img}
                   <PlayMark />
@@ -81,14 +86,14 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
               );
             }
             return (
-              <a key={m.url} href={postUrl} target="_blank" rel="noopener noreferrer" aria-label="打开原推播放视频" className={tile}>
+              <a key={m.url} href={postUrl} target="_blank" rel="noopener noreferrer" aria-label="打开原推播放视频" className={currentTile}>
                 {img}
                 <PlayMark />
               </a>
             );
           }
           return (
-            <button key={m.url} type="button" onClick={() => setOpen(images.indexOf(m))} aria-label={m.alt ? `查看大图：${m.alt}` : "查看大图"} className={`${tile} cursor-zoom-in`}>
+            <button key={m.url} type="button" onClick={() => setOpen(images.indexOf(m))} aria-label={m.alt ? `查看大图：${m.alt}` : "查看大图"} className={`${currentTile} cursor-zoom-in`}>
               {img}
             </button>
           );
