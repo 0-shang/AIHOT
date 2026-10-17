@@ -145,32 +145,43 @@ export default function AllPage() {
         )}
       </div>
 
-      {/* Phones: title with today's count, the search bar, then the same filter row */}
-      <div className="lg:hidden">
-        <div className="flex items-baseline justify-between pb-3 pt-3">
-          <h1 className="text-[22px] font-black text-ink">{title ?? "ClutchWire"}</h1>
-          {!f.q && (
-            <span className="text-[12.5px] text-ink-4">
-              今日 <span className="num font-bold text-accent">{data.todayCount}</span> 条
+      {/* Phones: Compact Dual-Row Sticky Header */}
+      <div className="lg:hidden sticky top-0 z-30 -mx-4 px-4 pt-2.5 pb-2 bg-surface/95 backdrop-blur-md border-b border-line/70 shadow-xs transition-colors">
+        {/* Row 1: Wordmark + Count on Left, Compact Search on Right */}
+        <div className="flex items-center justify-between gap-3">
+          <Link to="/" className="flex items-baseline gap-1.5 shrink-0 text-ink no-underline">
+            <span className="font-black text-[17px] tracking-tight">
+              {title ? title : <>CLUTCH<span className="text-[#CE1141]">WIRE</span></>}
             </span>
-          )}
+            {!f.q && (
+              <span className="text-[11px] font-medium text-ink-4">
+                今日 <span className="font-bold text-[#CE1141] num">{data.todayCount}</span> 条
+              </span>
+            )}
+          </Link>
+          <div className="flex-1 max-w-[200px] min-w-0">
+            <SearchField variant="compact" defaultValue={f.q ?? ""} keep={keep} autoFocus={params.get("search") === "1"} />
+          </div>
         </div>
-        <SearchField variant="bar" defaultValue={f.q ?? ""} keep={keep} autoFocus={params.get("search") === "1"} />
-        <div className="-mx-4 mt-3 border-b border-line-soft px-4 pb-3">
-          <CategoryTabs base="/all" category={f.category} channel={f.channel} layoutId="all-cat-mobile" size="sm" className="min-w-0" />
+
+        {/* Row 2: Category Tabs */}
+        <div className="mt-2 flex items-center">
+          <CategoryTabs base="/all" category={f.category} channel={f.channel} layoutId="all-cat-mobile" size="sm" className="min-w-0 w-full" />
         </div>
+
+        {/* Optional Row 3: Reporter Chips if beat_tweets */}
         {f.category === "beat_tweets" && (
-          <div className="mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
-            <span className="shrink-0 text-[11.5px] font-bold text-ink-3">记者:</span>
+          <div className="mt-2 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+            <span className="shrink-0 text-[11px] font-bold text-ink-3">记者:</span>
             {BEAT_REPORTERS.map((r) => {
               const isActive = activeReporter === r.key;
               return (
                 <Link
                   key={r.key}
                   to={reporterHref(r.key)}
-                  className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11.5px] font-medium transition-all ${
+                  className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-all ${
                     isActive
-                      ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/30 font-bold"
+                      ? "bg-[#CE1141] text-white shadow-xs font-bold"
                       : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"
                   }`}
                 >

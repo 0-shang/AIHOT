@@ -203,14 +203,20 @@ export default function HotPage() {
         </div>
       </div>
 
-      {/* Phones: ClutchWire header, search bar, and CategoryTabs */}
-      <div className="lg:hidden">
-        <div className="flex items-baseline justify-between pb-3 pt-3">
-          <h1 className="text-[22px] font-black text-ink">{SITE.name}</h1>
+      {/* Phones: Compact Dual-Row Sticky Header */}
+      <div className="lg:hidden sticky top-0 z-30 -mx-4 px-4 pt-2.5 pb-2 bg-surface/95 backdrop-blur-md border-b border-line/70 shadow-xs transition-colors">
+        <div className="flex items-center justify-between gap-3">
+          <Link to="/" className="flex items-baseline gap-1.5 shrink-0 text-ink no-underline">
+            <span className="font-black text-[17px] tracking-tight">
+              CLUTCH<span className="text-[#CE1141]">WIRE</span>
+            </span>
+          </Link>
+          <div className="flex-1 max-w-[200px] min-w-0">
+            <SearchField variant="compact" keep={{ category: null }} />
+          </div>
         </div>
-        <SearchField variant="bar" keep={{ category: null }} />
-        <div className="-mx-4 mt-3 border-b border-line-soft px-4 pb-3">
-          <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-mobile" size="sm" className="min-w-0" />
+        <div className="mt-2 flex items-center">
+          <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-mobile" size="sm" className="min-w-0 w-full" />
         </div>
       </div>
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 pb-5 pt-3">

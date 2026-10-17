@@ -71,7 +71,7 @@ function useSlashFocus(ref: React.RefObject<HTMLInputElement | null>) {
  * Search field (GET /all?q=…). Desktop ("track"): at the end of the filter row as the same grey track,
  * at the height of md tabs, with a "/" hint. Phones ("bar"): full width with a separate 搜索 button.
  */
-export function SearchField({ action = "/all", defaultValue = "", keep = {}, variant = "track", autoFocus = false }: { action?: string; defaultValue?: string; keep?: Record<string, string | null>; variant?: "track" | "bar"; autoFocus?: boolean }) {
+export function SearchField({ action = "/all", defaultValue = "", keep = {}, variant = "track", autoFocus = false }: { action?: string; defaultValue?: string; keep?: Record<string, string | null>; variant?: "track" | "bar" | "compact"; autoFocus?: boolean }) {
   const [value, setValue] = useState(defaultValue);
   const navigation = useNavigation();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +82,34 @@ export function SearchField({ action = "/all", defaultValue = "", keep = {}, var
   }, [autoFocus]);
   const searching = navigation.state === "loading" && navigation.location?.pathname === action && !!new URLSearchParams(navigation.location.search).get("q");
   const hidden = Object.entries(keep).map(([k, v]) => (v ? <input key={k} type="hidden" name={k} value={v} /> : null));
+
+  if (variant === "compact") {
+    return (
+      <Form method="get" action={action} role="search" className="relative w-full">
+        {hidden}
+        <label className="relative block w-full">
+          <span className="sr-only">搜索</span>
+          <IconSearch size={14} className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 transition-colors ${searching ? "text-accent" : "text-ink-4"}`} />
+          <input
+            ref={inputRef}
+            name="q"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="搜索资讯…"
+            maxLength={200}
+            autoComplete="off"
+            enterKeyHint="search"
+            className="h-8 w-full rounded-full border border-line bg-bg-sunk/80 pl-8 pr-7 text-[12px] text-ink outline-none transition-all placeholder:text-ink-4 focus:bg-surface focus:border-accent focus:shadow-[0_0_0_2px_var(--accent-soft)] dark:border-white/10 dark:bg-bg-muted/50"
+          />
+          {value && (
+            <button type="button" aria-label="清空" onClick={() => { setValue(""); inputRef.current?.focus(); }} className="absolute right-1.5 top-1/2 grid size-5 -translate-y-1/2 place-items-center rounded-full text-ink-4 transition-colors hover:text-ink">
+              <IconClose size={12} />
+            </button>
+          )}
+        </label>
+      </Form>
+    );
+  }
 
   if (variant === "bar") {
     return (

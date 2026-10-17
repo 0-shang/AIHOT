@@ -86,8 +86,8 @@ export default function PodcastsPage() {
           </div>
         </div>
 
-        {/* Shows filter tabs */}
-        <div className="mt-5 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        {/* Shows filter tabs (Desktop) */}
+        <div className="mt-5 hidden lg:flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           {PODCAST_SHOWS.map((s) => {
             const active = currentShow === s.key;
             return (
@@ -97,6 +97,28 @@ export default function PodcastsPage() {
                 className={`inline-flex shrink-0 items-center rounded-full px-3.5 py-1 text-[12.5px] font-bold transition-all ${
                   active
                     ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/25"
+                    : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"
+                }`}
+              >
+                {s.label}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Shows filter tabs (Mobile Sticky Bar) */}
+      <div className="lg:hidden sticky top-0 z-30 -mx-4 px-4 py-2 bg-surface/95 backdrop-blur-md border-b border-line/70 shadow-xs transition-colors">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+          {PODCAST_SHOWS.map((s) => {
+            const active = currentShow === s.key;
+            return (
+              <Link
+                key={s.key}
+                to={showHref(s.key)}
+                className={`inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[12px] font-bold transition-all ${
+                  active
+                    ? "bg-[#CE1141] text-white shadow-xs font-bold"
                     : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"
                 }`}
               >
