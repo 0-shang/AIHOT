@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { SITE, withSubject } from "@aihot/industry/site";
 import { Link, useLoaderData } from "react-router";
 import type { HotEntryView, HotResponse } from "@aihot/contracts/site";
@@ -6,7 +7,7 @@ import { pageMeta } from "../lib/seo";
 import { monthDayTime, shortSourceName } from "../lib/format";
 import { Badge } from "../components/ui/Badge";
 import { EmptyState } from "../components/ui/Page";
-import { IconChevronDown, IconInfo } from "../components/icons";
+import { IconChevronDown, IconInfo, IconSearch } from "../components/icons";
 import { Sparkline } from "../features/hot/Sparkline";
 import { Faces } from "../features/hot/Faces";
 import { Delta } from "../features/hot/Delta";
@@ -187,6 +188,7 @@ function Row({ e }: { e: HotEntryView }) {
 
 export default function HotPage() {
   const { hot } = useLoaderData<typeof loader>();
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [lead, ...rest] = hot.entries;
   const runners = rest.slice(0, 2);
   const others = rest.slice(2);
@@ -203,20 +205,39 @@ export default function HotPage() {
         </div>
       </div>
 
-      {/* Phones: Compact Dual-Row Sticky Header */}
-      <div className="lg:hidden sticky top-0 z-30 -mx-4 px-4 pt-2.5 pb-2 bg-surface/95 backdrop-blur-md border-b border-line/70 shadow-xs transition-colors">
-        <div className="flex items-center justify-between gap-3">
-          <Link to="/" className="flex items-baseline gap-1.5 shrink-0 text-ink no-underline">
-            <span className="font-black text-[17px] tracking-tight">
+      {/* Phones: Option 1 Editorial Sticky Header */}
+      <div className="lg:hidden sticky top-0 z-30 -mx-4 px-4 pt-3 pb-2.5 bg-surface/95 backdrop-blur-md border-b border-line-soft shadow-xs transition-colors">
+        {/* Row 1: Brand Wordmark + Search Icon Button */}
+        <div className="flex items-center justify-between h-8">
+          <Link to="/" className="flex items-baseline gap-1 shrink-0 text-ink no-underline">
+            <span className="font-black text-[18px] tracking-tight">
               CLUTCH<span className="text-[#CE1141]">WIRE</span>
             </span>
           </Link>
-          <div className="flex-1 max-w-[200px] min-w-0">
-            <SearchField variant="compact" keep={{ category: null }} />
-          </div>
+          <button
+            type="button"
+            onClick={() => setMobileSearchOpen((prev) => !prev)}
+            aria-label="搜索"
+            className={`flex size-8 items-center justify-center rounded-full transition-all ${
+              mobileSearchOpen
+                ? "bg-[#CE1141] text-white shadow-xs"
+                : "text-ink-3 hover:text-ink hover:bg-bg-sunk active:scale-95"
+            }`}
+          >
+            <IconSearch size={17} />
+          </button>
         </div>
-        <div className="mt-2 flex items-center">
-          <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-mobile" size="sm" className="min-w-0 w-full" />
+
+        {/* Expandable Search Input */}
+        {mobileSearchOpen && (
+          <div className="pt-2 pb-1 anim-fade-in">
+            <SearchField variant="bar" keep={{ category: null }} autoFocus />
+          </div>
+        )}
+
+        {/* Row 2: Underline Category Tabs */}
+        <div className="mt-2">
+          <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-mobile" variant="underline" className="w-full" />
         </div>
       </div>
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 pb-5 pt-3">

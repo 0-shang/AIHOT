@@ -7,6 +7,7 @@ import { pageMeta } from "../lib/seo";
 import { DayList, Pagination } from "../features/feed/DayList";
 import { EmptyState } from "../components/ui/Page";
 import { IconPodcast, IconSearch } from "../components/icons";
+import { UnderlineTabs } from "../components/ui/Tabs";
 
 const PODCAST_SHOWS = [
   { key: "all", label: "全部播客", source: null },
@@ -68,6 +69,13 @@ export default function PodcastsPage() {
     return s ? `/podcasts?${s}` : "/podcasts";
   };
 
+  const podcastTabItems = PODCAST_SHOWS.map((s) => ({
+    key: s.key,
+    label: s.label,
+    to: showHref(s.key),
+    prefetch: "intent" as const,
+  }));
+
   return (
     <div className="pb-10">
       {/* Header Banner */}
@@ -108,25 +116,8 @@ export default function PodcastsPage() {
       </div>
 
       {/* Shows filter tabs (Mobile Sticky Bar) */}
-      <div className="lg:hidden sticky top-0 z-30 -mx-4 px-4 py-2 bg-surface/95 backdrop-blur-md border-b border-line/70 shadow-xs transition-colors">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-          {PODCAST_SHOWS.map((s) => {
-            const active = currentShow === s.key;
-            return (
-              <Link
-                key={s.key}
-                to={showHref(s.key)}
-                className={`inline-flex shrink-0 items-center rounded-full px-3 py-1 text-[12px] font-bold transition-all ${
-                  active
-                    ? "bg-[#CE1141] text-white shadow-xs font-bold"
-                    : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"
-                }`}
-              >
-                {s.label}
-              </Link>
-            );
-          })}
-        </div>
+      <div className="lg:hidden sticky top-0 z-30 -mx-4 px-4 pt-3 pb-2.5 bg-surface/95 backdrop-blur-md border-b border-line-soft shadow-xs transition-colors">
+        <UnderlineTabs items={podcastTabItems} active={currentShow} layoutId="podcasts-mobile" className="w-full" />
       </div>
 
       {/* Episodes Stream */}

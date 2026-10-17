@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Form, Link, useNavigation, useSearchParams } from "react-router";
 import { type CategoryKey, type ChannelKey } from "@aihot/contracts/taxonomy";
 import { IconClose, IconSearch } from "../../components/icons";
-import { PillTabs } from "../../components/ui/Tabs";
+import { PillTabs, UnderlineTabs } from "../../components/ui/Tabs";
 
 /** Same page with some query parameters changed (paging state dropped). */
 export function hrefWith(base: string, params: URLSearchParams, patch: Record<string, string | null>) {
@@ -30,6 +30,7 @@ export function CategoryTabs({
   activeKey,
   layoutId,
   size = "md",
+  variant = "pill",
   className = "",
 }: {
   base: string;
@@ -38,6 +39,7 @@ export function CategoryTabs({
   activeKey?: string;
   layoutId: string;
   size?: "md" | "sm";
+  variant?: "pill" | "underline";
   className?: string;
 }) {
   const [params] = useSearchParams();
@@ -50,6 +52,9 @@ export function CategoryTabs({
     { key: "trades", label: "流言", to: hrefWith(base, params, { category: "trades", channel: null, reporter: null }), prefetch: "intent" as const },
   ];
   const active = activeKey ?? (category === "beat_tweets" ? "beat_tweets" : category === "analysis" ? "analysis" : category === "trades" ? "trades" : "news");
+  if (variant === "underline") {
+    return <UnderlineTabs items={items} active={active} layoutId={layoutId} label="筛选" className={className} />;
+  }
   return <PillTabs items={items} active={active} layoutId={layoutId} label="筛选" size={size} className={className} />;
 }
 

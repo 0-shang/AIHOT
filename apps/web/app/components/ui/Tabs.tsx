@@ -111,3 +111,71 @@ export function PillTabs({
     </div>
   );
 }
+
+/**
+ * Editorial Underline Tabs: Pure typography with Houston Crimson bottom indicator.
+ * No enclosing chunky pill background. Clean, breathable, modern sports magazine style.
+ */
+export function UnderlineTabs({
+  items,
+  active,
+  layoutId,
+  label,
+  className = "",
+}: {
+  items: TabItem[];
+  active: string;
+  layoutId?: string;
+  label?: string;
+  className?: string;
+}) {
+  const links = items.some((t) => t.to);
+  const Track = links ? "nav" : "div";
+  return (
+    <div className={`scrollbar-none max-w-full overflow-x-auto ${className}`}>
+      <Track
+        aria-label={label}
+        className="flex items-center gap-6 w-full"
+      >
+        {items.map((t) => {
+          const on = t.key === active;
+          const TabLink = t.prefetch === "intent" ? IntentLink : Link;
+          const content = (
+            <span className="relative flex flex-col items-center py-1.5 transition-colors">
+              <span className={`text-[14px] tracking-tight transition-colors ${
+                on ? "font-bold text-ink" : "font-medium text-ink-3 hover:text-ink"
+              }`}>
+                {t.label}
+              </span>
+              {on && (
+                <span className="absolute -bottom-1 h-[2.5px] w-full rounded-full bg-[#CE1141]" />
+              )}
+            </span>
+          );
+
+          return t.to ? (
+            <TabLink
+              key={t.key}
+              to={t.to}
+              replace={t.replace}
+              prefetch={t.prefetch}
+              preventScrollReset
+              aria-current={on ? "page" : undefined}
+              className="shrink-0 outline-none"
+            >
+              {content}
+            </TabLink>
+          ) : (
+            <button
+              key={t.key}
+              type="button"
+              className="shrink-0 outline-none"
+            >
+              {content}
+            </button>
+          );
+        })}
+      </Track>
+    </div>
+  );
+}
