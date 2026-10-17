@@ -1029,7 +1029,7 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	meta: () => meta$42,
 	shouldRevalidate: () => shouldRevalidate$1
 });
-var ICON_V = "v=20261017_restore_r";
+var ICON_V = "v=20261017_oled_black_sharp";
 var links = () => [
 	{
 		rel: "icon",
@@ -22748,7 +22748,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-jv4mhnmX.js",
+			"module": "/assets/root-DWjf4WaF.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CvYixJGd.js",
@@ -24111,8 +24111,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-65919856.js",
-	"version": "65919856",
+	"url": "/assets/manifest-5bec41b8.js",
+	"version": "5bec41b8",
 	"sri": void 0
 };
 //#endregion
