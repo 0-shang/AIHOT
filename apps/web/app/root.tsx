@@ -16,7 +16,7 @@ import { THEME_BOOT_SCRIPT } from "./lib/local-state";
 import { apiGet } from "./lib/api.server";
 import { useHydratedFlag } from "./lib/hydration";
 
-const ICON_V = "v=20261017_oled_black";
+const ICON_V = "v=20261017_super_hd";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", href: `/favicon.ico?${ICON_V}`, sizes: "any" },

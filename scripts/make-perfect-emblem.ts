@@ -5,7 +5,7 @@ import path from 'node:path';
 const BRAND_DIR = path.resolve('industry/brand');
 
 async function main() {
-  const emblemPath = 'assets/designs/clean_emblem_isolated.png';
+  const emblemPath = 'assets/designs/emblem_super_hd.png';
   const emblemBuf = fs.readFileSync(emblemPath);
 
   // 1. Generate 512x512 Master App Icon with 100% pure OLED black (#000000) squircle
