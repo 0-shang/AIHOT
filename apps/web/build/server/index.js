@@ -1029,7 +1029,7 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	meta: () => meta$42,
 	shouldRevalidate: () => shouldRevalidate$1
 });
-var ICON_V = "v=20261017_oled_black";
+var ICON_V = "v=20261017_restore_r";
 var links = () => [
 	{
 		rel: "icon",
@@ -1472,6 +1472,44 @@ function PillTabs({ items, active, onSelect, layoutId, size = "md", label, fill 
 		})
 	});
 }
+/**
+* Editorial Underline Tabs: Pure typography with Houston Crimson bottom indicator.
+* No enclosing chunky pill background. Clean, breathable, modern sports magazine style.
+*/
+function UnderlineTabs({ items, active, layoutId, label, className = "" }) {
+	const Track = items.some((t) => t.to) ? "nav" : "div";
+	return /* @__PURE__ */ jsx("div", {
+		className: `scrollbar-none max-w-full overflow-x-auto ${className}`,
+		children: /* @__PURE__ */ jsx(Track, {
+			"aria-label": label,
+			className: "flex items-center gap-6 w-full",
+			children: items.map((t) => {
+				const on = t.key === active;
+				const TabLink = t.prefetch === "intent" ? IntentLink : Link;
+				const content = /* @__PURE__ */ jsxs("span", {
+					className: "relative flex flex-col items-center py-1.5 transition-colors",
+					children: [/* @__PURE__ */ jsx("span", {
+						className: `text-[14px] tracking-tight transition-colors ${on ? "font-bold text-ink" : "font-medium text-ink-3 hover:text-ink"}`,
+						children: t.label
+					}), on && /* @__PURE__ */ jsx("span", { className: "absolute -bottom-1 h-[2.5px] w-full rounded-full bg-[#CE1141]" })]
+				});
+				return t.to ? /* @__PURE__ */ jsx(TabLink, {
+					to: t.to,
+					replace: t.replace,
+					prefetch: t.prefetch,
+					preventScrollReset: true,
+					"aria-current": on ? "page" : void 0,
+					className: "shrink-0 outline-none",
+					children: content
+				}, t.key) : /* @__PURE__ */ jsx("button", {
+					type: "button",
+					className: "shrink-0 outline-none",
+					children: content
+				}, t.key);
+			})
+		})
+	});
+}
 //#endregion
 //#region app/features/feed/Filters.tsx
 /** Same page with some query parameters changed (paging state dropped). */
@@ -1489,7 +1527,7 @@ function hrefWith(base, params, patch) {
 * time: picking 一手 clears the category and picking a category clears 一手. Older 资讯 / X links
 * still filter; the row then shows 全部.
 */
-function CategoryTabs({ base, category, channel = "all", activeKey, layoutId, size = "md", className = "" }) {
+function CategoryTabs({ base, category, channel = "all", activeKey, layoutId, size = "md", variant = "pill", className = "" }) {
 	const [params] = useSearchParams();
 	const items = [
 		{
@@ -1538,9 +1576,17 @@ function CategoryTabs({ base, category, channel = "all", activeKey, layoutId, si
 			prefetch: "intent"
 		}
 	];
+	const active = activeKey ?? (category === "beat_tweets" ? "beat_tweets" : category === "analysis" ? "analysis" : category === "trades" ? "trades" : "news");
+	if (variant === "underline") return /* @__PURE__ */ jsx(UnderlineTabs, {
+		items,
+		active,
+		layoutId,
+		label: "筛选",
+		className
+	});
 	return /* @__PURE__ */ jsx(PillTabs, {
 		items,
-		active: activeKey ?? (category === "beat_tweets" ? "beat_tweets" : category === "analysis" ? "analysis" : category === "trades" ? "trades" : "news"),
+		active,
 		layoutId,
 		label: "筛选",
 		size,
@@ -1578,6 +1624,46 @@ function SearchField({ action = "/all", defaultValue = "", keep = {}, variant = 
 		name: k,
 		value: v
 	}, k) : null);
+	if (variant === "compact") return /* @__PURE__ */ jsxs(Form, {
+		method: "get",
+		action,
+		role: "search",
+		className: "relative w-full",
+		children: [hidden, /* @__PURE__ */ jsxs("label", {
+			className: "relative block w-full",
+			children: [
+				/* @__PURE__ */ jsx("span", {
+					className: "sr-only",
+					children: "搜索"
+				}),
+				/* @__PURE__ */ jsx(IconSearch, {
+					size: 14,
+					className: `pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 transition-colors ${searching ? "text-accent" : "text-ink-4"}`
+				}),
+				/* @__PURE__ */ jsx("input", {
+					ref: inputRef,
+					name: "q",
+					value,
+					onChange: (e) => setValue(e.target.value),
+					placeholder: "搜索资讯…",
+					maxLength: 200,
+					autoComplete: "off",
+					enterKeyHint: "search",
+					className: "h-8 w-full rounded-full border border-line bg-bg-sunk/80 pl-8 pr-7 text-[12px] text-ink outline-none transition-all placeholder:text-ink-4 focus:bg-surface focus:border-accent focus:shadow-[0_0_0_2px_var(--accent-soft)] dark:border-white/10 dark:bg-bg-muted/50"
+				}),
+				value && /* @__PURE__ */ jsx("button", {
+					type: "button",
+					"aria-label": "清空",
+					onClick: () => {
+						setValue("");
+						inputRef.current?.focus();
+					},
+					className: "absolute right-1.5 top-1/2 grid size-5 -translate-y-1/2 place-items-center rounded-full text-ink-4 transition-colors hover:text-ink",
+					children: /* @__PURE__ */ jsx(IconClose, { size: 12 })
+				})
+			]
+		})]
+	});
 	if (variant === "bar") return /* @__PURE__ */ jsxs(Form, {
 		method: "get",
 		action,
@@ -3641,6 +3727,7 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 		reporter: params.get("reporter") || null
 	};
 	const activeReporter = params.get("reporter") ?? "all";
+	const [mobileSearchOpen, setMobileSearchOpen] = useState(Boolean(f?.q));
 	const searchTabHref = (tab) => {
 		const sp = new URLSearchParams(params);
 		sp.delete("page");
@@ -3716,52 +3803,58 @@ var all_default = UNSAFE_withComponentProps(function AllPage() {
 				]
 			}),
 			/* @__PURE__ */ jsxs("div", {
-				className: "lg:hidden",
+				className: "lg:hidden sticky top-0 z-30 -mx-4 px-4 pt-3 pb-2.5 bg-surface/95 backdrop-blur-md border-b border-line-soft shadow-xs transition-colors",
 				children: [
 					/* @__PURE__ */ jsxs("div", {
-						className: "flex items-baseline justify-between pb-3 pt-3",
-						children: [/* @__PURE__ */ jsx("h1", {
-							className: "text-[22px] font-black text-ink",
-							children: title ?? "ClutchWire"
-						}), !f.q && /* @__PURE__ */ jsxs("span", {
-							className: "text-[12.5px] text-ink-4",
-							children: [
-								"今日 ",
-								/* @__PURE__ */ jsx("span", {
-									className: "num font-bold text-accent",
-									children: data.todayCount
-								}),
-								" 条"
-							]
+						className: "flex items-center justify-between h-8",
+						children: [/* @__PURE__ */ jsx(Link, {
+							to: "/",
+							className: "flex items-baseline gap-1 shrink-0 text-ink no-underline",
+							children: /* @__PURE__ */ jsx("span", {
+								className: "font-black text-[18px] tracking-tight",
+								children: title ? title : /* @__PURE__ */ jsxs(Fragment, { children: ["CLUTCH", /* @__PURE__ */ jsx("span", {
+									className: "text-[#CE1141]",
+									children: "WIRE"
+								})] })
+							})
+						}), /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setMobileSearchOpen((prev) => !prev),
+							"aria-label": "搜索",
+							className: `flex size-8 items-center justify-center rounded-full transition-all ${mobileSearchOpen ? "bg-[#CE1141] text-white shadow-xs" : "text-ink-3 hover:text-ink hover:bg-bg-sunk active:scale-95"}`,
+							children: /* @__PURE__ */ jsx(IconSearch, { size: 17 })
 						})]
 					}),
-					/* @__PURE__ */ jsx(SearchField, {
-						variant: "bar",
-						defaultValue: f.q ?? "",
-						keep,
-						autoFocus: params.get("search") === "1"
+					mobileSearchOpen && /* @__PURE__ */ jsx("div", {
+						className: "pt-2 pb-1 anim-fade-in",
+						children: /* @__PURE__ */ jsx(SearchField, {
+							variant: "bar",
+							defaultValue: f.q ?? "",
+							keep,
+							autoFocus: true
+						})
 					}),
 					/* @__PURE__ */ jsx("div", {
-						className: "-mx-4 mt-3 border-b border-line-soft px-4 pb-3",
+						className: "mt-2",
 						children: /* @__PURE__ */ jsx(CategoryTabs, {
 							base: "/all",
 							category: f.category,
 							channel: f.channel,
 							layoutId: "all-cat-mobile",
-							size: "sm",
-							className: "min-w-0"
+							variant: "underline",
+							className: "w-full"
 						})
 					}),
 					f.category === "beat_tweets" && /* @__PURE__ */ jsxs("div", {
-						className: "mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none",
+						className: "mt-2.5 flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none border-t border-line-soft/60 pt-2",
 						children: [/* @__PURE__ */ jsx("span", {
-							className: "shrink-0 text-[11.5px] font-bold text-ink-3",
+							className: "shrink-0 text-[11px] font-bold text-ink-3",
 							children: "记者:"
 						}), BEAT_REPORTERS.map((r) => {
 							const isActive = activeReporter === r.key;
 							return /* @__PURE__ */ jsx(Link, {
 								to: reporterHref(r.key),
-								className: `inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11.5px] font-medium transition-all ${isActive ? "bg-[#CE1141] text-white shadow-sm ring-2 ring-[#CE1141]/30 font-bold" : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"}`,
+								className: `inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium transition-all ${isActive ? "bg-[#CE1141] text-white shadow-xs font-bold" : "border border-line-strong bg-surface text-ink-2 hover:border-[#CE1141]/50 hover:text-[#CE1141]"}`,
 								children: r.label
 							}, r.key);
 						})]
@@ -3946,6 +4039,12 @@ var podcasts_default = UNSAFE_withComponentProps(function PodcastsPage() {
 		const s = sp.toString();
 		return s ? `/podcasts?${s}` : "/podcasts";
 	};
+	const podcastTabItems = PODCAST_SHOWS.map((s) => ({
+		key: s.key,
+		label: s.label,
+		to: showHref(s.key),
+		prefetch: "intent"
+	}));
 	return /* @__PURE__ */ jsxs("div", {
 		className: "pb-10",
 		children: [
@@ -3971,7 +4070,7 @@ var podcasts_default = UNSAFE_withComponentProps(function PodcastsPage() {
 						]
 					})]
 				}), /* @__PURE__ */ jsx("div", {
-					className: "mt-5 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none",
+					className: "mt-5 hidden lg:flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none",
 					children: PODCAST_SHOWS.map((s) => {
 						const active = currentShow === s.key;
 						return /* @__PURE__ */ jsx(Link, {
@@ -3981,6 +4080,15 @@ var podcasts_default = UNSAFE_withComponentProps(function PodcastsPage() {
 						}, s.key);
 					})
 				})]
+			}),
+			/* @__PURE__ */ jsx("div", {
+				className: "lg:hidden sticky top-0 z-30 -mx-4 px-4 pt-3 pb-2.5 bg-surface/95 backdrop-blur-md border-b border-line-soft shadow-xs transition-colors",
+				children: /* @__PURE__ */ jsx(UnderlineTabs, {
+					items: podcastTabItems,
+					active: currentShow,
+					layoutId: "podcasts-mobile",
+					className: "w-full"
+				})
 			}),
 			/* @__PURE__ */ jsx("div", {
 				className: `mt-6 transition-opacity duration-200 ${busy ? "opacity-50" : ""}`,
@@ -8081,6 +8189,7 @@ function Row({ e }) {
 }
 var hot_default = UNSAFE_withComponentProps(function HotPage() {
 	const { hot } = useLoaderData();
+	const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 	const [lead, ...rest] = hot.entries;
 	const runners = rest.slice(0, 2);
 	const others = rest.slice(2);
@@ -8110,28 +8219,45 @@ var hot_default = UNSAFE_withComponentProps(function HotPage() {
 				})]
 			}),
 			/* @__PURE__ */ jsxs("div", {
-				className: "lg:hidden",
+				className: "lg:hidden sticky top-0 z-30 -mx-4 px-4 pt-3 pb-2.5 bg-surface/95 backdrop-blur-md border-b border-line-soft shadow-xs transition-colors",
 				children: [
-					/* @__PURE__ */ jsx("div", {
-						className: "flex items-baseline justify-between pb-3 pt-3",
-						children: /* @__PURE__ */ jsx("h1", {
-							className: "text-[22px] font-black text-ink",
-							children: SITE.name
+					/* @__PURE__ */ jsxs("div", {
+						className: "flex items-center justify-between h-8",
+						children: [/* @__PURE__ */ jsx(Link, {
+							to: "/",
+							className: "flex items-baseline gap-1 shrink-0 text-ink no-underline",
+							children: /* @__PURE__ */ jsxs("span", {
+								className: "font-black text-[18px] tracking-tight",
+								children: ["CLUTCH", /* @__PURE__ */ jsx("span", {
+									className: "text-[#CE1141]",
+									children: "WIRE"
+								})]
+							})
+						}), /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setMobileSearchOpen((prev) => !prev),
+							"aria-label": "搜索",
+							className: `flex size-8 items-center justify-center rounded-full transition-all ${mobileSearchOpen ? "bg-[#CE1141] text-white shadow-xs" : "text-ink-3 hover:text-ink hover:bg-bg-sunk active:scale-95"}`,
+							children: /* @__PURE__ */ jsx(IconSearch, { size: 17 })
+						})]
+					}),
+					mobileSearchOpen && /* @__PURE__ */ jsx("div", {
+						className: "pt-2 pb-1 anim-fade-in",
+						children: /* @__PURE__ */ jsx(SearchField, {
+							variant: "bar",
+							keep: { category: null },
+							autoFocus: true
 						})
 					}),
-					/* @__PURE__ */ jsx(SearchField, {
-						variant: "bar",
-						keep: { category: null }
-					}),
 					/* @__PURE__ */ jsx("div", {
-						className: "-mx-4 mt-3 border-b border-line-soft px-4 pb-3",
+						className: "mt-2",
 						children: /* @__PURE__ */ jsx(CategoryTabs, {
 							base: "/all",
 							category: null,
 							activeKey: "hot",
 							layoutId: "hot-cat-mobile",
-							size: "sm",
-							className: "min-w-0"
+							variant: "underline",
+							className: "w-full"
 						})
 					})
 				]
@@ -22622,15 +22748,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-CXUR6usB.js",
+			"module": "/assets/root-jv4mhnmX.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/Sidebar-BxsBWvvh.js",
-				"/assets/Chrome-BkI_NNJN.js",
+				"/assets/shared-CvYixJGd.js",
+				"/assets/Sidebar--EPF_DzU.js",
+				"/assets/Chrome-BU7aonN6.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-C4ai_80P.css"],
+			"css": ["/assets/root-CrF8FelJ.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22670,12 +22796,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-_FRkDUL1.js",
+			"module": "/assets/all-C92yHI25.js",
 			"imports": [
-				"/assets/all-Bdox78Fm.js",
+				"/assets/all-Dp09ZdIT.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/Filters-B5X4JZjC.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/Filters-DVZkHpud.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22696,8 +22822,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/podcasts-BOT9mCPZ.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/podcasts-3pZfLdnR.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22717,8 +22843,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/videos-DRq3sfyk.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/videos-CE2opTVf.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22738,8 +22864,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-CS5pH9Nx.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/schedule-AoCW5f1G.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22759,12 +22885,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CpJgjSNI.js",
+			"module": "/assets/search-busy-CYITZdM8.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/all-Bdox78Fm.js",
-				"/assets/Filters-B5X4JZjC.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/all-Dp09ZdIT.js",
+				"/assets/Filters-DVZkHpud.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22785,12 +22911,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CpJgjSNI.js",
+			"module": "/assets/search-busy-CYITZdM8.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/all-Bdox78Fm.js",
-				"/assets/Filters-B5X4JZjC.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/all-Dp09ZdIT.js",
+				"/assets/Filters-DVZkHpud.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22811,11 +22937,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-BOJb-cN7.js",
+			"module": "/assets/item-CzE_CZ5d.js",
 			"imports": [
-				"/assets/item-D6vm603a.js",
+				"/assets/item-DBcEqXlQ.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js"
+				"/assets/shared-CvYixJGd.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22836,11 +22962,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-BOJb-cN7.js",
+			"module": "/assets/item-original-CzE_CZ5d.js",
 			"imports": [
-				"/assets/item-D6vm603a.js",
+				"/assets/item-DBcEqXlQ.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js"
+				"/assets/shared-CvYixJGd.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22861,11 +22987,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-Dtg76ntA.js",
+			"module": "/assets/hot-CizWYlBs.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/Filters-B5X4JZjC.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/Filters-DVZkHpud.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22886,8 +23012,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-DzidermA.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/story-Db77Xx1_.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22907,11 +23033,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DfE_GU3b.js",
+			"module": "/assets/report-latest-CIZ3nVsl.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/ReportPaper-DpsueNFc.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/ReportPaper-nlWK5Rpn.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22932,11 +23058,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-3h4fSODY.js",
+			"module": "/assets/daily-archive-baoVN5o5.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/ReportPaper-DpsueNFc.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/ReportPaper-nlWK5Rpn.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22957,11 +23083,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-C1_4yYkm.js",
+			"module": "/assets/report-detail-DTE0q7Yz.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/ReportPaper-DpsueNFc.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/ReportPaper-nlWK5Rpn.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22982,11 +23108,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DfE_GU3b.js",
+			"module": "/assets/report-latest-CIZ3nVsl.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/ReportPaper-DpsueNFc.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/ReportPaper-nlWK5Rpn.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23007,11 +23133,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-C1_4yYkm.js",
+			"module": "/assets/report-detail-DTE0q7Yz.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/ReportPaper-DpsueNFc.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/ReportPaper-nlWK5Rpn.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23032,11 +23158,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DfE_GU3b.js",
+			"module": "/assets/report-latest-CIZ3nVsl.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/ReportPaper-DpsueNFc.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/ReportPaper-nlWK5Rpn.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23057,11 +23183,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-C1_4yYkm.js",
+			"module": "/assets/report-detail-DTE0q7Yz.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/ReportPaper-DpsueNFc.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/ReportPaper-nlWK5Rpn.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23145,8 +23271,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about--jzyE83_.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/about-a3-js684.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23166,8 +23292,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sponsor-BsJh2iZB.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/sponsor-DEdFmHx0.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23187,11 +23313,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-DLKju1Tr.js",
+			"module": "/assets/terms-fCvOVoiy.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/CopyPage-CWFWLx2b.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/CopyPage-IezEk0ct.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23212,11 +23338,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-DRl7xfph.js",
+			"module": "/assets/privacy-DZkxwSvw.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/CopyPage-CWFWLx2b.js"
+				"/assets/shared-CvYixJGd.js",
+				"/assets/CopyPage-IezEk0ct.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23237,8 +23363,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-BgHcri6i.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/changelog-DM_NHQQG.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23258,8 +23384,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-BvuFwDzm.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/feedback-DzyCHLjt.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23279,11 +23405,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-BnHfWVgF.js",
+			"module": "/assets/more-sk5taA24.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
-				"/assets/Sidebar-BxsBWvvh.js",
+				"/assets/shared-CvYixJGd.js",
+				"/assets/Sidebar--EPF_DzU.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -23305,8 +23431,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-Cln7fiaq.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/starred-CFAZKY_2.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23326,10 +23452,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-Ctew77ow.js",
+			"module": "/assets/agent-B2hOAikr.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -23351,8 +23477,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-BR1nbPMX.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/codex-reset-puLgxsRr.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23372,8 +23498,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-BR1nbPMX.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/codex-reset-puLgxsRr.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23393,8 +23519,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-6-_VlyGF.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/leaderboard-boards-D4cqkoNB.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23414,10 +23540,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-DCuBoj2t.js",
+			"module": "/assets/leaderboard-DITUfqJ7.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -23440,10 +23566,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-DCuBoj2t.js",
+			"module": "/assets/leaderboard-DITUfqJ7.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -23466,10 +23592,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-DMgz5oUT.js",
+			"module": "/assets/leaderboard-sources-BwQZSv5M.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23492,10 +23618,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-DuB_GtGE.js",
+			"module": "/assets/leaderboard-source-BwgKcFba.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23518,8 +23644,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-BkQ7-TvH.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/leaderboard-rules-sHB8Qmvy.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23539,10 +23665,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-Cq7sexOq.js",
+			"module": "/assets/leaderboard-model-C_qxeSM9.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23565,8 +23691,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-BAFJGBcF.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CT955nrD.js"],
+			"module": "/assets/admin-login-DQple_z7.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23586,12 +23712,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-Ba4KEWpp.js",
+			"module": "/assets/layout-Cb8hiorU.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-BkI_NNJN.js",
+				"/assets/Chrome-BU7aonN6.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -23635,10 +23761,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-aapy3hal.js",
+			"module": "/assets/content-aBoIgKiZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23662,10 +23788,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-CCdqWt50.js",
+			"module": "/assets/content-item-Cr6LEiX4.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23691,10 +23817,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-BtElMh6j.js",
+			"module": "/assets/sources-By6WCPlS.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23718,10 +23844,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-C6WvTN99.js",
+			"module": "/assets/source-new-D7gy2jBC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23747,10 +23873,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-BMR94yc4.js",
+			"module": "/assets/source-CjOpZ2x8.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23776,10 +23902,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-Yj6cjkSO.js",
+			"module": "/assets/monitor-BBIeIxbP.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23804,10 +23930,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-UdW9KaQh.js",
+			"module": "/assets/feedback-xApyI9kl.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23833,10 +23959,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-BnVYyjYY.js",
+			"module": "/assets/runs-DRiEqNER.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23861,10 +23987,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-CPfMt7uY.js",
+			"module": "/assets/models-Bqx-GjfZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -23889,10 +24015,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-BTuVqPNx.js",
+			"module": "/assets/selectbench-Chq21off.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23917,10 +24043,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-CXRhGSLz.js",
+			"module": "/assets/selectbench-run-kh2lu0V6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23943,10 +24069,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-BVQo7s1E.js",
+			"module": "/assets/settings-D8bfeEp-.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23971,10 +24097,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-Dql9mKE6.js",
+			"module": "/assets/audit-BHA31DYO.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CT955nrD.js",
+				"/assets/shared-CvYixJGd.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -23985,8 +24111,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-9d332333.js",
-	"version": "9d332333",
+	"url": "/assets/manifest-65919856.js",
+	"version": "65919856",
 	"sri": void 0
 };
 //#endregion

@@ -1,0 +1,1 @@
+import{p as e}from"./entry.client-6tyZgf_X.js";import{Kt as t}from"./shared-CvYixJGd.js";import{t as n}from"./all-Dp09ZdIT.js";function r(){return[{title:t(`搜索繁忙`)},{name:`robots`,content:`noindex, follow`}]}var i=e(n);export{i as default,r as meta};
