@@ -16,7 +16,7 @@ import { THEME_BOOT_SCRIPT } from "./lib/local-state";
 import { apiGet } from "./lib/api.server";
 import { useHydratedFlag } from "./lib/hydration";
 
-const ICON_V = "v=20261011_fresh";
+const ICON_V = "v=20261017_r";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", href: `/favicon.ico?${ICON_V}`, sizes: "any" },
@@ -24,7 +24,7 @@ export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/png", sizes: "512x512", href: `/icon.png?${ICON_V}` },
   { rel: "icon", type: "image/png", sizes: "192x192", href: `/icon-192.png?${ICON_V}` },
   { rel: "apple-touch-icon", sizes: "180x180", href: `/apple-icon.png?${ICON_V}` },
-  { rel: "apple-touch-startup-image", href: `/icon.png?${ICON_V}` },
+  { rel: "apple-touch-startup-image", href: `/splash.png?${ICON_V}` },
   { rel: "manifest", href: `/manifest.webmanifest?${ICON_V}` },
   { rel: "alternate", type: "application/rss+xml", title: `${SITE.name} — 最新动态`, href: "/feed.xml" },
 ];

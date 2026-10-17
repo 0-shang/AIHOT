@@ -69,7 +69,7 @@ function robotsTxt(): string {
 }
 
 function manifest() {
-  const v = "v=20261010";
+  const v = "v=20261017_r";
   return {
     name: `${SITE.name} — ${SITE.tagline}`,
     short_name: SITE.name,
@@ -79,8 +79,8 @@ function manifest() {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#0a0d14",
-    theme_color: "#CE1141",
+    background_color: "#05070a",
+    theme_color: "#05070a",
     icons: [
       { src: `/icon-192.png?${v}`, sizes: "192x192", type: "image/png", purpose: "any" },
       { src: `/icon-192.png?${v}`, sizes: "192x192", type: "image/png", purpose: "maskable" },
@@ -151,8 +151,8 @@ export function registerStatic(app: FastifyInstance) {
     app.get(`/${config.indexNowKey}.txt`, (req, reply) => sendTextWithEtag(req, reply, config.indexNowKey!, { etagPrefix: "indexnow", cacheControl: "public, max-age=3600", contentType: "text/plain; charset=utf-8" }));
   }
 
-  // Icons from the industry pack (industry/brand/).
-  for (const icon of ["favicon.ico", "icon.png", "icon-192.png", "apple-icon.png", "logo.svg"]) {
+  // Icons and splash from the industry pack (industry/brand/).
+  for (const icon of ["favicon.ico", "icon.png", "icon-192.png", "apple-icon.png", "logo.svg", "splash.png"]) {
     app.get(`/${icon}`, (req, reply) => sendFile(req, reply, path.join(BRAND, icon), { cacheControl: "public, max-age=86400, stale-while-revalidate=604800" }));
   }
 

@@ -1,21 +1,32 @@
 // The site's wordmark and basketball sports brand logo.
 import { SITE } from "@aihot/industry/site";
 
-export function Wordmark({ size = 22, className = "" }: { size?: number; className?: string }) {
+export function Wordmark({ size = 22, className = "", showIcon = true }: { size?: number; className?: string; showIcon?: boolean }) {
   return (
-    <div className={`inline-flex flex-col text-left select-none ${className}`} aria-label={SITE.name} role="img">
-      <div className="flex items-baseline tracking-tight">
-        <span className="font-black text-ink font-sans tracking-tight text-[22px] lg:text-[24px]">
-          CLUTCH
-        </span>
-        <span className="font-black text-[#CE1141] font-sans tracking-tight text-[22px] lg:text-[24px] ml-1">
-          WIRE
-        </span>
-      </div>
-      <div className="flex items-center gap-1.5 -mt-0.5">
-        <span className="text-[10px] font-bold tracking-[0.22em] text-ink-4 uppercase">
-          火箭队资讯
-        </span>
+    <div className={`inline-flex items-center gap-2.5 text-left select-none ${className}`} aria-label={SITE.name} role="img">
+      {showIcon && (
+        <img
+          src="/logo.svg"
+          alt=""
+          width={34}
+          height={34}
+          className="size-[34px] rounded-[9px] shadow-sm shrink-0 object-contain"
+        />
+      )}
+      <div className="flex flex-col">
+        <div className="flex items-baseline tracking-tight">
+          <span className="font-black text-ink font-sans tracking-tight text-[20px] lg:text-[22px]">
+            CLUTCH
+          </span>
+          <span className="font-black text-[#CE1141] font-sans tracking-tight text-[20px] lg:text-[22px] ml-1">
+            WIRE
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 -mt-0.5">
+          <span className="text-[10px] font-bold tracking-[0.22em] text-ink-4 uppercase">
+            火箭队资讯
+          </span>
+        </div>
       </div>
     </div>
   );
