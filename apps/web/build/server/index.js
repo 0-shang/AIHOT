@@ -1029,7 +1029,7 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	meta: () => meta$42,
 	shouldRevalidate: () => shouldRevalidate$1
 });
-var ICON_V = "v=20261017_r";
+var ICON_V = "v=20261017_oled_black";
 var links = () => [
 	{
 		rel: "icon",
@@ -1099,7 +1099,7 @@ function Layout({ children }) {
 			/* @__PURE__ */ jsx("meta", {
 				name: "theme-color",
 				media: "(prefers-color-scheme: dark)",
-				content: "#0c1015"
+				content: "#000000"
 			}),
 			/* @__PURE__ */ jsx("meta", {
 				name: "mobile-web-app-capable",
@@ -22622,7 +22622,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-CWAABZaM.js",
+			"module": "/assets/root-CXUR6usB.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CT955nrD.js",
@@ -23985,8 +23985,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-5626c189.js",
-	"version": "5626c189",
+	"url": "/assets/manifest-9d332333.js",
+	"version": "9d332333",
 	"sri": void 0
 };
 //#endregion
