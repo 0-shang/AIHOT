@@ -69,7 +69,7 @@ function robotsTxt(): string {
 }
 
 function manifest() {
-  const v = "v=20261017_r_blade_final";
+  const v = "v=20261017_oled_black";
   return {
     name: `${SITE.name} — ${SITE.tagline}`,
     short_name: SITE.name,
@@ -79,8 +79,8 @@ function manifest() {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#05070a",
-    theme_color: "#05070a",
+    background_color: "#000000",
+    theme_color: "#000000",
     icons: [
       { src: `/icon-192.png?${v}`, sizes: "192x192", type: "image/png", purpose: "any" },
       { src: `/icon-192.png?${v}`, sizes: "192x192", type: "image/png", purpose: "maskable" },

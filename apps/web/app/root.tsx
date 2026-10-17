@@ -16,7 +16,7 @@ import { THEME_BOOT_SCRIPT } from "./lib/local-state";
 import { apiGet } from "./lib/api.server";
 import { useHydratedFlag } from "./lib/hydration";
 
-const ICON_V = "v=20261017_r_blade_final";
+const ICON_V = "v=20261017_oled_black";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", href: `/favicon.ico?${ICON_V}`, sizes: "any" },
@@ -50,7 +50,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8fafc" />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0c1015" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
