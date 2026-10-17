@@ -69,7 +69,7 @@ function robotsTxt(): string {
 }
 
 function manifest() {
-  const v = "v=20261017_r";
+  const v = "v=20261017_r_blade_final";
   return {
     name: `${SITE.name} — ${SITE.tagline}`,
     short_name: SITE.name,
@@ -153,7 +153,7 @@ export function registerStatic(app: FastifyInstance) {
 
   // Icons and splash from the industry pack (industry/brand/).
   for (const icon of ["favicon.ico", "icon.png", "icon-192.png", "apple-icon.png", "logo.svg", "splash.png"]) {
-    app.get(`/${icon}`, (req, reply) => sendFile(req, reply, path.join(BRAND, icon), { cacheControl: "public, max-age=86400, stale-while-revalidate=604800" }));
+    app.get(`/${icon}`, (req, reply) => sendFile(req, reply, path.join(BRAND, icon), { cacheControl: "no-cache, must-revalidate" }));
   }
 
   if (FEATURES.leaderboard) {
