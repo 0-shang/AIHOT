@@ -69,7 +69,7 @@ function robotsTxt(): string {
 }
 
 function manifest() {
-  const v = "v=20261017_restore_r";
+  const v = "v=20261017_oled_black_sharp";
   return {
     name: `${SITE.name} — ${SITE.tagline}`,
     short_name: SITE.name,
