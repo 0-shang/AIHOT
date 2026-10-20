@@ -74,8 +74,8 @@ export const SCHEDULES: Scheduled[] = [
   { name: "feedback.forward", cron: "*/10 * * * *", run: () => forwardPendingFeedback() },
   ...(backupConfigured() ? [{ name: "ops.backup", cron: "10 4 * * *", missed: "once" as const, run: () => runBackup() }] : []),
   { name: "reports.source-health", cron: "0 9 * * 1", missed: "once", run: () => sourceHealthWeekly() },
-  // NBA / 火箭官方数据定时抓取同步：每天抓取 4 次、更新 4 次 (00:00, 06:00, 12:00, 18:00 Asia/Shanghai)
-  { name: "nba.rockets.sync", cron: "0 0,6,12,18 * * *", missed: "once" as const, run: () => triggerRocketsSync() },
+  // NBA / 火箭官方数据定时抓取同步：每天抓取 3 次、更新 3 次 (06:00, 14:00, 22:00 Asia/Shanghai)
+  { name: "nba.rockets.sync", cron: "0 6,14,22 * * *", missed: "once" as const, run: () => triggerRocketsSync() },
   // Four upstream checks a day; a new run is published only when the evidence changed. With collection
   // off only the computation runs, over the snapshots already stored.
   ...(FEATURES.leaderboard

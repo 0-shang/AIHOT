@@ -31,6 +31,19 @@ export async function loader({ request }: Route.LoaderArgs) {
     `/api/site/pool${queryString({ category: "podcasts", source, q, page: page > 1 ? page : null })}`,
     { signal: request.signal, busyRedirect: q ? "/all/search-busy" : undefined }
   );
+
+  // 防御性过滤：确保仅包含专属火箭播客节目，杜绝市政新闻或非体育内容
+  if (data && Array.isArray(data.items)) {
+    data.items = data.items.filter((item: any) => {
+      const title = item.title || "";
+      const summary = item.summary || "";
+      if (/ICE|执法事件|去世多年|Ken Paxton|参议员竞选/i.test(`${title} ${summary}`)) return false;
+      const srcId = item.source?.id || "";
+      if (srcId && !srcId.startsWith("rss-podcast-") && srcId !== "podcasts") return false;
+      return true;
+    });
+  }
+
   return { data, currentShow: show ?? "all" };
 }
 

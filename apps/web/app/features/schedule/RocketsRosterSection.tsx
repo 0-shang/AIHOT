@@ -140,7 +140,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-4 bg-[#CE1141] rounded-full inline-block"></span>
           <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
-            2026-27 赛季火箭官方球员名册与技术统计
+            2026-27 赛季火箭官方球员名单与技术统计
           </h2>
         </div>
 

@@ -12,20 +12,14 @@ export function RocketsStandingsSection({ standings }: Props) {
 
   return (
     <section className="bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 text-xs transition-colors shadow-xs">
-      {/* 季前赛官方阶段状态横幅（精简空间，减少大片空旷文本占用） */}
+      {/* 官方战绩排名标题栏：每日自动抓取更新3次 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 flex items-center justify-center font-bold text-[11px] flex-shrink-0">
+          <div className="w-7 h-7 rounded-lg bg-[#CE1141]/10 text-[#CE1141] border border-[#CE1141]/20 flex items-center justify-center font-black text-[11px] flex-shrink-0 tracking-tight">
             NBA
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">西部排名参考</span>
-            <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold border border-amber-500/20">
-              季前赛热身阶段 · 不计入排位
-            </span>
-            <span className="text-slate-400 dark:text-zinc-500 text-xs hidden md:inline">
-              · 10月23日常规赛揭幕后实时刷新官方战绩积分榜
-            </span>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">NBA 西部战绩榜</span>
           </div>
         </div>
 
@@ -33,7 +27,7 @@ export function RocketsStandingsSection({ standings }: Props) {
           <button
             type="button"
             onClick={() => setShowHistoryStandings(!showHistoryStandings)}
-            className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10 transition-colors font-medium text-xs flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10 transition-colors font-medium text-xs flex items-center gap-1.5 shadow-2xs"
           >
             <span>{showHistoryStandings ? "收起球队排名" : "查看球队排名"}</span>
             <span className="text-[10px]">{showHistoryStandings ? "▲" : "▼"}</span>

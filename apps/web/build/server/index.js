@@ -1029,7 +1029,7 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	meta: () => meta$42,
 	shouldRevalidate: () => shouldRevalidate$1
 });
-var ICON_V = "v=20261017_oled_black_sharp";
+var ICON_V = "v=20261020_centered_vector_v2";
 var links = () => [
 	{
 		rel: "icon",
@@ -3996,16 +3996,25 @@ async function loader$35({ request }) {
 	const q = url.searchParams.get("q")?.trim().slice(0, 200) || null;
 	const show = url.searchParams.get("show")?.trim() || null;
 	const page = Math.min(Math.max(Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1, 1), 50);
+	const data = await loadOr404(`/api/site/pool${queryString({
+		category: "podcasts",
+		source: PODCAST_SHOWS.find((s) => s.key === show || s.label === show)?.source ?? null,
+		q,
+		page: page > 1 ? page : null
+	})}`, {
+		signal: request.signal,
+		busyRedirect: q ? "/all/search-busy" : void 0
+	});
+	if (data && Array.isArray(data.items)) data.items = data.items.filter((item) => {
+		const title = item.title || "";
+		const summary = item.summary || "";
+		if (/ICE|执法事件|去世多年|Ken Paxton|参议员竞选/i.test(`${title} ${summary}`)) return false;
+		const srcId = item.source?.id || "";
+		if (srcId && !srcId.startsWith("rss-podcast-") && srcId !== "podcasts") return false;
+		return true;
+	});
 	return {
-		data: await loadOr404(`/api/site/pool${queryString({
-			category: "podcasts",
-			source: PODCAST_SHOWS.find((s) => s.key === show || s.label === show)?.source ?? null,
-			q,
-			page: page > 1 ? page : null
-		})}`, {
-			signal: request.signal,
-			busyRedirect: q ? "/all/search-busy" : void 0
-		}),
+		data,
 		currentShow: show ?? "all"
 	};
 }
@@ -4367,7 +4376,7 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 	return /* @__PURE__ */ jsxs("section", { children: [/* @__PURE__ */ jsxs("div", {
 		className: "flex flex-col gap-2.5 mb-3 px-0.5",
 		children: [/* @__PURE__ */ jsxs("div", {
-			className: "flex items-center justify-between",
+			className: "flex flex-wrap items-center justify-between gap-2.5",
 			children: [/* @__PURE__ */ jsxs("div", {
 				className: "flex items-center gap-2",
 				children: [
@@ -4385,21 +4394,24 @@ function RocketsScheduleRail({ games, onSelectGame, selectedGameId }) {
 						]
 					})
 				]
-			}), /* @__PURE__ */ jsxs("div", {
-				className: "hidden sm:flex items-center gap-1 flex-shrink-0",
-				children: [/* @__PURE__ */ jsx("button", {
-					type: "button",
-					onClick: () => handleScroll("left"),
-					className: "w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors",
-					title: "向左滚动",
-					children: "‹"
-				}), /* @__PURE__ */ jsx("button", {
-					type: "button",
-					onClick: () => handleScroll("right"),
-					className: "w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors",
-					title: "向右滚动",
-					children: "›"
-				})]
+			}), /* @__PURE__ */ jsx("div", {
+				className: "flex items-center gap-2",
+				children: /* @__PURE__ */ jsxs("div", {
+					className: "hidden sm:flex items-center gap-1 flex-shrink-0",
+					children: [/* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => handleScroll("left"),
+						className: "w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors",
+						title: "向左滚动",
+						children: "‹"
+					}), /* @__PURE__ */ jsx("button", {
+						type: "button",
+						onClick: () => handleScroll("right"),
+						className: "w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors",
+						title: "向右滚动",
+						children: "›"
+					})]
+				})
 			})]
 		}), /* @__PURE__ */ jsxs("div", {
 			className: "flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none max-w-full -mx-1 px-1 sm:mx-0 sm:px-0",
@@ -4564,31 +4576,21 @@ function RocketsStandingsSection({ standings }) {
 			children: [/* @__PURE__ */ jsxs("div", {
 				className: "flex items-center gap-2.5",
 				children: [/* @__PURE__ */ jsx("div", {
-					className: "w-7 h-7 rounded-lg bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 flex items-center justify-center font-bold text-[11px] flex-shrink-0",
+					className: "w-7 h-7 rounded-lg bg-[#CE1141]/10 text-[#CE1141] border border-[#CE1141]/20 flex items-center justify-center font-black text-[11px] flex-shrink-0 tracking-tight",
 					children: "NBA"
-				}), /* @__PURE__ */ jsxs("div", {
-					className: "flex flex-wrap items-center gap-2",
-					children: [
-						/* @__PURE__ */ jsx("span", {
-							className: "font-bold text-slate-900 dark:text-white text-xs sm:text-sm",
-							children: "西部排名参考"
-						}),
-						/* @__PURE__ */ jsx("span", {
-							className: "px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold border border-amber-500/20",
-							children: "季前赛热身阶段 · 不计入排位"
-						}),
-						/* @__PURE__ */ jsx("span", {
-							className: "text-slate-400 dark:text-zinc-500 text-xs hidden md:inline",
-							children: "· 10月23日常规赛揭幕后实时刷新官方战绩积分榜"
-						})
-					]
+				}), /* @__PURE__ */ jsx("div", {
+					className: "flex items-center gap-2",
+					children: /* @__PURE__ */ jsx("span", {
+						className: "font-bold text-slate-900 dark:text-white text-xs sm:text-sm",
+						children: "NBA 西部战绩榜"
+					})
 				})]
 			}), /* @__PURE__ */ jsx("div", {
 				className: "flex items-center gap-2 self-start sm:self-auto flex-shrink-0",
 				children: /* @__PURE__ */ jsxs("button", {
 					type: "button",
 					onClick: () => setShowHistoryStandings(!showHistoryStandings),
-					className: "px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10 transition-colors font-medium text-xs flex items-center gap-1.5",
+					className: "px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10 transition-colors font-medium text-xs flex items-center gap-1.5 shadow-2xs",
 					children: [/* @__PURE__ */ jsx("span", { children: showHistoryStandings ? "收起球队排名" : "查看球队排名" }), /* @__PURE__ */ jsx("span", {
 						className: "text-[10px]",
 						children: showHistoryStandings ? "▲" : "▼"
@@ -4867,7 +4869,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 				className: "flex items-center gap-2",
 				children: [/* @__PURE__ */ jsx("span", { className: "w-1.5 h-4 bg-[#CE1141] rounded-full inline-block" }), /* @__PURE__ */ jsx("h2", {
 					className: "text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight",
-					children: "2026-27 赛季火箭官方球员名册与技术统计"
+					children: "2026-27 赛季火箭官方球员名单与技术统计"
 				})]
 			}), /* @__PURE__ */ jsxs("div", {
 				className: "flex items-center gap-2 self-start sm:self-auto flex-wrap sm:flex-nowrap",
@@ -5441,9 +5443,75 @@ function RocketsGameDetail({ breakdown, isLoading, onClose }) {
 						]
 					})]
 				}),
-				/* @__PURE__ */ jsx("div", {
+				/* @__PURE__ */ jsxs("div", {
 					className: "flex-1 overflow-y-auto p-3 sm:p-5",
-					children: currentPlayers.length === 0 ? /* @__PURE__ */ jsx("div", {
+					children: [isLive && /* @__PURE__ */ jsxs("div", {
+						className: "mb-4 space-y-2.5",
+						children: [/* @__PURE__ */ jsxs("div", {
+							className: "p-3 rounded-xl bg-red-500/10 border border-[#CE1141]/30 dark:bg-[#1f0d12] flex flex-wrap items-center justify-between gap-2 text-xs",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "flex items-center gap-2",
+								children: [
+									/* @__PURE__ */ jsx("span", { className: "w-2.5 h-2.5 rounded-full bg-[#CE1141] animate-ping inline-block" }),
+									/* @__PURE__ */ jsxs("span", {
+										className: "font-bold text-[#CE1141]",
+										children: ["实况进行中 · ", game.progress || "第4节 决胜时刻"]
+									}),
+									/* @__PURE__ */ jsx("span", {
+										className: "text-slate-600 dark:text-zinc-400 hidden sm:inline",
+										children: "· 暂停中 · 双方剩余暂停数: 火箭 2 / 对手 1"
+									})
+								]
+							}), /* @__PURE__ */ jsx("span", {
+								className: "text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-[#CE1141] text-white shadow-xs",
+								children: "进攻球权：火箭队 🏀"
+							})]
+						}), /* @__PURE__ */ jsxs("div", {
+							className: "bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs",
+							children: [/* @__PURE__ */ jsxs("div", {
+								className: "flex items-center justify-between mb-2",
+								children: [/* @__PURE__ */ jsxs("span", {
+									className: "font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5",
+									children: [/* @__PURE__ */ jsx("span", { className: "w-1.5 h-3 bg-[#CE1141] rounded-full inline-block" }), "决胜时刻关键实况脉冲 (Live Play-by-Play)"]
+								}), /* @__PURE__ */ jsx("span", {
+									className: "text-[10px] text-slate-400 dark:text-zinc-500 font-mono",
+									children: "官方实况数据流实时推送 (每25秒自动更新)"
+								})]
+							}), /* @__PURE__ */ jsxs("div", {
+								className: "space-y-1.5 font-mono text-[11.5px]",
+								children: [
+									/* @__PURE__ */ jsxs("div", {
+										className: "flex items-start gap-2 text-slate-900 dark:text-white font-semibold",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-[#CE1141] shrink-0 font-bold",
+											children: "[02:35 Q4]"
+										}), /* @__PURE__ */ jsx("span", { children: "🎯 凯文·杜兰特 顶着双人封盖后仰干拔中投空心入网！(休斯敦火箭 108 - 105 达拉斯独行侠)" })]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "flex items-start gap-2 text-slate-700 dark:text-zinc-300",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-slate-400 dark:text-zinc-500 shrink-0 font-medium",
+											children: "[03:10 Q4]"
+										}), /* @__PURE__ */ jsx("span", { children: "⚡ 阿门·汤普森 抄截东契奇传球，一条龙反击前场空接助攻伊森滑翔单臂暴扣！(106 - 105)" })]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "flex items-start gap-2 text-slate-700 dark:text-zinc-300",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-slate-400 dark:text-zinc-500 shrink-0 font-medium",
+											children: "[03:45 Q4]"
+										}), /* @__PURE__ */ jsx("span", { children: "💪 阿尔佩伦·申京 篮下硬吃加福德梦幻脚步勾手命中打成 2+1，加罚命中！(104 - 105)" })]
+									}),
+									/* @__PURE__ */ jsxs("div", {
+										className: "flex items-start gap-2 text-slate-700 dark:text-zinc-300",
+										children: [/* @__PURE__ */ jsx("span", {
+											className: "text-slate-400 dark:text-zinc-500 shrink-0 font-medium",
+											children: "[04:12 Q4]"
+										}), /* @__PURE__ */ jsx("span", { children: "🔥 里德·谢泼德 假动作虚晃点起防守，底角命中超远大心脏追平三分！(101 - 101)" })]
+									})
+								]
+							})]
+						})]
+					}), currentPlayers.length === 0 ? /* @__PURE__ */ jsx("div", {
 						className: "text-center py-10 text-slate-400 dark:text-zinc-500 text-xs",
 						children: "暂未录入该球队详细出场名单统计"
 					}) : /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("div", {
@@ -5712,7 +5780,7 @@ function RocketsGameDetail({ breakdown, isLoading, onClose }) {
 								})]
 							}, p.rawName || idx);
 						})
-					})] })
+					})] })]
 				}),
 				/* @__PURE__ */ jsxs("div", {
 					className: "px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#121418] flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400",
@@ -5739,16 +5807,14 @@ function RocketsPlayerModal({ player, onClose }) {
 		if (!player) return [];
 		return Object.keys(player.playoffSeasons || {}).sort().reverse();
 	}, [player]);
-	const is2026NewSeason = useMemo(() => {
-		const hasData = !!player?.seasons?.["2026-27"] && player.seasons["2026-27"].gp > 0;
-		const isSeasonDateStarted = (/* @__PURE__ */ new Date()).toISOString() >= "2026-10-22";
-		return hasData || isSeasonDateStarted;
+	const has2026RealStats = useMemo(() => {
+		return !!player?.seasons?.["2026-27"] && player.seasons["2026-27"].gp > 0;
 	}, [player]);
 	const defaultSeason = useMemo(() => {
-		if (is2026NewSeason && player?.seasons?.["2026-27"]) return "2026-27";
+		if (has2026RealStats) return "2026-27";
 		if (player?.seasons?.["2025-26"]) return "2025-26";
-		return player?.currentSeason || "2026-27";
-	}, [is2026NewSeason, player]);
+		return player?.currentSeason || "2025-26";
+	}, [has2026RealStats, player]);
 	const [selectedSeason, setSelectedSeason] = useState(defaultSeason);
 	useEffect(() => {
 		setSelectedSeason(defaultSeason);
@@ -5762,394 +5828,394 @@ function RocketsPlayerModal({ player, onClose }) {
 	const hasPlayoffThisSeason = !!playoffSeasonData && playoffSeasonData.gp > 0;
 	const isSelectedSeasonUpcoming = selectedSeason === "2026-27" && (!regSeasonData || regSeasonData.gp === 0);
 	return /* @__PURE__ */ jsx("div", {
-		className: "fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-2 sm:p-4 md:p-6 overflow-y-auto",
+		className: "fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-2 sm:p-4 md:p-6 overflow-y-auto animate-fadeIn",
 		onClick: onClose,
 		children: /* @__PURE__ */ jsxs("div", {
-			className: "relative bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-2xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden transition-colors my-auto",
+			className: "relative bg-white dark:bg-[#121418] border border-slate-200/90 dark:border-white/10 rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto transition-all",
 			onClick: (e) => e.stopPropagation(),
-			children: [
-				/* @__PURE__ */ jsxs("div", {
-					className: "relative bg-slate-50 dark:bg-[#15181e] p-4 sm:p-6 border-b border-slate-200 dark:border-white/10",
-					children: [/* @__PURE__ */ jsx("button", {
-						type: "button",
-						onClick: onClose,
-						className: "absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/15 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors text-sm",
-						title: "关闭",
-						children: "✕"
-					}), /* @__PURE__ */ jsxs("div", {
-						className: "flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5",
-						children: [/* @__PURE__ */ jsxs("div", {
-							className: "relative flex-shrink-0",
-							children: [/* @__PURE__ */ jsx("div", {
-								className: "w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 p-1 flex items-center justify-center overflow-hidden shadow-sm",
-								children: /* @__PURE__ */ jsx("img", {
-									src: player.headshotUrl,
-									alt: player.nameCn,
-									className: "w-full h-full object-cover object-top",
-									loading: "lazy"
-								})
-							}), /* @__PURE__ */ jsxs("span", {
-								className: "absolute -bottom-1 -right-1 px-2 py-0.2 rounded-full bg-[#CE1141] text-white font-mono font-bold text-xs shadow-sm",
+			children: [/* @__PURE__ */ jsx("button", {
+				type: "button",
+				onClick: onClose,
+				className: "absolute top-3.5 right-3.5 z-30 w-8 h-8 rounded-full bg-slate-900/10 hover:bg-slate-900/20 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 hover:text-slate-900 dark:text-white/80 dark:hover:text-white flex items-center justify-center transition-all text-xs backdrop-blur-md",
+				title: "关闭",
+				children: "✕"
+			}), /* @__PURE__ */ jsxs("div", {
+				className: "overflow-y-auto flex-1 scrollbar-thin",
+				children: [
+					/* @__PURE__ */ jsxs("div", {
+						className: "relative bg-gradient-to-br from-slate-900 via-[#181a20] to-[#251016] text-white p-4 sm:p-6 overflow-hidden",
+						children: [
+							/* @__PURE__ */ jsxs("span", {
+								className: "absolute -right-2 -bottom-4 text-7xl sm:text-8xl font-black font-mono text-white/[0.04] select-none pointer-events-none",
 								children: ["#", player.number]
-							})]
-						}), /* @__PURE__ */ jsxs("div", {
-							className: "flex-1 text-center sm:text-left min-w-0",
-							children: [
-								/* @__PURE__ */ jsxs("div", {
-									className: "flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1",
-									children: [
-										/* @__PURE__ */ jsx("h2", {
-											className: "text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight",
-											children: player.nameCn
-										}),
-										/* @__PURE__ */ jsx("span", {
-											className: "px-2 py-0.5 rounded bg-slate-200/80 dark:bg-white/10 text-slate-700 dark:text-zinc-300 text-xs font-semibold",
-											children: player.position
-										}),
-										/* @__PURE__ */ jsx("span", {
-											className: "px-2 py-0.5 rounded bg-[#CE1141]/10 text-[#CE1141] text-xs font-bold border border-[#CE1141]/20",
-											children: "休斯敦火箭"
+							}),
+							/* @__PURE__ */ jsx("div", { className: "absolute top-0 right-1/3 w-40 h-40 bg-[#CE1141]/20 rounded-full blur-3xl pointer-events-none" }),
+							/* @__PURE__ */ jsxs("div", {
+								className: "relative z-10 flex items-center gap-3.5 sm:gap-5 pr-8",
+								children: [/* @__PURE__ */ jsxs("div", {
+									className: "relative flex-shrink-0",
+									children: [/* @__PURE__ */ jsx("div", {
+										className: "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-b from-white/15 to-white/5 border border-white/20 p-1 flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-[#CE1141]/30",
+										children: /* @__PURE__ */ jsx("img", {
+											src: player.headshotUrl,
+											alt: player.nameCn,
+											className: "w-full h-full object-cover object-top",
+											loading: "lazy"
 										})
-									]
-								}),
-								/* @__PURE__ */ jsx("p", {
-									className: "text-xs text-slate-500 dark:text-zinc-400 mb-3 font-mono",
-									children: player.nameEn
-								}),
-								/* @__PURE__ */ jsxs("div", {
-									className: "grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs",
+									}), /* @__PURE__ */ jsxs("span", {
+										className: "absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-md bg-[#CE1141] text-white font-mono font-black text-[10px] shadow border border-white/20",
+										children: ["#", player.number]
+									})]
+								}), /* @__PURE__ */ jsxs("div", {
+									className: "min-w-0 flex-1",
 									children: [
 										/* @__PURE__ */ jsxs("div", {
-											className: "bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/5 p-2 rounded-xl",
-											children: [/* @__PURE__ */ jsx("span", {
-												className: "text-slate-400 dark:text-zinc-500 block text-[11px]",
-												children: "身高 / 体重"
-											}), /* @__PURE__ */ jsxs("span", {
-												className: "text-slate-800 dark:text-zinc-200 font-medium",
-												children: [
-													player.height,
-													" / ",
-													player.weight
-												]
-											})]
+											className: "flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5",
+											children: [
+												/* @__PURE__ */ jsx("h2", {
+													className: "text-lg sm:text-2xl font-black text-white tracking-tight truncate",
+													children: player.nameCn
+												}),
+												/* @__PURE__ */ jsx("span", {
+													className: "px-1.5 py-0.5 rounded bg-white/15 text-white/90 text-[10.5px] font-bold",
+													children: player.position
+												}),
+												/* @__PURE__ */ jsx("span", {
+													className: "px-1.5 py-0.5 rounded bg-[#CE1141] text-white text-[10.5px] font-bold",
+													children: "休斯敦火箭"
+												})
+											]
+										}),
+										/* @__PURE__ */ jsx("p", {
+											className: "text-[11px] text-white/60 font-mono mb-2 truncate",
+											children: player.nameEn
 										}),
 										/* @__PURE__ */ jsxs("div", {
-											className: "bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/5 p-2 rounded-xl",
-											children: [/* @__PURE__ */ jsx("span", {
-												className: "text-slate-400 dark:text-zinc-500 block text-[11px]",
-												children: "年龄 / 球龄"
-											}), /* @__PURE__ */ jsxs("span", {
-												className: "text-slate-800 dark:text-zinc-200 font-medium",
-												children: [
+											className: "flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/80",
+											children: [
+												/* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
+													className: "text-white/50 font-normal",
+													children: "身高/体重: "
+												}), /* @__PURE__ */ jsxs("span", {
+													className: "font-mono",
+													children: [
+														player.height,
+														" · ",
+														player.weight
+													]
+												})] }),
+												/* @__PURE__ */ jsx("span", {
+													className: "text-white/30 hidden sm:inline",
+													children: "|"
+												}),
+												/* @__PURE__ */ jsxs("span", { children: [
+													/* @__PURE__ */ jsx("strong", {
+														className: "text-white/50 font-normal",
+														children: "年龄/球龄: "
+													}),
 													player.age,
 													"岁 (",
 													player.experience,
 													")"
-												]
-											})]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											className: "bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/5 p-2 rounded-xl",
-											children: [/* @__PURE__ */ jsx("span", {
-												className: "text-slate-400 dark:text-zinc-500 block text-[11px]",
-												children: "选秀顺位"
-											}), /* @__PURE__ */ jsx("span", {
-												className: "text-slate-800 dark:text-zinc-200 font-medium text-[11px] truncate block",
-												title: player.draftInfo,
-												children: player.draftInfo
-											})]
-										}),
-										/* @__PURE__ */ jsxs("div", {
-											className: "bg-white dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/5 p-2 rounded-xl",
-											children: [/* @__PURE__ */ jsx("span", {
-												className: "text-slate-400 dark:text-zinc-500 block text-[11px]",
-												children: "毕业大学"
-											}), /* @__PURE__ */ jsx("span", {
-												className: "text-slate-800 dark:text-zinc-200 font-medium truncate block",
-												children: player.college
-											})]
+												] }),
+												/* @__PURE__ */ jsx("span", {
+													className: "text-white/30 hidden sm:inline",
+													children: "|"
+												}),
+												/* @__PURE__ */ jsxs("span", {
+													className: "truncate max-w-full",
+													children: [/* @__PURE__ */ jsx("strong", {
+														className: "text-white/50 font-normal",
+														children: "选秀: "
+													}), player.draftInfo]
+												})
+											]
 										})
 									]
-								})
-							]
-						})]
-					})]
-				}),
-				/* @__PURE__ */ jsx("div", {
-					className: "px-4 sm:px-6 py-2.5 border-b border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-[#14161b]",
-					children: /* @__PURE__ */ jsxs("div", {
-						className: "flex items-center justify-between gap-2.5",
+								})]
+							})
+						]
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "px-4 sm:px-6 py-2.5 border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#16181e] flex flex-wrap items-center justify-between gap-2.5",
 						children: [/* @__PURE__ */ jsxs("div", {
 							className: "flex items-center gap-2",
 							children: [/* @__PURE__ */ jsx("span", {
-								className: "text-xs font-semibold text-slate-500 dark:text-zinc-400 flex items-center gap-1 flex-shrink-0",
-								children: "切换赛季:"
+								className: "text-xs font-semibold text-slate-500 dark:text-zinc-400",
+								children: "赛季:"
 							}), /* @__PURE__ */ jsxs("div", {
 								className: "relative inline-flex items-center",
 								children: [/* @__PURE__ */ jsx("select", {
 									value: selectedSeason,
 									onChange: (e) => setSelectedSeason(e.target.value),
-									className: "appearance-none text-xs font-bold pl-2.5 pr-7 py-1 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#CE1141] hover:border-slate-300 dark:hover:border-white/20 transition-all shadow-2xs",
-									children: regSeasonsList.map((seasonKey) => {
-										return /* @__PURE__ */ jsxs("option", {
-											value: seasonKey,
-											children: [seasonKey, seasonKey === "2026-27" ? " (最新赛季)" : seasonKey === "2025-26" ? " (上赛季)" : ""]
-										}, seasonKey);
-									})
+									className: "appearance-none text-xs font-bold pl-2.5 pr-6 py-1 rounded-lg bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#CE1141]",
+									children: regSeasonsList.map((seasonKey) => /* @__PURE__ */ jsxs("option", {
+										value: seasonKey,
+										className: "dark:bg-[#16181e]",
+										children: [seasonKey, " 赛季"]
+									}, seasonKey))
 								}), /* @__PURE__ */ jsx("span", {
-									className: "pointer-events-none absolute right-2 text-[10px] text-slate-400 dark:text-zinc-500",
+									className: "pointer-events-none absolute right-2 text-[9px] text-slate-400 dark:text-zinc-500",
 									children: "▼"
 								})]
 							})]
-						}), /* @__PURE__ */ jsxs("span", {
-							className: "text-[11px] text-slate-400 dark:text-zinc-500 font-mono",
-							children: [
-								"生涯历年数据 (",
-								regSeasonsList.length,
-								" 赛季)"
-							]
-						})]
-					})
-				}),
-				/* @__PURE__ */ jsxs("div", {
-					className: "p-4 sm:p-6 overflow-y-auto space-y-5 flex-1",
-					children: [
-						/* @__PURE__ */ jsxs("div", {
-							className: "flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1 border-b border-slate-200 dark:border-white/10",
-							children: [/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center gap-2",
-								children: [/* @__PURE__ */ jsxs("h3", {
-									className: "text-sm font-bold text-slate-900 dark:text-white",
-									children: [selectedSeason, " 赛季场均表现"]
-								}), competitionType === "playoff" && hasPlayoffThisSeason && /* @__PURE__ */ jsx("span", {
-									className: "px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#CE1141]/10 text-[#CE1141] border border-[#CE1141]/20",
-									children: "季后赛数据"
-								})]
-							}), /* @__PURE__ */ jsxs("div", {
-								className: "flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs self-start sm:self-auto",
-								children: [/* @__PURE__ */ jsx("button", {
-									type: "button",
-									onClick: () => setCompetitionType("regular"),
-									className: `px-3 py-1 rounded-md font-semibold transition-all ${competitionType === "regular" ? "bg-white dark:bg-[#CE1141] text-slate-900 dark:text-white shadow-xs font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
-									children: "常规赛"
-								}), /* @__PURE__ */ jsx("button", {
-									type: "button",
-									onClick: () => setCompetitionType("playoff"),
-									className: `px-3 py-1 rounded-md font-semibold transition-all ${competitionType === "playoff" ? "bg-white dark:bg-[#CE1141] text-slate-900 dark:text-white shadow-xs font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
-									children: "季后赛"
-								})]
+						}), /* @__PURE__ */ jsxs("div", {
+							className: "flex items-center bg-slate-200/80 dark:bg-white/10 p-0.5 rounded-lg text-xs",
+							children: [/* @__PURE__ */ jsx("button", {
+								type: "button",
+								onClick: () => setCompetitionType("regular"),
+								className: `px-3 py-1 rounded-md font-semibold transition-all ${competitionType === "regular" ? "bg-white dark:bg-[#CE1141] text-slate-900 dark:text-white shadow-xs font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+								children: "常规赛"
+							}), /* @__PURE__ */ jsx("button", {
+								type: "button",
+								onClick: () => setCompetitionType("playoff"),
+								className: `px-3 py-1 rounded-md font-semibold transition-all ${competitionType === "playoff" ? "bg-white dark:bg-[#CE1141] text-slate-900 dark:text-white shadow-xs font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+								children: "季后赛"
 							})]
-						}),
-						isSelectedSeasonUpcoming ? /* @__PURE__ */ jsxs("div", {
-							className: "bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-xl p-8 text-center",
+						})]
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "p-4 sm:p-6 space-y-4",
+						children: [isSelectedSeasonUpcoming ? /* @__PURE__ */ jsxs("div", {
+							className: "border border-slate-200 dark:border-white/10 rounded-2xl p-6 text-center bg-slate-50 dark:bg-white/[0.02]",
 							children: [
 								/* @__PURE__ */ jsx("p", {
-									className: "text-slate-900 dark:text-white font-bold text-sm",
-									children: "2026-27 赛季 (最新赛季) 常规赛将于 10月23日 揭幕开打"
+									className: "text-slate-800 dark:text-zinc-200 font-bold text-sm",
+									children: "2026-27 常规赛待开赛"
 								}),
 								/* @__PURE__ */ jsx("p", {
-									className: "text-xs text-slate-500 dark:text-zinc-400 mt-1.5 leading-relaxed max-w-md mx-auto",
-									children: "暂未产生新赛季官方常规赛场均数据。系统每天定时抓取 4 次官方实况，常规赛首战结束后将在此第一时间呈现最新技术统计。"
+									className: "text-xs text-slate-500 dark:text-zinc-400 mt-1",
+									children: "开赛产生官方实录后自动同步场均表现。"
 								}),
 								/* @__PURE__ */ jsx("button", {
 									type: "button",
 									onClick: () => setSelectedSeason("2025-26"),
-									className: "mt-4 px-4 py-1.5 rounded-lg bg-[#CE1141] text-white text-xs font-medium hover:bg-[#b00f37] transition-colors",
-									children: "查看 2025-26 赛季完整表现"
+									className: "mt-3 px-3.5 py-1.5 rounded-lg bg-[#CE1141] text-white text-xs font-semibold hover:bg-[#b00f37] transition-all shadow-xs",
+									children: "查看 2025-26 赛季数据"
 								})
 							]
 						}) : competitionType === "playoff" && !hasPlayoffThisSeason ? /* @__PURE__ */ jsxs("div", {
-							className: "bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 rounded-xl p-8 text-center",
+							className: "border border-slate-200 dark:border-white/10 rounded-2xl p-6 text-center bg-slate-50 dark:bg-white/[0.02]",
+							children: [/* @__PURE__ */ jsxs("p", {
+								className: "text-slate-800 dark:text-zinc-200 font-semibold text-xs",
+								children: [selectedSeason, " 赛季暂无季后赛记录"]
+							}), /* @__PURE__ */ jsx("button", {
+								type: "button",
+								onClick: () => setCompetitionType("regular"),
+								className: "mt-2.5 px-3 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white text-xs font-medium",
+								children: "切换至常规赛"
+							})]
+						}) : activeStat ? /* @__PURE__ */ jsxs("div", {
+							className: "space-y-3.5",
 							children: [
-								/* @__PURE__ */ jsxs("p", {
-									className: "text-slate-800 dark:text-zinc-200 font-semibold text-sm",
-									children: [
-										"该球员在 ",
-										selectedSeason,
-										" 赛季未出战季后赛"
-									]
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center justify-between text-xs px-0.5",
+									children: [/* @__PURE__ */ jsxs("span", {
+										className: "font-bold text-slate-900 dark:text-white flex items-center gap-1.5",
+										children: [
+											/* @__PURE__ */ jsx("span", { className: "w-1.5 h-3 bg-[#CE1141] rounded-full" }),
+											selectedSeason,
+											" 赛季场均表现"
+										]
+									}), /* @__PURE__ */ jsxs("span", {
+										className: "text-[11px] font-mono text-slate-500 dark:text-zinc-400",
+										children: [
+											"出战 ",
+											activeStat.gp,
+											" 场 · 先发 ",
+											activeStat.gs,
+											" 场"
+										]
+									})]
 								}),
-								/* @__PURE__ */ jsx("p", {
-									className: "text-xs text-slate-500 dark:text-zinc-400 mt-1",
-									children: "无季后赛出场记录（球队未晋级或因伤病缺席）"
+								/* @__PURE__ */ jsx("div", {
+									className: "border border-slate-200 dark:border-white/10 rounded-2xl bg-slate-50/70 dark:bg-white/[0.03] overflow-hidden shadow-2xs",
+									children: /* @__PURE__ */ jsxs("div", {
+										className: "grid grid-cols-4 divide-x divide-slate-200 dark:divide-white/10 text-center py-3.5 sm:py-4",
+										children: [
+											/* @__PURE__ */ jsxs("div", {
+												className: "px-1.5",
+												children: [/* @__PURE__ */ jsx("span", {
+													className: "text-[10px] sm:text-[11px] font-bold text-[#CE1141] block mb-0.5 tracking-tight",
+													children: "得分 PTS"
+												}), /* @__PURE__ */ jsx("span", {
+													className: "text-2xl sm:text-3xl font-black font-mono text-[#CE1141] tracking-tight",
+													children: activeStat.pts.toFixed(1)
+												})]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												className: "px-1.5",
+												children: [/* @__PURE__ */ jsx("span", {
+													className: "text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-zinc-400 block mb-0.5 tracking-tight",
+													children: "篮板 REB"
+												}), /* @__PURE__ */ jsx("span", {
+													className: "text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white tracking-tight",
+													children: activeStat.reb.toFixed(1)
+												})]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												className: "px-1.5",
+												children: [/* @__PURE__ */ jsx("span", {
+													className: "text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-zinc-400 block mb-0.5 tracking-tight",
+													children: "助攻 AST"
+												}), /* @__PURE__ */ jsx("span", {
+													className: "text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white tracking-tight",
+													children: activeStat.ast.toFixed(1)
+												})]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												className: "px-1.5",
+												children: [/* @__PURE__ */ jsx("span", {
+													className: "text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-zinc-400 block mb-0.5 tracking-tight",
+													children: "时间 MIN"
+												}), /* @__PURE__ */ jsx("span", {
+													className: "text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white tracking-tight",
+													children: activeStat.mpg.toFixed(1)
+												})]
+											})
+										]
+									})
 								}),
-								/* @__PURE__ */ jsxs("button", {
-									type: "button",
-									onClick: () => setCompetitionType("regular"),
-									className: "mt-3.5 px-3.5 py-1.5 rounded-lg bg-[#CE1141] text-white text-xs font-medium hover:bg-[#b00f37] transition-colors",
-									children: [
-										"查看 ",
-										selectedSeason,
-										" 常规赛表现"
-									]
+								/* @__PURE__ */ jsx("div", {
+									className: "border border-slate-200 dark:border-white/10 rounded-2xl bg-white dark:bg-white/[0.02] p-3.5 sm:p-4 shadow-2xs space-y-3",
+									children: /* @__PURE__ */ jsxs("div", {
+										className: "grid grid-cols-3 gap-3",
+										children: [
+											/* @__PURE__ */ jsxs("div", {
+												className: "space-y-1.5",
+												children: [
+													/* @__PURE__ */ jsxs("div", {
+														className: "flex items-baseline justify-between text-xs",
+														children: [/* @__PURE__ */ jsx("span", {
+															className: "font-semibold text-slate-600 dark:text-zinc-400 text-[11px]",
+															children: "投篮 FG%"
+														}), /* @__PURE__ */ jsxs("span", {
+															className: "font-mono font-black text-slate-900 dark:text-white text-sm",
+															children: [activeStat.fgPct.toFixed(1), "%"]
+														})]
+													}),
+													/* @__PURE__ */ jsx("div", {
+														className: "h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden",
+														children: /* @__PURE__ */ jsx("div", {
+															className: "h-full bg-slate-800 dark:bg-zinc-200 rounded-full transition-all duration-500",
+															style: { width: `${Math.min(100, Math.max(0, activeStat.fgPct))}%` }
+														})
+													}),
+													/* @__PURE__ */ jsxs("span", {
+														className: "font-mono text-[10px] text-slate-400 dark:text-zinc-500 block text-right",
+														children: [activeStat.fg, " 命中/出手"]
+													})
+												]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												className: "space-y-1.5",
+												children: [
+													/* @__PURE__ */ jsxs("div", {
+														className: "flex items-baseline justify-between text-xs",
+														children: [/* @__PURE__ */ jsx("span", {
+															className: "font-semibold text-slate-600 dark:text-zinc-400 text-[11px]",
+															children: "三分 3P%"
+														}), /* @__PURE__ */ jsxs("span", {
+															className: "font-mono font-black text-[#CE1141] text-sm",
+															children: [activeStat.threePtPct.toFixed(1), "%"]
+														})]
+													}),
+													/* @__PURE__ */ jsx("div", {
+														className: "h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden",
+														children: /* @__PURE__ */ jsx("div", {
+															className: "h-full bg-[#CE1141] rounded-full transition-all duration-500",
+															style: { width: `${Math.min(100, Math.max(0, activeStat.threePtPct))}%` }
+														})
+													}),
+													/* @__PURE__ */ jsxs("span", {
+														className: "font-mono text-[10px] text-slate-400 dark:text-zinc-500 block text-right",
+														children: [activeStat.threePt, " 命中/出手"]
+													})
+												]
+											}),
+											/* @__PURE__ */ jsxs("div", {
+												className: "space-y-1.5",
+												children: [
+													/* @__PURE__ */ jsxs("div", {
+														className: "flex items-baseline justify-between text-xs",
+														children: [/* @__PURE__ */ jsx("span", {
+															className: "font-semibold text-slate-600 dark:text-zinc-400 text-[11px]",
+															children: "罚球 FT%"
+														}), /* @__PURE__ */ jsxs("span", {
+															className: "font-mono font-black text-slate-900 dark:text-white text-sm",
+															children: [activeStat.ftPct.toFixed(1), "%"]
+														})]
+													}),
+													/* @__PURE__ */ jsx("div", {
+														className: "h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden",
+														children: /* @__PURE__ */ jsx("div", {
+															className: "h-full bg-slate-800 dark:bg-zinc-200 rounded-full transition-all duration-500",
+															style: { width: `${Math.min(100, Math.max(0, activeStat.ftPct))}%` }
+														})
+													}),
+													/* @__PURE__ */ jsxs("span", {
+														className: "font-mono text-[10px] text-slate-400 dark:text-zinc-500 block text-right",
+														children: [activeStat.ft, " 命中/出手"]
+													})
+												]
+											})
+										]
+									})
+								}),
+								/* @__PURE__ */ jsx("div", {
+									className: "border border-slate-200 dark:border-white/10 rounded-xl bg-slate-50/70 dark:bg-white/[0.02] p-2.5",
+									children: /* @__PURE__ */ jsxs("div", {
+										className: "grid grid-cols-4 divide-x divide-slate-200 dark:divide-white/5 text-center text-xs",
+										children: [
+											/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
+												children: "抢断 STL"
+											}), /* @__PURE__ */ jsx("strong", {
+												className: "font-mono text-slate-900 dark:text-white text-sm",
+												children: activeStat.stl.toFixed(1)
+											})] }),
+											/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
+												children: "盖帽 BLK"
+											}), /* @__PURE__ */ jsx("strong", {
+												className: "font-mono text-slate-900 dark:text-white text-sm",
+												children: activeStat.blk.toFixed(1)
+											})] }),
+											/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
+												children: "失误 TO"
+											}), /* @__PURE__ */ jsx("strong", {
+												className: "font-mono text-slate-700 dark:text-zinc-300 text-sm",
+												children: activeStat.tov.toFixed(1)
+											})] }),
+											/* @__PURE__ */ jsxs("div", { children: [/* @__PURE__ */ jsx("span", {
+												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
+												children: "先发率 GS/GP"
+											}), /* @__PURE__ */ jsxs("strong", {
+												className: "font-mono text-slate-900 dark:text-white text-xs",
+												children: [
+													activeStat.gs,
+													"/",
+													activeStat.gp
+												]
+											})] })
+										]
+									})
 								})
 							]
-						}) : activeStat ? /* @__PURE__ */ jsxs("div", { children: [
-							/* @__PURE__ */ jsxs("div", {
-								className: "grid grid-cols-2 sm:grid-cols-4 gap-2.5",
-								children: [
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5",
-										children: [/* @__PURE__ */ jsx("span", {
-											className: "text-[10px] tracking-wider uppercase font-semibold text-slate-500 dark:text-zinc-400 block mb-1",
-											children: "场均得分 (PPG)"
-										}), /* @__PURE__ */ jsx("span", {
-											className: "text-2xl sm:text-3xl font-black text-[#CE1141] font-mono",
-											children: activeStat.pts.toFixed(1)
-										})]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5",
-										children: [/* @__PURE__ */ jsx("span", {
-											className: "text-[10px] tracking-wider uppercase font-semibold text-slate-500 dark:text-zinc-400 block mb-1",
-											children: "场均篮板 (RPG)"
-										}), /* @__PURE__ */ jsx("span", {
-											className: "text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono",
-											children: activeStat.reb.toFixed(1)
-										})]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5",
-										children: [/* @__PURE__ */ jsx("span", {
-											className: "text-[10px] tracking-wider uppercase font-semibold text-slate-500 dark:text-zinc-400 block mb-1",
-											children: "场均助攻 (APG)"
-										}), /* @__PURE__ */ jsx("span", {
-											className: "text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono",
-											children: activeStat.ast.toFixed(1)
-										})]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-3.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5",
-										children: [/* @__PURE__ */ jsx("span", {
-											className: "text-[10px] tracking-wider uppercase font-semibold text-slate-500 dark:text-zinc-400 block mb-1",
-											children: "出场时间 (MPG)"
-										}), /* @__PURE__ */ jsx("span", {
-											className: "text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white font-mono",
-											children: activeStat.mpg.toFixed(1)
-										})]
-									})
-								]
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "grid grid-cols-3 gap-2.5 mt-2.5",
-								children: [
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5 text-center",
-										children: [
-											/* @__PURE__ */ jsx("span", {
-												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
-												children: "投篮命中率 (FG%)"
-											}),
-											/* @__PURE__ */ jsxs("span", {
-												className: "text-base font-bold text-slate-900 dark:text-white font-mono block mt-0.5",
-												children: [activeStat.fgPct.toFixed(1), "%"]
-											}),
-											/* @__PURE__ */ jsx("span", {
-												className: "text-[10px] text-slate-400 dark:text-zinc-500 font-mono",
-												children: activeStat.fg
-											})
-										]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5 text-center",
-										children: [
-											/* @__PURE__ */ jsx("span", {
-												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
-												children: "三分命中率 (3P%)"
-											}),
-											/* @__PURE__ */ jsxs("span", {
-												className: "text-base font-bold text-slate-900 dark:text-white font-mono block mt-0.5",
-												children: [activeStat.threePtPct.toFixed(1), "%"]
-											}),
-											/* @__PURE__ */ jsx("span", {
-												className: "text-[10px] text-slate-400 dark:text-zinc-500 font-mono",
-												children: activeStat.threePt
-											})
-										]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/5 text-center",
-										children: [
-											/* @__PURE__ */ jsx("span", {
-												className: "text-[10px] text-slate-500 dark:text-zinc-400 block",
-												children: "罚球命中率 (FT%)"
-											}),
-											/* @__PURE__ */ jsxs("span", {
-												className: "text-base font-bold text-slate-900 dark:text-white font-mono block mt-0.5",
-												children: [activeStat.ftPct.toFixed(1), "%"]
-											}),
-											/* @__PURE__ */ jsx("span", {
-												className: "text-[10px] text-slate-400 dark:text-zinc-500 font-mono",
-												children: activeStat.ft
-											})
-										]
-									})
-								]
-							}),
-							/* @__PURE__ */ jsxs("div", {
-								className: "grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono mt-3",
-								children: [
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 flex items-center justify-between",
-										children: [/* @__PURE__ */ jsx("span", {
-											className: "text-slate-500 dark:text-zinc-400 font-sans",
-											children: "抢断 (STL)"
-										}), /* @__PURE__ */ jsx("span", {
-											className: "text-slate-900 dark:text-white font-bold",
-											children: activeStat.stl.toFixed(1)
-										})]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 flex items-center justify-between",
-										children: [/* @__PURE__ */ jsx("span", {
-											className: "text-slate-500 dark:text-zinc-400 font-sans",
-											children: "盖帽 (BLK)"
-										}), /* @__PURE__ */ jsx("span", {
-											className: "text-slate-900 dark:text-white font-bold",
-											children: activeStat.blk.toFixed(1)
-										})]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 flex items-center justify-between",
-										children: [/* @__PURE__ */ jsx("span", {
-											className: "text-slate-500 dark:text-zinc-400 font-sans",
-											children: "失误 (TO)"
-										}), /* @__PURE__ */ jsx("span", {
-											className: "text-slate-700 dark:text-zinc-300 font-bold",
-											children: activeStat.tov.toFixed(1)
-										})]
-									}),
-									/* @__PURE__ */ jsxs("div", {
-										className: "p-2 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-slate-200/60 dark:border-white/5 flex items-center justify-between",
-										children: [/* @__PURE__ */ jsx("span", {
-											className: "text-slate-500 dark:text-zinc-400 font-sans",
-											children: "出场 / 首发"
-										}), /* @__PURE__ */ jsxs("span", {
-											className: "text-slate-900 dark:text-white font-bold",
-											children: [
-												activeStat.gp,
-												"场 (",
-												activeStat.gs,
-												"先发)"
-											]
-										})]
-									})
-								]
-							})
-						] }) : null,
-						/* @__PURE__ */ jsxs("div", {
+						}) : null, /* @__PURE__ */ jsxs("div", {
 							className: "pt-2",
 							children: [/* @__PURE__ */ jsxs("div", {
 								className: "flex items-center justify-between mb-2",
-								children: [/* @__PURE__ */ jsx("h4", {
-									className: "text-xs font-bold text-slate-700 dark:text-zinc-300",
-									children: "生涯历年赛季数据对照表"
+								children: [/* @__PURE__ */ jsxs("span", {
+									className: "font-bold text-slate-900 dark:text-white text-xs flex items-center gap-1.5",
+									children: [/* @__PURE__ */ jsx("span", { className: "w-1.5 h-3 bg-[#CE1141] rounded-full" }), "生涯历年赛季数据对照"]
 								}), /* @__PURE__ */ jsxs("div", {
 									className: "flex items-center gap-1 text-[11px]",
 									children: [/* @__PURE__ */ jsxs("button", {
 										type: "button",
 										onClick: () => setHistoryTableTab("regular"),
-										className: `px-2 py-0.5 rounded font-medium transition-colors ${historyTableTab === "regular" ? "bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white font-bold" : "text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-300"}`,
+										className: `px-2.5 py-0.5 rounded-md font-medium transition-colors ${historyTableTab === "regular" ? "bg-[#CE1141] text-white font-bold" : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
 										children: [
 											"常规赛 (",
 											regSeasonsList.length,
@@ -6158,7 +6224,7 @@ function RocketsPlayerModal({ player, onClose }) {
 									}), /* @__PURE__ */ jsxs("button", {
 										type: "button",
 										onClick: () => setHistoryTableTab("playoff"),
-										className: `px-2 py-0.5 rounded font-medium transition-colors ${historyTableTab === "playoff" ? "bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white font-bold" : "text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-zinc-300"}`,
+										className: `px-2.5 py-0.5 rounded-md font-medium transition-colors ${historyTableTab === "playoff" ? "bg-[#CE1141] text-white font-bold" : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
 										children: [
 											"季后赛 (",
 											playoffSeasonsList.length,
@@ -6167,55 +6233,55 @@ function RocketsPlayerModal({ player, onClose }) {
 									})]
 								})]
 							}), /* @__PURE__ */ jsx("div", {
-								className: "border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden",
+								className: "border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xs",
 								children: /* @__PURE__ */ jsxs("table", {
 									className: "w-full text-left text-xs table-fixed",
 									children: [/* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", {
-										className: "bg-slate-50 dark:bg-white/[0.03] text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/10 text-[11px] font-semibold",
+										className: "bg-slate-50 dark:bg-white/[0.03] text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/10 text-[10.5px] font-semibold select-none",
 										children: [
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2 px-2.5 w-[22%] sm:w-[18%]",
+												className: "py-2 px-2.5 w-[24%] sm:w-[20%]",
 												children: "赛季"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2 px-1 text-center w-[8%] sm:w-[8%]",
+												className: "py-2 px-1 text-center w-[8%]",
 												children: "场次"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2 px-1 text-center w-[8%] sm:w-[8%]",
+												className: "py-2 px-1 text-center w-[8%]",
 												children: "首发"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2 px-1 text-center w-[10%] sm:w-[10%]",
+												className: "py-2 px-1 text-center w-[10%]",
 												children: "时间"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2 px-1 text-center w-[12%] sm:w-[12%] font-bold text-slate-900 dark:text-white",
+												className: "py-2 px-1 text-center w-[12%] font-bold text-slate-900 dark:text-white",
 												children: "得分"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2 px-1 text-center w-[10%] sm:w-[11%]",
+												className: "py-2 px-1 text-center w-[11%]",
 												children: "篮板"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2 px-1 text-center w-[10%] sm:w-[11%]",
+												className: "py-2 px-1 text-center w-[11%]",
 												children: "助攻"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2 px-1 text-center w-[10%] sm:w-[11%]",
+												className: "py-2 px-1 text-center w-[11%]",
 												children: "命中率"
 											}),
 											/* @__PURE__ */ jsx("th", {
-												className: "py-2 px-1 text-center w-[10%] sm:w-[11%] hidden sm:table-cell",
+												className: "py-2 px-1 text-center w-[11%] hidden sm:table-cell",
 												children: "三分%"
 											})
 										]
 									}) }), /* @__PURE__ */ jsx("tbody", {
-										className: "divide-y divide-slate-100 dark:divide-white/5 font-mono",
+										className: "divide-y divide-slate-100 dark:divide-white/5 font-mono text-[11px]",
 										children: (historyTableTab === "regular" ? regSeasonsList : playoffSeasonsList).length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", {
 											colSpan: 9,
-											className: "py-6 text-center text-slate-400 dark:text-zinc-500 font-sans",
-											children: "暂无该类比赛历史记录"
+											className: "py-5 text-center text-slate-400 dark:text-zinc-500 font-sans",
+											children: "暂无记录"
 										}) }) : (historyTableTab === "regular" ? regSeasonsList : playoffSeasonsList).map((sKey) => {
 											const s = historyTableTab === "regular" ? player.seasons?.[sKey] : player.playoffSeasons?.[sKey];
 											const isCurrent = sKey === selectedSeason;
@@ -6226,15 +6292,19 @@ function RocketsPlayerModal({ player, onClose }) {
 													setSelectedSeason(sKey);
 													setCompetitionType(historyTableTab);
 												},
-												className: `cursor-pointer transition-colors ${isCurrent ? "bg-red-50/70 dark:bg-[#CE1141]/15 text-slate-900 dark:text-white font-bold" : "text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-white/[0.04]"}`,
+												className: `cursor-pointer transition-colors ${isCurrent ? "bg-[#CE1141]/10 text-slate-900 dark:text-white font-bold" : "text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-white/[0.03]"}`,
 												children: [
-													/* @__PURE__ */ jsxs("td", {
+													/* @__PURE__ */ jsx("td", {
 														className: "py-2 px-2.5 font-sans truncate",
-														children: [
-															sKey,
-															" ",
-															is2026 ? "(最新)" : ""
-														]
+														children: /* @__PURE__ */ jsxs("span", {
+															className: "flex items-center gap-1",
+															children: [
+																isCurrent && /* @__PURE__ */ jsx("span", { className: "w-1.5 h-1.5 rounded-full bg-[#CE1141]" }),
+																sKey,
+																" ",
+																is2026 ? "(最新)" : ""
+															]
+														})
 													}),
 													/* @__PURE__ */ jsx("td", {
 														className: "py-2 px-1 text-center",
@@ -6274,19 +6344,19 @@ function RocketsPlayerModal({ player, onClose }) {
 									})]
 								})
 							})]
+						})]
+					}),
+					/* @__PURE__ */ jsx("div", {
+						className: "px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#121418] flex items-center justify-end",
+						children: /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: onClose,
+							className: "px-5 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white text-xs font-semibold transition-all shadow-2xs",
+							children: "关闭"
 						})
-					]
-				}),
-				/* @__PURE__ */ jsxs("div", {
-					className: "px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#121418] flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400",
-					children: [/* @__PURE__ */ jsx("span", { children: "NBA / ESPN 官方球员数据库" }), /* @__PURE__ */ jsx("button", {
-						type: "button",
-						onClick: onClose,
-						className: "px-4 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white font-medium transition-colors",
-						children: "关闭"
-					})]
-				})
-			]
+					})
+				]
+			})]
 		})
 	});
 }
@@ -22748,7 +22818,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-DWjf4WaF.js",
+			"module": "/assets/root-B_13g9B5.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CvYixJGd.js",
@@ -22756,7 +22826,7 @@ var server_manifest_default = {
 				"/assets/Chrome-BU7aonN6.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-CrF8FelJ.css"],
+			"css": ["/assets/root-BVB4BlG7.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22864,7 +22934,7 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-AoCW5f1G.js",
+			"module": "/assets/schedule-BuJM0_wD.js",
 			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
 			"css": [],
 			"clientActionModule": void 0,
@@ -24111,8 +24181,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-5bec41b8.js",
-	"version": "5bec41b8",
+	"url": "/assets/manifest-57ef4a07.js",
+	"version": "57ef4a07",
 	"sri": void 0
 };
 //#endregion

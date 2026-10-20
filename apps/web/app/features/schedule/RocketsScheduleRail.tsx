@@ -7,7 +7,11 @@ interface Props {
   selectedGameId: string | null;
 }
 
-export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Props) {
+export function RocketsScheduleRail({
+  games,
+  onSelectGame,
+  selectedGameId,
+}: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasInitializedMonth = useRef(false);
 
@@ -88,7 +92,7 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
     <section>
       {/* 头部标题与月份单行滑动轨道 */}
       <div className="flex flex-col gap-2.5 mb-3 px-0.5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-4 bg-[#CE1141] rounded-full inline-block"></span>
             <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
@@ -99,24 +103,27 @@ export function RocketsScheduleRail({ games, onSelectGame, selectedGameId }: Pro
             </span>
           </div>
 
-          {/* 桌面端左右翻页按钮 */}
-          <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => handleScroll("left")}
-              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors"
-              title="向左滚动"
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              onClick={() => handleScroll("right")}
-              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors"
-              title="向右滚动"
-            >
-              ›
-            </button>
+          <div className="flex items-center gap-2">
+
+            {/* 桌面端左右翻页按钮 */}
+            <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => handleScroll("left")}
+                className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors"
+                title="向左滚动"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={() => handleScroll("right")}
+                className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/10 flex items-center justify-center text-xs transition-colors"
+                title="向右滚动"
+              >
+                ›
+              </button>
+            </div>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router";
 import {
   fetchRocketsSchedule,
@@ -157,6 +157,7 @@ export function ScheduleCalendar({
       next.set("game", gameId);
       return next;
     });
+
 
     // 若本地已有缓存，直接 0 延迟秒开，不显示全屏 loading
     if (cachedBreakdowns.has(gameId)) {

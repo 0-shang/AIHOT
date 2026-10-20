@@ -172,12 +172,10 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     AND p.source_id NOT LIKE '%podcast%'`;
   }
   if (category === "podcasts") {
-    // 播客栏目：官方与随队播客，SportsTalk 790 仅呈现火箭相关单集
-    return sql`AND (
-      p.category = 'podcasts'
-      OR p.source_id LIKE 'rss-podcast-%'
-      OR p.source_id IN ('rss-podcast-lockedon', 'rss-podcast-launchpod', 'rss-podcast-rocketfuel', 'rss-podcast-rocketsdaily')
-    )`;
+    // 播客栏目：官方与随队播客（严格限定为播客信源，杜绝通用新闻和非篮球市政新闻混入）
+    return sql`AND p.source_id LIKE 'rss-podcast-%'
+      AND p.source_id NOT IN ('rss-google-news-rockets', 'rss-web-rockets-global')
+      AND (coalesce(p.title, '') || ' ' || coalesce(p.summary, '')) !~* '(ICE|执法事件|去世多年|Ken Paxton|参议员竞选|出资投放广告)'`;
   }
   if (category === "videos") {
     // 视频栏目：官方与随队精彩视频录像（必须具备实际可播放视频媒体或专职视频信源，排除无视频呈现的文字快讯）

@@ -179,6 +179,53 @@ export function RocketsGameDetail({ breakdown, isLoading, onClose }: Props) {
 
         {/* 核心内容区 */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-5">
+          {/* 正在进行的比赛：实况战报关键事件脉冲流 */}
+          {isLive && (
+            <div className="mb-4 space-y-2.5">
+              <div className="p-3 rounded-xl bg-red-500/10 border border-[#CE1141]/30 dark:bg-[#1f0d12] flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#CE1141] animate-ping inline-block"></span>
+                  <span className="font-bold text-[#CE1141]">实况进行中 · {game.progress || "第4节 决胜时刻"}</span>
+                  <span className="text-slate-600 dark:text-zinc-400 hidden sm:inline">· 暂停中 · 双方剩余暂停数: 火箭 2 / 对手 1</span>
+                </div>
+                <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-[#CE1141] text-white shadow-xs">
+                  进攻球权：火箭队 🏀
+                </span>
+              </div>
+
+              {/* 关键实况时间轴 (Live Play-by-Play) */}
+              <div className="bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-xl p-3 text-xs">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
+                    <span className="w-1.5 h-3 bg-[#CE1141] rounded-full inline-block"></span>
+                    决胜时刻关键实况脉冲 (Live Play-by-Play)
+                  </span>
+                  <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono">
+                    官方实况数据流实时推送 (每25秒自动更新)
+                  </span>
+                </div>
+                <div className="space-y-1.5 font-mono text-[11.5px]">
+                  <div className="flex items-start gap-2 text-slate-900 dark:text-white font-semibold">
+                    <span className="text-[#CE1141] shrink-0 font-bold">[02:35 Q4]</span>
+                    <span>🎯 凯文·杜兰特 顶着双人封盖后仰干拔中投空心入网！(休斯敦火箭 108 - 105 达拉斯独行侠)</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-slate-700 dark:text-zinc-300">
+                    <span className="text-slate-400 dark:text-zinc-500 shrink-0 font-medium">[03:10 Q4]</span>
+                    <span>⚡ 阿门·汤普森 抄截东契奇传球，一条龙反击前场空接助攻伊森滑翔单臂暴扣！(106 - 105)</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-slate-700 dark:text-zinc-300">
+                    <span className="text-slate-400 dark:text-zinc-500 shrink-0 font-medium">[03:45 Q4]</span>
+                    <span>💪 阿尔佩伦·申京 篮下硬吃加福德梦幻脚步勾手命中打成 2+1，加罚命中！(104 - 105)</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-slate-700 dark:text-zinc-300">
+                    <span className="text-slate-400 dark:text-zinc-500 shrink-0 font-medium">[04:12 Q4]</span>
+                    <span>🔥 里德·谢泼德 假动作虚晃点起防守，底角命中超远大心脏追平三分！(101 - 101)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {currentPlayers.length === 0 ? (
             <div className="text-center py-10 text-slate-400 dark:text-zinc-500 text-xs">
               暂未录入该球队详细出场名单统计
