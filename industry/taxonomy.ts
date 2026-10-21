@@ -76,6 +76,7 @@ export const ENTITY_TAGS = [
   "The Athletic",
   "ESPN",
   "毒蛇队",
+  "David Weiner",
 ] as const;
 
 /** 模型常写的近义词，统一成词表里的写法。 */
@@ -148,6 +149,7 @@ export const ENTITIES: Record<string, { name: string; displayTag: string | null;
   "steven-adams": { name: "史蒂文·亚当斯", displayTag: "史蒂文·亚当斯", aliases: ["Steven Adams", "亚当斯", "海王"] },
   clutchfans: { name: "ClutchFans", displayTag: "ClutchFans", aliases: ["ClutchFans"] },
   chronicle: { name: "休斯顿纪事报", displayTag: "休斯顿纪事报", aliases: ["Houston Chronicle", "Feigen"] },
+  "david-weiner": { name: "David Weiner", displayTag: "David Weiner", aliases: ["David Weiner", "BimaThug", "Bima"] },
 };
 
 /**

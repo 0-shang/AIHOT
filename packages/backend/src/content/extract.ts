@@ -268,9 +268,11 @@ export async function extractFromUrl(url: string, opts: { allowJina: boolean; su
 
 /** Pages extraction can fetch: ordinary web pages (X posts and WeChat articles arrive whole or not at all). */
 export function pageFetchable(url: string, sourceKind: string): boolean {
-  if (sourceKind === "x_search" || sourceKind === "mp_account") return false;
+  if (sourceKind === "x_search" || sourceKind === "mp_account" || sourceKind.includes("podcast")) return false;
   try {
     const u = new URL(url);
+    if (/(^|\.)(spreaker\.com|megaphone\.fm|omny\.fm|podbean\.com|transistor\.fm|buzzsprout\.com|spotify\.com|apple\.com)$/i.test(u.hostname)) return false;
+    if (/\.(mp3|m4a|wav|aac|ogg)(\?|$)/i.test(u.pathname)) return false;
     return /^https?:$/.test(u.protocol) && !/(^|\.)(x\.com|twitter\.com|mp\.weixin\.qq\.com)$/i.test(u.hostname);
   } catch {
     return false;

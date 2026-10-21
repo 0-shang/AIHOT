@@ -3628,6 +3628,10 @@ var BEAT_REPORTERS = [
 		label: "Varun Shankar"
 	},
 	{
+		key: "David Weiner",
+		label: "David Weiner"
+	},
+	{
 		key: "fyrebear",
 		label: "Roosh (@fyrebear)"
 	},
@@ -22866,9 +22870,9 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-C92yHI25.js",
+			"module": "/assets/all-BHO9oaYZ.js",
 			"imports": [
-				"/assets/all-Dp09ZdIT.js",
+				"/assets/all-BTHpyWul.js",
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CvYixJGd.js",
 				"/assets/Filters-DVZkHpud.js"
@@ -22955,11 +22959,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CYITZdM8.js",
+			"module": "/assets/search-busy-Bq6bioZ3.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CvYixJGd.js",
-				"/assets/all-Dp09ZdIT.js",
+				"/assets/all-BTHpyWul.js",
 				"/assets/Filters-DVZkHpud.js"
 			],
 			"css": [],
@@ -22981,11 +22985,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-CYITZdM8.js",
+			"module": "/assets/search-busy-Bq6bioZ3.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
 				"/assets/shared-CvYixJGd.js",
-				"/assets/all-Dp09ZdIT.js",
+				"/assets/all-BTHpyWul.js",
 				"/assets/Filters-DVZkHpud.js"
 			],
 			"css": [],
@@ -24181,8 +24185,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-57ef4a07.js",
-	"version": "57ef4a07",
+	"url": "/assets/manifest-76803258.js",
+	"version": "76803258",
 	"sri": void 0
 };
 //#endregion

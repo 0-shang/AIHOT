@@ -22,6 +22,7 @@ const BEAT_REPORTERS = [
   { key: "Adam Spolane", label: "Adam Spolane" },
   { key: "Lachard Binkley", label: "Lachard Binkley" },
   { key: "Varun Shankar", label: "Varun Shankar" },
+  { key: "David Weiner", label: "David Weiner" },
   { key: "fyrebear", label: "Roosh (@fyrebear)" },
   { key: "Bradeaux", label: "Bradeaux" },
   { key: "Big Sarge", label: "Big Sarge" },

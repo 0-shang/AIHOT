@@ -236,7 +236,7 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
 
   const title = pickString(f.title, zhTitle ?? collapseWhitespace(article.title));
   const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
-  const summary = pickString(f.summary, analysis?.summary_zh ?? fallbackSummary);
+  const summary = pickString(f.summary, analysis?.summary_zh?.trim() || fallbackSummary);
   
   const rawTags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(source.tags ?? [])])];
   const tags = rawTags.filter((t) => {

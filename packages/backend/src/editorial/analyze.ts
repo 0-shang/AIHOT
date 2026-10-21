@@ -373,8 +373,11 @@ async function runSummarize(a: AnalyzeInputArticle, opts: StepOpts): Promise<Non
   const main = collapseWhitespace(t.mainText || t.title);
   const plain = { reasonZh: null, tags: null, receiptIds: [] as number[], reused: true };
   // A short post already in Chinese is its own copy, and too little text is not written up from a title.
-  if (short && !needsShortTweetTranslation(main)) return { kind: "verbatim", model: null, titleZh: main, summaryZh: main, ...plain };
-  if (!short && t.text.trim().length < 20) return { kind: "none", model: null, titleZh: looksZh(t.title) ? t.title : "", summaryZh: "", ...plain };
+  const isPodcast = (a.source.tags ?? []).some((t) => t.includes("播客") || t.includes("音频")) || a.source.kind.includes("podcast") || /spreaker|megaphone|podcasts?|\.mp3/i.test(a.url);
+  if (!short && !isPodcast && t.text.trim().length < 20) return { kind: "none", model: null, titleZh: looksZh(t.title) ? t.title : "", summaryZh: "", ...plain };
+  if (isPodcast && t.text.trim().length < 20) {
+    t.text = t.text ? `${t.text} (休斯敦电台播客节目原声)` : `休斯敦电台随队播客原声节目，本期讨论主题：${t.title}`;
+  }
   const model = await modelFor("summarize");
   checkAnalysisRunning();
   const res = await chatJson({

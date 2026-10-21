@@ -324,6 +324,8 @@ const REPORTER_SOURCE_MAP: Record<string, string[]> = {
   "adam spolane": ["x-adam-spolane"],
   "lachard binkley": ["x-lachard-binkley"],
   "varun shankar": ["x-varun-shankar"],
+  "david weiner": ["x-david-weiner"],
+  "bimathug": ["x-david-weiner"],
   "fyrebear": ["x-roosh-williams"],
   "roosh": ["x-roosh-williams"],
   "bradeaux": ["x-bradeaux"],
