@@ -411,7 +411,7 @@ function resolvedTheme(pref = getThemePreference()) {
 	}
 }
 /** Inline script run before paint so the first frame already has the reader's theme. */
-var THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${KEYS.theme}');if(t==='"light"'||t==='"dark"')t=JSON.parse(t);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t);var c=t==='dark'?'#0c1015':'#f8fafc';document.documentElement.style.backgroundColor=c;var m=document.getElementById('theme-color-meta');if(m)m.setAttribute('content',c)}catch(e){document.documentElement.setAttribute('data-theme','light')}})();`;
+var THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${KEYS.theme}');if(t==='"light"'||t==='"dark"')t=JSON.parse(t);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t);var c=t==='dark'?'#0c1015':'#f8fafc';document.documentElement.style.backgroundColor=c;var m=document.getElementById('theme-color-meta');if(m)m.setAttribute('content',c);try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(e){var p=localStorage.getItem('${KEYS.theme}');if(!p||p==='null'){var res=e.matches?'dark':'light';document.documentElement.setAttribute('data-theme',res);var nc=res==='dark'?'#0c1015':'#f8fafc';document.documentElement.style.backgroundColor=nc;var nm=document.getElementById('theme-color-meta');if(nm)nm.setAttribute('content',nc);}})}catch(e){}}catch(e){document.documentElement.setAttribute('data-theme','light')}})();`;
 function getChangelogSeen() {
 	const v = readRaw(KEYS.changelogSeen);
 	return v && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) ? v : null;
@@ -1147,7 +1147,7 @@ function Layout({ children }) {
 			}),
 			/* @__PURE__ */ jsx("meta", {
 				name: "theme-color",
-				content: "#0c1015",
+				content: "#f8fafc",
 				id: "theme-color-meta"
 			}),
 			/* @__PURE__ */ jsx("meta", {
@@ -13411,99 +13411,46 @@ var install_default = UNSAFE_withComponentProps(function InstallGuidePage() {
 				})]
 			}),
 			tab === "android" && /* @__PURE__ */ jsx("div", {
-				className: "mt-4 space-y-4",
-				children: /* @__PURE__ */ jsxs("section", {
-					className: "overflow-hidden rounded-2xl border border-line bg-surface shadow-xs",
-					children: [/* @__PURE__ */ jsxs("div", {
-						className: "p-5 pb-4",
-						children: [
-							/* @__PURE__ */ jsxs("div", {
-								className: "flex items-center justify-between",
-								children: [/* @__PURE__ */ jsx("span", {
-									className: "inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-0.5 text-[11px] font-semibold text-accent",
-									children: "官方原生独立版"
-								}), /* @__PURE__ */ jsx("span", {
-									className: "text-[12px] text-ink-4",
-									children: "Android 8.0+"
-								})]
-							}),
-							/* @__PURE__ */ jsx("h2", {
-								className: "mt-2 text-[16px] font-bold tracking-tight text-ink",
-								children: "ClutchWire 官方 Android 客户端"
-							}),
-							/* @__PURE__ */ jsx("p", {
-								className: "mt-1 text-[13px] leading-relaxed text-ink-3",
-								children: "内置原生 WebView 容器，沉浸全屏秒开，无任何浏览器网址栏与杂乱弹窗干扰。"
-							}),
-							/* @__PURE__ */ jsx("div", {
-								className: "mt-4",
-								children: /* @__PURE__ */ jsxs("a", {
-									href: "/download/clutchwire.apk?v=8",
-									download: "ClutchWire.apk",
-									className: "group flex w-full items-center justify-between rounded-xl border border-line bg-surface p-4 transition-all duration-200 hover:border-accent/50 hover:shadow-md active:scale-[0.99]",
-									children: [/* @__PURE__ */ jsxs("div", {
-										className: "flex items-center gap-3.5",
-										children: [/* @__PURE__ */ jsx("div", {
-											className: "flex size-11 shrink-0 items-center justify-center rounded-xl border border-line bg-bg-sunk text-accent shadow-xs transition-all duration-200 group-hover:bg-accent group-hover:text-white",
-											children: /* @__PURE__ */ jsx(IconDownload, { size: 20 })
-										}), /* @__PURE__ */ jsxs("div", {
-											className: "text-left",
-											children: [/* @__PURE__ */ jsxs("div", {
-												className: "flex items-center gap-2",
-												children: [/* @__PURE__ */ jsx("span", {
-													className: "text-[14.5px] font-bold text-ink group-hover:text-accent transition-colors",
-													children: "下载 APK 安装包"
-												}), /* @__PURE__ */ jsx("span", {
-													className: "rounded bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent",
-													children: "官方签名"
-												})]
-											}), /* @__PURE__ */ jsx("div", {
-												className: "mt-0.5 text-[12px] text-ink-3",
-												children: "约 12MB · 原生全屏容器 · 官方极速直连"
-											})]
-										})]
-									}), /* @__PURE__ */ jsx("div", {
-										className: "flex size-8 items-center justify-center rounded-full bg-bg-sunk text-ink-3 transition-colors group-hover:bg-accent-soft group-hover:text-accent",
-										children: /* @__PURE__ */ jsx(IconArrowLeft, {
-											size: 16,
-											className: "rotate-180"
-										})
-									})]
-								})
-							})
-						]
-					}), /* @__PURE__ */ jsxs("div", {
-						className: "border-t border-line-soft bg-bg-sunk/40 px-5 py-4",
-						children: [/* @__PURE__ */ jsx("div", {
-							className: "text-[12px] font-bold text-ink-2",
-							children: "安装指引："
-						}), /* @__PURE__ */ jsxs("ol", {
-							className: "mt-2 space-y-1.5 text-[12.5px] leading-relaxed text-ink-3",
+				className: "mt-4",
+				children: /* @__PURE__ */ jsx("section", {
+					className: "overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-xs",
+					children: /* @__PURE__ */ jsxs("div", {
+						className: "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+						children: [/* @__PURE__ */ jsxs("div", {
+							className: "min-w-0",
 							children: [
-								/* @__PURE__ */ jsxs("li", {
-									className: "flex items-start gap-2",
-									children: [/* @__PURE__ */ jsx("span", {
-										className: "mono font-semibold text-accent",
-										children: "1."
-									}), /* @__PURE__ */ jsx("span", { children: "点击上方按钮下载 APK 文件，下载完成后在手机通知栏点击打开。" })]
+								/* @__PURE__ */ jsxs("div", {
+									className: "flex items-center gap-2",
+									children: [/* @__PURE__ */ jsx("h2", {
+										className: "text-[16px] font-bold tracking-tight text-ink",
+										children: "ClutchWire Android 客户端"
+									}), /* @__PURE__ */ jsx("span", {
+										className: "text-[12px] text-ink-4",
+										children: "Android 8.0+"
+									})]
 								}),
-								/* @__PURE__ */ jsxs("li", {
-									className: "flex items-start gap-2",
-									children: [/* @__PURE__ */ jsx("span", {
-										className: "mono font-semibold text-accent",
-										children: "2."
-									}), /* @__PURE__ */ jsx("span", { children: "若系统提示“允许来自此来源的应用安装”，选择允许并点击安装即可。" })]
+								/* @__PURE__ */ jsx("p", {
+									className: "mt-1 text-[13px] leading-relaxed text-ink-3",
+									children: "原生 WebView 容器，沉浸全屏秒开，无任何浏览器网址栏与杂乱弹窗干扰。"
 								}),
-								/* @__PURE__ */ jsxs("li", {
-									className: "flex items-start gap-2",
-									children: [/* @__PURE__ */ jsx("span", {
-										className: "mono font-semibold text-accent",
-										children: "3."
-									}), /* @__PURE__ */ jsx("span", { children: "安装完成后即可从手机桌面图标直接启动，全屏纯净浏览。" })]
+								/* @__PURE__ */ jsx("div", {
+									className: "mt-2 text-[12px] text-ink-4",
+									children: "约 12MB · 原生全屏版 · 极速直连"
 								})
 							]
+						}), /* @__PURE__ */ jsx("div", {
+							className: "shrink-0 pt-1 sm:pt-0",
+							children: /* @__PURE__ */ jsxs("a", {
+								href: "/download/clutchwire.apk?v=9",
+								download: "ClutchWire.apk",
+								className: "inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-line-strong bg-bg-sunk px-5 text-[13.5px] font-semibold text-ink transition-all duration-150 hover:border-accent/40 hover:bg-surface hover:text-accent active:scale-95 shadow-xs",
+								children: [/* @__PURE__ */ jsx(IconDownload, {
+									size: 16,
+									className: "text-accent"
+								}), /* @__PURE__ */ jsx("span", { children: "下载 APK" })]
+							})
 						})]
-					})]
+					})
 				})
 			}),
 			tab === "ios" && /* @__PURE__ */ jsxs("div", {
@@ -23144,15 +23091,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-CLXQjUKL.js",
+			"module": "/assets/root-DYchyxko.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/Sidebar-CL88JJVW.js",
-				"/assets/Chrome-BOdZ91eQ.js",
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/Sidebar-DUcQEthG.js",
+				"/assets/Chrome-OCpnYIqb.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-CUNbObu0.css"],
+			"css": ["/assets/root-CMM3WxYa.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -23192,12 +23139,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-fNPKIFpW.js",
+			"module": "/assets/all-nhL4afP0.js",
 			"imports": [
-				"/assets/all-Cx-DrrID.js",
+				"/assets/all-m0cw4oIP.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/Filters-D90507pF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/Filters-o3VMhwoz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23218,8 +23165,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/podcasts-t0IOzoEK.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/podcasts-CBlmJpBg.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23239,8 +23186,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/videos-C_wjMmZc.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/videos-DSSZMUM1.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23260,8 +23207,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-Cf4nwNwr.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/schedule-CBfQDjDP.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23281,12 +23228,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Bt_Acm15.js",
+			"module": "/assets/search-busy-DHZu3Z-Q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/all-Cx-DrrID.js",
-				"/assets/Filters-D90507pF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/all-m0cw4oIP.js",
+				"/assets/Filters-o3VMhwoz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23307,12 +23254,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Bt_Acm15.js",
+			"module": "/assets/search-busy-DHZu3Z-Q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/all-Cx-DrrID.js",
-				"/assets/Filters-D90507pF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/all-m0cw4oIP.js",
+				"/assets/Filters-o3VMhwoz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23333,11 +23280,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-CViMCvLA.js",
+			"module": "/assets/item-lMuIO6-X.js",
 			"imports": [
-				"/assets/item-CkTfIoVl.js",
+				"/assets/item-yOa1HozD.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js"
+				"/assets/shared-C7Z_R6Ez.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23358,11 +23305,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-CViMCvLA.js",
+			"module": "/assets/item-original-lMuIO6-X.js",
 			"imports": [
-				"/assets/item-CkTfIoVl.js",
+				"/assets/item-yOa1HozD.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js"
+				"/assets/shared-C7Z_R6Ez.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23383,11 +23330,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-Cw-tZi5E.js",
+			"module": "/assets/hot-DaGWrHTx.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/Filters-D90507pF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/Filters-o3VMhwoz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23408,8 +23355,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-VOvOT2Oz.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/story-Bsw-E5Dx.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23429,11 +23376,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DlN4CE5Q.js",
+			"module": "/assets/report-latest-API43Il6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/ReportPaper-C7YZOdzF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/ReportPaper-Cda1211e.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23454,11 +23401,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-BDbb-Aav.js",
+			"module": "/assets/daily-archive-D3y7Rv8Q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/ReportPaper-C7YZOdzF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/ReportPaper-Cda1211e.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23479,11 +23426,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DZkJ9XeT.js",
+			"module": "/assets/report-detail-DCewszRJ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/ReportPaper-C7YZOdzF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/ReportPaper-Cda1211e.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23504,11 +23451,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DlN4CE5Q.js",
+			"module": "/assets/report-latest-API43Il6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/ReportPaper-C7YZOdzF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/ReportPaper-Cda1211e.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23529,11 +23476,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DZkJ9XeT.js",
+			"module": "/assets/report-detail-DCewszRJ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/ReportPaper-C7YZOdzF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/ReportPaper-Cda1211e.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23554,11 +23501,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-DlN4CE5Q.js",
+			"module": "/assets/report-latest-API43Il6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/ReportPaper-C7YZOdzF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/ReportPaper-Cda1211e.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23579,11 +23526,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DZkJ9XeT.js",
+			"module": "/assets/report-detail-DCewszRJ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/ReportPaper-C7YZOdzF.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/ReportPaper-Cda1211e.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23667,8 +23614,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-CG5eUFR_.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/about-OBYzQ2i9.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23688,8 +23635,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sponsor-sUduq2g9.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/sponsor-D3WduT2l.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23709,11 +23656,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-CpDjTH-M.js",
+			"module": "/assets/terms-BSdlIQvC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/CopyPage-C-JtsuyC.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/CopyPage-RI3aE9CV.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23734,11 +23681,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-DZ1RMvmM.js",
+			"module": "/assets/privacy-DJDWqwP4.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/CopyPage-C-JtsuyC.js"
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/CopyPage-RI3aE9CV.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23759,8 +23706,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-Ahk_YOi3.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/changelog-CjXsnxj-.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23780,8 +23727,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-D9noAvIR.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/feedback-DO0rKbyZ.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23801,11 +23748,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-Lx6TYWSO.js",
+			"module": "/assets/more-DUTxFza6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
-				"/assets/Sidebar-CL88JJVW.js",
+				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/Sidebar-DUcQEthG.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -23827,8 +23774,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/install-D_40UbJs.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/install-kc-vLABK.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23848,8 +23795,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-CdLw3eL0.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/starred-672QgNll.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23869,10 +23816,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-Cpw1WqGC.js",
+			"module": "/assets/agent-hudj8yN8.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -23894,8 +23841,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-C6dc6d05.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/codex-reset-Bi8JMq5E.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23915,8 +23862,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-C6dc6d05.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/codex-reset-Bi8JMq5E.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23936,8 +23883,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-BeRxDdr-.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/leaderboard-boards-aZhJgUNz.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23957,10 +23904,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-kB2BmBN_.js",
+			"module": "/assets/leaderboard-CqTAIdU0.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -23983,10 +23930,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-kB2BmBN_.js",
+			"module": "/assets/leaderboard-CqTAIdU0.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -24009,10 +23956,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-Box3Ht_H.js",
+			"module": "/assets/leaderboard-sources-DsOgB6PZ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -24035,10 +23982,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-DgrhQOSu.js",
+			"module": "/assets/leaderboard-source-CWR_bBqA.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -24061,8 +24008,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-GjdLg-5H.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/leaderboard-rules-CMKEXMdF.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -24082,10 +24029,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-l3a0zR-G.js",
+			"module": "/assets/leaderboard-model-CyHzJ08P.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -24108,8 +24055,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-B93suOE6.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
+			"module": "/assets/admin-login-BNf_vUiY.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -24129,12 +24076,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-DCP9W_z9.js",
+			"module": "/assets/layout-f4TVeG2v.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-BOdZ91eQ.js",
+				"/assets/Chrome-OCpnYIqb.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -24178,10 +24125,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-DeMjDj9k.js",
+			"module": "/assets/content-BvBdeXDz.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -24205,10 +24152,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-D2_Ut-Cu.js",
+			"module": "/assets/content-item-4upAsEOC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24234,10 +24181,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-iZq2gT-m.js",
+			"module": "/assets/sources-DiA7_5FK.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -24261,10 +24208,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-CORUNisx.js",
+			"module": "/assets/source-new-CW6___Jy.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24290,10 +24237,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-BaJ7vKkT.js",
+			"module": "/assets/source-CqGRcwo5.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24319,10 +24266,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-Ck5SOqFX.js",
+			"module": "/assets/monitor-_15yFgZN.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -24347,10 +24294,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-DdLZdBeU.js",
+			"module": "/assets/feedback-kJkvnokl.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24376,10 +24323,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-C-wvnOWR.js",
+			"module": "/assets/runs-Bm77wZ6E.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -24404,10 +24351,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-BK7yrbDQ.js",
+			"module": "/assets/models-BFi4PxLO.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -24432,10 +24379,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-CDYyt7PX.js",
+			"module": "/assets/selectbench-BVo3d9Wp.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24460,10 +24407,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-D16ffOkI.js",
+			"module": "/assets/selectbench-run-KJa2_J0m.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -24486,10 +24433,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-70HoPxC4.js",
+			"module": "/assets/settings-DkE_63Sc.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24514,10 +24461,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-BYpsgAl2.js",
+			"module": "/assets/audit-DTHT0G0Y.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CjTYmW1G.js",
+				"/assets/shared-C7Z_R6Ez.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -24528,8 +24475,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-19650a84.js",
-	"version": "19650a84",
+	"url": "/assets/manifest-dff3b5c3.js",
+	"version": "dff3b5c3",
 	"sri": void 0
 };
 //#endregion

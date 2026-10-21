@@ -79,73 +79,36 @@ export default function InstallGuidePage() {
         </button>
       </div>
 
-      {/* Tab 1: Android Content */}
+      {/* Tab 1: Android Content (Option C: Refined Split Card) */}
       {tab === "android" && (
-        <div className="mt-4 space-y-4">
-          <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-xs">
-            <div className="p-5 pb-4">
-              <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-0.5 text-[11px] font-semibold text-accent">
-                  官方原生独立版
-                </span>
-                <span className="text-[12px] text-ink-4">Android 8.0+</span>
+        <div className="mt-4">
+          <section className="overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-xs">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-[16px] font-bold tracking-tight text-ink">
+                    ClutchWire Android 客户端
+                  </h2>
+                  <span className="text-[12px] text-ink-4">Android 8.0+</span>
+                </div>
+                <p className="mt-1 text-[13px] leading-relaxed text-ink-3">
+                  原生 WebView 容器，沉浸全屏秒开，无任何浏览器网址栏与杂乱弹窗干扰。
+                </p>
+                <div className="mt-2 text-[12px] text-ink-4">
+                  约 12MB · 原生全屏版 · 极速直连
+                </div>
               </div>
-              <h2 className="mt-2 text-[16px] font-bold tracking-tight text-ink">
-                ClutchWire 官方 Android 客户端
-              </h2>
-              <p className="mt-1 text-[13px] leading-relaxed text-ink-3">
-                内置原生 WebView 容器，沉浸全屏秒开，无任何浏览器网址栏与杂乱弹窗干扰。
-              </p>
 
-              {/* Redesigned Premium Download Card */}
-              <div className="mt-4">
+              <div className="shrink-0 pt-1 sm:pt-0">
                 <a
-                  href="/download/clutchwire.apk?v=8"
+                  href="/download/clutchwire.apk?v=9"
                   download="ClutchWire.apk"
-                  className="group flex w-full items-center justify-between rounded-xl border border-line bg-surface p-4 transition-all duration-200 hover:border-accent/50 hover:shadow-md active:scale-[0.99]"
+                  className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-line-strong bg-bg-sunk px-5 text-[13.5px] font-semibold text-ink transition-all duration-150 hover:border-accent/40 hover:bg-surface hover:text-accent active:scale-95 shadow-xs"
                 >
-                  <div className="flex items-center gap-3.5">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-line bg-bg-sunk text-accent shadow-xs transition-all duration-200 group-hover:bg-accent group-hover:text-white">
-                      <IconDownload size={20} />
-                    </div>
-                    <div className="text-left">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[14.5px] font-bold text-ink group-hover:text-accent transition-colors">
-                          下载 APK 安装包
-                        </span>
-                        <span className="rounded bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent">
-                          官方签名
-                        </span>
-                      </div>
-                      <div className="mt-0.5 text-[12px] text-ink-3">
-                        约 12MB · 原生全屏容器 · 官方极速直连
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex size-8 items-center justify-center rounded-full bg-bg-sunk text-ink-3 transition-colors group-hover:bg-accent-soft group-hover:text-accent">
-                    <IconArrowLeft size={16} className="rotate-180" />
-                  </div>
+                  <IconDownload size={16} className="text-accent" />
+                  <span>下载 APK</span>
                 </a>
               </div>
-            </div>
-
-            {/* Install steps */}
-            <div className="border-t border-line-soft bg-bg-sunk/40 px-5 py-4">
-              <div className="text-[12px] font-bold text-ink-2">安装指引：</div>
-              <ol className="mt-2 space-y-1.5 text-[12.5px] leading-relaxed text-ink-3">
-                <li className="flex items-start gap-2">
-                  <span className="mono font-semibold text-accent">1.</span>
-                  <span>点击上方按钮下载 APK 文件，下载完成后在手机通知栏点击打开。</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mono font-semibold text-accent">2.</span>
-                  <span>若系统提示“允许来自此来源的应用安装”，选择允许并点击安装即可。</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mono font-semibold text-accent">3.</span>
-                  <span>安装完成后即可从手机桌面图标直接启动，全屏纯净浏览。</span>
-                </li>
-              </ol>
             </div>
           </section>
         </div>
