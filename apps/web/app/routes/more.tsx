@@ -6,7 +6,7 @@ import type { loader as rootLoader } from "../root";
 import { useChangelogDot } from "../components/shell/Sidebar";
 import { pageMeta } from "../lib/seo";
 import { ThemeSwitch } from "../components/shell/ThemeSwitch";
-import { IconBookmark, IconChart, IconChevronRight, IconCoffee, IconFlame, IconGrid, IconHeart, IconHistory, IconMessage, IconMoon, IconPlug } from "../components/icons";
+import { IconApps, IconBookmark, IconChart, IconChevronRight, IconCoffee, IconFlame, IconGrid, IconHeart, IconHistory, IconMessage, IconMoon, IconPlug } from "../components/icons";
 
 /** Shared caches may keep this page for five minutes. */
 export function headers() {
@@ -21,8 +21,9 @@ type Row = { to: string; label: string; icon: ReactNode };
 
 const GROUPS: Array<{ title: string; rows: Row[] }> = [
   {
-    title: "内容",
+    title: "应用",
     rows: [
+      { to: "/install", label: "安装APP", icon: <IconApps size={18} /> },
       { to: "/starred", label: "我的收藏", icon: <IconBookmark size={18} /> },
     ],
   },

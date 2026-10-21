@@ -29,6 +29,7 @@ export default [
   route("changelog", "routes/changelog.tsx"),
   route("feedback", "routes/feedback.tsx"),
   route("more", "routes/more.tsx"),
+  route("install", "routes/install.tsx"),
   route("starred", "routes/starred.tsx"),
   route("agent", "routes/agent.tsx"),
   route("codex-reset", "routes/codex-reset.tsx"),

@@ -1,30 +1,37 @@
 import { useEffect, useRef, useState } from "react";
 import { IconArrowUp } from "../icons";
 
-/** A thin accent line while a navigation is in flight (shown only if it takes a moment). */
-export function NavigationProgress({ active }: { active: boolean }) {
-  const [visible, setVisible] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => {
-    if (active) timer.current = setTimeout(() => setVisible(true), 150);
-    else {
-      if (timer.current) clearTimeout(timer.current);
-      setVisible(false);
-    }
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
-    };
-  }, [active]);
+function BasketballIcon({ className }: { className?: string }) {
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[2px] overflow-hidden" aria-hidden="true">
-      <div
-        className="h-full origin-left bg-accent"
-        style={{
-          transform: `scaleX(${visible ? 0.85 : active ? 0 : 1})`,
-          opacity: visible ? 1 : 0,
-          transition: visible ? "transform 2.4s cubic-bezier(0.1, 0.7, 0.2, 1), opacity 120ms" : "transform 200ms, opacity 300ms 120ms",
-        }}
-      />
+    <svg viewBox="0 0 32 32" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="bball-glow" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#FA7942" />
+          <stop offset="100%" stopColor="#C93F12" />
+        </radialGradient>
+      </defs>
+      <circle cx="16" cy="16" r="14" fill="url(#bball-glow)" stroke="#1A1A1A" strokeWidth="1.5" />
+      <line x1="2" y1="16" x2="30" y2="16" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="16" y1="2" x2="16" y2="30" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M 6.1 6.1 C 12 11 12 21 6.1 25.9" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M 25.9 6.1 C 20 11 20 21 25.9 25.9" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Basketball rolling loading indicator when switching tabs/routes */
+export function NavigationProgress({ active }: { active: boolean }) {
+  return (
+    <div
+      aria-hidden={!active}
+      className={`pointer-events-none fixed top-4 left-1/2 -translate-x-1/2 z-[80] flex items-center gap-2 rounded-full border border-line bg-surface/95 px-3.5 py-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-md transition-all duration-200 ${
+        active ? "translate-y-0 opacity-100 scale-100" : "-translate-y-2 opacity-0 scale-95"
+      }`}
+    >
+      <div className="size-5 shrink-0 animate-spin" style={{ animationDuration: "0.75s" }}>
+        <BasketballIcon className="size-full" />
+      </div>
+      <span className="text-[12px] font-medium text-ink-2 select-none tracking-wide">加载中...</span>
     </div>
   );
 }

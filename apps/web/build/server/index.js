@@ -411,7 +411,7 @@ function resolvedTheme(pref = getThemePreference()) {
 	}
 }
 /** Inline script run before paint so the first frame already has the reader's theme. */
-var THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${KEYS.theme}');if(t==='"light"'||t==='"dark"')t=JSON.parse(t);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}})();`;
+var THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${KEYS.theme}');if(t==='"light"'||t==='"dark"')t=JSON.parse(t);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t);var c=t==='dark'?'#0c1015':'#f8fafc';document.documentElement.style.backgroundColor=c;var m=document.getElementById('theme-color-meta');if(m)m.setAttribute('content',c)}catch(e){document.documentElement.setAttribute('data-theme','light')}})();`;
 function getChangelogSeen() {
 	const v = readRaw(KEYS.changelogSeen);
 	return v && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) ? v : null;
@@ -658,7 +658,12 @@ function ThemeSwitch({ className = "" }) {
 		const nextPref = key === "system" ? null : key;
 		const apply = () => {
 			setThemePreference(nextPref);
-			document.documentElement.setAttribute("data-theme", resolvedTheme(nextPref));
+			const res = resolvedTheme(nextPref);
+			document.documentElement.setAttribute("data-theme", res);
+			const c = res === "dark" ? "#0c1015" : "#f8fafc";
+			document.documentElement.style.backgroundColor = c;
+			const m = document.getElementById("theme-color-meta");
+			if (m) m.setAttribute("content", c);
 		};
 		const doc = document;
 		if (doc.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) doc.startViewTransition(apply);
@@ -796,31 +801,80 @@ function MobileTabBar({ changelogVersion }) {
 }
 //#endregion
 //#region app/components/shell/Chrome.tsx
-/** A thin accent line while a navigation is in flight (shown only if it takes a moment). */
+function BasketballIcon({ className }) {
+	return /* @__PURE__ */ jsxs("svg", {
+		viewBox: "0 0 32 32",
+		className,
+		fill: "none",
+		xmlns: "http://www.w3.org/2000/svg",
+		children: [
+			/* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsxs("radialGradient", {
+				id: "bball-glow",
+				cx: "35%",
+				cy: "30%",
+				r: "70%",
+				children: [/* @__PURE__ */ jsx("stop", {
+					offset: "0%",
+					stopColor: "#FA7942"
+				}), /* @__PURE__ */ jsx("stop", {
+					offset: "100%",
+					stopColor: "#C93F12"
+				})]
+			}) }),
+			/* @__PURE__ */ jsx("circle", {
+				cx: "16",
+				cy: "16",
+				r: "14",
+				fill: "url(#bball-glow)",
+				stroke: "#1A1A1A",
+				strokeWidth: "1.5"
+			}),
+			/* @__PURE__ */ jsx("line", {
+				x1: "2",
+				y1: "16",
+				x2: "30",
+				y2: "16",
+				stroke: "#1A1A1A",
+				strokeWidth: "1.5",
+				strokeLinecap: "round"
+			}),
+			/* @__PURE__ */ jsx("line", {
+				x1: "16",
+				y1: "2",
+				x2: "16",
+				y2: "30",
+				stroke: "#1A1A1A",
+				strokeWidth: "1.5",
+				strokeLinecap: "round"
+			}),
+			/* @__PURE__ */ jsx("path", {
+				d: "M 6.1 6.1 C 12 11 12 21 6.1 25.9",
+				stroke: "#1A1A1A",
+				strokeWidth: "1.5",
+				strokeLinecap: "round"
+			}),
+			/* @__PURE__ */ jsx("path", {
+				d: "M 25.9 6.1 C 20 11 20 21 25.9 25.9",
+				stroke: "#1A1A1A",
+				strokeWidth: "1.5",
+				strokeLinecap: "round"
+			})
+		]
+	});
+}
+/** Basketball rolling loading indicator when switching tabs/routes */
 function NavigationProgress({ active }) {
-	const [visible, setVisible] = useState(false);
-	const timer = useRef(null);
-	useEffect(() => {
-		if (active) timer.current = setTimeout(() => setVisible(true), 150);
-		else {
-			if (timer.current) clearTimeout(timer.current);
-			setVisible(false);
-		}
-		return () => {
-			if (timer.current) clearTimeout(timer.current);
-		};
-	}, [active]);
-	return /* @__PURE__ */ jsx("div", {
-		className: "pointer-events-none fixed inset-x-0 top-0 z-[60] h-[2px] overflow-hidden",
-		"aria-hidden": "true",
-		children: /* @__PURE__ */ jsx("div", {
-			className: "h-full origin-left bg-accent",
-			style: {
-				transform: `scaleX(${visible ? .85 : active ? 0 : 1})`,
-				opacity: visible ? 1 : 0,
-				transition: visible ? "transform 2.4s cubic-bezier(0.1, 0.7, 0.2, 1), opacity 120ms" : "transform 200ms, opacity 300ms 120ms"
-			}
-		})
+	return /* @__PURE__ */ jsxs("div", {
+		"aria-hidden": !active,
+		className: `pointer-events-none fixed top-4 left-1/2 -translate-x-1/2 z-[80] flex items-center gap-2 rounded-full border border-line bg-surface/95 px-3.5 py-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-md transition-all duration-200 ${active ? "translate-y-0 opacity-100 scale-100" : "-translate-y-2 opacity-0 scale-95"}`,
+		children: [/* @__PURE__ */ jsx("div", {
+			className: "size-5 shrink-0 animate-spin",
+			style: { animationDuration: "0.75s" },
+			children: /* @__PURE__ */ jsx(BasketballIcon, { className: "size-full" })
+		}), /* @__PURE__ */ jsx("span", {
+			className: "text-[12px] font-medium text-ink-2 select-none tracking-wide",
+			children: "加载中..."
+		})]
 	});
 }
 /** Round "back to top" button once the reader has scrolled a screen or so. */
@@ -1026,7 +1080,7 @@ var root_exports = /* @__PURE__ */ __exportAll({
 	default: () => root_default,
 	links: () => links,
 	loader: () => loader$38,
-	meta: () => meta$42,
+	meta: () => meta$43,
 	shouldRevalidate: () => shouldRevalidate$1
 });
 var ICON_V = "v=20261020_centered_vector_v2";
@@ -1093,13 +1147,8 @@ function Layout({ children }) {
 			}),
 			/* @__PURE__ */ jsx("meta", {
 				name: "theme-color",
-				media: "(prefers-color-scheme: light)",
-				content: "#f8fafc"
-			}),
-			/* @__PURE__ */ jsx("meta", {
-				name: "theme-color",
-				media: "(prefers-color-scheme: dark)",
-				content: "#000000"
+				content: "#0c1015",
+				id: "theme-color-meta"
 			}),
 			/* @__PURE__ */ jsx("meta", {
 				name: "mobile-web-app-capable",
@@ -1132,7 +1181,7 @@ function Layout({ children }) {
 	});
 }
 /** Only a page nobody matched falls back to this; every page names itself. */
-function meta$42({ error }) {
+function meta$43({ error }) {
 	if (!error) return [];
 	return [{ title: titled(isRouteErrorResponse(error) && error.status === 404 ? "页面不存在" : "暂时无法加载") }, {
 		name: "robots",
@@ -1225,13 +1274,13 @@ var ErrorBoundary = UNSAFE_withErrorBoundaryProps(function ErrorBoundary() {
 var home_exports = /* @__PURE__ */ __exportAll({
 	default: () => home_default,
 	loader: () => loader$37,
-	meta: () => meta$41
+	meta: () => meta$42
 });
 async function loader$37({ request }) {
 	const url = new URL(request.url);
 	throw redirect(`/all${url.search}`);
 }
-function meta$41() {
+function meta$42() {
 	return [];
 }
 var home_default = UNSAFE_withComponentProps(function Home() {
@@ -3592,7 +3641,7 @@ var all_exports = /* @__PURE__ */ __exportAll({
 	default: () => all_default,
 	headers: () => headers$28,
 	loader: () => loader$36,
-	meta: () => meta$40
+	meta: () => meta$41
 });
 var BEAT_REPORTERS = [
 	{
@@ -3688,7 +3737,7 @@ async function loader$36({ request }) {
 		currentReporter: reporter
 	};
 }
-function meta$40({ loaderData }) {
+function meta$41({ loaderData }) {
 	const f = loaderData?.data.filters;
 	const q = f?.q;
 	const page = loaderData?.data.page ?? 1;
@@ -3961,7 +4010,7 @@ var podcasts_exports = /* @__PURE__ */ __exportAll({
 	default: () => podcasts_default,
 	headers: () => headers$27,
 	loader: () => loader$35,
-	meta: () => meta$39
+	meta: () => meta$40
 });
 var PODCAST_SHOWS = [
 	{
@@ -4022,7 +4071,7 @@ async function loader$35({ request }) {
 		currentShow: show ?? "all"
 	};
 }
-function meta$39() {
+function meta$40() {
 	return pageMeta({
 		title: "火箭播客专区 · 每日电台与赛后复盘",
 		description: `${SITE.name} 独家火箭播客专区：聚合 Locked On Rockets、LaunchPod、Rocket Fuel、Rockets Daily 与 SportsTalk 790 等权威随队电台。`,
@@ -4130,7 +4179,7 @@ var videos_exports = /* @__PURE__ */ __exportAll({
 	default: () => videos_default,
 	headers: () => headers$26,
 	loader: () => loader$34,
-	meta: () => meta$38
+	meta: () => meta$39
 });
 async function loader$34({ request }) {
 	const url = new URL(request.url);
@@ -4145,7 +4194,7 @@ async function loader$34({ request }) {
 		busyRedirect: q ? "/all/search-busy" : void 0
 	}) };
 }
-function meta$38() {
+function meta$39() {
 	return pageMeta({
 		title: "火箭视频专栏 · 比赛集锦与更衣室采访",
 		description: `${SITE.name} 火箭视频专栏：收录休斯敦火箭比赛精彩集锦、赛后采访原声、战术录像剪辑。`,
@@ -6566,7 +6615,7 @@ var schedule_exports = /* @__PURE__ */ __exportAll({
 	default: () => schedule_default,
 	headers: () => headers$25,
 	loader: () => loader$33,
-	meta: () => meta$37
+	meta: () => meta$38
 });
 async function loader$33({ request }) {
 	const [schedule, standings, players] = await Promise.all([
@@ -6583,7 +6632,7 @@ async function loader$33({ request }) {
 function headers$25() {
 	return { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600" };
 }
-function meta$37() {
+function meta$38() {
 	return pageMeta({
 		title: "火箭赛程战绩 · 比赛日程、战果与球员技术统计",
 		description: `${SITE.name} 独家赛程战绩：休斯敦火箭 2026-27 赛季全部赛程安排、比赛战果、实时比分与球员技术统计。`,
@@ -6615,9 +6664,9 @@ var schedule_default = UNSAFE_withComponentProps(function SchedulePage() {
 var search_busy_exports = /* @__PURE__ */ __exportAll({
 	default: () => search_busy_default,
 	headers: () => headers$24,
-	meta: () => meta$36
+	meta: () => meta$37
 });
-function meta$36() {
+function meta$37() {
 	return [{ title: titled("搜索繁忙") }, {
 		name: "robots",
 		content: "noindex, follow"
@@ -7131,13 +7180,13 @@ var item_exports = /* @__PURE__ */ __exportAll({
 	default: () => item_default,
 	headers: () => headers$23,
 	loader: () => loader$32,
-	meta: () => meta$35
+	meta: () => meta$36
 });
-var PosterSheet = lazy(() => import("./assets/PosterSheet-BqSbgw86.js"));
+var PosterSheet$1 = lazy(() => import("./assets/PosterSheet-B6RAC96v.js"));
 async function loader$32({ params, request }) {
 	return { item: await loadOr404(`/api/site/items/${encodeURIComponent(params.id)}`, { signal: request.signal }) };
 }
-function meta$35({ loaderData }) {
+function meta$36({ loaderData }) {
 	if (!loaderData) return [{ title: titled("内容不存在") }, {
 		name: "robots",
 		content: "noindex"
@@ -7690,7 +7739,7 @@ var item_default = UNSAFE_withComponentProps(function ItemPage() {
 			}),
 			posterRequested && /* @__PURE__ */ jsx(Suspense, {
 				fallback: null,
-				children: /* @__PURE__ */ jsx(PosterSheet, {
+				children: /* @__PURE__ */ jsx(PosterSheet$1, {
 					id: item.id,
 					title: item.title,
 					open: posterOpen,
@@ -7711,7 +7760,7 @@ var item_original_exports = /* @__PURE__ */ __exportAll({
 	default: () => item_default,
 	headers: () => headers$23,
 	loader: () => loader$31,
-	meta: () => meta$35
+	meta: () => meta$36
 });
 async function loader$31({ params, request }) {
 	return { item: await loadOr404(`/api/site/items/${encodeURIComponent(params.id)}/original`, { signal: request.signal }) };
@@ -7951,12 +8000,13 @@ var hot_exports = /* @__PURE__ */ __exportAll({
 	default: () => hot_default,
 	headers: () => headers$22,
 	loader: () => loader$30,
-	meta: () => meta$34
+	meta: () => meta$35
 });
+var PosterSheet = lazy(() => import("./assets/PosterSheet-B6RAC96v.js"));
 async function loader$30({ request }) {
 	return { hot: await loadOr404("/api/site/hot", { signal: request.signal }) };
 }
-function meta$34() {
+function meta$35() {
 	return pageMeta({
 		title: withSubject("热点榜"),
 		description: "过去 48 小时休斯敦火箭全网讨论最多的热点事件：热度指数、趋势与公开信源。",
@@ -8264,6 +8314,7 @@ function Row({ e }) {
 var hot_default = UNSAFE_withComponentProps(function HotPage() {
 	const { hot } = useLoaderData();
 	const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+	const [posterOpen, setPosterOpen] = useState(false);
 	const [lead, ...rest] = hot.entries;
 	const runners = rest.slice(0, 2);
 	const others = rest.slice(2);
@@ -8337,7 +8388,7 @@ var hot_default = UNSAFE_withComponentProps(function HotPage() {
 				]
 			}),
 			/* @__PURE__ */ jsxs("header", {
-				className: "flex flex-wrap items-end justify-between gap-x-6 gap-y-2 pb-5 pt-3",
+				className: "flex flex-wrap items-end justify-between gap-x-6 gap-y-3 pb-5 pt-3",
 				children: [/* @__PURE__ */ jsxs("div", { children: [
 					/* @__PURE__ */ jsxs("div", {
 						className: "flex items-center gap-2 text-[12px] font-semibold tracking-[0.08em] text-hot",
@@ -8361,12 +8412,24 @@ var hot_default = UNSAFE_withComponentProps(function HotPage() {
 							" 件事"
 						]
 					})
-				] }), hot.computedAt && /* @__PURE__ */ jsxs("p", {
-					className: "text-[12px] text-ink-4",
-					children: [/* @__PURE__ */ jsx("span", {
-						className: "num",
-						children: monthDayTime(hot.computedAt)
-					}), " 更新 · 按讨论热度排序"]
+				] }), /* @__PURE__ */ jsxs("div", {
+					className: "flex flex-wrap items-center gap-3",
+					children: [/* @__PURE__ */ jsxs("button", {
+						type: "button",
+						onClick: () => setPosterOpen(true),
+						className: "inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 text-[12.5px] font-medium text-ink-2 shadow-xs transition-all hover:border-[#CE1141] hover:text-[#CE1141] active:scale-95",
+						title: "生成热点榜长图海报，适合分享到虎扑、微信群与朋友圈",
+						children: [/* @__PURE__ */ jsx(IconImage, {
+							size: 14,
+							className: "text-[#CE1141]"
+						}), /* @__PURE__ */ jsx("span", { children: "生成热点海报" })]
+					}), hot.computedAt && /* @__PURE__ */ jsxs("p", {
+						className: "text-[12px] text-ink-4",
+						children: [/* @__PURE__ */ jsx("span", {
+							className: "num",
+							children: monthDayTime(hot.computedAt)
+						}), " 更新 · 按讨论热度排序"]
+					})]
 				})]
 			}),
 			!lead ? /* @__PURE__ */ jsx("div", {
@@ -8453,6 +8516,16 @@ var hot_default = UNSAFE_withComponentProps(function HotPage() {
 						})
 					]
 				})]
+			}),
+			posterOpen && /* @__PURE__ */ jsx(Suspense, {
+				fallback: null,
+				children: /* @__PURE__ */ jsx(PosterSheet, {
+					id: "hot",
+					title: "休斯敦火箭 · 全网热点榜",
+					open: posterOpen,
+					onClose: () => setPosterOpen(false),
+					aspect: "9/16"
+				})
 			})
 		]
 	});
@@ -8742,7 +8815,7 @@ var story_exports = /* @__PURE__ */ __exportAll({
 	default: () => story_default,
 	headers: () => headers$21,
 	loader: () => loader$29,
-	meta: () => meta$33
+	meta: () => meta$34
 });
 async function loader$29({ params, request }) {
 	const res = await fetch(`${process.env.API_BASE_URL || "http://127.0.0.1:3001"}/api/site/stories/${encodeURIComponent(params.publicId)}`, {
@@ -8757,7 +8830,7 @@ async function loader$29({ params, request }) {
 	if (!res.ok) throw data({ message: "unavailable" }, { status: 503 });
 	return { story: await res.json() };
 }
-function meta$33({ loaderData }) {
+function meta$34({ loaderData }) {
 	if (!loaderData) return [{ title: titled("事件不存在") }, {
 		name: "robots",
 		content: "noindex"
@@ -10979,7 +11052,7 @@ var report_latest_exports = /* @__PURE__ */ __exportAll({
 	default: () => report_latest_default,
 	headers: () => headers$20,
 	loader: () => loader$28,
-	meta: () => meta$32
+	meta: () => meta$33
 });
 async function loader$28({ request }) {
 	const kind = kindFromPath(new URL(request.url).pathname);
@@ -10991,7 +11064,7 @@ async function loader$28({ request }) {
 		today: beijingDate(Date.now())
 	};
 }
-function meta$32({ loaderData, location }) {
+function meta$33({ loaderData, location }) {
 	const kind = loaderData?.kind ?? "daily";
 	return pageMeta({
 		title: `火箭${KIND_LABEL$1[kind]}`,
@@ -11025,7 +11098,7 @@ var daily_archive_exports = /* @__PURE__ */ __exportAll({
 	default: () => daily_archive_default,
 	headers: () => headers$19,
 	loader: () => loader$27,
-	meta: () => meta$31
+	meta: () => meta$32
 });
 async function loader$27({ request }) {
 	const { items: index } = await apiGet("/api/site/reports/daily", { signal: request.signal });
@@ -11034,7 +11107,7 @@ async function loader$27({ request }) {
 		today: beijingDate(Date.now())
 	};
 }
-function meta$31() {
+function meta$32() {
 	return pageMeta({
 		title: `${withSubject("日报")} · 历史存档`,
 		description: `${SITE.name} 历史日报，按日期归档。`,
@@ -11134,7 +11207,7 @@ var report_detail_exports = /* @__PURE__ */ __exportAll({
 	default: () => report_detail_default,
 	headers: () => headers$18,
 	loader: () => loader$26,
-	meta: () => meta$30
+	meta: () => meta$31
 });
 var PATTERN = {
 	daily: /^\d{4}-\d{2}-\d{2}$/,
@@ -11152,7 +11225,7 @@ async function loader$26({ request, params }) {
 		today: beijingDate(Date.now())
 	};
 }
-function meta$30({ loaderData }) {
+function meta$31({ loaderData }) {
 	if (!loaderData) return [{ title: titled("报告不存在") }, {
 		name: "robots",
 		content: "noindex"
@@ -11765,7 +11838,7 @@ var about_exports = /* @__PURE__ */ __exportAll({
 	default: () => about_default,
 	headers: () => headers$17,
 	loader: () => loader$23,
-	meta: () => meta$29
+	meta: () => meta$30
 });
 /** Shared caches may keep this page for five minutes. */
 function headers$17() {
@@ -11782,7 +11855,7 @@ async function loader$23({ request }) {
 		stats
 	};
 }
-function meta$29() {
+function meta$30() {
 	return pageMeta({
 		title: "关于",
 		description: `关于 ${SITE.name}：${SITE.description}`,
@@ -12088,9 +12161,9 @@ var sponsor_wechat_default = "/assets/sponsor-wechat-DAORMzhq.jpg";
 var sponsor_exports = /* @__PURE__ */ __exportAll({
 	default: () => sponsor_default,
 	headers: () => headers$16,
-	meta: () => meta$28
+	meta: () => meta$29
 });
-function meta$28() {
+function meta$29() {
 	return pageMeta({
 		title: "支持本站 · 请喝咖啡",
 		description: `支持 ${SITE.name} 运营维护，请站长喝杯咖啡，共同守护最纯粹的休斯敦火箭资讯空间。`,
@@ -12488,14 +12561,14 @@ function LegalFooterLinks({ links, note }) {
 var terms_exports = /* @__PURE__ */ __exportAll({
 	default: () => terms_default,
 	headers: () => headers$15,
-	meta: () => meta$27
+	meta: () => meta$28
 });
 var TERMS = prepareCopy(terms_default$1);
 /** Shared caches may keep this page for five minutes. */
 function headers$15() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=600" };
 }
-function meta$27() {
+function meta$28() {
 	return pageMeta({
 		title: "使用规则",
 		description: `本站网站、RSS、公开 API 与 MCP 的使用规则。`,
@@ -12528,14 +12601,14 @@ var privacy_default$1 = "# 隐私说明\r\n\r\n这是开源框架自带的模板
 var privacy_exports = /* @__PURE__ */ __exportAll({
 	default: () => privacy_default,
 	headers: () => headers$14,
-	meta: () => meta$26
+	meta: () => meta$27
 });
 var PRIVACY = prepareCopy(privacy_default$1);
 /** Shared caches may keep this page for five minutes. */
 function headers$14() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=600" };
 }
-function meta$26() {
+function meta$27() {
 	return pageMeta({
 		title: "隐私说明",
 		description: `本站如何处理浏览器本地数据、反馈资料与访问日志。`,
@@ -12582,7 +12655,7 @@ var changelog_exports = /* @__PURE__ */ __exportAll({
 	default: () => changelog_default,
 	headers: () => headers$13,
 	loader: () => loader$22,
-	meta: () => meta$25
+	meta: () => meta$26
 });
 /** Shared caches may keep this page for five minutes. */
 function headers$13() {
@@ -12591,7 +12664,7 @@ function headers$13() {
 async function loader$22({ request }) {
 	return apiGet("/api/site/changelog", { signal: request.signal });
 }
-function meta$25() {
+function meta$26() {
 	return pageMeta({
 		title: "更新日志",
 		description: `${SITE.name} 的功能更新、优化、公告与下线记录。`,
@@ -12771,13 +12844,13 @@ var changelog_default = UNSAFE_withComponentProps(function ChangelogPage() {
 var feedback_exports$1 = /* @__PURE__ */ __exportAll({
 	default: () => feedback_default$1,
 	headers: () => headers$12,
-	meta: () => meta$24
+	meta: () => meta$25
 });
 /** Shared caches may keep this page for five minutes. */
 function headers$12() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=600" };
 }
-function meta$24() {
+function meta$25() {
 	return pageMeta({
 		title: "反馈",
 		description: `告诉 ${SITE.name} 哪里可以做得更好：内容、功能、接入或来源方的更正与下架请求。`,
@@ -13137,13 +13210,13 @@ var feedback_default$1 = UNSAFE_withComponentProps(function FeedbackPage() {
 var more_exports = /* @__PURE__ */ __exportAll({
 	default: () => more_default,
 	headers: () => headers$11,
-	meta: () => meta$23
+	meta: () => meta$24
 });
 /** Shared caches may keep this page for five minutes. */
 function headers$11() {
 	return { "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=600" };
 }
-function meta$23() {
+function meta$24() {
 	return pageMeta({
 		title: "更多",
 		path: "/more",
@@ -13151,8 +13224,12 @@ function meta$23() {
 	});
 }
 var GROUPS = [{
-	title: "内容",
+	title: "应用",
 	rows: [{
+		to: "/install",
+		label: "安装APP",
+		icon: /* @__PURE__ */ jsx(IconApps, { size: 18 })
+	}, {
 		to: "/starred",
 		label: "我的收藏",
 		icon: /* @__PURE__ */ jsx(IconBookmark, { size: 18 })
@@ -13262,6 +13339,251 @@ var more_default = UNSAFE_withComponentProps(function MorePage() {
 						rel: "noopener noreferrer",
 						className: "hover:text-ink-2",
 						children: SITE.icp
+					})
+				]
+			})
+		]
+	});
+});
+//#endregion
+//#region app/routes/install.tsx
+var install_exports = /* @__PURE__ */ __exportAll({
+	default: () => install_default,
+	meta: () => meta$23
+});
+function meta$23() {
+	return pageMeta({
+		title: `添加到手机桌面 · ${SITE.name}`,
+		description: `将 ${SITE.name} 添加到 iPhone 或安卓手机桌面，获得全屏无地址栏的独立 App 体验。`,
+		path: "/install"
+	});
+}
+var install_default = UNSAFE_withComponentProps(function InstallGuidePage() {
+	const [tab, setTab] = useState("android");
+	const [copied, setCopied] = useState(false);
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText(window.location.origin);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2e3);
+		} catch {}
+	};
+	return /* @__PURE__ */ jsxs("div", {
+		className: "mx-auto max-w-[var(--page-max-reading)] pb-24",
+		children: [
+			/* @__PURE__ */ jsx("div", {
+				className: "pt-4 lg:pt-1",
+				children: /* @__PURE__ */ jsxs(Link, {
+					to: "/more",
+					className: "-ml-1.5 inline-flex h-8 items-center gap-1.5 rounded-full px-2 text-[13px] text-ink-3 transition-colors hover:text-ink",
+					children: [/* @__PURE__ */ jsx(IconArrowLeft, { size: 16 }), " 返回更多"]
+				})
+			}),
+			/* @__PURE__ */ jsxs("header", {
+				className: "mt-3 flex items-center gap-4 rounded-card border border-line bg-surface p-5",
+				children: [/* @__PURE__ */ jsx("img", {
+					src: "/icon-192.png",
+					alt: SITE.name,
+					className: "size-14 shrink-0 rounded-2xl border border-line-soft bg-black object-contain shadow-xs"
+				}), /* @__PURE__ */ jsxs("div", {
+					className: "min-w-0 flex-1",
+					children: [/* @__PURE__ */ jsx("h1", {
+						className: "text-[19px] font-bold tracking-tight text-ink",
+						children: "安装 APP"
+					}), /* @__PURE__ */ jsx("p", {
+						className: "mt-1 text-[13px] leading-relaxed text-ink-3",
+						children: "将 ClutchWire 安装到手机桌面，像原生 App 一样全屏秒开，无浏览器地址栏与杂乱按键干扰。"
+					})]
+				})]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "mt-5 flex rounded-control bg-bg-sunk p-1",
+				children: [/* @__PURE__ */ jsx("button", {
+					type: "button",
+					onClick: () => setTab("android"),
+					className: `flex-1 rounded-[7px] py-2 text-[13.5px] font-semibold transition-all ${tab === "android" ? "bg-surface text-ink shadow-xs" : "text-ink-3 hover:text-ink"}`,
+					children: "Android (安卓)"
+				}), /* @__PURE__ */ jsx("button", {
+					type: "button",
+					onClick: () => setTab("ios"),
+					className: `flex-1 rounded-[7px] py-2 text-[13.5px] font-semibold transition-all ${tab === "ios" ? "bg-surface text-ink shadow-xs" : "text-ink-3 hover:text-ink"}`,
+					children: "iPhone (Safari)"
+				})]
+			}),
+			tab === "android" && /* @__PURE__ */ jsx("div", {
+				className: "mt-4 space-y-4",
+				children: /* @__PURE__ */ jsxs("section", {
+					className: "overflow-hidden rounded-2xl border border-line bg-surface shadow-xs",
+					children: [/* @__PURE__ */ jsxs("div", {
+						className: "p-5 pb-4",
+						children: [
+							/* @__PURE__ */ jsxs("div", {
+								className: "flex items-center justify-between",
+								children: [/* @__PURE__ */ jsx("span", {
+									className: "inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-0.5 text-[11px] font-semibold text-accent",
+									children: "官方原生独立版"
+								}), /* @__PURE__ */ jsx("span", {
+									className: "text-[12px] text-ink-4",
+									children: "Android 8.0+"
+								})]
+							}),
+							/* @__PURE__ */ jsx("h2", {
+								className: "mt-2 text-[16px] font-bold tracking-tight text-ink",
+								children: "ClutchWire 官方 Android 客户端"
+							}),
+							/* @__PURE__ */ jsx("p", {
+								className: "mt-1 text-[13px] leading-relaxed text-ink-3",
+								children: "内置原生 WebView 容器，沉浸全屏秒开，无任何浏览器网址栏与杂乱弹窗干扰。"
+							}),
+							/* @__PURE__ */ jsx("div", {
+								className: "mt-4",
+								children: /* @__PURE__ */ jsxs("a", {
+									href: "/download/clutchwire.apk?v=8",
+									download: "ClutchWire.apk",
+									className: "group flex w-full items-center justify-between rounded-xl border border-line bg-surface p-4 transition-all duration-200 hover:border-accent/50 hover:shadow-md active:scale-[0.99]",
+									children: [/* @__PURE__ */ jsxs("div", {
+										className: "flex items-center gap-3.5",
+										children: [/* @__PURE__ */ jsx("div", {
+											className: "flex size-11 shrink-0 items-center justify-center rounded-xl border border-line bg-bg-sunk text-accent shadow-xs transition-all duration-200 group-hover:bg-accent group-hover:text-white",
+											children: /* @__PURE__ */ jsx(IconDownload, { size: 20 })
+										}), /* @__PURE__ */ jsxs("div", {
+											className: "text-left",
+											children: [/* @__PURE__ */ jsxs("div", {
+												className: "flex items-center gap-2",
+												children: [/* @__PURE__ */ jsx("span", {
+													className: "text-[14.5px] font-bold text-ink group-hover:text-accent transition-colors",
+													children: "下载 APK 安装包"
+												}), /* @__PURE__ */ jsx("span", {
+													className: "rounded bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent",
+													children: "官方签名"
+												})]
+											}), /* @__PURE__ */ jsx("div", {
+												className: "mt-0.5 text-[12px] text-ink-3",
+												children: "约 12MB · 原生全屏容器 · 官方极速直连"
+											})]
+										})]
+									}), /* @__PURE__ */ jsx("div", {
+										className: "flex size-8 items-center justify-center rounded-full bg-bg-sunk text-ink-3 transition-colors group-hover:bg-accent-soft group-hover:text-accent",
+										children: /* @__PURE__ */ jsx(IconArrowLeft, {
+											size: 16,
+											className: "rotate-180"
+										})
+									})]
+								})
+							})
+						]
+					}), /* @__PURE__ */ jsxs("div", {
+						className: "border-t border-line-soft bg-bg-sunk/40 px-5 py-4",
+						children: [/* @__PURE__ */ jsx("div", {
+							className: "text-[12px] font-bold text-ink-2",
+							children: "安装指引："
+						}), /* @__PURE__ */ jsxs("ol", {
+							className: "mt-2 space-y-1.5 text-[12.5px] leading-relaxed text-ink-3",
+							children: [
+								/* @__PURE__ */ jsxs("li", {
+									className: "flex items-start gap-2",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "mono font-semibold text-accent",
+										children: "1."
+									}), /* @__PURE__ */ jsx("span", { children: "点击上方按钮下载 APK 文件，下载完成后在手机通知栏点击打开。" })]
+								}),
+								/* @__PURE__ */ jsxs("li", {
+									className: "flex items-start gap-2",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "mono font-semibold text-accent",
+										children: "2."
+									}), /* @__PURE__ */ jsx("span", { children: "若系统提示“允许来自此来源的应用安装”，选择允许并点击安装即可。" })]
+								}),
+								/* @__PURE__ */ jsxs("li", {
+									className: "flex items-start gap-2",
+									children: [/* @__PURE__ */ jsx("span", {
+										className: "mono font-semibold text-accent",
+										children: "3."
+									}), /* @__PURE__ */ jsx("span", { children: "安装完成后即可从手机桌面图标直接启动，全屏纯净浏览。" })]
+								})
+							]
+						})]
+					})]
+				})
+			}),
+			tab === "ios" && /* @__PURE__ */ jsxs("div", {
+				className: "mt-4 card divide-y divide-line-soft overflow-hidden",
+				children: [
+					/* @__PURE__ */ jsxs("div", {
+						className: "flex items-start gap-3.5 p-4 sm:p-5",
+						children: [/* @__PURE__ */ jsx("span", {
+							className: "mono flex size-6 shrink-0 items-center justify-center rounded-full bg-bg-sunk text-[12px] font-bold text-ink-2",
+							children: "01"
+						}), /* @__PURE__ */ jsxs("div", {
+							className: "flex-1",
+							children: [
+								/* @__PURE__ */ jsx("h2", {
+									className: "text-[14.5px] font-bold text-ink",
+									children: "在 Safari 浏览器中打开本站"
+								}),
+								/* @__PURE__ */ jsx("p", {
+									className: "mt-1 text-[13px] leading-relaxed text-ink-3",
+									children: "iOS 仅允许 Safari 浏览器将网页添加到桌面。如果在微信等 App 内浏览，请点击右上角菜单选择“在 Safari 中打开”。"
+								}),
+								/* @__PURE__ */ jsxs("button", {
+									type: "button",
+									onClick: handleCopy,
+									className: "mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 py-1 text-[12px] font-medium text-ink-2 transition-colors hover:border-accent hover:text-accent",
+									children: [copied ? /* @__PURE__ */ jsx(IconCheck, {
+										size: 13,
+										className: "text-emerald-600"
+									}) : /* @__PURE__ */ jsx(IconCopy, { size: 13 }), /* @__PURE__ */ jsx("span", { children: copied ? "网址已复制" : "复制本站网址" })]
+								})
+							]
+						})]
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "flex items-start gap-3.5 p-4 sm:p-5",
+						children: [/* @__PURE__ */ jsx("span", {
+							className: "mono flex size-6 shrink-0 items-center justify-center rounded-full bg-bg-sunk text-[12px] font-bold text-ink-2",
+							children: "02"
+						}), /* @__PURE__ */ jsxs("div", {
+							className: "flex-1",
+							children: [/* @__PURE__ */ jsx("h2", {
+								className: "text-[14.5px] font-bold text-ink",
+								children: "点击底部工具栏的分享按钮"
+							}), /* @__PURE__ */ jsx("p", {
+								className: "mt-1 text-[13px] leading-relaxed text-ink-3",
+								children: "轻触 Safari 底部正中央的分享图标（带有向上箭头的正方形小方框）。"
+							})]
+						})]
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "flex items-start gap-3.5 p-4 sm:p-5",
+						children: [/* @__PURE__ */ jsx("span", {
+							className: "mono flex size-6 shrink-0 items-center justify-center rounded-full bg-bg-sunk text-[12px] font-bold text-ink-2",
+							children: "03"
+						}), /* @__PURE__ */ jsxs("div", {
+							className: "flex-1",
+							children: [/* @__PURE__ */ jsx("h2", {
+								className: "text-[14.5px] font-bold text-ink",
+								children: "向下滚动菜单，点击「添加到主屏幕」"
+							}), /* @__PURE__ */ jsx("p", {
+								className: "mt-1 text-[13px] leading-relaxed text-ink-3",
+								children: "在弹出的操作列表中向下滑动，找到并点击「添加到主屏幕」选项。"
+							})]
+						})]
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "flex items-start gap-3.5 p-4 sm:p-5",
+						children: [/* @__PURE__ */ jsx("span", {
+							className: "mono flex size-6 shrink-0 items-center justify-center rounded-full bg-bg-sunk text-[12px] font-bold text-ink-2",
+							children: "04"
+						}), /* @__PURE__ */ jsxs("div", {
+							className: "flex-1",
+							children: [/* @__PURE__ */ jsx("h2", {
+								className: "text-[14.5px] font-bold text-ink",
+								children: "点击右上角「添加」完成"
+							}), /* @__PURE__ */ jsx("p", {
+								className: "mt-1 text-[13px] leading-relaxed text-ink-3",
+								children: "在确认界面点击右上角的“添加”，手机桌面即会生成 ClutchWire 专属图标，随时点击即看。"
+							})]
+						})]
 					})
 				]
 			})
@@ -22822,15 +23144,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-B_13g9B5.js",
+			"module": "/assets/root-CLXQjUKL.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/Sidebar--EPF_DzU.js",
-				"/assets/Chrome-BU7aonN6.js",
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/Sidebar-CL88JJVW.js",
+				"/assets/Chrome-BOdZ91eQ.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-BVB4BlG7.css"],
+			"css": ["/assets/root-CUNbObu0.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -22870,12 +23192,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-BHO9oaYZ.js",
+			"module": "/assets/all-fNPKIFpW.js",
 			"imports": [
-				"/assets/all-BTHpyWul.js",
+				"/assets/all-Cx-DrrID.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/Filters-DVZkHpud.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/Filters-D90507pF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22896,8 +23218,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/podcasts-3pZfLdnR.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/podcasts-t0IOzoEK.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22917,8 +23239,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/videos-CE2opTVf.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/videos-C_wjMmZc.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22938,8 +23260,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-BuJM0_wD.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/schedule-Cf4nwNwr.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -22959,12 +23281,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Bq6bioZ3.js",
+			"module": "/assets/search-busy-Bt_Acm15.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/all-BTHpyWul.js",
-				"/assets/Filters-DVZkHpud.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/all-Cx-DrrID.js",
+				"/assets/Filters-D90507pF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -22985,12 +23307,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-Bq6bioZ3.js",
+			"module": "/assets/search-busy-Bt_Acm15.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/all-BTHpyWul.js",
-				"/assets/Filters-DVZkHpud.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/all-Cx-DrrID.js",
+				"/assets/Filters-D90507pF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23011,11 +23333,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-CzE_CZ5d.js",
+			"module": "/assets/item-CViMCvLA.js",
 			"imports": [
-				"/assets/item-DBcEqXlQ.js",
+				"/assets/item-CkTfIoVl.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js"
+				"/assets/shared-CjTYmW1G.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23036,11 +23358,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-CzE_CZ5d.js",
+			"module": "/assets/item-original-CViMCvLA.js",
 			"imports": [
-				"/assets/item-DBcEqXlQ.js",
+				"/assets/item-CkTfIoVl.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js"
+				"/assets/shared-CjTYmW1G.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23061,11 +23383,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-CizWYlBs.js",
+			"module": "/assets/hot-Cw-tZi5E.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/Filters-DVZkHpud.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/Filters-D90507pF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23086,8 +23408,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-Db77Xx1_.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/story-VOvOT2Oz.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23107,11 +23429,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-CIZ3nVsl.js",
+			"module": "/assets/report-latest-DlN4CE5Q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/ReportPaper-nlWK5Rpn.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/ReportPaper-C7YZOdzF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23132,11 +23454,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-baoVN5o5.js",
+			"module": "/assets/daily-archive-BDbb-Aav.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/ReportPaper-nlWK5Rpn.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/ReportPaper-C7YZOdzF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23157,11 +23479,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DTE0q7Yz.js",
+			"module": "/assets/report-detail-DZkJ9XeT.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/ReportPaper-nlWK5Rpn.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/ReportPaper-C7YZOdzF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23182,11 +23504,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-CIZ3nVsl.js",
+			"module": "/assets/report-latest-DlN4CE5Q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/ReportPaper-nlWK5Rpn.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/ReportPaper-C7YZOdzF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23207,11 +23529,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DTE0q7Yz.js",
+			"module": "/assets/report-detail-DZkJ9XeT.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/ReportPaper-nlWK5Rpn.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/ReportPaper-C7YZOdzF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23232,11 +23554,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-CIZ3nVsl.js",
+			"module": "/assets/report-latest-DlN4CE5Q.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/ReportPaper-nlWK5Rpn.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/ReportPaper-C7YZOdzF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23257,11 +23579,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DTE0q7Yz.js",
+			"module": "/assets/report-detail-DZkJ9XeT.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/ReportPaper-nlWK5Rpn.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/ReportPaper-C7YZOdzF.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23345,8 +23667,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-a3-js684.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/about-CG5eUFR_.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23366,8 +23688,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sponsor-DEdFmHx0.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/sponsor-sUduq2g9.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23387,11 +23709,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-fCvOVoiy.js",
+			"module": "/assets/terms-CpDjTH-M.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/CopyPage-IezEk0ct.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/CopyPage-C-JtsuyC.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23412,11 +23734,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-DZkxwSvw.js",
+			"module": "/assets/privacy-DZ1RMvmM.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/CopyPage-IezEk0ct.js"
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/CopyPage-C-JtsuyC.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23437,8 +23759,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-DM_NHQQG.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/changelog-Ahk_YOi3.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23458,8 +23780,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-DzyCHLjt.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/feedback-D9noAvIR.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23479,13 +23801,34 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-sk5taA24.js",
+			"module": "/assets/more-Lx6TYWSO.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
-				"/assets/Sidebar--EPF_DzU.js",
+				"/assets/shared-CjTYmW1G.js",
+				"/assets/Sidebar-CL88JJVW.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
+			"css": [],
+			"clientActionModule": void 0,
+			"clientLoaderModule": void 0,
+			"clientMiddlewareModule": void 0,
+			"hydrateFallbackModule": void 0
+		},
+		"routes/install": {
+			"id": "routes/install",
+			"parentId": "root",
+			"path": "install",
+			"index": void 0,
+			"caseSensitive": void 0,
+			"hasAction": false,
+			"hasLoader": false,
+			"hasClientAction": false,
+			"hasClientLoader": false,
+			"hasClientMiddleware": false,
+			"hasDefaultExport": true,
+			"hasErrorBoundary": false,
+			"module": "/assets/install-D_40UbJs.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23505,8 +23848,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-CFAZKY_2.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/starred-CdLw3eL0.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23526,10 +23869,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-B2hOAikr.js",
+			"module": "/assets/agent-Cpw1WqGC.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -23551,8 +23894,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-puLgxsRr.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/codex-reset-C6dc6d05.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23572,8 +23915,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-puLgxsRr.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/codex-reset-C6dc6d05.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23593,8 +23936,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-D4cqkoNB.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/leaderboard-boards-BeRxDdr-.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23614,10 +23957,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-DITUfqJ7.js",
+			"module": "/assets/leaderboard-kB2BmBN_.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -23640,10 +23983,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-DITUfqJ7.js",
+			"module": "/assets/leaderboard-kB2BmBN_.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -23666,10 +24009,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-BwQZSv5M.js",
+			"module": "/assets/leaderboard-sources-Box3Ht_H.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23692,10 +24035,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-BwgKcFba.js",
+			"module": "/assets/leaderboard-source-DgrhQOSu.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23718,8 +24061,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-sHB8Qmvy.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/leaderboard-rules-GjdLg-5H.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23739,10 +24082,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-C_qxeSM9.js",
+			"module": "/assets/leaderboard-model-l3a0zR-G.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23765,8 +24108,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-DQple_z7.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CvYixJGd.js"],
+			"module": "/assets/admin-login-B93suOE6.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-CjTYmW1G.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23786,12 +24129,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-Cb8hiorU.js",
+			"module": "/assets/layout-DCP9W_z9.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-BU7aonN6.js",
+				"/assets/Chrome-BOdZ91eQ.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -23835,10 +24178,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-aBoIgKiZ.js",
+			"module": "/assets/content-DeMjDj9k.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23862,10 +24205,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-Cr6LEiX4.js",
+			"module": "/assets/content-item-D2_Ut-Cu.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23891,10 +24234,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-By6WCPlS.js",
+			"module": "/assets/sources-iZq2gT-m.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -23918,10 +24261,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-D7gy2jBC.js",
+			"module": "/assets/source-new-CORUNisx.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23947,10 +24290,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-CjOpZ2x8.js",
+			"module": "/assets/source-BaJ7vKkT.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -23976,10 +24319,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-BBIeIxbP.js",
+			"module": "/assets/monitor-Ck5SOqFX.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -24004,10 +24347,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-xApyI9kl.js",
+			"module": "/assets/feedback-DdLZdBeU.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24033,10 +24376,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-DRiEqNER.js",
+			"module": "/assets/runs-C-wvnOWR.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -24061,10 +24404,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-Bqx-GjfZ.js",
+			"module": "/assets/models-BK7yrbDQ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -24089,10 +24432,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-Chq21off.js",
+			"module": "/assets/selectbench-CDYyt7PX.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24117,10 +24460,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-kh2lu0V6.js",
+			"module": "/assets/selectbench-run-D16ffOkI.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -24143,10 +24486,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-D8bfeEp-.js",
+			"module": "/assets/settings-70HoPxC4.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24171,10 +24514,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-BHA31DYO.js",
+			"module": "/assets/audit-BYpsgAl2.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-CvYixJGd.js",
+				"/assets/shared-CjTYmW1G.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -24185,8 +24528,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-76803258.js",
-	"version": "76803258",
+	"url": "/assets/manifest-19650a84.js",
+	"version": "19650a84",
 	"sri": void 0
 };
 //#endregion
@@ -24435,6 +24778,14 @@ var routes = {
 		index: void 0,
 		caseSensitive: void 0,
 		module: more_exports
+	},
+	"routes/install": {
+		id: "routes/install",
+		parentId: "root",
+		path: "install",
+		index: void 0,
+		caseSensitive: void 0,
+		module: install_exports
 	},
 	"routes/starred": {
 		id: "routes/starred",

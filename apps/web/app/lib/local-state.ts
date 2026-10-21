@@ -228,7 +228,7 @@ export function resolvedTheme(pref: ThemePreference = getThemePreference()): "li
 }
 
 /** Inline script run before paint so the first frame already has the reader's theme. */
-export const THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${KEYS.theme}');if(t==='"light"'||t==='"dark"')t=JSON.parse(t);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','light')}})();`;
+export const THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${KEYS.theme}');if(t==='"light"'||t==='"dark"')t=JSON.parse(t);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t);var c=t==='dark'?'#0c1015':'#f8fafc';document.documentElement.style.backgroundColor=c;var m=document.getElementById('theme-color-meta');if(m)m.setAttribute('content',c)}catch(e){document.documentElement.setAttribute('data-theme','light')}})();`;
 
 // --- changelog red dot ---
 export function getChangelogSeen(): string | null {

@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "org.clutchwire.twa",
+        "sha256_cert_fingerprints": ["FF:66:74:75:2D:E1:B9:8E:29:21:83:D4:F2:DE:F5:58:1B:73:AB:99:42:B9:41:13:1B:BB:D1:AF:F6:2E:B2:1A"]
+      }
+    }]

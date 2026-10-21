@@ -34,6 +34,7 @@ const TYPES: Record<string, string> = {
   ".txt": "text/plain; charset=utf-8",
   ".ico": "image/x-icon",
   ".map": "application/json",
+  ".apk": "application/vnd.android.package-archive",
 };
 
 const build = await import(pathToFileURL(path.resolve(import.meta.dirname, "build/server/index.js")).href);

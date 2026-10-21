@@ -22,7 +22,12 @@ export function ThemeSwitch({ className = "" }: { className?: string }) {
     const nextPref: ThemePreference = key === "system" ? null : key;
     const apply = () => {
       setThemePreference(nextPref);
-      document.documentElement.setAttribute("data-theme", resolvedTheme(nextPref));
+      const res = resolvedTheme(nextPref);
+      document.documentElement.setAttribute("data-theme", res);
+      const c = res === "dark" ? "#0c1015" : "#f8fafc";
+      document.documentElement.style.backgroundColor = c;
+      const m = document.getElementById("theme-color-meta");
+      if (m) m.setAttribute("content", c);
     };
     const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
     if (doc.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) doc.startViewTransition(apply);

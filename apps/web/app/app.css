@@ -193,18 +193,29 @@
 
 @layer base {
   html {
+    background-color: var(--bg);
+    color-scheme: light;
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
   }
+  html[data-theme="dark"] {
+    background-color: #0c1015;
+    color-scheme: dark;
+  }
+  html[data-theme="light"] {
+    background-color: #f8fafc;
+    color-scheme: light;
+  }
   body {
-    background: var(--bg);
+    background-color: var(--bg);
     color: var(--ink);
     font-family: var(--font-sans);
     font-size: 14px;
     line-height: 1.5;
+    min-height: 100dvh;
   }
   ::selection {
     background: var(--selection);

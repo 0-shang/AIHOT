@@ -79,8 +79,8 @@ function manifest() {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#000000",
-    theme_color: "#000000",
+    background_color: "#0c1015",
+    theme_color: "#0c1015",
     icons: [
       { src: `/icon-192.png?${v}`, sizes: "192x192", type: "image/png", purpose: "any" },
       { src: `/icon-192.png?${v}`, sizes: "192x192", type: "image/png", purpose: "maskable" },
@@ -138,8 +138,48 @@ export function registerStatic(app: FastifyInstance) {
     return sendTextWithEtag(req, reply, text, { etagPrefix: "security", cacheControl: "public, max-age=86400", contentType: "text/plain; charset=utf-8" });
   });
 
+  app.get("/.well-known/assetlinks.json", (req, reply) => {
+    const assetlinks = [
+      {
+        relation: ["delegate_permission/common.handle_all_urls"],
+        target: {
+          namespace: "android_app",
+          package_name: "org.clutchwire.twa",
+          sha256_cert_fingerprints: [
+            "6F:B7:6C:A4:6E:D5:38:E5:0F:28:4A:4B:FC:B7:01:D3:E9:E2:1A:70:DB:5A:4E:95:76:04:9A:F8:5E:C5:E2:75",
+            "FF:66:74:75:2D:E1:B9:8E:29:21:83:D4:F2:DE:F5:58:1B:73:AB:99:42:B9:41:13:1B:BB:D1:AF:F6:2E:B2:1A"
+          ]
+        }
+      },
+      {
+        relation: ["delegate_permission/common.handle_all_urls"],
+        target: {
+          namespace: "android_app",
+          package_name: "org.clutchwire.app",
+          sha256_cert_fingerprints: [
+            "6F:B7:6C:A4:6E:D5:38:E5:0F:28:4A:4B:FC:B7:01:D3:E9:E2:1A:70:DB:5A:4E:95:76:04:9A:F8:5E:C5:E2:75",
+            "FF:66:74:75:2D:E1:B9:8E:29:21:83:D4:F2:DE:F5:58:1B:73:AB:99:42:B9:41:13:1B:BB:D1:AF:F6:2E:B2:1A"
+          ]
+        }
+      }
+    ];
+    return reply
+      .header("Content-Type", "application/json; charset=utf-8")
+      .header("Cache-Control", "public, max-age=86400")
+      .send(JSON.stringify(assetlinks));
+  });
+
   app.get("/manifest.webmanifest", (req, reply) =>
     sendTextWithEtag(req, reply, JSON.stringify(manifest()), { etagPrefix: "manifest", cacheControl: "public, max-age=600, stale-while-revalidate=86400", contentType: "application/manifest+json" }));
+
+  app.get("/sw.js", (req, reply) => {
+    const swCode = `// ClutchWire Service Worker for PWA installability
+self.addEventListener('install', (e) => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+self.addEventListener('fetch', () => {});
+`;
+    return reply.header("Content-Type", "application/javascript; charset=utf-8").header("Cache-Control", "no-cache, must-revalidate").send(swCode);
+  });
 
   app.get("/openapi-v1.json", async (req, reply) => {
     applyPublicHeaders(reply);

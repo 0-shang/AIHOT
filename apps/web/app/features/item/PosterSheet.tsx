@@ -5,8 +5,22 @@ import { SITE } from "@aihot/industry/site";
 import { Presence } from "../../components/ui/Presence";
 import { IconClose, IconDownload, IconShare } from "../../components/icons";
 
-export default function PosterSheet({ id, title, open, onClose }: { id: string; title: string; open: boolean; onClose: () => void }) {
-  const src = `/og/posters/${id}.png`;
+export default function PosterSheet({
+  id,
+  title,
+  open,
+  onClose,
+  src: customSrc,
+  aspect = "3/4",
+}: {
+  id: string;
+  title: string;
+  open: boolean;
+  onClose: () => void;
+  src?: string;
+  aspect?: "3/4" | "9/16";
+}) {
+  const src = customSrc || `/og/posters/${id}.png`;
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const [canShareFile, setCanShareFile] = useState(false);
@@ -54,7 +68,13 @@ export default function PosterSheet({ id, title, open, onClose }: { id: string; 
               <IconClose size={16} />
             </button>
           </div>
-          <div className="relative aspect-[3/4] w-full max-w-[min(360px,calc((92dvh-190px)*0.75))] overflow-hidden rounded-card border border-line bg-bg-sunk">
+          <div
+            className={`relative w-full overflow-hidden rounded-card border border-line bg-bg-sunk ${
+              aspect === "9/16"
+                ? "aspect-[9/16] max-w-[min(340px,calc((92dvh-190px)*0.5625))]"
+                : "aspect-[3/4] max-w-[min(360px,calc((92dvh-190px)*0.75))]"
+            }`}
+          >
             {!loaded && !failed && <div className="absolute inset-0 animate-pulse bg-[linear-gradient(110deg,transparent_30%,rgba(255,255,255,0.35)_50%,transparent_70%)] bg-[length:200%_100%]" />}
             {failed ? (
               <p className="absolute inset-0 grid place-items-center px-6 text-center text-[13px] text-ink-3">海报生成失败，请稍后再试。</p>

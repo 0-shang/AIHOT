@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { SITE, withSubject } from "@aihot/industry/site";
 import { Link, useLoaderData } from "react-router";
 import type { HotEntryView, HotResponse } from "@aihot/contracts/site";
@@ -7,11 +7,13 @@ import { pageMeta } from "../lib/seo";
 import { monthDayTime, shortSourceName } from "../lib/format";
 import { Badge } from "../components/ui/Badge";
 import { EmptyState } from "../components/ui/Page";
-import { IconChevronDown, IconInfo, IconSearch } from "../components/icons";
+import { IconChevronDown, IconImage, IconInfo, IconSearch } from "../components/icons";
 import { Sparkline } from "../features/hot/Sparkline";
 import { Faces } from "../features/hot/Faces";
 import { Delta } from "../features/hot/Delta";
 import { CategoryTabs, SearchField } from "../features/feed/Filters";
+
+const PosterSheet = lazy(() => import("../features/item/PosterSheet"));
 
 export async function loader({ request }: { request: Request }) {
   return { hot: await loadOr404<HotResponse>("/api/site/hot", { signal: request.signal }) };
@@ -189,6 +191,7 @@ function Row({ e }: { e: HotEntryView }) {
 export default function HotPage() {
   const { hot } = useLoaderData<typeof loader>();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [posterOpen, setPosterOpen] = useState(false);
   const [lead, ...rest] = hot.entries;
   const runners = rest.slice(0, 2);
   const others = rest.slice(2);
@@ -240,7 +243,7 @@ export default function HotPage() {
           <CategoryTabs base="/all" category={null} activeKey="hot" layoutId="hot-cat-mobile" variant="underline" className="w-full" />
         </div>
       </div>
-      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 pb-5 pt-3">
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 pb-5 pt-3">
         <div>
           <div className="flex items-center gap-2 text-[12px] font-semibold tracking-[0.08em] text-hot">
             <span className="relative flex size-2" aria-hidden="true">
@@ -252,11 +255,22 @@ export default function HotPage() {
           <h1 className="mt-1.5 text-[24px] font-bold leading-[1.3] tracking-[-0.01em] text-ink lg:text-[26px]">{withSubject("热点榜")}</h1>
           <p className="mt-1.5 text-[13.5px] text-ink-3">过去 {hot.windowHours} 小时，休斯敦火箭全网讨论最多的 {hot.entries.length || 10} 件事</p>
         </div>
-        {hot.computedAt && (
-          <p className="text-[12px] text-ink-4">
-            <span className="num">{monthDayTime(hot.computedAt)}</span> 更新 · 按讨论热度排序
-          </p>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setPosterOpen(true)}
+            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 text-[12.5px] font-medium text-ink-2 shadow-xs transition-all hover:border-[#CE1141] hover:text-[#CE1141] active:scale-95"
+            title="生成热点榜长图海报，适合分享到虎扑、微信群与朋友圈"
+          >
+            <IconImage size={14} className="text-[#CE1141]" />
+            <span>生成热点海报</span>
+          </button>
+          {hot.computedAt && (
+            <p className="text-[12px] text-ink-4">
+              <span className="num">{monthDayTime(hot.computedAt)}</span> 更新 · 按讨论热度排序
+            </p>
+          )}
+        </div>
       </header>
 
       {!lead ? (
@@ -322,6 +336,17 @@ export default function HotPage() {
           </dl>
         </div>
       </details>
+      {posterOpen && (
+        <Suspense fallback={null}>
+          <PosterSheet
+            id="hot"
+            title="休斯敦火箭 · 全网热点榜"
+            open={posterOpen}
+            onClose={() => setPosterOpen(false)}
+            aspect="9/16"
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
