@@ -6,12 +6,13 @@ import { beijingDate } from "@aihot/contracts/time";
 import { loadItemShare } from "@aihot/backend/publication/og";
 import { loadReport, type ReportKind } from "@aihot/backend/publication/reports";
 import { loadTopic } from "@aihot/backend/publication/topics";
-import { loadStoryDetail, resolveStory } from "@aihot/backend/publication/stories";
+import { loadStoryDetail, resolveStory, loadHot } from "@aihot/backend/publication/stories";
 import { SITE, withSubject } from "@aihot/industry/site";
 import { FEATURES } from "@aihot/industry/features";
 import { config } from "@aihot/backend/config";
 import { ogEtag, renderOg, type OgCard } from "../og/render.ts";
 import { posterEtag, renderPoster, type Poster } from "../og/poster.ts";
+import { hotPosterEtag, renderHotPoster } from "../og/hot-poster.ts";
 
 const S = SITE.subject;
 const PAGES: Record<string, OgCard> = {
@@ -78,10 +79,26 @@ export function registerOg(app: FastifyInstance) {
     }, 3600, ARTICLE_IMAGE_CACHE);
   });
 
+  // Phone share poster for trending hot list (1080×1920)
+  app.get("/og/hot-poster.png", async (req, reply) => {
+    const hotData = await loadHot();
+    const tag = `"hot-poster-${hotPosterEtag(hotData)}"`;
+    reply.header("ETag", tag).header("Cache-Control", "public, max-age=60, s-maxage=120, stale-while-revalidate=60").header("X-Accel-Expires", "60");
+    if (String(req.headers["if-none-match"] ?? "").split(",").some((t) => t.trim().replace(/^W\//, "") === tag)) return reply.code(304).send();
+    return reply.type("image/png").send((await renderHotPoster(hotData)).png);
+  });
+
   // Phone share poster for an article (1080×1440), generated on first request and cached by content.
   app.get("/og/posters/:file", async (req, reply) => {
     const file = (req.params as { file: string }).file;
     if (!file.endsWith(".png")) return notFound(reply);
+    if (file === "hot.png") {
+      const hotData = await loadHot();
+      const tag = `"hot-poster-${hotPosterEtag(hotData)}"`;
+      reply.header("ETag", tag).header("Cache-Control", "public, max-age=60, s-maxage=120, stale-while-revalidate=60").header("X-Accel-Expires", "60");
+      if (String(req.headers["if-none-match"] ?? "").split(",").some((t) => t.trim().replace(/^W\//, "") === tag)) return reply.code(304).send();
+      return reply.type("image/png").send((await renderHotPoster(hotData)).png);
+    }
     const d = await loadItemShare(file.slice(0, -4));
     if (!d) return notFound(reply);
     const poster: Poster = {
