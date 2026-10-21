@@ -91,13 +91,13 @@ export function listedCondition(now: Date) {
     AND NOT (p.tags && ARRAY['非火箭/联盟其他', '非火箭', '联盟其他']::text[])
     AND NOT (
       (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振|willie fritz|espada|埃斯帕达|marvin harrison)'
-      AND NOT (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
+      AND NOT (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba|fertitta)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营|费尔蒂塔)'
     )
     AND NOT (coalesce(p.summary, '') ~* '(与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)')
     AND (
       p.source_id NOT LIKE 'rss-podcast-sportstalk790%'
       OR (
-        (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
+        (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba|fertitta)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营|费尔蒂塔)'
         AND NOT (coalesce(p.summary, '') ~* '(与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)')
       )
     )
@@ -121,13 +121,13 @@ export function selectedCondition(now: Date) {
     AND NOT (p.tags && ARRAY['非火箭/联盟其他', '非火箭', '联盟其他']::text[])
     AND NOT (
       (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|棒球|橄榄球|全垒打|安打|三振|willie fritz|espada|埃斯帕达|marvin harrison)'
-      AND NOT (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
+      AND NOT (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba|fertitta)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营|费尔蒂塔)'
     )
     AND NOT (coalesce(p.summary, '') ~* '(与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)')
     AND (
       p.source_id NOT LIKE 'rss-podcast-sportstalk790%'
       OR (
-        (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营)'
+        (coalesce(p.title, '') || ' ' || coalesce(p.original_title, '')) ~* '(\\y(rockets|houston rockets|udoka|sengun|durant|amen|thompson|eason|sheppard|stone|vanvleet|jalen green|whitmore|jabari|smith|adams|preseason|training camp|media day|nba|fertitta)\\y|火箭|休斯敦火箭|休斯顿火箭|乌度卡|申京|杜兰特|阿门|伊森|谢泼德|斯通|范弗里特|格林|惠特莫尔|史密斯|亚当斯|季前赛|媒体日|训练营|费尔蒂塔)'
         AND NOT (coalesce(p.summary, '') ~* '(与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)')
       )
     )
@@ -175,7 +175,7 @@ export function categoryCondition(category: CategoryKey | null | undefined, v1 =
     // 播客栏目：官方与随队播客（严格限定为播客信源，杜绝通用新闻和非篮球市政新闻混入）
     return sql`AND p.source_id LIKE 'rss-podcast-%'
       AND p.source_id NOT IN ('rss-google-news-rockets', 'rss-web-rockets-global')
-      AND (coalesce(p.title, '') || ' ' || coalesce(p.summary, '')) !~* '(ICE|执法事件|去世多年|Ken Paxton|参议员竞选|出资投放广告)'`;
+      AND (coalesce(p.title, '') || ' ' || coalesce(p.summary, '')) !~* '(\\yICE\\y|执法事件|去世多年|Ken Paxton|参议员竞选|出资投放广告)'`;
   }
   if (category === "videos") {
     // 视频栏目：官方与随队精彩视频录像（必须具备实际可播放视频媒体或专职视频信源，排除无视频呈现的文字快讯）

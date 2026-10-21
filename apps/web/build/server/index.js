@@ -4008,7 +4008,7 @@ async function loader$35({ request }) {
 	if (data && Array.isArray(data.items)) data.items = data.items.filter((item) => {
 		const title = item.title || "";
 		const summary = item.summary || "";
-		if (/ICE|执法事件|去世多年|Ken Paxton|参议员竞选/i.test(`${title} ${summary}`)) return false;
+		if (/\bICE\b|执法事件|去世多年|Ken Paxton|参议员竞选/i.test(`${title} ${summary}`)) return false;
 		const srcId = item.source?.id || "";
 		if (srcId && !srcId.startsWith("rss-podcast-") && srcId !== "podcasts") return false;
 		return true;

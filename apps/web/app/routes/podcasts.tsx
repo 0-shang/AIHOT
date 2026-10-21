@@ -37,7 +37,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     data.items = data.items.filter((item: any) => {
       const title = item.title || "";
       const summary = item.summary || "";
-      if (/ICE|执法事件|去世多年|Ken Paxton|参议员竞选/i.test(`${title} ${summary}`)) return false;
+      if (/\bICE\b|执法事件|去世多年|Ken Paxton|参议员竞选/i.test(`${title} ${summary}`)) return false;
       const srcId = item.source?.id || "";
       if (srcId && !srcId.startsWith("rss-podcast-") && srcId !== "podcasts") return false;
       return true;
