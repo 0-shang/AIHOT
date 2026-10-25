@@ -27,6 +27,10 @@ if (FEATURES.leaderboard) {
   const [published] = await sql`SELECT 1 FROM lb_runs WHERE status = 'published' LIMIT 1`;
   if (!published) await boss.send("cron.leaderboard.round", {}, { singletonKey: "first-round" });
 }
+// Trigger immediate initial sync of NBA Rockets data on worker startup
+import("@aihot/backend/publication/rockets").then(({ triggerRocketsSync }) => {
+  triggerRocketsSync().catch((err) => console.error("Initial rockets sync error:", err));
+});
 const heartbeat = startHeartbeat("worker");
 console.log(JSON.stringify({ level: "info", msg: "worker started", pid: process.pid }));
 

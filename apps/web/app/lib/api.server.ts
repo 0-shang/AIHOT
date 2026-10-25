@@ -26,7 +26,8 @@ const apiCache = new Map<string, ApiCacheEntry>();
 const apiPending = new Map<string, Promise<{ data: any; headers: [string, string][] }>>();
 
 const FRESH_TTL_MS = 25_000;
-const MAX_STALE_MS = 300_000;
+const ITEM_DETAIL_FRESH_TTL_MS = 300_000;
+const MAX_STALE_MS = 600_000;
 
 export async function apiGet<T>(path: string, init?: { signal?: AbortSignal; headers?: Record<string, string>; responseHeaders?: Headers }): Promise<T> {
   const isSiteGet = path.startsWith("/api/site/") && !path.includes("/admin");
@@ -34,8 +35,9 @@ export async function apiGet<T>(path: string, init?: { signal?: AbortSignal; hea
   if (isSiteGet) {
     const hit = apiCache.get(path);
     const now = Date.now();
+    const freshTtl = path.startsWith("/api/site/items/") ? ITEM_DETAIL_FRESH_TTL_MS : FRESH_TTL_MS;
     if (hit) {
-      if (now - hit.cachedAt < FRESH_TTL_MS) {
+      if (now - hit.cachedAt < freshTtl) {
         if (init?.responseHeaders) {
           for (const [k, v] of hit.headers) init.responseHeaders.set(k, v);
         }

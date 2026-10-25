@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { MediaView } from "@aihot/contracts/site";
 import { Lightbox } from "../../components/ui/Lightbox";
+import { VideoModal } from "../../components/ui/VideoModal";
 
 /** A round play mark over a video's still. */
 function PlayMark() {
@@ -15,6 +16,20 @@ function PlayMark() {
   );
 }
 
+/** An expand icon indicating fullscreen / lightbox video modal */
+function ExpandMark() {
+  return (
+    <span className="absolute top-2 right-2 z-10 grid size-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-xs ring-1 ring-white/20 transition-transform group-hover:scale-110" title="全屏大屏播放">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="15 3 21 3 21 9" />
+        <polyline points="9 21 3 21 3 15" />
+        <line x1="21" y1="3" x2="14" y2="10" />
+        <line x1="3" y1="21" x2="10" y2="14" />
+      </svg>
+    </span>
+  );
+}
+
 /**
  * The post's pictures as tiles, all of them (X allows up to nine; list cards show four). Images open in
  * a viewer that steps through them; videos play inline or in a modal.
@@ -22,6 +37,8 @@ function PlayMark() {
 export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: string }) {
   const [open, setOpen] = useState<number | null>(null);
   const [playingVideoUrl, setPlayingVideoUrl] = useState<string | null>(null);
+  const [modalVideo, setModalVideo] = useState<{ url: string; poster?: string | null } | null>(null);
+
   const shown = media.slice(0, 9);
   const images = shown.filter((m) => m.kind !== "video");
   const single = shown.length === 1;
@@ -49,8 +66,27 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
               style={single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : undefined}
             />
           );
+
           if (m.kind === "video") {
             if (m.videoUrl) {
+              // 多个视频时：直接唤起大屏视频播放弹层，保证手机端拥有完整的全屏、放大按钮和舒适观看体验
+              if (!single) {
+                return (
+                  <button
+                    key={m.url}
+                    type="button"
+                    onClick={() => setModalVideo({ url: m.videoUrl!, poster: m.poster ?? m.url })}
+                    aria-label="大屏全屏播放视频"
+                    className={`${currentTile} cursor-pointer text-left focus:outline-none`}
+                  >
+                    {img}
+                    <PlayMark />
+                    <ExpandMark />
+                  </button>
+                );
+              }
+
+              // 单个视频时：支持原地自适应播放，右上角提供一键放大弹层
               const isPlaying = playingVideoUrl === m.videoUrl;
               if (isPlaying) {
                 return (
@@ -59,6 +95,19 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
                     className={`relative overflow-hidden rounded-tile border border-line-soft bg-black w-fit max-w-full ${single ? "" : "aspect-[16/10]"}`}
                     style={single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : undefined}
                   >
+                    <button
+                      type="button"
+                      onClick={() => setModalVideo({ url: m.videoUrl!, poster: m.poster ?? m.url })}
+                      className="absolute top-2.5 right-2.5 z-20 grid size-8 place-items-center rounded-full bg-black/70 text-white hover:bg-black/90 ring-1 ring-white/30 backdrop-blur-sm"
+                      title="大屏全屏播放"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="15 3 21 3 21 9" />
+                        <polyline points="9 21 3 21 3 15" />
+                        <line x1="21" y1="3" x2="14" y2="10" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
+                      </svg>
+                    </button>
                     <video
                       src={m.videoUrl}
                       poster={m.poster ?? m.url}
@@ -82,9 +131,20 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
                 >
                   {img}
                   <PlayMark />
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setModalVideo({ url: m.videoUrl!, poster: m.poster ?? m.url });
+                    }}
+                  >
+                    <ExpandMark />
+                  </span>
                 </button>
               );
             }
+
             return (
               <a key={m.url} href={postUrl} target="_blank" rel="noopener noreferrer" aria-label="打开原推播放视频" className={currentTile}>
                 {img}
@@ -92,6 +152,7 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
               </a>
             );
           }
+
           return (
             <button key={m.url} type="button" onClick={() => setOpen(images.indexOf(m))} aria-label={m.alt ? `查看大图：${m.alt}` : "查看大图"} className={`${currentTile} cursor-zoom-in`}>
               {img}
@@ -99,7 +160,15 @@ export function MediaGallery({ media, postUrl }: { media: MediaView[]; postUrl: 
           );
         })}
       </div>
+
       <Lightbox images={images.map((m) => ({ src: m.url, alt: m.alt }))} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
+
+      <VideoModal
+        open={!!modalVideo}
+        videoUrl={modalVideo?.url ?? null}
+        poster={modalVideo?.poster ?? null}
+        onClose={() => setModalVideo(null)}
+      />
     </>
   );
 }

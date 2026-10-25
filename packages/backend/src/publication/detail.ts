@@ -43,11 +43,39 @@ async function loadRow(id: string): Promise<DetailRow | null> {
   return row ?? null;
 }
 
+// In-memory cache for published item details (5-minute TTL, up to 500 entries)
+const itemDetailCache = new Map<string, { at: number; result: DetailResult }>();
+const itemDetailPending = new Map<string, Promise<DetailResult>>();
+
 /**
  * Public detail (rules.hasItemPage): items the lists leave out (low relevance, merged duplicates, no
  * Chinese summary yet) keep a noindex page; withdrawn and hot_signal items are a 404.
  */
 export async function loadItemDetail(id: string, now = new Date()): Promise<DetailResult> {
+  const hit = itemDetailCache.get(id);
+  if (hit && Date.now() - hit.at < 300_000) return hit.result;
+
+  const pending = itemDetailPending.get(id);
+  if (pending) return pending;
+
+  const load = (async () => {
+    const res = await loadItemDetailInternal(id, now);
+    if (res.kind === "found") {
+      if (itemDetailCache.size >= 500) itemDetailCache.delete(itemDetailCache.keys().next().value!);
+      itemDetailCache.set(id, { at: Date.now(), result: res });
+    }
+    return res;
+  })();
+
+  itemDetailPending.set(id, load);
+  try {
+    return await load;
+  } finally {
+    itemDetailPending.delete(id);
+  }
+}
+
+async function loadItemDetailInternal(id: string, now: Date): Promise<DetailResult> {
   const row = await loadRow(id);
   if (!row || !hasItemPage({ visibility: row.visibility, sourceMode: row.source_mode })) return { kind: "not_found" };
 

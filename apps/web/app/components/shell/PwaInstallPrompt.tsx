@@ -43,7 +43,9 @@ export function PwaInstallPrompt() {
     // 5. Listen for Android beforeinstallprompt
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
+      (window as any).__pwaDeferredPrompt = e;
       setDeferredPrompt(e);
+      window.dispatchEvent(new CustomEvent("pwa-prompt-available"));
       setVisible(true);
     };
     window.addEventListener("beforeinstallprompt", handleBeforeInstall);

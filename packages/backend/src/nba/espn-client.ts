@@ -412,8 +412,19 @@ export class EspnClient {
           isRockets,
         });
       });
+      entries.sort((a, b) => {
+        const pctA = a.wins + a.losses > 0 ? a.wins / (a.wins + a.losses) : 0;
+        const pctB = b.wins + b.losses > 0 ? b.wins / (b.wins + b.losses) : 0;
+        if (pctB !== pctA) return pctB - pctA;
+        return parseFloat(b.diff || "0") - parseFloat(a.diff || "0");
+      });
+      entries.forEach((e, i) => {
+        e.rank = i + 1;
+      });
 
-      const isRegularSeason = new Date().getTime() >= new Date("2026-10-23T00:00:00Z").getTime();
+      const isRegularSeason = new Date().getTime() >= new Date("2026-10-21T00:00:00Z").getTime();
+      const rocketsIdx = entries.findIndex((e) => e.isRockets || e.abbr === "HOU");
+      if (rocketsIdx !== -1) rocketsRank = rocketsIdx + 1;
 
       return {
         conference: "西部联盟 (Western Conference)",

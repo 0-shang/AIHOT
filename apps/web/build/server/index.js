@@ -411,7 +411,7 @@ function resolvedTheme(pref = getThemePreference()) {
 	}
 }
 /** Inline script run before paint so the first frame already has the reader's theme. */
-var THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${KEYS.theme}');if(t==='"light"'||t==='"dark"')t=JSON.parse(t);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t);var c=t==='dark'?'#0c1015':'#f8fafc';document.documentElement.style.backgroundColor=c;var m=document.getElementById('theme-color-meta');if(m)m.setAttribute('content',c);try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(e){var p=localStorage.getItem('${KEYS.theme}');if(!p||p==='null'){var res=e.matches?'dark':'light';document.documentElement.setAttribute('data-theme',res);var nc=res==='dark'?'#0c1015':'#f8fafc';document.documentElement.style.backgroundColor=nc;var nm=document.getElementById('theme-color-meta');if(nm)nm.setAttribute('content',nc);}})}catch(e){}}catch(e){document.documentElement.setAttribute('data-theme','light')}})();`;
+var THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${KEYS.theme}');if(t==='"light"'||t==='"dark"')t=JSON.parse(t);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t);var c=t==='dark'?'#0c1015':'#f8fafc';document.documentElement.style.backgroundColor=c;var m=document.getElementById('theme-color-meta');if(m)m.setAttribute('content',c);try{if(window.AndroidBridge&&typeof window.AndroidBridge.onThemeChange==='function'){window.AndroidBridge.onThemeChange(t);}}catch(e){}try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(e){var p=localStorage.getItem('${KEYS.theme}');if(!p||p==='null'){var res=e.matches?'dark':'light';document.documentElement.setAttribute('data-theme',res);var nc=res==='dark'?'#0c1015':'#f8fafc';document.documentElement.style.backgroundColor=nc;var nm=document.getElementById('theme-color-meta');if(nm)nm.setAttribute('content',nc);try{if(window.AndroidBridge&&typeof window.AndroidBridge.onThemeChange==='function'){window.AndroidBridge.onThemeChange(res);}}catch(e){}}})}catch(e){}}catch(e){document.documentElement.setAttribute('data-theme','light')}})();`;
 function getChangelogSeen() {
 	const v = readRaw(KEYS.changelogSeen);
 	return v && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) ? v : null;
@@ -664,6 +664,10 @@ function ThemeSwitch({ className = "" }) {
 			document.documentElement.style.backgroundColor = c;
 			const m = document.getElementById("theme-color-meta");
 			if (m) m.setAttribute("content", c);
+			try {
+				const bridge = window.AndroidBridge;
+				if (bridge && typeof bridge.onThemeChange === "function") bridge.onThemeChange(res);
+			} catch {}
 		};
 		const doc = document;
 		if (doc.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) doc.startViewTransition(apply);
@@ -953,13 +957,15 @@ var ApiError = class extends Error {
 var apiCache = /* @__PURE__ */ new Map();
 var apiPending = /* @__PURE__ */ new Map();
 var FRESH_TTL_MS = 25e3;
-var MAX_STALE_MS = 3e5;
+var ITEM_DETAIL_FRESH_TTL_MS = 3e5;
+var MAX_STALE_MS = 6e5;
 async function apiGet(path, init) {
 	if (path.startsWith("/api/site/") && !path.includes("/admin")) {
 		const hit = apiCache.get(path);
 		const now = Date.now();
+		const freshTtl = path.startsWith("/api/site/items/") ? ITEM_DETAIL_FRESH_TTL_MS : FRESH_TTL_MS;
 		if (hit) {
-			if (now - hit.cachedAt < FRESH_TTL_MS) {
+			if (now - hit.cachedAt < freshTtl) {
 				if (init?.responseHeaders) for (const [k, v] of hit.headers) init.responseHeaders.set(k, v);
 				return hit.data;
 			}
@@ -1073,6 +1079,50 @@ function useHydratedFlag() {
 	}, []);
 }
 //#endregion
+//#region app/components/ui/ItemSkeleton.tsx
+function ItemDetailSkeleton() {
+	return /* @__PURE__ */ jsxs("div", {
+		className: "mx-auto max-w-[var(--page-max-reading)] animate-pulse pb-16 pt-3",
+		children: [
+			/* @__PURE__ */ jsxs("div", {
+				className: "-ml-1.5 mb-3 flex h-8 items-center gap-1.5 text-[14px] text-ink-3",
+				children: [
+					/* @__PURE__ */ jsx(IconArrowLeft, { size: 16 }),
+					" ",
+					/* @__PURE__ */ jsx("span", { children: "返回" })
+				]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "flex items-center gap-2",
+				children: [/* @__PURE__ */ jsx("div", { className: "h-4 w-28 rounded bg-line-soft" }), /* @__PURE__ */ jsx("div", { className: "h-4 w-16 rounded bg-line-soft" })]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "mt-3.5 space-y-2.5",
+				children: [/* @__PURE__ */ jsx("div", { className: "h-7 w-11/12 rounded-lg bg-line-strong" }), /* @__PURE__ */ jsx("div", { className: "h-7 w-3/5 rounded-lg bg-line-strong" })]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "mt-4 space-y-2 rounded-2xl border border-line-soft bg-surface/60 p-4.5",
+				children: [/* @__PURE__ */ jsx("div", { className: "h-4 w-full rounded bg-line-soft" }), /* @__PURE__ */ jsx("div", { className: "h-4 w-4/5 rounded bg-line-soft" })]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "mt-5 aspect-video w-full rounded-2xl border border-line-soft bg-bg-sunk flex flex-col items-center justify-center gap-3",
+				children: [/* @__PURE__ */ jsx("div", { className: "size-7 animate-spin rounded-full border-2 border-line-strong border-t-accent" }), /* @__PURE__ */ jsx("span", {
+					className: "text-[12.5px] font-medium text-ink-3 tracking-wide",
+					children: "正在加载详情内容..."
+				})]
+			}),
+			/* @__PURE__ */ jsxs("div", {
+				className: "mt-6 space-y-3",
+				children: [
+					/* @__PURE__ */ jsx("div", { className: "h-4 w-full rounded bg-line-soft" }),
+					/* @__PURE__ */ jsx("div", { className: "h-4 w-11/12 rounded bg-line-soft" }),
+					/* @__PURE__ */ jsx("div", { className: "h-4 w-3/4 rounded bg-line-soft" })
+				]
+			})
+		]
+	});
+}
+//#endregion
 //#region app/root.tsx
 var root_exports = /* @__PURE__ */ __exportAll({
 	ErrorBoundary: () => ErrorBoundary,
@@ -1147,7 +1197,7 @@ function Layout({ children }) {
 			}),
 			/* @__PURE__ */ jsx("meta", {
 				name: "theme-color",
-				content: "#f8fafc",
+				content: "#0c1015",
 				id: "theme-color-meta"
 			}),
 			/* @__PURE__ */ jsx("meta", {
@@ -1191,6 +1241,7 @@ function meta$43({ error }) {
 /** Sidebar, main column and phone tab bar around a page (or an error). */
 function SiteShell({ changelogVersion, children }) {
 	const navigation = useNavigation();
+	const isNavigatingToItem = navigation.state === "loading" && navigation.location?.pathname.startsWith("/items/");
 	return /* @__PURE__ */ jsxs("div", {
 		className: "flex min-h-dvh",
 		children: [
@@ -1206,7 +1257,7 @@ function SiteShell({ changelogVersion, children }) {
 				className: "min-w-0 flex-1 pb-[calc(72px+env(safe-area-inset-bottom))] lg:px-5 lg:pb-[72px] lg:pt-6 xl:px-7",
 				children: /* @__PURE__ */ jsx("div", {
 					className: "mx-auto w-full max-w-[640px] px-4 lg:max-w-[var(--page-max-wide)] lg:px-0",
-					children
+					children: isNavigatingToItem ? /* @__PURE__ */ jsx(ItemDetailSkeleton, {}) : children
 				})
 			}),
 			/* @__PURE__ */ jsx(MobileTabBar, { changelogVersion }),
@@ -1364,8 +1415,8 @@ var LEADERBOARD_BOARD_LABELS = {
 };
 //#endregion
 //#region app/components/ui/IntentLink.tsx
-/** Hover, keyboard focus and a stationary touch prefetch; scrolling over a card does not. */
-function IntentLink({ onFocus, onBlur, onMouseEnter, onMouseLeave, onTouchStart, onTouchMove, onTouchEnd, onTouchCancel, ...props }) {
+/** Desktop hover prefetch (after 180ms); mobile touch events do not prefetch to avoid request flooding during scrolling. */
+function IntentLink({ onFocus, onBlur, onMouseEnter, onMouseLeave, ...props }) {
 	const [ready, setReady] = useState(false);
 	const timer = useRef(null);
 	const clear = () => {
@@ -1377,7 +1428,7 @@ function IntentLink({ onFocus, onBlur, onMouseEnter, onMouseLeave, onTouchStart,
 		timer.current = setTimeout(() => {
 			timer.current = null;
 			setReady(true);
-		}, 100);
+		}, 180);
 	};
 	const cancel = () => {
 		clear();
@@ -1389,7 +1440,7 @@ function IntentLink({ onFocus, onBlur, onMouseEnter, onMouseLeave, onTouchStart,
 	}, [props.to]);
 	return /* @__PURE__ */ jsx(Link, {
 		...props,
-		prefetch: ready ? "render" : "none",
+		prefetch: ready ? "intent" : "none",
 		onFocus: (e) => {
 			onFocus?.(e);
 			if (!e.defaultPrevented) start();
@@ -1404,22 +1455,6 @@ function IntentLink({ onFocus, onBlur, onMouseEnter, onMouseLeave, onTouchStart,
 		},
 		onMouseLeave: (e) => {
 			onMouseLeave?.(e);
-			cancel();
-		},
-		onTouchStart: (e) => {
-			onTouchStart?.(e);
-			if (!e.defaultPrevented) start();
-		},
-		onTouchMove: (e) => {
-			onTouchMove?.(e);
-			cancel();
-		},
-		onTouchEnd: (e) => {
-			onTouchEnd?.(e);
-			cancel();
-		},
-		onTouchCancel: (e) => {
-			onTouchCancel?.(e);
 			cancel();
 		}
 	});
@@ -2092,6 +2127,7 @@ function MediaThumbs({ media, className = "" }) {
 					alt: m.alt ?? "",
 					loading: "lazy",
 					decoding: "async",
+					fetchPriority: "low",
 					className: `h-[112px] object-cover ${shown.length === 1 ? "w-auto max-w-[240px]" : "w-[112px]"}`
 				}), m.kind === "video" && /* @__PURE__ */ jsx("span", {
 					className: "absolute inset-0 grid place-items-center",
@@ -4812,6 +4848,7 @@ function RocketsStandingsSection({ standings }) {
 //#region app/features/schedule/RocketsRosterSection.tsx
 function RocketsRosterSection({ players, onSelectPlayer }) {
 	const [filterPos, setFilterPos] = useState("ALL");
+	const [seasonView, setSeasonView] = useState("2026-27");
 	const [searchQuery, setSearchQuery] = useState("");
 	const [sortField, setSortField] = useState("pts");
 	const [sortAsc, setSortAsc] = useState(false);
@@ -4822,11 +4859,30 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 			setSortAsc(false);
 		}
 	};
-	const is2026SeasonActive = useMemo(() => {
-		const hasRealStats = players.some((p) => p.seasons?.["2026-27"] && p.seasons["2026-27"].gp > 0);
-		const isRegularSeasonStarted = (/* @__PURE__ */ new Date()).toISOString() >= "2026-10-22";
-		return hasRealStats || isRegularSeasonStarted;
-	}, [players]);
+	const getPlayerSeasonStat = (p) => {
+		if (seasonView === "2026-27") return p.seasons?.["2026-27"] || {
+			season: "2026-27",
+			gp: 0,
+			gs: 0,
+			mpg: 0,
+			pts: 0,
+			reb: 0,
+			ast: 0,
+			stl: 0,
+			blk: 0,
+			tov: 0,
+			fgPct: 0,
+			threePtPct: 0,
+			ftPct: 0,
+			fg: "0-0",
+			threePt: "0-0",
+			ft: "0-0",
+			oReb: 0,
+			dReb: 0,
+			pf: 0
+		};
+		return p.seasons?.["2025-26"] || p.stats;
+	};
 	const filteredPlayers = useMemo(() => {
 		return players.filter((p) => {
 			if (filterPos === "G" && !p.position.includes("G")) return false;
@@ -4838,8 +4894,8 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 			}
 			return true;
 		}).sort((a, b) => {
-			const sA = is2026SeasonActive && a.seasons?.["2026-27"]?.gp ? a.seasons["2026-27"] : a.seasons?.["2025-26"] || a.stats;
-			const sB = is2026SeasonActive && b.seasons?.["2026-27"]?.gp ? b.seasons["2026-27"] : b.seasons?.["2025-26"] || b.stats;
+			const sA = getPlayerSeasonStat(a);
+			const sB = getPlayerSeasonStat(b);
 			let valA = 0;
 			let valB = 0;
 			switch (sortField) {
@@ -4903,7 +4959,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 		searchQuery,
 		sortField,
 		sortAsc,
-		is2026SeasonActive
+		seasonView
 	]);
 	const renderSortArrow = (field) => {
 		if (sortField !== field) return /* @__PURE__ */ jsx("span", {
@@ -4919,51 +4975,78 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 		/* @__PURE__ */ jsxs("div", {
 			className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 px-0.5",
 			children: [/* @__PURE__ */ jsxs("div", {
-				className: "flex items-center gap-2",
-				children: [/* @__PURE__ */ jsx("span", { className: "w-1.5 h-4 bg-[#CE1141] rounded-full inline-block" }), /* @__PURE__ */ jsx("h2", {
-					className: "text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight",
-					children: "2026-27 赛季火箭官方球员名单与技术统计"
-				})]
+				className: "flex flex-wrap items-center gap-2",
+				children: [
+					/* @__PURE__ */ jsx("span", { className: "w-1.5 h-4 bg-[#CE1141] rounded-full inline-block" }),
+					/* @__PURE__ */ jsxs("h2", {
+						className: "text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight",
+						children: [seasonView, " 赛季火箭官方球员名单与技术统计"]
+					}),
+					seasonView === "2026-27" ? /* @__PURE__ */ jsx("span", {
+						className: "px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium text-[10.5px] border border-emerald-500/20",
+						children: "新赛季揭幕战已完赛 · 场均表现实时同步"
+					}) : /* @__PURE__ */ jsx("span", {
+						className: "px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-400 font-medium text-[10.5px]",
+						children: "上赛季完整战绩对照"
+					})
+				]
 			}), /* @__PURE__ */ jsxs("div", {
 				className: "flex items-center gap-2 self-start sm:self-auto flex-wrap sm:flex-nowrap",
-				children: [/* @__PURE__ */ jsx("div", {
-					className: "flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs",
-					children: [
-						{
-							id: "ALL",
-							label: "全部"
-						},
-						{
-							id: "G",
-							label: "后卫"
-						},
-						{
-							id: "F",
-							label: "前锋"
-						},
-						{
-							id: "C",
-							label: "中锋"
-						}
-					].map((tab) => /* @__PURE__ */ jsx("button", {
-						type: "button",
-						onClick: () => setFilterPos(tab.id),
-						className: `px-2.5 py-1 rounded-md font-medium transition-colors ${filterPos === tab.id ? "bg-[#CE1141] text-white font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
-						children: tab.label
-					}, tab.id))
-				}), /* @__PURE__ */ jsxs("div", {
-					className: "relative",
-					children: [/* @__PURE__ */ jsx("input", {
-						type: "text",
-						value: searchQuery,
-						onChange: (e) => setSearchQuery(e.target.value),
-						placeholder: "搜索球员或号码...",
-						className: "bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg pl-7 pr-2.5 py-1 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-[#CE1141] w-36 sm:w-44"
-					}), /* @__PURE__ */ jsx("span", {
-						className: "absolute left-2 top-1.5 text-slate-400 dark:text-zinc-500 text-xs",
-						children: "🔍"
-					})]
-				})]
+				children: [
+					/* @__PURE__ */ jsxs("div", {
+						className: "flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs font-semibold",
+						children: [/* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setSeasonView("2026-27"),
+							className: `px-2.5 py-1 rounded-md transition-all ${seasonView === "2026-27" ? "bg-[#CE1141] text-white shadow-xs" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+							children: "2026-27 (新赛季)"
+						}), /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setSeasonView("2025-26"),
+							className: `px-2.5 py-1 rounded-md transition-all ${seasonView === "2025-26" ? "bg-[#CE1141] text-white shadow-xs" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+							children: "2025-26 (上赛季)"
+						})]
+					}),
+					/* @__PURE__ */ jsx("div", {
+						className: "flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs",
+						children: [
+							{
+								id: "ALL",
+								label: "全部"
+							},
+							{
+								id: "G",
+								label: "后卫"
+							},
+							{
+								id: "F",
+								label: "前锋"
+							},
+							{
+								id: "C",
+								label: "中锋"
+							}
+						].map((tab) => /* @__PURE__ */ jsx("button", {
+							type: "button",
+							onClick: () => setFilterPos(tab.id),
+							className: `px-2.5 py-1 rounded-md font-medium transition-colors ${filterPos === tab.id ? "bg-slate-800 dark:bg-white/20 text-white font-bold" : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"}`,
+							children: tab.label
+						}, tab.id))
+					}),
+					/* @__PURE__ */ jsxs("div", {
+						className: "relative",
+						children: [/* @__PURE__ */ jsx("input", {
+							type: "text",
+							value: searchQuery,
+							onChange: (e) => setSearchQuery(e.target.value),
+							placeholder: "搜索球员或号码...",
+							className: "bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg pl-7 pr-2.5 py-1 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-[#CE1141] w-36 sm:w-44"
+						}), /* @__PURE__ */ jsx("span", {
+							className: "absolute left-2 top-1.5 text-slate-400 dark:text-zinc-500 text-xs",
+							children: "🔍"
+						})]
+					})
+				]
 			})]
 		}),
 		/* @__PURE__ */ jsx("div", {
@@ -5049,7 +5132,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 						className: "py-8 text-center text-slate-400 dark:text-zinc-500 font-sans",
 						children: "未找到匹配球员"
 					}) }) : filteredPlayers.map((p) => {
-						const s = is2026SeasonActive && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats;
+						const s = getPlayerSeasonStat(p);
 						const isTopStar = p.nameEn.includes("Durant") || p.nameEn.includes("Sengun");
 						return /* @__PURE__ */ jsxs("tr", {
 							onClick: () => onSelectPlayer(p),
@@ -5100,48 +5183,48 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 									className: "py-2 px-1.5 text-center font-bold text-sm bg-slate-50/60 dark:bg-white/[0.01]",
 									children: /* @__PURE__ */ jsx("span", {
 										className: s.pts >= 20 ? "text-[#CE1141] font-black" : s.pts >= 15 ? "text-slate-900 dark:text-zinc-100" : "text-slate-700 dark:text-zinc-300",
-										children: s.pts ? s.pts.toFixed(1) : "--"
+										children: s.gp > 0 && s.pts ? s.pts.toFixed(1) : "--"
 									})
 								}),
 								/* @__PURE__ */ jsx("td", {
 									className: "py-2 px-1.5 text-center text-slate-800 dark:text-zinc-200",
-									children: s.reb ? s.reb.toFixed(1) : "--"
+									children: s.gp > 0 && s.reb !== void 0 ? s.reb.toFixed(1) : "--"
 								}),
 								/* @__PURE__ */ jsx("td", {
 									className: "py-2 px-1.5 text-center text-slate-800 dark:text-zinc-200",
-									children: s.ast ? s.ast.toFixed(1) : "--"
+									children: s.gp > 0 && s.ast !== void 0 ? s.ast.toFixed(1) : "--"
 								}),
 								/* @__PURE__ */ jsx("td", {
 									className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
-									children: s.stl ? s.stl.toFixed(1) : "--"
+									children: s.gp > 0 && s.stl !== void 0 ? s.stl.toFixed(1) : "--"
 								}),
 								/* @__PURE__ */ jsx("td", {
 									className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
-									children: s.blk ? s.blk.toFixed(1) : "--"
+									children: s.gp > 0 && s.blk !== void 0 ? s.blk.toFixed(1) : "--"
 								}),
 								/* @__PURE__ */ jsx("td", {
 									className: "py-2 px-1.5 text-center text-slate-500 dark:text-zinc-400",
-									children: s.tov ? s.tov.toFixed(1) : "--"
+									children: s.gp > 0 && s.tov !== void 0 ? s.tov.toFixed(1) : "--"
 								}),
 								/* @__PURE__ */ jsx("td", {
 									className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
-									children: s.fgPct ? `${s.fgPct.toFixed(1)}%` : "--"
+									children: s.gp > 0 && s.fgPct ? `${s.fgPct.toFixed(1)}%` : "--"
 								}),
 								/* @__PURE__ */ jsx("td", {
 									className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
-									children: s.threePtPct ? `${s.threePtPct.toFixed(1)}%` : "--"
+									children: s.gp > 0 && s.threePtPct ? `${s.threePtPct.toFixed(1)}%` : "--"
 								}),
 								/* @__PURE__ */ jsx("td", {
 									className: "py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300",
-									children: s.ftPct ? `${s.ftPct.toFixed(1)}%` : "--"
+									children: s.gp > 0 && s.ftPct ? `${s.ftPct.toFixed(1)}%` : "--"
 								}),
 								/* @__PURE__ */ jsx("td", {
 									className: "py-2 px-1.5 text-center text-slate-600 dark:text-zinc-400 text-[11px]",
-									children: s.mpg ? `${s.mpg.toFixed(1)}'` : "--"
+									children: s.gp > 0 && s.mpg ? `${s.mpg.toFixed(1)}'` : "--"
 								}),
 								/* @__PURE__ */ jsx("td", {
-									className: "py-2 px-1.5 text-center text-slate-600 dark:text-zinc-400 text-xs",
-									children: s.gp ?? "--"
+									className: "py-2 px-1.5 text-center text-slate-600 dark:text-zinc-400 text-xs font-bold",
+									children: s.gp > 0 ? s.gp : "0"
 								})
 							]
 						}, p.id);
@@ -5155,7 +5238,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 				className: "py-8 text-center text-slate-400 dark:text-zinc-500 text-xs",
 				children: "未找到匹配球员"
 			}) : filteredPlayers.map((p) => {
-				const s = is2026SeasonActive && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats;
+				const s = getPlayerSeasonStat(p);
 				const isHighScorer = s.pts >= 18;
 				return /* @__PURE__ */ jsxs("div", {
 					onClick: () => onSelectPlayer(p),
@@ -5193,7 +5276,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 											children: [
 												p.age,
 												"岁 · ",
-												p.college
+												s.gp > 0 ? `${s.gp}场` : "未出战"
 											]
 										})
 									]
@@ -5213,7 +5296,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 									children: "得分"
 								}), /* @__PURE__ */ jsx("span", {
 									className: `text-xs font-bold leading-tight ${isHighScorer ? "text-[#CE1141]" : "text-slate-900 dark:text-white"}`,
-									children: s.pts ? s.pts.toFixed(1) : "--"
+									children: s.gp > 0 && s.pts ? s.pts.toFixed(1) : "--"
 								})]
 							}),
 							/* @__PURE__ */ jsxs("div", {
@@ -5223,7 +5306,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 									children: "篮板"
 								}), /* @__PURE__ */ jsx("span", {
 									className: "text-xs font-semibold leading-tight text-slate-800 dark:text-zinc-200",
-									children: s.reb ? s.reb.toFixed(1) : "--"
+									children: s.gp > 0 && s.reb !== void 0 ? s.reb.toFixed(1) : "--"
 								})]
 							}),
 							/* @__PURE__ */ jsxs("div", {
@@ -5233,7 +5316,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 									children: "助攻"
 								}), /* @__PURE__ */ jsx("span", {
 									className: "text-xs font-semibold leading-tight text-slate-800 dark:text-zinc-200",
-									children: s.ast ? s.ast.toFixed(1) : "--"
+									children: s.gp > 0 && s.ast !== void 0 ? s.ast.toFixed(1) : "--"
 								})]
 							}),
 							/* @__PURE__ */ jsxs("div", {
@@ -5243,7 +5326,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 									children: "抢断"
 								}), /* @__PURE__ */ jsx("span", {
 									className: "text-xs font-medium leading-tight text-slate-700 dark:text-zinc-300",
-									children: s.stl ? s.stl.toFixed(1) : "--"
+									children: s.gp > 0 && s.stl !== void 0 ? s.stl.toFixed(1) : "--"
 								})]
 							}),
 							/* @__PURE__ */ jsxs("div", {
@@ -5253,7 +5336,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 									children: "投篮"
 								}), /* @__PURE__ */ jsx("span", {
 									className: "text-xs font-medium leading-tight text-slate-700 dark:text-zinc-300",
-									children: s.fgPct ? `${s.fgPct.toFixed(0)}%` : "--"
+									children: s.gp > 0 && s.fgPct ? `${s.fgPct.toFixed(0)}%` : "--"
 								})]
 							}),
 							/* @__PURE__ */ jsxs("div", {
@@ -5263,7 +5346,7 @@ function RocketsRosterSection({ players, onSelectPlayer }) {
 									children: "三分"
 								}), /* @__PURE__ */ jsx("span", {
 									className: "text-xs font-medium leading-tight text-slate-700 dark:text-zinc-300",
-									children: s.threePtPct ? `${s.threePtPct.toFixed(0)}%` : "--"
+									children: s.gp > 0 && s.threePtPct ? `${s.threePtPct.toFixed(0)}%` : "--"
 								})]
 							})
 						]
@@ -5889,26 +5972,26 @@ function RocketsPlayerModal({ player, onClose }) {
 			children: [/* @__PURE__ */ jsx("button", {
 				type: "button",
 				onClick: onClose,
-				className: "absolute top-3.5 right-3.5 z-30 w-8 h-8 rounded-full bg-slate-900/10 hover:bg-slate-900/20 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 hover:text-slate-900 dark:text-white/80 dark:hover:text-white flex items-center justify-center transition-all text-xs backdrop-blur-md",
+				className: "absolute top-3.5 right-3.5 z-30 w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-300/80 dark:bg-white/10 dark:hover:bg-white/20 text-slate-600 hover:text-slate-900 dark:text-white/80 dark:hover:text-white flex items-center justify-center transition-all text-xs backdrop-blur-md",
 				title: "关闭",
 				children: "✕"
 			}), /* @__PURE__ */ jsxs("div", {
 				className: "overflow-y-auto flex-1 scrollbar-thin",
 				children: [
 					/* @__PURE__ */ jsxs("div", {
-						className: "relative bg-gradient-to-br from-slate-900 via-[#181a20] to-[#251016] text-white p-4 sm:p-6 overflow-hidden",
+						className: "relative bg-gradient-to-br from-red-50/70 via-slate-50 to-white dark:from-[#15171c] dark:via-[#1c1a20] dark:to-[#221217] border-b border-slate-200/80 dark:border-white/10 p-4 sm:p-6 overflow-hidden transition-colors",
 						children: [
 							/* @__PURE__ */ jsxs("span", {
-								className: "absolute -right-2 -bottom-4 text-7xl sm:text-8xl font-black font-mono text-white/[0.04] select-none pointer-events-none",
+								className: "absolute -right-2 -bottom-4 text-7xl sm:text-8xl font-black font-mono text-slate-900/[0.04] dark:text-white/[0.04] select-none pointer-events-none",
 								children: ["#", player.number]
 							}),
-							/* @__PURE__ */ jsx("div", { className: "absolute top-0 right-1/3 w-40 h-40 bg-[#CE1141]/20 rounded-full blur-3xl pointer-events-none" }),
+							/* @__PURE__ */ jsx("div", { className: "absolute top-0 right-1/3 w-40 h-40 bg-[#CE1141]/5 dark:bg-[#CE1141]/20 rounded-full blur-3xl pointer-events-none" }),
 							/* @__PURE__ */ jsxs("div", {
 								className: "relative z-10 flex items-center gap-3.5 sm:gap-5 pr-8",
 								children: [/* @__PURE__ */ jsxs("div", {
 									className: "relative flex-shrink-0",
 									children: [/* @__PURE__ */ jsx("div", {
-										className: "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-b from-white/15 to-white/5 border border-white/20 p-1 flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-[#CE1141]/30",
+										className: "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/90 dark:border-white/20 p-1 flex items-center justify-center overflow-hidden shadow-sm ring-2 ring-[#CE1141]/20",
 										children: /* @__PURE__ */ jsx("img", {
 											src: player.headshotUrl,
 											alt: player.nameCn,
@@ -5916,7 +5999,7 @@ function RocketsPlayerModal({ player, onClose }) {
 											loading: "lazy"
 										})
 									}), /* @__PURE__ */ jsxs("span", {
-										className: "absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-md bg-[#CE1141] text-white font-mono font-black text-[10px] shadow border border-white/20",
+										className: "absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-md bg-[#CE1141] text-white font-mono font-black text-[10px] shadow border border-white/40 dark:border-white/20",
 										children: ["#", player.number]
 									})]
 								}), /* @__PURE__ */ jsxs("div", {
@@ -5926,28 +6009,28 @@ function RocketsPlayerModal({ player, onClose }) {
 											className: "flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5",
 											children: [
 												/* @__PURE__ */ jsx("h2", {
-													className: "text-lg sm:text-2xl font-black text-white tracking-tight truncate",
+													className: "text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight truncate",
 													children: player.nameCn
 												}),
 												/* @__PURE__ */ jsx("span", {
-													className: "px-1.5 py-0.5 rounded bg-white/15 text-white/90 text-[10.5px] font-bold",
+													className: "px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-white/15 text-slate-700 dark:text-white/90 text-[10.5px] font-bold border border-slate-300/60 dark:border-transparent",
 													children: player.position
 												}),
 												/* @__PURE__ */ jsx("span", {
-													className: "px-1.5 py-0.5 rounded bg-[#CE1141] text-white text-[10.5px] font-bold",
+													className: "px-1.5 py-0.5 rounded bg-[#CE1141] text-white text-[10.5px] font-bold shadow-xs",
 													children: "休斯敦火箭"
 												})
 											]
 										}),
 										/* @__PURE__ */ jsx("p", {
-											className: "text-[11px] text-white/60 font-mono mb-2 truncate",
+											className: "text-[11px] text-slate-500 dark:text-white/60 font-mono mb-2 truncate",
 											children: player.nameEn
 										}),
 										/* @__PURE__ */ jsxs("div", {
-											className: "flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/80",
+											className: "flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-700 dark:text-white/80",
 											children: [
 												/* @__PURE__ */ jsxs("span", { children: [/* @__PURE__ */ jsx("strong", {
-													className: "text-white/50 font-normal",
+													className: "text-slate-400 dark:text-white/50 font-normal",
 													children: "身高/体重: "
 												}), /* @__PURE__ */ jsxs("span", {
 													className: "font-mono",
@@ -5958,12 +6041,12 @@ function RocketsPlayerModal({ player, onClose }) {
 													]
 												})] }),
 												/* @__PURE__ */ jsx("span", {
-													className: "text-white/30 hidden sm:inline",
+													className: "text-slate-300 dark:text-white/30 hidden sm:inline",
 													children: "|"
 												}),
 												/* @__PURE__ */ jsxs("span", { children: [
 													/* @__PURE__ */ jsx("strong", {
-														className: "text-white/50 font-normal",
+														className: "text-slate-400 dark:text-white/50 font-normal",
 														children: "年龄/球龄: "
 													}),
 													player.age,
@@ -5972,13 +6055,13 @@ function RocketsPlayerModal({ player, onClose }) {
 													")"
 												] }),
 												/* @__PURE__ */ jsx("span", {
-													className: "text-white/30 hidden sm:inline",
+													className: "text-slate-300 dark:text-white/30 hidden sm:inline",
 													children: "|"
 												}),
 												/* @__PURE__ */ jsxs("span", {
 													className: "truncate max-w-full",
 													children: [/* @__PURE__ */ jsx("strong", {
-														className: "text-white/50 font-normal",
+														className: "text-slate-400 dark:text-white/50 font-normal",
 														children: "选秀: "
 													}), player.draftInfo]
 												})
@@ -6034,11 +6117,11 @@ function RocketsPlayerModal({ player, onClose }) {
 							children: [
 								/* @__PURE__ */ jsx("p", {
 									className: "text-slate-800 dark:text-zinc-200 font-bold text-sm",
-									children: "2026-27 常规赛待开赛"
+									children: "2026-27 赛季暂未出战"
 								}),
 								/* @__PURE__ */ jsx("p", {
 									className: "text-xs text-slate-500 dark:text-zinc-400 mt-1",
-									children: "开赛产生官方实录后自动同步场均表现。"
+									children: "该球员出场产生官方技术统计后将自动同步更新。"
 								}),
 								/* @__PURE__ */ jsx("button", {
 									type: "button",
@@ -6361,7 +6444,7 @@ function RocketsPlayerModal({ player, onClose }) {
 													}),
 													/* @__PURE__ */ jsx("td", {
 														className: "py-2 px-1 text-center",
-														children: noData ? "待开赛" : s.gp
+														children: noData ? "未登场" : s.gp
 													}),
 													/* @__PURE__ */ jsx("td", {
 														className: "py-2 px-1 text-center",
@@ -6890,6 +6973,131 @@ function Followups({ items, more, story }) {
 	});
 }
 //#endregion
+//#region app/components/ui/VideoModal.tsx
+function VideoModal({ open, videoUrl, poster, onClose }) {
+	const dialog = useRef(null);
+	const videoRef = useRef(null);
+	const closeButton = useRef(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(false);
+	useEffect(() => {
+		if (!open) {
+			setLoading(true);
+			setError(false);
+			return;
+		}
+		const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+		const root = document.documentElement;
+		const overflow = root.style.overflow;
+		root.style.overflow = "hidden";
+		closeButton.current?.focus({ preventScroll: true });
+		const onKey = (e) => {
+			if (e.key === "Escape") onClose();
+		};
+		document.addEventListener("keydown", onKey);
+		return () => {
+			document.removeEventListener("keydown", onKey);
+			root.style.overflow = overflow;
+			opener?.focus({ preventScroll: true });
+		};
+	}, [open, onClose]);
+	if (typeof document === "undefined") return null;
+	return createPortal(/* @__PURE__ */ jsx(Presence, {
+		show: open && !!videoUrl,
+		enter: "anim-fade-in",
+		exit: "anim-fade-out",
+		duration: 160,
+		children: /* @__PURE__ */ jsxs("div", {
+			ref: dialog,
+			role: "dialog",
+			"aria-modal": "true",
+			"aria-label": "视频播放器",
+			onClick: onClose,
+			className: "fixed inset-0 z-[80] grid place-items-center bg-black/90 p-3 sm:p-8 backdrop-blur-sm",
+			children: [/* @__PURE__ */ jsxs("div", {
+				className: "relative max-h-[calc(100dvh-4rem)] max-w-full overflow-hidden rounded-2xl bg-black/95 shadow-2xl flex flex-col items-center justify-center border border-white/10",
+				onClick: (e) => e.stopPropagation(),
+				children: [
+					loading && !error && /* @__PURE__ */ jsxs("div", {
+						className: "absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-xs text-white",
+						children: [/* @__PURE__ */ jsx("div", { className: "size-10 rounded-full border-3 border-white/20 border-t-[#CE1141] animate-spin" }), /* @__PURE__ */ jsx("span", {
+							className: "mt-3 text-[13px] font-medium text-white/80 tracking-wide",
+							children: "视频极速缓冲中…"
+						})]
+					}),
+					error && /* @__PURE__ */ jsxs("div", {
+						className: "absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 p-6 text-center text-white",
+						children: [
+							/* @__PURE__ */ jsx("span", {
+								className: "text-2xl mb-2",
+								children: "⚠️"
+							}),
+							/* @__PURE__ */ jsx("p", {
+								className: "text-[14px] font-bold text-white/90",
+								children: "视频源加载遇到波动"
+							}),
+							/* @__PURE__ */ jsx("p", {
+								className: "mt-1 text-[12.5px] text-white/60 max-w-xs",
+								children: "因原平台跨国节点延迟，可尝试重新缓冲或直接打开原视频链接。"
+							}),
+							/* @__PURE__ */ jsxs("div", {
+								className: "mt-4 flex items-center gap-3",
+								children: [/* @__PURE__ */ jsx("button", {
+									type: "button",
+									onClick: () => {
+										setError(false);
+										setLoading(true);
+										if (videoRef.current) {
+											videoRef.current.load();
+											videoRef.current.play().catch(() => {});
+										}
+									},
+									className: "rounded-full bg-[#CE1141] px-4 py-1.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#b00e36]",
+									children: "重新加载"
+								}), videoUrl && /* @__PURE__ */ jsx("a", {
+									href: videoUrl,
+									target: "_blank",
+									rel: "noreferrer",
+									className: "rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[12.5px] font-medium text-white hover:bg-white/20",
+									children: "新窗口播放"
+								})]
+							})
+						]
+					}),
+					videoUrl && /* @__PURE__ */ jsx("video", {
+						ref: videoRef,
+						src: videoUrl,
+						poster: poster ?? void 0,
+						controls: true,
+						autoPlay: true,
+						playsInline: true,
+						preload: "auto",
+						onLoadStart: () => {
+							setLoading(true);
+							setError(false);
+						},
+						onWaiting: () => setLoading(true),
+						onCanPlay: () => setLoading(false),
+						onPlaying: () => setLoading(false),
+						onError: () => {
+							setLoading(false);
+							setError(true);
+						},
+						className: "max-h-[calc(100dvh-5rem)] max-w-[calc(100vw-2rem)] md:max-w-4xl rounded-2xl object-contain shadow-inner"
+					}, videoUrl)
+				]
+			}), /* @__PURE__ */ jsx("button", {
+				ref: closeButton,
+				type: "button",
+				"aria-label": "关闭视频",
+				onClick: onClose,
+				className: "absolute right-4 top-4 grid size-10 place-items-center rounded-full bg-white/15 text-white shadow-lg transition-all hover:bg-white/25 active:scale-95",
+				children: /* @__PURE__ */ jsx(IconClose, { size: 20 })
+			})]
+		})
+	}), document.body);
+}
+//#endregion
 //#region app/features/item/MediaGallery.tsx
 /** A round play mark over a video's still. */
 function PlayMark() {
@@ -6909,6 +7117,39 @@ function PlayMark() {
 		})
 	});
 }
+/** An expand icon indicating fullscreen / lightbox video modal */
+function ExpandMark() {
+	return /* @__PURE__ */ jsx("span", {
+		className: "absolute top-2 right-2 z-10 grid size-7 place-items-center rounded-full bg-black/60 text-white backdrop-blur-xs ring-1 ring-white/20 transition-transform group-hover:scale-110",
+		title: "全屏大屏播放",
+		children: /* @__PURE__ */ jsxs("svg", {
+			width: "12",
+			height: "12",
+			viewBox: "0 0 24 24",
+			fill: "none",
+			stroke: "currentColor",
+			strokeWidth: "2.5",
+			strokeLinecap: "round",
+			strokeLinejoin: "round",
+			children: [
+				/* @__PURE__ */ jsx("polyline", { points: "15 3 21 3 21 9" }),
+				/* @__PURE__ */ jsx("polyline", { points: "9 21 3 21 3 15" }),
+				/* @__PURE__ */ jsx("line", {
+					x1: "21",
+					y1: "3",
+					x2: "14",
+					y2: "10"
+				}),
+				/* @__PURE__ */ jsx("line", {
+					x1: "3",
+					y1: "21",
+					x2: "10",
+					y2: "14"
+				})
+			]
+		})
+	});
+}
 /**
 * The post's pictures as tiles, all of them (X allows up to nine; list cards show four). Images open in
 * a viewer that steps through them; videos play inline or in a modal.
@@ -6916,75 +7157,148 @@ function PlayMark() {
 function MediaGallery({ media, postUrl }) {
 	const [open, setOpen] = useState(null);
 	const [playingVideoUrl, setPlayingVideoUrl] = useState(null);
+	const [modalVideo, setModalVideo] = useState(null);
 	const shown = media.slice(0, 9);
 	const images = shown.filter((m) => m.kind !== "video");
 	const single = shown.length === 1;
-	return /* @__PURE__ */ jsxs(Fragment, { children: [/* @__PURE__ */ jsx("div", {
-		className: `mt-5 grid gap-2.5 ${single ? "grid-cols-1" : shown.length === 2 || shown.length === 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}`,
-		children: shown.map((m) => {
-			const isPortrait = !!(m.width && m.height && m.height > m.width);
-			const currentTile = single ? `group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk ${isPortrait ? "max-w-[320px]" : "max-w-[540px]"} w-fit` : "group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk aspect-[16/10]";
-			const img = /* @__PURE__ */ jsx("img", {
-				src: m.poster ?? m.url,
-				srcSet: m.srcSet,
-				sizes: single ? isPortrait ? "auto, 320px" : "auto, 540px" : "auto, (min-width: 800px) 248px, (min-width: 640px) calc(33.333vw - 19px), calc(50vw - 24px)",
-				width: m.width ?? void 0,
-				height: m.height ?? void 0,
-				decoding: "async",
-				alt: m.alt ?? "",
-				loading: "lazy",
-				className: `block transition-transform duration-300 group-hover:scale-[1.015] ${single ? "w-auto h-auto max-h-[500px] max-w-full object-contain" : "w-full h-full object-cover"}`,
-				style: single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : void 0
-			});
-			if (m.kind === "video") {
-				if (m.videoUrl) {
-					if (playingVideoUrl === m.videoUrl) return /* @__PURE__ */ jsx("div", {
-						className: `relative overflow-hidden rounded-tile border border-line-soft bg-black w-fit max-w-full ${single ? "" : "aspect-[16/10]"}`,
-						style: single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : void 0,
-						children: /* @__PURE__ */ jsx("video", {
-							src: m.videoUrl,
-							poster: m.poster ?? m.url,
-							controls: true,
-							autoPlay: true,
-							playsInline: true,
-							preload: "auto",
-							className: "block max-h-[520px] max-w-full w-auto h-auto object-contain rounded-tile"
-						})
-					}, m.url);
-					return /* @__PURE__ */ jsxs("button", {
-						type: "button",
-						onClick: () => setPlayingVideoUrl(m.videoUrl),
-						"aria-label": "在当前页面播放视频",
-						className: `${currentTile} cursor-pointer text-left focus:outline-none`,
+	return /* @__PURE__ */ jsxs(Fragment, { children: [
+		/* @__PURE__ */ jsx("div", {
+			className: `mt-5 grid gap-2.5 ${single ? "grid-cols-1" : shown.length === 2 || shown.length === 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}`,
+			children: shown.map((m) => {
+				const isPortrait = !!(m.width && m.height && m.height > m.width);
+				const currentTile = single ? `group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk ${isPortrait ? "max-w-[320px]" : "max-w-[540px]"} w-fit` : "group relative overflow-hidden rounded-tile border border-line-soft bg-bg-sunk aspect-[16/10]";
+				const img = /* @__PURE__ */ jsx("img", {
+					src: m.poster ?? m.url,
+					srcSet: m.srcSet,
+					sizes: single ? isPortrait ? "auto, 320px" : "auto, 540px" : "auto, (min-width: 800px) 248px, (min-width: 640px) calc(33.333vw - 19px), calc(50vw - 24px)",
+					width: m.width ?? void 0,
+					height: m.height ?? void 0,
+					decoding: "async",
+					alt: m.alt ?? "",
+					loading: "lazy",
+					className: `block transition-transform duration-300 group-hover:scale-[1.015] ${single ? "w-auto h-auto max-h-[500px] max-w-full object-contain" : "w-full h-full object-cover"}`,
+					style: single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : void 0
+				});
+				if (m.kind === "video") {
+					if (m.videoUrl) {
+						if (!single) return /* @__PURE__ */ jsxs("button", {
+							type: "button",
+							onClick: () => setModalVideo({
+								url: m.videoUrl,
+								poster: m.poster ?? m.url
+							}),
+							"aria-label": "大屏全屏播放视频",
+							className: `${currentTile} cursor-pointer text-left focus:outline-none`,
+							children: [
+								img,
+								/* @__PURE__ */ jsx(PlayMark, {}),
+								/* @__PURE__ */ jsx(ExpandMark, {})
+							]
+						}, m.url);
+						if (playingVideoUrl === m.videoUrl) return /* @__PURE__ */ jsxs("div", {
+							className: `relative overflow-hidden rounded-tile border border-line-soft bg-black w-fit max-w-full ${single ? "" : "aspect-[16/10]"}`,
+							style: single && m.width && m.height ? { aspectRatio: `${m.width} / ${m.height}` } : void 0,
+							children: [/* @__PURE__ */ jsx("button", {
+								type: "button",
+								onClick: () => setModalVideo({
+									url: m.videoUrl,
+									poster: m.poster ?? m.url
+								}),
+								className: "absolute top-2.5 right-2.5 z-20 grid size-8 place-items-center rounded-full bg-black/70 text-white hover:bg-black/90 ring-1 ring-white/30 backdrop-blur-sm",
+								title: "大屏全屏播放",
+								children: /* @__PURE__ */ jsxs("svg", {
+									width: "14",
+									height: "14",
+									viewBox: "0 0 24 24",
+									fill: "none",
+									stroke: "currentColor",
+									strokeWidth: "2.5",
+									strokeLinecap: "round",
+									strokeLinejoin: "round",
+									children: [
+										/* @__PURE__ */ jsx("polyline", { points: "15 3 21 3 21 9" }),
+										/* @__PURE__ */ jsx("polyline", { points: "9 21 3 21 3 15" }),
+										/* @__PURE__ */ jsx("line", {
+											x1: "21",
+											y1: "3",
+											x2: "14",
+											y2: "10"
+										}),
+										/* @__PURE__ */ jsx("line", {
+											x1: "3",
+											y1: "21",
+											x2: "10",
+											y2: "14"
+										})
+									]
+								})
+							}), /* @__PURE__ */ jsx("video", {
+								src: m.videoUrl,
+								poster: m.poster ?? m.url,
+								controls: true,
+								autoPlay: true,
+								playsInline: true,
+								preload: "auto",
+								className: "block max-h-[520px] max-w-full w-auto h-auto object-contain rounded-tile"
+							})]
+						}, m.url);
+						return /* @__PURE__ */ jsxs("button", {
+							type: "button",
+							onClick: () => setPlayingVideoUrl(m.videoUrl),
+							"aria-label": "在当前页面播放视频",
+							className: `${currentTile} cursor-pointer text-left focus:outline-none`,
+							children: [
+								img,
+								/* @__PURE__ */ jsx(PlayMark, {}),
+								/* @__PURE__ */ jsx("span", {
+									role: "button",
+									tabIndex: 0,
+									onClick: (e) => {
+										e.stopPropagation();
+										setModalVideo({
+											url: m.videoUrl,
+											poster: m.poster ?? m.url
+										});
+									},
+									children: /* @__PURE__ */ jsx(ExpandMark, {})
+								})
+							]
+						}, m.url);
+					}
+					return /* @__PURE__ */ jsxs("a", {
+						href: postUrl,
+						target: "_blank",
+						rel: "noopener noreferrer",
+						"aria-label": "打开原推播放视频",
+						className: currentTile,
 						children: [img, /* @__PURE__ */ jsx(PlayMark, {})]
 					}, m.url);
 				}
-				return /* @__PURE__ */ jsxs("a", {
-					href: postUrl,
-					target: "_blank",
-					rel: "noopener noreferrer",
-					"aria-label": "打开原推播放视频",
-					className: currentTile,
-					children: [img, /* @__PURE__ */ jsx(PlayMark, {})]
+				return /* @__PURE__ */ jsx("button", {
+					type: "button",
+					onClick: () => setOpen(images.indexOf(m)),
+					"aria-label": m.alt ? `查看大图：${m.alt}` : "查看大图",
+					className: `${currentTile} cursor-zoom-in`,
+					children: img
 				}, m.url);
-			}
-			return /* @__PURE__ */ jsx("button", {
-				type: "button",
-				onClick: () => setOpen(images.indexOf(m)),
-				"aria-label": m.alt ? `查看大图：${m.alt}` : "查看大图",
-				className: `${currentTile} cursor-zoom-in`,
-				children: img
-			}, m.url);
+			})
+		}),
+		/* @__PURE__ */ jsx(Lightbox, {
+			images: images.map((m) => ({
+				src: m.url,
+				alt: m.alt
+			})),
+			index: open,
+			onIndex: setOpen,
+			onClose: () => setOpen(null)
+		}),
+		/* @__PURE__ */ jsx(VideoModal, {
+			open: !!modalVideo,
+			videoUrl: modalVideo?.url ?? null,
+			poster: modalVideo?.poster ?? null,
+			onClose: () => setModalVideo(null)
 		})
-	}), /* @__PURE__ */ jsx(Lightbox, {
-		images: images.map((m) => ({
-			src: m.url,
-			alt: m.alt
-		})),
-		index: open,
-		onIndex: setOpen,
-		onClose: () => setOpen(null)
-	})] });
+	] });
 }
 //#endregion
 //#region app/components/ui/YouTubeEmbed.tsx
@@ -13361,6 +13675,45 @@ function meta$23() {
 var install_default = UNSAFE_withComponentProps(function InstallGuidePage() {
 	const [tab, setTab] = useState("android");
 	const [copied, setCopied] = useState(false);
+	const [isStandalone, setIsStandalone] = useState(false);
+	const [hasPrompt, setHasPrompt] = useState(false);
+	const [isWeChat, setIsWeChat] = useState(false);
+	const [showManualGuide, setShowManualGuide] = useState(false);
+	const [installSuccess, setInstallSuccess] = useState(false);
+	const [showApkBackup, setShowApkBackup] = useState(false);
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+		const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+		setIsStandalone(standalone);
+		const ua = navigator.userAgent;
+		setIsWeChat(/MicroMessenger/i.test(ua));
+		if (/iPad|iPhone|iPod/.test(ua)) setTab("ios");
+		else setTab("android");
+		const checkPrompt = () => {
+			if (window.__pwaDeferredPrompt) setHasPrompt(true);
+		};
+		checkPrompt();
+		const handlePromptAvail = () => {
+			setHasPrompt(true);
+		};
+		const handleBeforeInstall = (e) => {
+			e.preventDefault();
+			window.__pwaDeferredPrompt = e;
+			setHasPrompt(true);
+		};
+		const handleAppInstalled = () => {
+			setIsStandalone(true);
+			setInstallSuccess(true);
+		};
+		window.addEventListener("pwa-prompt-available", handlePromptAvail);
+		window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+		window.addEventListener("appinstalled", handleAppInstalled);
+		return () => {
+			window.removeEventListener("pwa-prompt-available", handlePromptAvail);
+			window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+			window.removeEventListener("appinstalled", handleAppInstalled);
+		};
+	}, []);
 	const handleCopy = async () => {
 		try {
 			await navigator.clipboard.writeText(window.location.origin);
@@ -13389,10 +13742,10 @@ var install_default = UNSAFE_withComponentProps(function InstallGuidePage() {
 					className: "min-w-0 flex-1",
 					children: [/* @__PURE__ */ jsx("h1", {
 						className: "text-[19px] font-bold tracking-tight text-ink",
-						children: "安装 APP"
+						children: "安装 ClutchWire 客户端"
 					}), /* @__PURE__ */ jsx("p", {
 						className: "mt-1 text-[13px] leading-relaxed text-ink-3",
-						children: "将 ClutchWire 安装到手机桌面，像原生 App 一样全屏秒开，无浏览器地址栏与杂乱按键干扰。"
+						children: "全屏独立应用体验，极速看球。"
 					})]
 				})]
 			}),
@@ -13402,7 +13755,7 @@ var install_default = UNSAFE_withComponentProps(function InstallGuidePage() {
 					type: "button",
 					onClick: () => setTab("android"),
 					className: `flex-1 rounded-[7px] py-2 text-[13.5px] font-semibold transition-all ${tab === "android" ? "bg-surface text-ink shadow-xs" : "text-ink-3 hover:text-ink"}`,
-					children: "Android (安卓)"
+					children: "Android"
 				}), /* @__PURE__ */ jsx("button", {
 					type: "button",
 					onClick: () => setTab("ios"),
@@ -13410,48 +13763,53 @@ var install_default = UNSAFE_withComponentProps(function InstallGuidePage() {
 					children: "iPhone (Safari)"
 				})]
 			}),
-			tab === "android" && /* @__PURE__ */ jsx("div", {
-				className: "mt-4",
-				children: /* @__PURE__ */ jsx("section", {
-					className: "overflow-hidden rounded-2xl border border-line bg-surface p-5 shadow-xs",
+			tab === "android" && /* @__PURE__ */ jsxs("div", {
+				className: "mt-4 space-y-4",
+				children: [isWeChat && /* @__PURE__ */ jsxs("div", {
+					className: "rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-[13.5px] text-amber-700 dark:text-amber-300",
+					children: [/* @__PURE__ */ jsx("div", {
+						className: "flex items-center gap-2 font-bold",
+						children: /* @__PURE__ */ jsx("span", { children: "⚠️ 当前处于微信内置浏览器" })
+					}), /* @__PURE__ */ jsxs("p", {
+						className: "mt-1 leading-relaxed",
+						children: [
+							"微信限制了文件直接下载。请点击右上角 ",
+							/* @__PURE__ */ jsx("strong", { children: "「···」" }),
+							"，选择 ",
+							/* @__PURE__ */ jsx("strong", { children: "「在浏览器中打开」" }),
+							"，即可下载安装。"
+						]
+					})]
+				}), /* @__PURE__ */ jsx("section", {
+					className: "rounded-2xl border border-line bg-surface p-6 shadow-xs",
 					children: /* @__PURE__ */ jsxs("div", {
-						className: "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+						className: "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5",
 						children: [/* @__PURE__ */ jsxs("div", {
-							className: "min-w-0",
-							children: [
-								/* @__PURE__ */ jsxs("div", {
-									className: "flex items-center gap-2",
-									children: [/* @__PURE__ */ jsx("h2", {
-										className: "text-[16px] font-bold tracking-tight text-ink",
-										children: "ClutchWire Android 客户端"
-									}), /* @__PURE__ */ jsx("span", {
-										className: "text-[12px] text-ink-4",
-										children: "Android 8.0+"
-									})]
-								}),
-								/* @__PURE__ */ jsx("p", {
-									className: "mt-1 text-[13px] leading-relaxed text-ink-3",
-									children: "原生 WebView 容器，沉浸全屏秒开，无任何浏览器网址栏与杂乱弹窗干扰。"
-								}),
-								/* @__PURE__ */ jsx("div", {
-									className: "mt-2 text-[12px] text-ink-4",
-									children: "约 12MB · 原生全屏版 · 极速直连"
-								})
-							]
+							className: "min-w-0 flex-1",
+							children: [/* @__PURE__ */ jsx("h2", {
+								className: "text-[17px] font-bold tracking-tight text-ink",
+								children: "ClutchWire for Android"
+							}), /* @__PURE__ */ jsxs("div", {
+								className: "mt-1.5 flex items-center gap-3 text-[12.5px] text-ink-3",
+								children: [
+									/* @__PURE__ */ jsx("span", { children: "版本 v1.2.0" }),
+									/* @__PURE__ */ jsx("span", { children: "·" }),
+									/* @__PURE__ */ jsx("span", { children: "约 12MB" }),
+									/* @__PURE__ */ jsx("span", { children: "·" }),
+									/* @__PURE__ */ jsx("span", { children: "Android 7.0+" })
+								]
+							})]
 						}), /* @__PURE__ */ jsx("div", {
-							className: "shrink-0 pt-1 sm:pt-0",
+							className: "shrink-0",
 							children: /* @__PURE__ */ jsxs("a", {
-								href: "/download/clutchwire.apk?v=9",
+								href: "/download/clutchwire.apk?v=14",
 								download: "ClutchWire.apk",
-								className: "inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-line-strong bg-bg-sunk px-5 text-[13.5px] font-semibold text-ink transition-all duration-150 hover:border-accent/40 hover:bg-surface hover:text-accent active:scale-95 shadow-xs",
-								children: [/* @__PURE__ */ jsx(IconDownload, {
-									size: 16,
-									className: "text-accent"
-								}), /* @__PURE__ */ jsx("span", { children: "下载 APK" })]
+								className: "w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-ink px-6 py-3 text-[14px] font-semibold text-bg shadow-sm transition-all hover:opacity-90 active:scale-[0.98]",
+								children: [/* @__PURE__ */ jsx(IconDownload, { size: 16 }), /* @__PURE__ */ jsx("span", { children: "下载安装包 (12MB)" })]
 							})
 						})]
 					})
-				})
+				})]
 			}),
 			tab === "ios" && /* @__PURE__ */ jsxs("div", {
 				className: "mt-4 card divide-y divide-line-soft overflow-hidden",
@@ -23091,15 +23449,15 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": true,
-			"module": "/assets/root-DYchyxko.js",
+			"module": "/assets/root-CMNy9bgd.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/Sidebar-DUcQEthG.js",
-				"/assets/Chrome-OCpnYIqb.js",
+				"/assets/shared-D1U31cjg.js",
+				"/assets/Sidebar-C9wG6cjZ.js",
+				"/assets/Chrome-Blw614G1.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
-			"css": ["/assets/root-CMM3WxYa.css"],
+			"css": ["/assets/root-iG8uZB8c.css"],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
 			"clientMiddlewareModule": void 0,
@@ -23139,12 +23497,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/all-nhL4afP0.js",
+			"module": "/assets/all-CCHcgOv4.js",
 			"imports": [
-				"/assets/all-m0cw4oIP.js",
+				"/assets/all-6u1Xsths.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/Filters-o3VMhwoz.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/Filters-CtFXvnz3.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23165,8 +23523,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/podcasts-CBlmJpBg.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/podcasts-Cs9oErOv.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23186,8 +23544,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/videos-DSSZMUM1.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/videos-C9xc9nST.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23207,8 +23565,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/schedule-CBfQDjDP.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/schedule-C3pq-BaM.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23228,12 +23586,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-DHZu3Z-Q.js",
+			"module": "/assets/search-busy-DTXrd8dt.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/all-m0cw4oIP.js",
-				"/assets/Filters-o3VMhwoz.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/all-6u1Xsths.js",
+				"/assets/Filters-CtFXvnz3.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23254,12 +23612,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/search-busy-DHZu3Z-Q.js",
+			"module": "/assets/search-busy-DTXrd8dt.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/all-m0cw4oIP.js",
-				"/assets/Filters-o3VMhwoz.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/all-6u1Xsths.js",
+				"/assets/Filters-CtFXvnz3.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23280,11 +23638,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-lMuIO6-X.js",
+			"module": "/assets/item-IIfCZiqT.js",
 			"imports": [
-				"/assets/item-yOa1HozD.js",
+				"/assets/item-B3nD-X56.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js"
+				"/assets/shared-D1U31cjg.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23305,11 +23663,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/item-original-lMuIO6-X.js",
+			"module": "/assets/item-original-IIfCZiqT.js",
 			"imports": [
-				"/assets/item-yOa1HozD.js",
+				"/assets/item-B3nD-X56.js",
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js"
+				"/assets/shared-D1U31cjg.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23330,11 +23688,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/hot-DaGWrHTx.js",
+			"module": "/assets/hot-BirAs1sL.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/Filters-o3VMhwoz.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/Filters-CtFXvnz3.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23355,8 +23713,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/story-Bsw-E5Dx.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/story-D1CobGx9.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23376,11 +23734,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-API43Il6.js",
+			"module": "/assets/report-latest-kstUbv58.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/ReportPaper-Cda1211e.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/ReportPaper-C2r44rVz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23401,11 +23759,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/daily-archive-D3y7Rv8Q.js",
+			"module": "/assets/daily-archive-DgyzLTT0.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/ReportPaper-Cda1211e.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/ReportPaper-C2r44rVz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23426,11 +23784,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DCewszRJ.js",
+			"module": "/assets/report-detail-DfGplee6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/ReportPaper-Cda1211e.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/ReportPaper-C2r44rVz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23451,11 +23809,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-API43Il6.js",
+			"module": "/assets/report-latest-kstUbv58.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/ReportPaper-Cda1211e.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/ReportPaper-C2r44rVz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23476,11 +23834,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DCewszRJ.js",
+			"module": "/assets/report-detail-DfGplee6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/ReportPaper-Cda1211e.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/ReportPaper-C2r44rVz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23501,11 +23859,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-latest-API43Il6.js",
+			"module": "/assets/report-latest-kstUbv58.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/ReportPaper-Cda1211e.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/ReportPaper-C2r44rVz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23526,11 +23884,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/report-detail-DCewszRJ.js",
+			"module": "/assets/report-detail-DfGplee6.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/ReportPaper-Cda1211e.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/ReportPaper-C2r44rVz.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23614,8 +23972,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/about-OBYzQ2i9.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/about-BCPqyXzn.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23635,8 +23993,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sponsor-D3WduT2l.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/sponsor-CS8tl0Qj.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23656,11 +24014,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/terms-BSdlIQvC.js",
+			"module": "/assets/terms-Dixndj-E.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/CopyPage-RI3aE9CV.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/CopyPage-BzckJApB.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23681,11 +24039,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/privacy-DJDWqwP4.js",
+			"module": "/assets/privacy-CXAc80Hk.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/CopyPage-RI3aE9CV.js"
+				"/assets/shared-D1U31cjg.js",
+				"/assets/CopyPage-BzckJApB.js"
 			],
 			"css": [],
 			"clientActionModule": void 0,
@@ -23706,8 +24064,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/changelog-CjXsnxj-.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/changelog-DJ3K-Sj5.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23727,8 +24085,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-DO0rKbyZ.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/feedback-JHVBu-Gi.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23748,11 +24106,11 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/more-DUTxFza6.js",
+			"module": "/assets/more-B70UOqAu.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
-				"/assets/Sidebar-DUcQEthG.js",
+				"/assets/shared-D1U31cjg.js",
+				"/assets/Sidebar-C9wG6cjZ.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -23774,8 +24132,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/install-kc-vLABK.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/install--WLAcnnr.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23795,8 +24153,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/starred-672QgNll.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/starred-DOfoM4Qr.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23816,10 +24174,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/agent-hudj8yN8.js",
+			"module": "/assets/agent-DDOAdM1S.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/features-DbRQZ5Mo.js"
 			],
 			"css": [],
@@ -23841,8 +24199,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-Bi8JMq5E.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/codex-reset-CY9lhKHZ.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23862,8 +24220,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/codex-reset-Bi8JMq5E.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/codex-reset-CY9lhKHZ.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23883,8 +24241,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-boards-aZhJgUNz.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/leaderboard-boards-BFdCdYNS.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -23904,10 +24262,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-CqTAIdU0.js",
+			"module": "/assets/leaderboard-BT8V6e45.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -23930,10 +24288,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-CqTAIdU0.js",
+			"module": "/assets/leaderboard-BT8V6e45.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/leaderboard-B_82JODD.js",
 				"/assets/Evidence-D5oM9MGM.js"
 			],
@@ -23956,10 +24314,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-sources-DsOgB6PZ.js",
+			"module": "/assets/leaderboard-sources-CxpjTKKJ.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -23982,10 +24340,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-source-CWR_bBqA.js",
+			"module": "/assets/leaderboard-source-C8YBQsoe.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/StatusChip-BZDSWyyQ.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -24008,8 +24366,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-rules-CMKEXMdF.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/leaderboard-rules-BDMtKtOL.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -24029,10 +24387,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/leaderboard-model-CyHzJ08P.js",
+			"module": "/assets/leaderboard-model-B6KpvkId.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/Evidence-D5oM9MGM.js",
 				"/assets/leaderboard-B_82JODD.js"
 			],
@@ -24055,8 +24413,8 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/admin-login-BNf_vUiY.js",
-			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-C7Z_R6Ez.js"],
+			"module": "/assets/admin-login-WtChonUp.js",
+			"imports": ["/assets/entry.client-6tyZgf_X.js", "/assets/shared-D1U31cjg.js"],
 			"css": [],
 			"clientActionModule": void 0,
 			"clientLoaderModule": void 0,
@@ -24076,12 +24434,12 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/layout-f4TVeG2v.js",
+			"module": "/assets/layout-BobbSh2x.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/features-DbRQZ5Mo.js",
-				"/assets/Chrome-OCpnYIqb.js",
+				"/assets/Chrome-Blw614G1.js",
 				"/assets/motion-CuSVH8Op.js",
 				"/assets/toast-BQPDoh_d.js"
 			],
@@ -24125,10 +24483,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-BvBdeXDz.js",
+			"module": "/assets/content-DwkrJfXN.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -24152,10 +24510,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/content-item-4upAsEOC.js",
+			"module": "/assets/content-item-CJSceVFl.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24181,10 +24539,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/sources-DiA7_5FK.js",
+			"module": "/assets/sources-2RW4I8F7.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
@@ -24208,10 +24566,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-new-CW6___Jy.js",
+			"module": "/assets/source-new-CblTIg6D.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24237,10 +24595,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/source-CqGRcwo5.js",
+			"module": "/assets/source-D1zwbt0k.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24266,10 +24624,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/monitor-_15yFgZN.js",
+			"module": "/assets/monitor-IPvBJa7a.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -24294,10 +24652,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/feedback-kJkvnokl.js",
+			"module": "/assets/feedback-BpbuKzYw.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/labels-vA-4i93T.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24323,10 +24681,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/runs-Bm77wZ6E.js",
+			"module": "/assets/runs-D1SgdPqF.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -24351,10 +24709,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/models-BFi4PxLO.js",
+			"module": "/assets/models-Diep0nF2.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
 				"/assets/motion-CuSVH8Op.js",
@@ -24379,10 +24737,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-BVo3d9Wp.js",
+			"module": "/assets/selectbench-DbAXeCod.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24407,10 +24765,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/selectbench-run-KJa2_J0m.js",
+			"module": "/assets/selectbench-run-Nf3-tSmV.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -24433,10 +24791,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/settings-DkE_63Sc.js",
+			"module": "/assets/settings-BN53OiQx.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/toast-BQPDoh_d.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/action-CRyC0vm2.js",
@@ -24461,10 +24819,10 @@ var server_manifest_default = {
 			"hasClientMiddleware": false,
 			"hasDefaultExport": true,
 			"hasErrorBoundary": false,
-			"module": "/assets/audit-DTHT0G0Y.js",
+			"module": "/assets/audit-B3q6ddbk.js",
 			"imports": [
 				"/assets/entry.client-6tyZgf_X.js",
-				"/assets/shared-C7Z_R6Ez.js",
+				"/assets/shared-D1U31cjg.js",
 				"/assets/ui-bcJdyzHy.js",
 				"/assets/motion-CuSVH8Op.js"
 			],
@@ -24475,8 +24833,8 @@ var server_manifest_default = {
 			"hydrateFallbackModule": void 0
 		}
 	},
-	"url": "/assets/manifest-dff3b5c3.js",
-	"version": "dff3b5c3",
+	"url": "/assets/manifest-9a3ed372.js",
+	"version": "9a3ed372",
 	"sri": void 0
 };
 //#endregion

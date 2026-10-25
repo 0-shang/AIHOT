@@ -201,13 +201,42 @@ function checkPrefilterRule(a: AnalyzeInputArticle): { label: "PASS" | "BLOCK"; 
     return { label: "BLOCK", reason: "内容过短且无媒体，规则过滤噪音" };
   }
 
-  // 2. 休斯敦火箭队核心实体/球员/教练关键词直接放行（直通）
-  const rocketsKeywords = /(rockets|houston|udoka|sengun|jalen\s*green|amen\s*thompson|reed\s*sheppard|tari\s*eason|jabari\s*smith|fred\s*vanvleet|vanvleet|adams|dillon\s*brooks|cam\s*whitmore|clutchfans|toyota\s*center|vipers|nba|火箭|休斯敦|休斯顿|申京|乌度卡|阿门|格林|谢泼德|伊森|史密斯|范弗里特|狄龙|惠特莫尔)/i;
+  // 全网聚合信源中目标检查
+  const checkTarget = `${a.url} ${a.author ?? ""} ${a.title}`.toLowerCase();
+  const isSiOrRoundtable = checkTarget.includes("si.com") || checkTarget.includes("roundtable") || checkTarget.includes("sports illustrated");
+
+  // 2. 全网聚合信源（休斯敦火箭全网权威情报 / Google News 等）只保留 Sports Illustrated 和 roundtable，其余前置拦截（节省Token）
+  const isGlobalAggregator = /全网|google\s*news|sportspyder/i.test(a.source.name);
+  if (isGlobalAggregator && !isSiOrRoundtable) {
+    return { label: "BLOCK", reason: "全网聚合信源非 Sports Illustrated / roundtable 媒体，前置规则拦截（节省Token）" };
+  }
+
+  // 2.1 负向噪音拦截：针对非一手权威源中的赛前流水账前瞻与博彩盘口预测
+  // 随队一手权威媒体（T1 且非全网聚合）或者权威专栏（Sports Illustrated / roundtable）不拦截其前瞻
+  const isExemptFromPreviewBlock = (a.source.tier === "T1" && !a.source.name.includes("全网")) || isSiOrRoundtable;
+  if (!isExemptFromPreviewBlock) {
+    // 模板化赛事前瞻/对阵流水账特征 (Preview / Matchup)
+    const previewPattern = /\b(game\s+preview|matchup\s+preview|series\s+preview|preview:|previewing)\b|\bvs\.?\s*rockets:?\s*preview\b|\b(preview|matchup)\b.*(rockets|spurs|lakers|warriors|clippers|thunder|celtics|nuggets|mavericks)/i;
+    const zhPreviewPattern = /(赛前前瞻|比赛前瞻|对阵前瞻)/;
+    if (previewPattern.test(a.title) || zhPreviewPattern.test(a.title) || previewPattern.test(clean.slice(0, 300))) {
+      return { label: "BLOCK", reason: "全网聚合/外部媒体模板化赛事前瞻，规则拦截" };
+    }
+
+    // 博彩/盘口/胜负预测/赔率 (Betting / Odds / Prediction)
+    const bettingPattern = /\b(odds|spread|over\/under|prediction|predictions|betting|best\s+bets|point\s+spread|moneyline|pick'em|picks\s+and\s+predictions)\b/i;
+    const lowQualityDomains = /(fieldlevelmedia|sportschatplace|pickswise|actionnetwork|dimers|covers\.com)/i;
+    if (bettingPattern.test(a.title) || lowQualityDomains.test(a.url) || lowQualityDomains.test(a.author ?? "")) {
+      return { label: "BLOCK", reason: "全网博彩盘口/胜负预测通稿，规则拦截" };
+    }
+  }
+
+  // 3. 休斯敦火箭队核心实体/球员/教练关键词直接放行（直通）
+  const rocketsKeywords = /(rockets|houston|udoka|sengun|jalen\s*green|amen\s*thompson|reed\s*sheppard|tari\s*eason|jabari\s*smith|fred\s*vanvleet|vanvleet|adams|dillon\s*brooks|cam\s*whitmore|clutchfans|toyota\s*center|vipers|火箭|休斯敦|休斯顿|申京|乌度卡|阿门|格林|谢泼德|伊森|史密斯|范弗里特|狄龙|惠特莫尔)/i;
   if (rocketsKeywords.test(text)) {
     return { label: "PASS", reason: "命中火箭队实体或关键词，规则直通" };
   }
 
-  // 3. T1 级别随队记者账号且内容有基本文字量
+  // 4. T1 级别随队记者账号且内容有基本文字量
   if (a.source.tier === "T1" && clean.length >= 12) {
     return { label: "PASS", reason: "T1 随队权威媒体信源规则直通" };
   }

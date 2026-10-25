@@ -83,13 +83,13 @@ export function publicMatchCondition(terms: string[]) {
   );
 }
 
-/** Unfiltered-by-search totals only set the page count; they are reused for 30 seconds per filter. */
+/** Unfiltered-by-search totals only set the page count; they are reused for 120 seconds per filter. */
 const countCache = new Map<string, { at: number; n: number }>();
 const countPending = new Map<string, Promise<number>>();
 async function poolCount(key: string | null, query: () => Promise<Array<{ n: number }>>): Promise<number> {
   if (key === null) return Number(one(await query()).n);
   const hit = countCache.get(key);
-  if (hit && Date.now() - hit.at < 30_000) return hit.n;
+  if (hit && Date.now() - hit.at < 120_000) return hit.n;
   const pending = countPending.get(key);
   if (pending) return pending;
   const load = (async () => {
@@ -111,7 +111,7 @@ export interface PoolQuery extends TimelineFilters {
   source?: string | null;
 }
 
-// Cached pool responses for non-search browsing, reused for 25 seconds per filter + page.
+// Cached pool responses for non-search browsing, reused for 60 seconds per filter + page.
 const poolDataCache = new Map<string, { at: number; data: PoolResponse }>();
 const poolPending = new Map<string, Promise<PoolResponse>>();
 
@@ -132,7 +132,7 @@ export async function loadPool(query: PoolQuery): Promise<PoolResponse> {
 
   if (cacheKey) {
     const hit = poolDataCache.get(cacheKey);
-    if (hit && Date.now() - hit.at < 25_000) return hit.data;
+    if (hit && Date.now() - hit.at < 60_000) return hit.data;
     const pending = poolPending.get(cacheKey);
     if (pending) return pending;
   }

@@ -1,0 +1,457 @@
+// Publishing: derive the public projection of one article from its material, the latest judgement,
+// manual overrides and grouping, then record selected-set changes in the sync ledger.
+// Rebuilding only re-reads stored results; it never calls a model.
+import { SITE } from "@aihot/industry/site";
+import { isCategoryKey, toPublicApiCategory, type CategoryKey } from "@aihot/contracts/taxonomy";
+import { config } from "../config.ts";
+import { one, sql, type Tx } from "../db.ts";
+import { sha256, stableJson } from "../lib/ids.ts";
+import { collapseWhitespace } from "../lib/text.ts";
+import { isSubstantiveBody } from "../content/sanitize.ts";
+import { itemUrl } from "./links.ts";
+import { enqueue, QUEUES, shutdownSignal } from "../jobs/queue.ts";
+import {
+  bodyModeOf, channelOf, displayTags, isIndexable, isPoolEligible, isSelectable, mayRedistribute, type SourceFacts,
+} from "./rules.ts";
+
+interface ArticleRow {
+  id: string;
+  source_id: string;
+  url: string;
+  title: string;
+  language: string | null;
+  published_at: Date | null;
+  discovered_at: Date;
+  timeline_at: Date;
+  backfill: boolean;
+  body_status: string;
+  body_text: string | null;
+  body_html: string | null;
+  excerpt: string | null;
+  x_post: unknown;
+  media?: unknown;
+  grouped_at: Date | null;
+}
+
+interface AnalysisRow {
+  id: number;
+  relevance: string | null;
+  category: string | null;
+  tags: string[];
+  subjects: string[];
+  title_zh: string | null;
+  summary_zh: string | null;
+  reason_zh: string | null;
+  score: number | null;
+  selected: boolean | null;
+}
+
+interface OverrideRow {
+  fields: Record<string, unknown>;
+  visibility: string | null;
+}
+
+interface PublicationRow {
+  article_id: string;
+  revision: number;
+  visibility: string;
+  eligible: boolean;
+  selected: boolean;
+  title: string;
+  original_title: string | null;
+  summary: string | null;
+  reason: string | null;
+  category: string | null;
+  tags: string[];
+  score: number | null;
+  body_mode: string;
+  story_id: number | null;
+  fact_id: number | null;
+  selected_ready_at: Date | null;
+  visible_after: Date | null;
+  indexable: boolean;
+  seo_indexed_at: Date | null;
+  seo_excluded_at: Date | null;
+}
+
+export interface V1ItemPayload {
+  id: string;
+  title: string;
+  originalTitle: string | null;
+  summary: string | null;
+  source: { name: string };
+  links: { aihot: string; original: string };
+  publishedAt: string | null;
+  discoveredAt: string;
+  category: string | null;
+  score: number | null;
+  selected: boolean;
+  reason: string | null;
+  attribution: { name: string; url: string };
+}
+
+export interface PublishOptions {
+  now?: Date;
+  /** Historical import: the item was already public, so it is released at its discovery time. */
+  releasedAt?: Date | null;
+}
+
+export interface PublishResult {
+  articleId: string;
+  changed: boolean;
+  selected: boolean;
+  visibility: string;
+  ledger: "upsert" | "remove" | null;
+  /** Something that was public is now shown less (withdrawn, out of the pool or selection, full text revoked). */
+  reduced: boolean;
+}
+
+function pickString(override: unknown, fallback: string | null): string | null {
+  return typeof override === "string" && override.trim() !== "" ? override.trim() : fallback;
+}
+
+function round1(n: number | null): number | null {
+  return n === null || n === undefined ? null : Math.round(Number(n) * 10) / 10;
+}
+
+export function v1Payload(p: {
+  articleId: string; title: string; originalTitle: string | null; summary: string | null; sourceName: string; url: string;
+  publishedAt: Date | null; discoveredAt: Date; category: string | null; score: number | null; selected: boolean; reason: string | null;
+}): V1ItemPayload {
+  const aihot = itemUrl(p.articleId);
+  return {
+    id: p.articleId,
+    title: p.title,
+    originalTitle: p.originalTitle,
+    summary: p.summary,
+    source: { name: p.sourceName },
+    links: { aihot, original: p.url },
+    publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
+    discoveredAt: p.discoveredAt.toISOString(),
+    category: toPublicApiCategory(p.category),
+    score: p.score === null ? null : Math.round(p.score),
+    selected: p.selected,
+    reason: p.selected ? p.reason : null,
+    attribution: { name: SITE.name, url: aihot },
+  };
+}
+
+/** Allocates the next ledger sequence under a transaction lock so sequence order equals commit order. */
+async function appendLedger(tx: Tx, articleId: string, op: "upsert" | "remove", payload: V1ItemPayload | null, visibleAt: Date, now: Date): Promise<number> {
+  await tx`SELECT pg_advisory_xact_lock(hashtext('selected_ledger'))`;
+  const { next } = one(await tx<{ next: number }[]>`SELECT coalesce(max(seq), 0) + 1 AS next FROM selected_ledger`);
+  await tx`INSERT INTO selected_ledger (seq, article_id, op, changed_at, visible_at, payload)
+           VALUES (${next}, ${articleId}, ${op}, ${now}, ${visibleAt}, ${payload ? tx.json(payload as never) : null})`;
+  return next;
+}
+
+export async function publishArticle(articleId: string, options: PublishOptions = {}): Promise<PublishResult | null> {
+  return sql.begin((tx) => publishArticleTx(tx, articleId, options));
+}
+
+export async function publishArticleTx(tx: Tx, articleId: string, options: PublishOptions = {}): Promise<PublishResult | null> {
+  const [article] = await tx<ArticleRow[]>`
+    SELECT id, source_id, url, title, language, published_at, discovered_at, timeline_at, backfill, body_status,
+           body_text, body_html, excerpt, x_post, media, grouped_at
+    FROM articles WHERE id = ${articleId} FOR UPDATE`;
+  if (!article) return null;
+  // Reports take this lock exclusively while reading candidates. Hold it through commit so a
+  // release stamped before their cutoff cannot commit after their candidate snapshot.
+  await tx`SELECT pg_advisory_xact_lock_shared(hashtext('report_candidates'))`;
+  const now = options.now ?? new Date(); // sample after both locks, which may span a report cutoff
+  const [source] = await tx<SourceFacts[]>`
+    SELECT id, name, kind, tier, participation_mode, first_party, site_fulltext, syndicate_fulltext, tags FROM sources WHERE id = ${article.source_id}`;
+  if (!source) return null;
+  const [analysis] = await tx<AnalysisRow[]>`
+    SELECT id, relevance, category, tags, subjects, title_zh, summary_zh, reason_zh, score, selected
+    FROM analyses WHERE article_id = ${articleId} ORDER BY input_revision DESC, id DESC LIMIT 1`;
+  const [override] = await tx<OverrideRow[]>`SELECT fields, visibility FROM editorial_overrides WHERE article_id = ${articleId}`;
+  const [membership] = await tx<{ fact_id: number; story_id: number | null }[]>`
+    SELECT fa.fact_id, f.story_id FROM fact_articles fa JOIN facts f ON f.id = fa.fact_id
+    LEFT JOIN stories s ON s.id = f.story_id
+    WHERE fa.article_id = ${articleId} AND fa.role IN ('primary', 'report') AND (s.id IS NULL OR s.merged_into IS NULL)
+    ORDER BY (fa.role = 'primary') DESC, fa.created_at LIMIT 1`;
+  const [previous] = await tx<PublicationRow[]>`SELECT * FROM publications WHERE article_id = ${articleId}`;
+
+  const f = override?.fields ?? {};
+  const isChineseTitle = article.language === "zh" || /[一-鿿]/.test(article.title);
+  const zhTitle = analysis?.title_zh?.trim() ? analysis.title_zh : null;
+  const rawXPost = article.x_post ? (typeof article.x_post === "string" ? JSON.parse(article.x_post) : article.x_post) : null;
+  const articleMedia = Array.isArray(article.media) ? (article.media as any[]) : null;
+  const hasVideoMedia = (articleMedia && articleMedia.some((m) => m?.kind === "video")) ||
+    (rawXPost?.media && Array.isArray(rawXPost.media) && rawXPost.media.some((m: any) => m?.kind === "video"));
+
+  const titleAndSummary = `${article.title || ""} ${zhTitle || ""} ${analysis?.summary_zh || ""} ${article.excerpt || ""}`;
+  const mentionsRockets = /(rockets|houston rockets|clutch city|toyota center|火箭|休斯敦火箭|休斯顿火箭|udoka|乌度卡|sengun|申京|amen|thompson|阿门|eason|伊森|sheppard|谢泼德|kevin durant|durant|杜兰特|stone|斯通|vanvleet|范弗里特|jalen green|格林|whitmore|惠特莫尔|jabari|史密斯|adams|亚当斯|preseason|季前赛|media day|媒体日|training camp|训练营|fertitta|费尔蒂塔|\bnba\b)/i.test(titleAndSummary);
+
+  const isOtherHoustonTeam =
+    !mentionsRockets &&
+    /(德州人|太空人|油人队|迪纳摩|texans|astros|oilers|dynamo|stroud|斯特劳德|c\.j|四分卫|外接手|防守端锋|跑卫|角卫|达阵|棒球|橄榄球|全垒打|安打|三振|红雀|马文·哈里森|marvin harrison)/i.test(article.title || "");
+
+  // 综合信源（如综合战术网 nbaanalysis、雅虎等非纯火箭专区）或者被判定为“非火箭/联盟其他”标签的内容彻底过滤
+  const isExplicitNonRockets = (analysis?.tags ?? []).some((t) => t.includes("非火箭") || t.includes("联盟其他")) ||
+    (analysis?.subjects ?? []).some((s) => s.includes("非火箭"));
+  const isGeneralSource = source.id.includes("nbaanalysis") || source.id.includes("general") || source.id.includes("bleacherreport");
+  const isIrrelevantGeneralNews = isGeneralSource && !mentionsRockets;
+  const isSportstalkNonRockets = source.id.includes("sportstalk790") &&
+    (!mentionsRockets || /(该话题与休斯敦火箭队无关|与火箭队无关|与休斯敦火箭无关)/i.test(titleAndSummary));
+  const isYahooArticle =
+    (article.url && /yahoo\.com|sports\.yahoo/i.test(article.url)) ||
+    (article.title && /\b(yahoo|yahoo\s*sports)\b/i.test(article.title)) ||
+    (article.excerpt && /\b(yahoo|yahoo\s*sports)\b/i.test(article.excerpt)) ||
+    (zhTitle && /\b(yahoo|雅虎)\b/i.test(zhTitle)) ||
+    /yahoo\.com|sports\.yahoo/i.test(titleAndSummary);
+
+  const isNonRocketsContent = isOtherHoustonTeam || isExplicitNonRockets || isIrrelevantGeneralNews || isSportstalkNonRockets || isYahooArticle;
+
+  const hasLongArticleBody = !article.x_post && typeof article.body_text === "string" && article.body_text.length >= 1800;
+  const isDedicatedRocketsCommunity = source.id.includes("sleeper") || source.id.includes("clutchfans") || source.id.includes("rocketsnation");
+
+  // 严格交易流言判定：必须正面涉及交易、签约、买断、裁员、合同续约等实质运作，排除排名与普通资讯
+  const explicitTradeRegex = /(trade|rumor|waive|signing|buyout|free agent|free agency|contract extension|contract|swap|deal\b|交易|签约|流言|买断|裁掉|互换|续约|报价|离队传闻)/i;
+  const nonTradeExclusionRegex = /(防守排名|排名预测|预测排名|实力榜|复出|战报|全场集锦|赛前前瞻|赛后采访|伤病名单|首发阵容|power ranking|defensive ranking|standings|lineup|injury report)/i;
+
+  const isTradeRumor = explicitTradeRegex.test(titleAndSummary) && !nonTradeExclusionRegex.test(titleAndSummary);
+  const isCentralAggregator = source.id.includes("thedunkcentral") || source.id.includes("thehoopcentral") || source.id.includes("nbacentral");
+  const isTacticalOrPreview = /(tactical|preview|film breakdown|scouting|deep dive|breakdown|salary cap|前瞻|战术|深度|剖析|拆解|高阶)/i.test(article.title || "");
+
+  const fallbackCat =
+    source.id.includes("podcast") ? "podcasts" :
+    (source.id.includes("video") || source.id.startsWith("yt-") || hasVideoMedia) ? "videos" :
+    isTradeRumor ? "trades" :
+    isCentralAggregator ? "news" :
+    (channelOf(source.kind, !!article.x_post) === "x" && !source.id.includes("houston-rockets")) ? "beat_tweets" :
+    isTacticalOrPreview ? "analysis" :
+    "news";
+
+  const rawCat = pickString(f.category, analysis?.category);
+  // 严格限制流言分类：必须真实包含交易传闻关键词且非排名或比赛资讯
+  const validatedCat = (rawCat === "trades" && !isTradeRumor) ? "news" : rawCat;
+  const resolvedCat = (validatedCat && isCategoryKey(validatedCat)) ? validatedCat : fallbackCat;
+  let category = pickString(f.category, resolvedCat);
+  // 严格限制视频分类：只有真正具备视频媒体（hasVideoMedia）或专职视频源（yt-）才允许归入 videos
+  if (category === "videos" && !hasVideoMedia && !source.id.startsWith("yt-") && !source.id.includes("video")) {
+    category = isTradeRumor ? "trades" : (channelOf(source.kind, !!article.x_post) === "x" ? "beat_tweets" : "news");
+  }
+
+  const title = pickString(f.title, zhTitle ?? collapseWhitespace(article.title));
+  const fallbackSummary = article.excerpt ? collapseWhitespace(article.excerpt) : collapseWhitespace(article.title);
+  const summary = pickString(f.summary, analysis?.summary_zh?.trim() || fallbackSummary);
+  
+  const rawTags = Array.isArray(f.tags) ? (f.tags as string[]) : [...new Set([...(analysis?.tags ?? []), ...(source.tags ?? [])])];
+  const tags = rawTags.filter((t) => {
+    if (t.includes("非火箭") || t.includes("联盟其他")) return false;
+    if (category !== "trades" && (t === "交易流言" || t === "交易" || t === "签约")) return false;
+    if (category !== "videos" && (t === "视频" || t === "精彩视频" || t === "集锦" || t === "Videos" || t === "Video")) return false;
+    return true;
+  });
+  const score = typeof f.score === "number" ? f.score : (analysis?.score ?? 70);
+  const relevance = typeof f.relevance === "string" ? (f.relevance as string) : (analysis?.relevance ?? "pass");
+  const judgedSelected = typeof f.selected === "boolean" ? (f.selected as boolean) : analysis?.selected ?? null;
+  const hasXPost = !!article.x_post;
+  const channel = channelOf(source.kind, hasXPost);
+  const hasQualityBody = !!article.body_text && article.body_text.length > 0 && isSubstantiveBody(article.body_html ?? "", article.body_text);
+  const effectiveBodyStatus = hasQualityBody ? "ok" : article.body_status;
+  const bodyMode = bodyModeOf(source, effectiveBodyStatus, hasQualityBody);
+
+  const isWebArticle = channel !== "x" && !source.id.includes("podcast") && !source.id.includes("video") && !source.id.startsWith("yt-") && !hasVideoMedia;
+  const isTargetFeedCategory = !category || category === "news" || category === "analysis" || category === "trades";
+  const summaryIndicatesFailedCrawl = typeof summary === "string" && /(页面组件未能加载|具体分析细节无法获取|未能加载|无法获取正文|未能抓取到正文|正文未加载|正文内容缺失|原文未提供比分、球员数据或其他细节)/i.test(summary);
+  const isFakeVideoHighlight = !hasVideoMedia && !source.id.startsWith("yt-") &&
+    /(比赛集锦|集锦|全场集锦|个人集锦)/i.test(article.title || "") &&
+    (article.body_text?.length ?? 0) < 300 &&
+    /(已在.*上线|原文未提供|发布了其个人集锦|集锦已在)/i.test(titleAndSummary);
+  const isInvalidCrawl = (isWebArticle && isTargetFeedCategory && (bodyMode !== "full" || !hasQualityBody || summaryIndicatesFailedCrawl)) || isFakeVideoHighlight;
+
+  // 全网聚合信源中仅允许 Sports Illustrated 与 roundtable，其余媒体下架
+  const isGlobalAggregator = source.id === "rss-web-rockets-global" || source.id === "rss-google-news-rockets" || /全网|google\s*news|sportspyder/i.test(source.name);
+  const rawTarget = `${article.url} ${article.title ?? ""}`.toLowerCase();
+  const isSiOrRoundtable = rawTarget.includes("si.com") || rawTarget.includes("roundtable") || rawTarget.includes("sports illustrated");
+  const isAllowedAggregatorMedia = !isGlobalAggregator || isSiOrRoundtable;
+
+  // 外部全网聚合源中的低质模板赛事前瞻与博彩盘口预测一律下架（但豁免随队一手源及 SI/roundtable）
+  const isT1Source = source.tier === "T1" && !source.name.includes("全网");
+  const isExemptPreview = isT1Source || isSiOrRoundtable;
+  const isLowQualityPreview = !isExemptPreview && (
+    /\b(game\s+preview|matchup\s+preview|series\s+preview|preview:|previewing)\b|\bvs\.?\s*rockets:?\s*preview\b|\b(preview|matchup)\b.*(rockets|spurs|lakers|warriors|clippers|thunder|celtics|nuggets|mavericks)/i.test(article.title || "") ||
+    /(赛前前瞻|比赛前瞻|对阵前瞻)/.test(title || "") ||
+    /\b(odds|spread|over\/under|prediction|predictions|betting|best\s+bets|point\s+spread|moneyline)\b/i.test(article.title || "") ||
+    /(fieldlevelmedia|sportschatplace|pickswise|actionnetwork|dimers|covers\.com)/i.test(article.url || "")
+  );
+
+  // Material from an isolated source reaches no public surface at all: not even a detail page.
+  // 无效抓取的图文报道、低质模板前瞻、无视频的伪集锦短讯、非火箭内容以及全网非指定媒体也彻底下架（withdrawn），禁止在全站展示
+  const visibility = isNonRocketsContent || isInvalidCrawl || isLowQualityPreview || !isAllowedAggregatorMedia || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
+
+  const eligible = isNonRocketsContent || isInvalidCrawl || isLowQualityPreview || !isAllowedAggregatorMedia ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
+  const selected = isInvalidCrawl || isNonRocketsContent || isLowQualityPreview || !isAllowedAggregatorMedia ? false : isSelectable(eligible, judgedSelected, source.tier);
+  const reason = selected ? pickString(f.reason, analysis?.reason_zh ?? null) : null;
+  const syndicate = mayRedistribute(source, bodyMode);
+  const originalTitle = isChineseTitle && title === collapseWhitespace(article.title) ? null : collapseWhitespace(article.title);
+
+  // Release gate: first time the item met the selected conditions, released after grouping or 180 s.
+  let selectedReadyAt = previous?.selected_ready_at ?? null;
+  let visibleAfter = previous?.visible_after ?? null;
+  if (selected && !selectedReadyAt) {
+    selectedReadyAt = options.releasedAt ?? now;
+    visibleAfter = options.releasedAt
+      ? options.releasedAt
+      : article.grouped_at && article.grouped_at <= now
+        ? now
+        : new Date(now.getTime() + config.selectedVisibleAfterSeconds * 1000);
+  } else if (selected && visibleAfter && visibleAfter > now && article.grouped_at && article.grouped_at <= now) {
+    const earliest = new Date(Math.max(selectedReadyAt!.getTime(), article.grouped_at.getTime()));
+    if (earliest < visibleAfter) {
+      // A grouping decision can predate publication. Reports wait for this release to commit.
+      visibleAfter = new Date(Math.max(earliest.getTime(), now.getTime()));
+      // The not-yet-visible sync entry follows the same release time as the site.
+      await tx`UPDATE selected_ledger SET visible_at = ${visibleAfter} WHERE article_id = ${articleId} AND visible_at > ${visibleAfter}`;
+    }
+  }
+
+  const indexable = isIndexable({
+    visibility, hasSummary: !!summary, selected, seoIndexedAt: previous?.seo_indexed_at ?? null, seoExcludedAt: previous?.seo_excluded_at ?? null,
+  });
+  const searchText = collapseWhitespace(
+    [title, originalTitle, summary, source.name, ...displayTags(tags), ...(analysis?.subjects ?? [])].filter(Boolean).join(" "),
+  ).toLowerCase();
+
+  // A selected item sits at its reading group's anchor: the earliest public pool member of its fact.
+  let sortAt: Date = article.timeline_at;
+  if (selected && membership?.fact_id) {
+    const [anchor] = await tx<{ t: Date | null }[]>`
+      SELECT min(timeline_at) AS t FROM publications
+      WHERE fact_id = ${membership.fact_id} AND eligible AND visibility = 'public' AND article_id <> ${articleId}`;
+    if (anchor?.t && anchor.t < sortAt) sortAt = anchor.t;
+  }
+
+  const next = {
+    visibility, eligible, selected, title: title ?? collapseWhitespace(article.title), original_title: originalTitle, summary, reason,
+    category, tags, score: round1(score), body_mode: bodyMode, story_id: membership?.story_id ?? null, fact_id: membership?.fact_id ?? null,
+    indexable,
+  };
+  const changed =
+    !previous ||
+    stableJson({ ...next, tags: [...next.tags].sort() }) !==
+      stableJson({
+        visibility: previous.visibility, eligible: previous.eligible, selected: previous.selected, title: previous.title,
+        original_title: previous.original_title, summary: previous.summary, reason: previous.reason, category: previous.category,
+        tags: [...previous.tags].sort(), score: previous.score === null ? null : Number(previous.score), body_mode: previous.body_mode,
+        story_id: previous.story_id, fact_id: previous.fact_id, indexable: previous.indexable,
+      });
+  const revision = previous ? previous.revision + (changed ? 1 : 0) : 1;
+
+  await tx`
+    INSERT INTO publications (article_id, analysis_id, revision, visibility, eligible, selected, title, original_title, summary,
+      reason, category, tags, score, source_id, channel, first_party, url, published_at, discovered_at, timeline_at, backfill,
+      selected_ready_at, visible_after, body_mode, syndicate, indexable, story_id, fact_id, search_text, sort_at, updated_at)
+    VALUES (${articleId}, ${analysis?.id ?? null}, ${revision}, ${visibility}, ${eligible}, ${selected}, ${next.title},
+      ${originalTitle}, ${summary}, ${reason}, ${category}, ${tags}, ${next.score}, ${source.id}, ${channel}, ${source.first_party},
+      ${article.url}, ${article.published_at}, ${article.discovered_at}, ${article.timeline_at}, ${article.backfill},
+      ${selectedReadyAt}, ${visibleAfter}, ${bodyMode}, ${syndicate}, ${indexable}, ${next.story_id}, ${next.fact_id}, ${searchText}, ${sortAt}, now())
+    ON CONFLICT (article_id) DO UPDATE SET
+      analysis_id = EXCLUDED.analysis_id, revision = EXCLUDED.revision, visibility = EXCLUDED.visibility,
+      eligible = EXCLUDED.eligible, selected = EXCLUDED.selected, title = EXCLUDED.title, original_title = EXCLUDED.original_title,
+      summary = EXCLUDED.summary, reason = EXCLUDED.reason, category = EXCLUDED.category, tags = EXCLUDED.tags,
+      score = EXCLUDED.score, source_id = EXCLUDED.source_id, channel = EXCLUDED.channel, first_party = EXCLUDED.first_party,
+      url = EXCLUDED.url, published_at = EXCLUDED.published_at, discovered_at = EXCLUDED.discovered_at,
+      timeline_at = EXCLUDED.timeline_at, backfill = EXCLUDED.backfill, selected_ready_at = EXCLUDED.selected_ready_at,
+      visible_after = EXCLUDED.visible_after, body_mode = EXCLUDED.body_mode, syndicate = EXCLUDED.syndicate,
+      indexable = EXCLUDED.indexable, story_id = EXCLUDED.story_id, fact_id = EXCLUDED.fact_id,
+      search_text = EXCLUDED.search_text, sort_at = EXCLUDED.sort_at, updated_at = now()
+    WHERE (publications.analysis_id, publications.revision, publications.visibility, publications.eligible,
+        publications.selected, publications.title, publications.original_title, publications.summary,
+        publications.reason, publications.category, publications.tags, publications.score,
+        publications.source_id, publications.channel, publications.first_party, publications.url,
+        publications.published_at, publications.discovered_at, publications.timeline_at, publications.backfill,
+        publications.selected_ready_at, publications.visible_after, publications.body_mode, publications.syndicate,
+        publications.indexable, publications.story_id, publications.fact_id, publications.search_text,
+        publications.sort_at)
+      IS DISTINCT FROM (EXCLUDED.analysis_id, EXCLUDED.revision, EXCLUDED.visibility, EXCLUDED.eligible,
+        EXCLUDED.selected, EXCLUDED.title, EXCLUDED.original_title, EXCLUDED.summary,
+        EXCLUDED.reason, EXCLUDED.category, EXCLUDED.tags, EXCLUDED.score,
+        EXCLUDED.source_id, EXCLUDED.channel, EXCLUDED.first_party, EXCLUDED.url,
+        EXCLUDED.published_at, EXCLUDED.discovered_at, EXCLUDED.timeline_at, EXCLUDED.backfill,
+        EXCLUDED.selected_ready_at, EXCLUDED.visible_after, EXCLUDED.body_mode, EXCLUDED.syndicate,
+        EXCLUDED.indexable, EXCLUDED.story_id, EXCLUDED.fact_id, EXCLUDED.search_text,
+        EXCLUDED.sort_at)`;
+
+  // The pool search row follows eligibility; its body part only covers full text the site may show.
+  if (eligible) {
+    const body = bodyMode === "full" ? (article.body_text ?? "").slice(0, 12000).toLowerCase() : "";
+    await tx`INSERT INTO pool_search (article_id, direct, body) VALUES (${articleId}, ${searchText}, ${body})
+             ON CONFLICT (article_id) DO UPDATE SET direct = EXCLUDED.direct, body = EXCLUDED.body
+             WHERE pool_search.direct IS DISTINCT FROM EXCLUDED.direct OR pool_search.body IS DISTINCT FROM EXCLUDED.body`;
+  } else {
+    await tx`DELETE FROM pool_search WHERE article_id = ${articleId}`;
+  }
+
+  // Content-group push: once, for an item that arrives live and becomes selected (never for imports,
+  // backfill or stale-on-discovery material); it runs after the release gate opens.
+  if (selected && !previous?.selected_ready_at && !options.releasedAt && !article.backfill && visibility === "public") {
+    const at = visibleAfter && visibleAfter > now ? visibleAfter : now;
+    await enqueue(QUEUES.notifySelected, { articleId }, { singletonKey: `selected:${articleId}`, startAfter: new Date(at.getTime() + 5_000) }, tx);
+    // Its images are fetched and resized now, before the release gate lets readers in.
+    await enqueue(QUEUES.prepareMedia, { articleId }, { singletonKey: `media:${articleId}` }, tx);
+  }
+
+  // Selected sync ledger: the public selected set is (selected AND visibility = public).
+  const inSet = selected && visibility === "public";
+  const [state] = await tx<{ in_set: boolean; payload_hash: string | null }[]>`SELECT in_set, payload_hash FROM selected_state WHERE article_id = ${articleId}`;
+  let ledger: "upsert" | "remove" | null = null;
+  if (inSet) {
+    const payload = v1Payload({
+      articleId, title: next.title, originalTitle, summary, sourceName: source.name, url: article.url,
+      publishedAt: article.published_at, discoveredAt: article.discovered_at, category, score: next.score, selected: true, reason,
+    });
+    const payloadHash = sha256(stableJson(payload));
+    if (!state || !state.in_set || state.payload_hash !== payloadHash) {
+      const visibleAt = visibleAfter && visibleAfter > now ? visibleAfter : now;
+      const seq = await appendLedger(tx, articleId, "upsert", payload, visibleAt, now);
+      await tx`INSERT INTO selected_state (article_id, in_set, payload_hash, last_seq) VALUES (${articleId}, true, ${payloadHash}, ${seq})
+               ON CONFLICT (article_id) DO UPDATE SET in_set = true, payload_hash = EXCLUDED.payload_hash, last_seq = EXCLUDED.last_seq`;
+      ledger = "upsert";
+    }
+  } else if (state?.in_set) {
+    const seq = await appendLedger(tx, articleId, "remove", null, now, now);
+    await tx`UPDATE selected_state SET in_set = false, payload_hash = NULL, last_seq = ${seq} WHERE article_id = ${articleId}`;
+    ledger = "remove";
+  }
+
+  const wasPublic = !!previous && previous.visibility !== "withdrawn" && previous.eligible;
+  const reduced =
+    wasPublic &&
+    (visibility === "withdrawn" || !eligible ||
+      (previous!.visibility === "public" && visibility !== "public") ||
+      (previous!.selected && !selected) ||
+      (previous!.body_mode === "full" && bodyMode !== "full"));
+  return { articleId, changed, selected, visibility, ledger, reduced };
+}
+
+/**
+ * Re-derives every published article of one source (after its participation, licences, tier or name
+ * changed) without calling models. Runs in the worker; progress goes to the callback.
+ */
+export async function republishSource(sourceId: string, onProgress?: (done: number, total: number) => Promise<void>): Promise<{ total: number; changed: number; reduced: number }> {
+  const { total } = one(await sql<{ total: number }[]>`SELECT count(*)::int AS total FROM publications WHERE source_id = ${sourceId}`);
+  let after = "";
+  let done = 0;
+  let changed = 0;
+  let reduced = 0;
+  for (;;) {
+    const batch = await sql<{ article_id: string }[]>`
+      SELECT article_id FROM publications WHERE source_id = ${sourceId} AND article_id > ${after} ORDER BY article_id LIMIT 500`;
+    if (batch.length === 0) break;
+    for (const { article_id } of batch) {
+      // Stopping mid-way is safe: the job is retried after the restart and re-derives from the start.
+      if (shutdownSignal.signal.aborted) throw new Error("worker is stopping; republish resumes after restart");
+      const r = await publishArticle(article_id);
+      if (r?.changed) changed += 1;
+      if (r?.reduced) reduced += 1;
+    }
+    done += batch.length;
+    after = batch[batch.length - 1]!.article_id;
+    await onProgress?.(done, total);
+  }
+  return { total, changed, reduced };
+}

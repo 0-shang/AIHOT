@@ -263,12 +263,28 @@ export async function publishArticleTx(tx: Tx, articleId: string, options: Publi
     /(已在.*上线|原文未提供|发布了其个人集锦|集锦已在)/i.test(titleAndSummary);
   const isInvalidCrawl = (isWebArticle && isTargetFeedCategory && (bodyMode !== "full" || !hasQualityBody || summaryIndicatesFailedCrawl)) || isFakeVideoHighlight;
 
-  // Material from an isolated source reaches no public surface at all: not even a detail page.
-  // 无效抓取的图文报道（无实质正文或摘要表明抓取失败）、无视频的伪集锦短讯以及非火箭内容也彻底下架（withdrawn），禁止在全站展示
-  const visibility = isNonRocketsContent || isInvalidCrawl || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
+  // 全网聚合信源中仅允许 Sports Illustrated 与 roundtable，其余媒体下架
+  const isGlobalAggregator = source.id === "rss-web-rockets-global" || source.id === "rss-google-news-rockets" || /全网|google\s*news|sportspyder/i.test(source.name);
+  const rawTarget = `${article.url} ${article.title ?? ""}`.toLowerCase();
+  const isSiOrRoundtable = rawTarget.includes("si.com") || rawTarget.includes("roundtable") || rawTarget.includes("sports illustrated");
+  const isAllowedAggregatorMedia = !isGlobalAggregator || isSiOrRoundtable;
 
-  const eligible = isNonRocketsContent || isInvalidCrawl ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
-  const selected = isInvalidCrawl || isNonRocketsContent ? false : isSelectable(eligible, judgedSelected, source.tier);
+  // 外部全网聚合源中的低质模板赛事前瞻与博彩盘口预测一律下架（但豁免随队一手源及 SI/roundtable）
+  const isT1Source = source.tier === "T1" && !source.name.includes("全网");
+  const isExemptPreview = isT1Source || isSiOrRoundtable;
+  const isLowQualityPreview = !isExemptPreview && (
+    /\b(game\s+preview|matchup\s+preview|series\s+preview|preview:|previewing)\b|\bvs\.?\s*rockets:?\s*preview\b|\b(preview|matchup)\b.*(rockets|spurs|lakers|warriors|clippers|thunder|celtics|nuggets|mavericks)/i.test(article.title || "") ||
+    /(赛前前瞻|比赛前瞻|对阵前瞻)/.test(title || "") ||
+    /\b(odds|spread|over\/under|prediction|predictions|betting|best\s+bets|point\s+spread|moneyline)\b/i.test(article.title || "") ||
+    /(fieldlevelmedia|sportschatplace|pickswise|actionnetwork|dimers|covers\.com)/i.test(article.url || "")
+  );
+
+  // Material from an isolated source reaches no public surface at all: not even a detail page.
+  // 无效抓取的图文报道、低质模板前瞻、无视频的伪集锦短讯、非火箭内容以及全网非指定媒体也彻底下架（withdrawn），禁止在全站展示
+  const visibility = isNonRocketsContent || isInvalidCrawl || isLowQualityPreview || !isAllowedAggregatorMedia || source.participation_mode === "isolated" ? "withdrawn" : (override?.visibility ?? "public");
+
+  const eligible = isNonRocketsContent || isInvalidCrawl || isLowQualityPreview || !isAllowedAggregatorMedia ? false : isPoolEligible({ participationMode: source.participation_mode, relevance, title, summary });
+  const selected = isInvalidCrawl || isNonRocketsContent || isLowQualityPreview || !isAllowedAggregatorMedia ? false : isSelectable(eligible, judgedSelected, source.tier);
   const reason = selected ? pickString(f.reason, analysis?.reason_zh ?? null) : null;
   const syndicate = mayRedistribute(source, bodyMode);
   const originalTitle = isChineseTitle && title === collapseWhitespace(article.title) ? null : collapseWhitespace(article.title);

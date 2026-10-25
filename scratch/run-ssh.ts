@@ -29,5 +29,5 @@ conn.on('ready', () => {
   port: 22,
   username: 'root',
   password: 'sN6,{U@hhw+SuoLU',
-  readyTimeout: 10000
+  readyTimeout: 30000
 });

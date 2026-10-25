@@ -66,7 +66,7 @@ export function RocketsPlayerModal({ player, onClose }: Props) {
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-3.5 right-3.5 z-30 w-8 h-8 rounded-full bg-slate-900/10 hover:bg-slate-900/20 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 hover:text-slate-900 dark:text-white/80 dark:hover:text-white flex items-center justify-center transition-all text-xs backdrop-blur-md"
+          className="absolute top-3.5 right-3.5 z-30 w-8 h-8 rounded-full bg-slate-200/70 hover:bg-slate-300/80 dark:bg-white/10 dark:hover:bg-white/20 text-slate-600 hover:text-slate-900 dark:text-white/80 dark:hover:text-white flex items-center justify-center transition-all text-xs backdrop-blur-md"
           title="关闭"
         >
           ✕
@@ -74,18 +74,18 @@ export function RocketsPlayerModal({ player, onClose }: Props) {
 
         {/* 整个 Modal 内部平滑纵向滚动，彻底杜绝手机端头部覆盖或截断问题 */}
         <div className="overflow-y-auto flex-1 scrollbar-thin">
-          {/* 1. 球员 Hero 档案头部 */}
-          <div className="relative bg-gradient-to-br from-slate-900 via-[#181a20] to-[#251016] text-white p-4 sm:p-6 overflow-hidden">
+          {/* 1. 球员 Hero 档案头部：浅色模式下通透明亮，与整张白卡自然融合；暗色模式下深色高级 */}
+          <div className="relative bg-gradient-to-br from-red-50/70 via-slate-50 to-white dark:from-[#15171c] dark:via-[#1c1a20] dark:to-[#221217] border-b border-slate-200/80 dark:border-white/10 p-4 sm:p-6 overflow-hidden transition-colors">
             {/* 背景球衣号码超大水印 */}
-            <span className="absolute -right-2 -bottom-4 text-7xl sm:text-8xl font-black font-mono text-white/[0.04] select-none pointer-events-none">
+            <span className="absolute -right-2 -bottom-4 text-7xl sm:text-8xl font-black font-mono text-slate-900/[0.04] dark:text-white/[0.04] select-none pointer-events-none">
               #{player.number}
             </span>
-            <div className="absolute top-0 right-1/3 w-40 h-40 bg-[#CE1141]/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-0 right-1/3 w-40 h-40 bg-[#CE1141]/5 dark:bg-[#CE1141]/20 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="relative z-10 flex items-center gap-3.5 sm:gap-5 pr-8">
               {/* 头像 */}
               <div className="relative flex-shrink-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-b from-white/15 to-white/5 border border-white/20 p-1 flex items-center justify-center overflow-hidden shadow-lg ring-2 ring-[#CE1141]/30">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white dark:bg-white/5 border border-slate-200/90 dark:border-white/20 p-1 flex items-center justify-center overflow-hidden shadow-sm ring-2 ring-[#CE1141]/20">
                   <img
                     src={player.headshotUrl}
                     alt={player.nameCn}
@@ -93,7 +93,7 @@ export function RocketsPlayerModal({ player, onClose }: Props) {
                     loading="lazy"
                   />
                 </div>
-                <span className="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-md bg-[#CE1141] text-white font-mono font-black text-[10px] shadow border border-white/20">
+                <span className="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-md bg-[#CE1141] text-white font-mono font-black text-[10px] shadow border border-white/40 dark:border-white/20">
                   #{player.number}
                 </span>
               </div>
@@ -101,34 +101,34 @@ export function RocketsPlayerModal({ player, onClose }: Props) {
               {/* 姓名与关键基本面（单行流式排版，手机端绝不遮挡） */}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5">
-                  <h2 className="text-lg sm:text-2xl font-black text-white tracking-tight truncate">
+                  <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight truncate">
                     {player.nameCn}
                   </h2>
-                  <span className="px-1.5 py-0.5 rounded bg-white/15 text-white/90 text-[10.5px] font-bold">
+                  <span className="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-white/15 text-slate-700 dark:text-white/90 text-[10.5px] font-bold border border-slate-300/60 dark:border-transparent">
                     {player.position}
                   </span>
-                  <span className="px-1.5 py-0.5 rounded bg-[#CE1141] text-white text-[10.5px] font-bold">
+                  <span className="px-1.5 py-0.5 rounded bg-[#CE1141] text-white text-[10.5px] font-bold shadow-xs">
                     休斯敦火箭
                   </span>
                 </div>
-                <p className="text-[11px] text-white/60 font-mono mb-2 truncate">
+                <p className="text-[11px] text-slate-500 dark:text-white/60 font-mono mb-2 truncate">
                   {player.nameEn}
                 </p>
 
                 {/* 紧凑档案参数 */}
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/80">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-700 dark:text-white/80">
                   <span>
-                    <strong className="text-white/50 font-normal">身高/体重: </strong>
+                    <strong className="text-slate-400 dark:text-white/50 font-normal">身高/体重: </strong>
                     <span className="font-mono">{player.height} · {player.weight}</span>
                   </span>
-                  <span className="text-white/30 hidden sm:inline">|</span>
+                  <span className="text-slate-300 dark:text-white/30 hidden sm:inline">|</span>
                   <span>
-                    <strong className="text-white/50 font-normal">年龄/球龄: </strong>
+                    <strong className="text-slate-400 dark:text-white/50 font-normal">年龄/球龄: </strong>
                     {player.age}岁 ({player.experience})
                   </span>
-                  <span className="text-white/30 hidden sm:inline">|</span>
+                  <span className="text-slate-300 dark:text-white/30 hidden sm:inline">|</span>
                   <span className="truncate max-w-full">
-                    <strong className="text-white/50 font-normal">选秀: </strong>
+                    <strong className="text-slate-400 dark:text-white/50 font-normal">选秀: </strong>
                     {player.draftInfo}
                   </span>
                 </div>
@@ -192,10 +192,10 @@ export function RocketsPlayerModal({ player, onClose }: Props) {
             {isSelectedSeasonUpcoming ? (
               <div className="border border-slate-200 dark:border-white/10 rounded-2xl p-6 text-center bg-slate-50 dark:bg-white/[0.02]">
                 <p className="text-slate-800 dark:text-zinc-200 font-bold text-sm">
-                  2026-27 常规赛待开赛
+                  2026-27 赛季暂未出战
                 </p>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-                  开赛产生官方实录后自动同步场均表现。
+                  该球员出场产生官方技术统计后将自动同步更新。
                 </p>
                 <button
                   type="button"
@@ -438,7 +438,7 @@ export function RocketsPlayerModal({ player, onClose }: Props) {
                                 {sKey} {is2026 ? "(最新)" : ""}
                               </span>
                             </td>
-                            <td className="py-2 px-1 text-center">{noData ? "待开赛" : s.gp}</td>
+                            <td className="py-2 px-1 text-center">{noData ? "未登场" : s.gp}</td>
                             <td className="py-2 px-1 text-center">{noData ? "--" : s.gs}</td>
                             <td className="py-2 px-1 text-center">{noData ? "--" : s.mpg.toFixed(1)}</td>
                             <td className="py-2 px-1 text-center font-bold text-[#CE1141]">

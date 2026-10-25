@@ -23,6 +23,7 @@ type SortField =
 
 export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
   const [filterPos, setFilterPos] = useState<string>("ALL");
+  const [seasonView, setSeasonView] = useState<"2026-27" | "2025-26">("2026-27");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortField, setSortField] = useState<SortField>("pts");
   const [sortAsc, setSortAsc] = useState<boolean>(false);
@@ -36,14 +37,34 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
     }
   };
 
-  // 检查是否进入 2026-27 新赛季（常规赛打响或抓取到最新实战数据）
-  const is2026SeasonActive = useMemo(() => {
-    const hasRealStats = players.some(
-      (p) => p.seasons?.["2026-27"] && p.seasons["2026-27"].gp > 0
-    );
-    const isRegularSeasonStarted = new Date().toISOString() >= "2026-10-22";
-    return hasRealStats || isRegularSeasonStarted;
-  }, [players]);
+  const getPlayerSeasonStat = (p: PlayerStatsData) => {
+    if (seasonView === "2026-27") {
+      return (
+        p.seasons?.["2026-27"] || {
+          season: "2026-27",
+          gp: 0,
+          gs: 0,
+          mpg: 0,
+          pts: 0,
+          reb: 0,
+          ast: 0,
+          stl: 0,
+          blk: 0,
+          tov: 0,
+          fgPct: 0,
+          threePtPct: 0,
+          ftPct: 0,
+          fg: "0-0",
+          threePt: "0-0",
+          ft: "0-0",
+          oReb: 0,
+          dReb: 0,
+          pf: 0,
+        }
+      );
+    }
+    return p.seasons?.["2025-26"] || p.stats;
+  };
 
   const filteredPlayers = useMemo(() => {
     return players
@@ -63,8 +84,8 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
         return true;
       })
       .sort((a, b) => {
-        const sA = (is2026SeasonActive && a.seasons?.["2026-27"]?.gp ? a.seasons["2026-27"] : a.seasons?.["2025-26"] || a.stats);
-        const sB = (is2026SeasonActive && b.seasons?.["2026-27"]?.gp ? b.seasons["2026-27"] : b.seasons?.["2025-26"] || b.stats);
+        const sA = getPlayerSeasonStat(a);
+        const sB = getPlayerSeasonStat(b);
 
         let valA = 0;
         let valB = 0;
@@ -126,7 +147,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
 
         return sortAsc ? valA - valB : valB - valA;
       });
-  }, [players, filterPos, searchQuery, sortField, sortAsc, is2026SeasonActive]);
+  }, [players, filterPos, searchQuery, sortField, sortAsc, seasonView]);
 
   const renderSortArrow = (field: SortField) => {
     if (sortField !== field) return <span className="text-slate-400 dark:text-zinc-600 ml-0.5 text-[10px]">↕</span>;
@@ -135,17 +156,53 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
 
   return (
     <section>
-      {/* 头部控制栏：标题、位置筛选、搜索 */}
+      {/* 头部控制栏：标题、赛季切换、位置筛选、搜索 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 px-0.5">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="w-1.5 h-4 bg-[#CE1141] rounded-full inline-block"></span>
           <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight">
-            2026-27 赛季火箭官方球员名单与技术统计
+            {seasonView} 赛季火箭官方球员名单与技术统计
           </h2>
+          {seasonView === "2026-27" ? (
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium text-[10.5px] border border-emerald-500/20">
+              新赛季揭幕战已完赛 · 场均表现实时同步
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-zinc-400 font-medium text-[10.5px]">
+              上赛季完整战绩对照
+            </span>
+          )}
         </div>
 
         {/* 筛选与搜索控件 */}
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap sm:flex-nowrap">
+          {/* 赛季快速切换 */}
+          <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setSeasonView("2026-27")}
+              className={`px-2.5 py-1 rounded-md transition-all ${
+                seasonView === "2026-27"
+                  ? "bg-[#CE1141] text-white shadow-xs"
+                  : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              2026-27 (新赛季)
+            </button>
+            <button
+              type="button"
+              onClick={() => setSeasonView("2025-26")}
+              className={`px-2.5 py-1 rounded-md transition-all ${
+                seasonView === "2025-26"
+                  ? "bg-[#CE1141] text-white shadow-xs"
+                  : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              2025-26 (上赛季)
+            </button>
+          </div>
+
+          {/* 位置筛选 */}
           <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs">
             {[
               { id: "ALL", label: "全部" },
@@ -159,7 +216,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
                 onClick={() => setFilterPos(tab.id)}
                 className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
                   filterPos === tab.id
-                    ? "bg-[#CE1141] text-white font-bold"
+                    ? "bg-slate-800 dark:bg-white/20 text-white font-bold"
                     : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -271,7 +328,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
               </tr>
             ) : (
               filteredPlayers.map((p) => {
-                const s = (is2026SeasonActive && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats);
+                const s = getPlayerSeasonStat(p);
                 const isTopStar = p.nameEn.includes("Durant") || p.nameEn.includes("Sengun");
 
                 return (
@@ -325,58 +382,58 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
                     {/* 得分 */}
                     <td className="py-2 px-1.5 text-center font-bold text-sm bg-slate-50/60 dark:bg-white/[0.01]">
                       <span className={s.pts >= 20 ? "text-[#CE1141] font-black" : s.pts >= 15 ? "text-slate-900 dark:text-zinc-100" : "text-slate-700 dark:text-zinc-300"}>
-                        {s.pts ? s.pts.toFixed(1) : "--"}
+                        {s.gp > 0 && s.pts ? s.pts.toFixed(1) : "--"}
                       </span>
                     </td>
 
                     {/* 篮板 */}
                     <td className="py-2 px-1.5 text-center text-slate-800 dark:text-zinc-200">
-                      {s.reb ? s.reb.toFixed(1) : "--"}
+                      {s.gp > 0 && s.reb !== undefined ? s.reb.toFixed(1) : "--"}
                     </td>
 
                     {/* 助攻 */}
                     <td className="py-2 px-1.5 text-center text-slate-800 dark:text-zinc-200">
-                      {s.ast ? s.ast.toFixed(1) : "--"}
+                      {s.gp > 0 && s.ast !== undefined ? s.ast.toFixed(1) : "--"}
                     </td>
 
                     {/* 抢断 */}
                     <td className="py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300">
-                      {s.stl ? s.stl.toFixed(1) : "--"}
+                      {s.gp > 0 && s.stl !== undefined ? s.stl.toFixed(1) : "--"}
                     </td>
 
                     {/* 盖帽 */}
                     <td className="py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300">
-                      {s.blk ? s.blk.toFixed(1) : "--"}
+                      {s.gp > 0 && s.blk !== undefined ? s.blk.toFixed(1) : "--"}
                     </td>
 
                     {/* 失误 */}
                     <td className="py-2 px-1.5 text-center text-slate-500 dark:text-zinc-400">
-                      {s.tov ? s.tov.toFixed(1) : "--"}
+                      {s.gp > 0 && s.tov !== undefined ? s.tov.toFixed(1) : "--"}
                     </td>
 
                     {/* 投篮命中率 */}
                     <td className="py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300">
-                      {s.fgPct ? `${s.fgPct.toFixed(1)}%` : "--"}
+                      {s.gp > 0 && s.fgPct ? `${s.fgPct.toFixed(1)}%` : "--"}
                     </td>
 
                     {/* 三分命中率 */}
                     <td className="py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300">
-                      {s.threePtPct ? `${s.threePtPct.toFixed(1)}%` : "--"}
+                      {s.gp > 0 && s.threePtPct ? `${s.threePtPct.toFixed(1)}%` : "--"}
                     </td>
 
                     {/* 罚球命中率 */}
                     <td className="py-2 px-1.5 text-center text-slate-700 dark:text-zinc-300">
-                      {s.ftPct ? `${s.ftPct.toFixed(1)}%` : "--"}
+                      {s.gp > 0 && s.ftPct ? `${s.ftPct.toFixed(1)}%` : "--"}
                     </td>
 
                     {/* 出场时间 */}
                     <td className="py-2 px-1.5 text-center text-slate-600 dark:text-zinc-400 text-[11px]">
-                      {s.mpg ? `${s.mpg.toFixed(1)}'` : "--"}
+                      {s.gp > 0 && s.mpg ? `${s.mpg.toFixed(1)}'` : "--"}
                     </td>
 
                     {/* 出场场次 */}
-                    <td className="py-2 px-1.5 text-center text-slate-600 dark:text-zinc-400 text-xs">
-                      {s.gp ?? "--"}
+                    <td className="py-2 px-1.5 text-center text-slate-600 dark:text-zinc-400 text-xs font-bold">
+                      {s.gp > 0 ? s.gp : "0"}
                     </td>
                   </tr>
                 );
@@ -394,7 +451,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
           </div>
         ) : (
           filteredPlayers.map((p) => {
-            const s = (is2026SeasonActive && p.seasons?.["2026-27"]?.gp ? p.seasons["2026-27"] : p.seasons?.["2025-26"] || p.stats);
+            const s = getPlayerSeasonStat(p);
             const isHighScorer = s.pts >= 18;
 
             return (
@@ -403,7 +460,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
                 onClick={() => onSelectPlayer(p)}
                 className="bg-white dark:bg-[#121418] border border-slate-200 dark:border-white/10 rounded-xl p-2.5 text-xs shadow-xs active:scale-[0.99] transition-transform"
               >
-                {/* 顶行：头像 + 姓名 + 位置 + 年龄 + 箭头 */}
+                {/* 顶行：头像 + 姓名 + 位置 + 年龄 + 场次 + 箭头 */}
                 <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100 dark:border-white/5">
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="relative flex-shrink-0">
@@ -426,7 +483,7 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
                           {p.position}
                         </span>
                         <span className="text-[11px] text-slate-400 dark:text-zinc-500 font-sans">
-                          {p.age}岁 · {p.college}
+                          {p.age}岁 · {s.gp > 0 ? `${s.gp}场` : "未出战"}
                         </span>
                       </div>
                     </div>
@@ -440,37 +497,37 @@ export function RocketsRosterSection({ players, onSelectPlayer }: Props) {
                   <div className="flex flex-col items-center justify-center min-w-0">
                     <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">得分</span>
                     <span className={`text-xs font-bold leading-tight ${isHighScorer ? "text-[#CE1141]" : "text-slate-900 dark:text-white"}`}>
-                      {s.pts ? s.pts.toFixed(1) : "--"}
+                      {s.gp > 0 && s.pts ? s.pts.toFixed(1) : "--"}
                     </span>
                   </div>
                   <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
                     <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">篮板</span>
                     <span className="text-xs font-semibold leading-tight text-slate-800 dark:text-zinc-200">
-                      {s.reb ? s.reb.toFixed(1) : "--"}
+                      {s.gp > 0 && s.reb !== undefined ? s.reb.toFixed(1) : "--"}
                     </span>
                   </div>
                   <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
                     <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">助攻</span>
                     <span className="text-xs font-semibold leading-tight text-slate-800 dark:text-zinc-200">
-                      {s.ast ? s.ast.toFixed(1) : "--"}
+                      {s.gp > 0 && s.ast !== undefined ? s.ast.toFixed(1) : "--"}
                     </span>
                   </div>
                   <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
                     <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">抢断</span>
                     <span className="text-xs font-medium leading-tight text-slate-700 dark:text-zinc-300">
-                      {s.stl ? s.stl.toFixed(1) : "--"}
+                      {s.gp > 0 && s.stl !== undefined ? s.stl.toFixed(1) : "--"}
                     </span>
                   </div>
                   <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
                     <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">投篮</span>
                     <span className="text-xs font-medium leading-tight text-slate-700 dark:text-zinc-300">
-                      {s.fgPct ? `${s.fgPct.toFixed(0)}%` : "--"}
+                      {s.gp > 0 && s.fgPct ? `${s.fgPct.toFixed(0)}%` : "--"}
                     </span>
                   </div>
                   <div className="flex flex-col items-center justify-center min-w-0 border-l border-slate-200/50 dark:border-white/5">
                     <span className="text-[10px] font-sans text-slate-400 dark:text-zinc-500">三分</span>
                     <span className="text-xs font-medium leading-tight text-slate-700 dark:text-zinc-300">
-                      {s.threePtPct ? `${s.threePtPct.toFixed(0)}%` : "--"}
+                      {s.gp > 0 && s.threePtPct ? `${s.threePtPct.toFixed(0)}%` : "--"}
                     </span>
                   </div>
                 </div>

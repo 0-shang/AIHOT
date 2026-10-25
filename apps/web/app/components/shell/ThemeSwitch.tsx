@@ -28,6 +28,12 @@ export function ThemeSwitch({ className = "" }: { className?: string }) {
       document.documentElement.style.backgroundColor = c;
       const m = document.getElementById("theme-color-meta");
       if (m) m.setAttribute("content", c);
+      try {
+        const bridge = (window as unknown as { AndroidBridge?: { onThemeChange?: (t: string) => void } }).AndroidBridge;
+        if (bridge && typeof bridge.onThemeChange === "function") {
+          bridge.onThemeChange(res);
+        }
+      } catch {}
     };
     const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
     if (doc.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) doc.startViewTransition(apply);
