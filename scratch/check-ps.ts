@@ -2,19 +2,18 @@ import { Client } from 'ssh2';
 
 const conn = new Client();
 conn.on('ready', () => {
-  conn.exec('ps aux | grep -E "bubblewrap|docker"', (err, stream) => {
+  conn.exec('ps -eo pid,pcpu,pmem,args --sort=-pcpu | head -n 25', (err, stream) => {
     if (err) throw err;
-    let out = '';
-    stream.on('data', (d: Buffer) => out += d.toString());
-    stream.stderr.on('data', (d: Buffer) => out += d.toString());
+    stream.on('data', d => process.stdout.write(d.toString()));
     stream.on('close', () => {
-      console.log('Process list:\n' + out);
       conn.end();
+      process.exit(0);
     });
   });
-}).connect({
+}).on('error', console.error).connect({
   host: '45.32.112.31',
   port: 22,
   username: 'root',
-  password: 'sN6,{U@hhw+SuoLU'
+  password: 'sN6,{U@hhw+SuoLU',
+  readyTimeout: 30000
 });

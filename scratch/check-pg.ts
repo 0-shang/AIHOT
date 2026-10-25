@@ -12,9 +12,10 @@ conn.on('ready', () => {
       process.exit(0);
     });
   });
-}).connect({
+}).on('error', console.error).connect({
   host: '45.32.112.31',
   port: 22,
   username: 'root',
-  password: 'sN6,{U@hhw+SuoLU'
+  password: 'sN6,{U@hhw+SuoLU',
+  readyTimeout: 30000
 });
